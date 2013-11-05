@@ -41,9 +41,10 @@ public class Blob {
   {
     buffer_ = buffer.slice();
   }
-  
+
   /**
-   * Return the read-only ByteBuffer using asReadOnlyBuffer(), or null if the pointer is null.
+   * Get the read-only ByteBuffer.
+   * @return The read-only ByteBuffer using asReadOnlyBuffer(), or null if the pointer is null.
    */
   public ByteBuffer buf() 
   { 
@@ -54,25 +55,58 @@ public class Blob {
     else
       return null;
   }
-  
+
   /**
-   * Return the length (limit) of the ByteBuffer, or 0 if the pointer is null.
+   * Get the size of the buffer.
+   * @return The length (remaining) of the ByteBuffer, or 0 if the pointer is null.
    */
   public int size() 
   { 
     if (buffer_ != null)
-      return buffer_.limit(); 
+      return buffer_.remaining(); 
     else
       return 0;
   }
   
   /**
-   * Return true if the buffer pointer is null.
+   * Check if the buffer pointer is null.
+   * @return True if the buffer pointer is null, otherwise false.
    */
   public boolean isNull()
   {
     return buffer_ == null;
   }
   
-  private ByteBuffer buffer_;
+  /**
+   * Return a hex string of buf() from position to limit.
+   * @return A string of hex bytes, or "" if the buffer is null.
+   */
+  public String toHex()
+  {
+    if (buffer_ == null)
+      return "";
+    else
+      return toHex(buffer_);
+  }
+  
+  /**
+   * Return a hex string of the contents of buffer from position to limit.
+   * @param buffer The buffer.
+   * @return A string of hex bytes.
+   */
+  public static String toHex(ByteBuffer buffer)
+  {
+    StringBuilder output = new StringBuilder(buffer.remaining() * 2);
+    for (int i = buffer.position(); i < buffer.limit(); ++i) {
+      String hex = Integer.toHexString((int)buffer.get(i) & 0xff).toUpperCase();
+      if (hex.length() <= 1)
+        // Append the leading zero.
+        output.append("0");
+      output.append(hex);
+    }
+    
+    return output.toString();
+  }
+  
+  private final ByteBuffer buffer_;
 }
