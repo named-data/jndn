@@ -43,6 +43,17 @@ public class Blob {
   }
 
   /**
+   * Create a new Blob with a copy of the bytes in the array.
+   * @param value The byte array to copy.
+   */
+  public Blob(byte[] value)
+  {
+    buffer_ = ByteBuffer.allocate(value.length);
+    buffer_.put(value);
+    buffer_.flip();
+  }
+  
+  /**
    * Get the read-only ByteBuffer.
    * @return The read-only ByteBuffer using asReadOnlyBuffer(), or null if the pointer is null.
    */
