@@ -58,8 +58,23 @@ public class SignedBlob extends Blob {
     super(buffer);
     signedPortionBeginOffset_ = signedPortionBeginOffset;
     signedPortionEndOffset_ = signedPortionEndOffset;
+    setSignedBuffer();
   }
-  
+
+  /**
+   * Create a new SignedBlob with a copy of the bytes in the array.
+   * @param value The byte array to copy.
+   * @param signedPortionBeginOffset The offset in the buffer of the beginning of the signed portion.
+   * @param signedPortionEndOffset The offset in the buffer of the end of the signed portion.
+   */
+  public SignedBlob(byte[] value, int signedPortionBeginOffset, int signedPortionEndOffset)
+  {
+    super(value);
+    signedPortionBeginOffset_ = signedPortionBeginOffset;
+    signedPortionEndOffset_ = signedPortionEndOffset;
+    setSignedBuffer();
+  }
+
   /**
    * Return the length of the signed portion of the immutable byte buffer, or null if the pointer is null.
    */
