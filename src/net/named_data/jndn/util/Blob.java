@@ -32,14 +32,28 @@ public class Blob {
   }
   
   /**
-   * Create a new Blob from an existing ByteBuffer.  IMPORTANT: After calling this constructor,
-   * if you keep a pointer to the buffer then you must treat it as immutable and promise not to change it.
-   * @param buffer The existing ByteBuffer.  This calls buffer.slice(), so it is important that the buffer
-   * position and limit are correct.
+   * Create a new Blob from an existing ByteBuffer.  IMPORTANT: If copy is false,
+   * after calling this constructor, if you keep a pointer to the buffer then you 
+   * must treat it as immutable and promise not to change it.
+   * @param buffer The existing ByteBuffer.  It is important that the buffer position 
+   * and limit are correct.
+   * @param copy If true, copy the contents into a new byte array.  If false,
+   * just take a slice which uses the existing byte array in buffer.
    */
-  public Blob(ByteBuffer buffer)
+  public Blob(ByteBuffer buffer, boolean copy)
   {
-    buffer_ = buffer.slice();
+    if (copy) {
+      buffer_ = ByteBuffer.allocate(buffer.remaining());
+      
+      // Put updates buffer.position(), so save and restore it.
+      int savePosition = buffer.position();
+      buffer_.put(buffer);
+      buffer.position(savePosition);
+      
+      buffer_.flip();
+    }
+    else
+      buffer_ = buffer.slice();
   }
 
   /**

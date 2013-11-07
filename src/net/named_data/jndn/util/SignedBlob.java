@@ -26,7 +26,7 @@ public class SignedBlob extends Blob {
    */
   public SignedBlob(SignedBlob signedBlob)
   {
-    super(signedBlob.buf());
+    super(signedBlob.buf(), false);
     signedPortionBeginOffset_ = signedBlob.signedPortionBeginOffset_;
     signedPortionEndOffset_ = signedBlob.signedPortionEndOffset_;
     setSignedBuffer();
@@ -47,15 +47,21 @@ public class SignedBlob extends Blob {
   }
   
   /**
-   * Create a new SignedBlob from an existing ByteBuffer.  IMPORTANT: After calling this constructor,
-   * if you keep a pointer to the buffer then you must treat it as immutable and promise not to change it.
-   * @param buffer The existing ByteBuffer.  This takes another reference by calling buffer.asReadOnlyBuffer(). 
+   * Create a new SignedBlob from an existing ByteBuffer.  IMPORTANT: If copy is false,
+   * after calling this constructor, if you keep a pointer to the buffer then you 
+   * must treat it as immutable and promise not to change it.
+   * @param buffer The existing ByteBuffer.  It is important that the buffer position 
+   * and limit are correct.
+   * @param copy If true, copy the contents into a new byte array.  If false,
+   * just take a slice which uses the existing byte array in buffer.
    * @param signedPortionBeginOffset The offset in the buffer of the beginning of the signed portion.
    * @param signedPortionEndOffset The offset in the buffer of the end of the signed portion.
    */
-  public SignedBlob(ByteBuffer buffer, int signedPortionBeginOffset, int signedPortionEndOffset)
+  public SignedBlob
+    (ByteBuffer buffer, boolean copy, int signedPortionBeginOffset, 
+     int signedPortionEndOffset)
   {
-    super(buffer);
+    super(buffer, copy);
     signedPortionBeginOffset_ = signedPortionBeginOffset;
     signedPortionEndOffset_ = signedPortionEndOffset;
     setSignedBuffer();
@@ -76,7 +82,8 @@ public class SignedBlob extends Blob {
   }
 
   /**
-   * Return the length of the signed portion of the immutable byte buffer, or null if the pointer is null.
+   * Get the length of the signed portion of the immutable byte buffer
+   * @return The length of the signed portion, or null if the pointer is null.
    */
   public int 
   signedSize()
@@ -88,7 +95,8 @@ public class SignedBlob extends Blob {
   }
 
   /**
-   * Return a new read-only ByteBuffer for the signed portion of the byte buffer, or null if the pointer is null.
+   * Get a new read-only ByteBuffer for the signed portion of the byte buffer.
+   * @return The new ByteBuffer, or null if the pointer is null.
    */
   public ByteBuffer
   signedBuf()
