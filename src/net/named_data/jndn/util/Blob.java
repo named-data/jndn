@@ -28,7 +28,10 @@ public class Blob {
    */
   public Blob(Blob blob)
   {
-    buffer_ = blob.buffer_;
+    if (blob != null)
+      buffer_ = blob.buffer_;
+    else
+      buffer_ = null;
   }
   
   /**
@@ -42,18 +45,22 @@ public class Blob {
    */
   public Blob(ByteBuffer buffer, boolean copy)
   {
-    if (copy) {
-      buffer_ = ByteBuffer.allocate(buffer.remaining());
-      
-      // Put updates buffer.position(), so save and restore it.
-      int savePosition = buffer.position();
-      buffer_.put(buffer);
-      buffer.position(savePosition);
-      
-      buffer_.flip();
+    if (buffer != null) {
+      if (copy) {
+        buffer_ = ByteBuffer.allocate(buffer.remaining());
+
+        // Put updates buffer.position(), so save and restore it.
+        int savePosition = buffer.position();
+        buffer_.put(buffer);
+        buffer.position(savePosition);
+
+        buffer_.flip();
+      }
+      else
+        buffer_ = buffer.slice();
     }
     else
-      buffer_ = buffer.slice();
+      buffer_ = null;
   }
 
   /**
