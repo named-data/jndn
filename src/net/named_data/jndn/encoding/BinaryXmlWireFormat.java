@@ -7,6 +7,7 @@
 package net.named_data.jndn.encoding;
 
 import net.named_data.jndn.Name;
+import net.named_data.jndn.util.Blob;
 
 public class BinaryXmlWireFormat extends WireFormat {
   private void
@@ -30,7 +31,8 @@ public class BinaryXmlWireFormat extends WireFormat {
         // No more components.
         break;
 
-      //name.append(decoder.readBinaryDTagElement(BinaryXml.DTag_Component, false));
+      name.append
+        (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component, false), true));
     }
 
     decoder.readElementClose();
