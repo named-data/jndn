@@ -19,11 +19,21 @@ public class Name {
    */
   public class Component {
     /**
+     * Create a new Name.Component where the Blob buf() pointer is null.
+     */
+    public Component() 
+    {
+      value_ = new Blob();
+    }
+    
+    /**
      * Create a new Name.Component, using the existing the Blob value.
-     * @param value The component value.
+     * @param value The component value.  value may not be null, but value.buf() may be null.
      */
     public Component(Blob value)
     {
+      if (value == null)
+        throw new Error("Component: Blob value may not be null");
       value_ = value;
     }
     
