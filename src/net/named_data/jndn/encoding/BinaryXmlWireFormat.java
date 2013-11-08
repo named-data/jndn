@@ -10,7 +10,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.util.Blob;
 
 public class BinaryXmlWireFormat extends WireFormat {
-  private void
+  private static void
   encodeName(Name name, BinaryXmlEncoder encoder)
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_Name);
@@ -21,7 +21,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     encoder.writeElementClose();
   }
   
-  private void
+  private static void
   decodeName(Name name, BinaryXmlDecoder decoder) throws EncodingException
   {
     decoder.readElementStartDTag(BinaryXml.DTag_Name);
