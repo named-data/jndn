@@ -343,10 +343,5 @@ public class BinaryXmlDecoder {
     return result;
   }
   
-  public static void main(String[] args) 
-  {
-    System.out.println("hello");
-  }
-  
   private final ByteBuffer input_;
 }
