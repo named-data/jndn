@@ -37,6 +37,17 @@ public class Name {
     }
     
     /**
+     * Create a new Name.Component, converting the value to UTF8 bytes.
+     * Note, this does not escape %XX values.  If you need to escape, use
+     * Name.fromEscapedString.
+     * @param value The string to convert to UTF8.
+     */
+    public Component(String value)
+    {
+      value_ = new Blob(value.getBytes());
+    }
+    
+    /**
      * Get the component value.
      * @return The component value.
      */
@@ -86,6 +97,36 @@ public class Name {
   }
   
   /**
+   * Create a new Name, copying the components.
+   * @param components The components to copy.
+   */
+  public Name(ArrayList<Component> components)
+  {
+    components_ = new ArrayList<>(components);
+  }
+
+  /**
+   * Create a new Name, copying the components.
+   * @param components The components to copy.
+   */
+  public Name(Component[] components)
+  {
+    components_ = new ArrayList<>();
+    for (int i = 0; i < components.length; ++i)
+      components_.add(components[i]);
+  }
+
+  /**
+   * Parse the uri according to the NDN URI Scheme and create the name with the components.
+   * @param uri The URI string. 
+   */
+  public Name(String uri)
+  {
+    components_ = new ArrayList<>();
+    set(uri);
+  }
+  
+  /**
    * Get the number of components.
    * @return The number of components.
    */
@@ -99,6 +140,57 @@ public class Name {
    */
   public final Component 
   get(int i) { return components_.get(i); }
+  
+  public final void 
+  set(String uri) 
+  {
+    components_.clear();
+
+    uri = uri.trim();
+    if (uri.length() == 0)
+      return;
+
+    int iColon = uri.indexOf(':');
+    if (iColon >= 0) {
+      // Make sure the colon came before a '/'.
+      int iFirstSlash = uri.indexOf('/');
+      if (iFirstSlash < 0 || iColon < iFirstSlash)
+        // Omit the leading protocol such as ndn:
+        uri = uri.substring(iColon + 1).trim();
+    }
+
+    // Trim the leading slash and possibly the authority.
+    if (uri.charAt(0) == '/') {
+      if (uri.length() >= 2 && uri.charAt(1) == '/') {
+        // Strip the authority following "//".
+        int iAfterAuthority = uri.indexOf('/', 2);
+        if (iAfterAuthority < 0)
+          // Unusual case: there was only an authority.
+          return;
+        else
+          uri = uri.substring(iAfterAuthority + 1).trim();
+      }
+      else
+        uri = uri.substring(1).trim();
+    }
+
+    int iComponentStart = 0;
+
+    // Unescape the components.
+    while (iComponentStart < uri.length()) {
+      int iComponentEnd = uri.indexOf("/", iComponentStart);
+      if (iComponentEnd < 0)
+        iComponentEnd = uri.length();
+
+      Component component = new Component
+        (fromEscapedString(uri, iComponentStart, iComponentEnd));
+      // Ignore illegal components.  This also gets rid of a trailing '/'.
+      if (!component.getValue().isNull())
+        components_.add(component);
+
+      iComponentStart = iComponentEnd + 1;
+    }
+  }
   
   /**
    * Clear all the components.
@@ -154,6 +246,92 @@ public class Name {
   
     return this;
   }
+
+      /**
+     * Create a new Name.Component, converting the value to UTF8 bytes.
+     * Note, this does not escape %XX values.  If you need to escape, use
+     * Name.fromEscapedString.
+     * @param value The string to convert to UTF8.
+     */
+
+  /**
+   * Convert the value to UTF8 bytes and append a Name.Component.
+   * Note, this does not escape %XX values.  If you need to escape, use
+   * Name.fromEscapedString.  Also, if the string has "/", this does not split
+   * into separate components.  If you need that then use append(new Name(value)).
+   * @param value The string to convert to UTF8.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name 
+  append(String value)
+  {
+    components_.add(new Component(value));
+    return this;
+  }
+
+  /**
+   * Get a new name, constructed as a subset of components.
+   * @param iStartComponent The index if the first component to get.
+   * @param nComponents The number of components starting at iStartComponent.
+   * @return A new name.
+   */
+  public final Name
+  getSubName(int iStartComponent, int nComponents)
+  {
+    Name result = new Name();
+
+    int iEnd = iStartComponent + nComponents;
+    for (int i = iStartComponent; i < iEnd && i < components_.size(); ++i)
+      result.components_.add(components_.get(i));
+
+    return result;
+  }
+  
+  /**
+   * Get a new name, constructed as a subset of components starting at iStartComponent until the end of the name.
+   * @param iStartComponent The index if the first component to get.
+   * @return A new name. 
+   */
+  public final Name
+  getSubName(int iStartComponent)
+  {
+    Name result = new Name();
+
+    for (int i = iStartComponent; i < components_.size(); ++i)
+      result.components_.add(components_.get(i));
+
+    return result;
+  }
+  
+  /**
+   * Return a new Name with the first nComponents components of this Name.
+   * @param nComponents The number of prefix components.
+   * @return A new Name. 
+   */
+  public final Name
+  getPrefix(int nComponents)
+  {
+    return getSubName(0, nComponents);
+  }
+  
+  /**
+   * Encode this name as a URI according to the NDN URI Scheme.
+   * @return The URI string.
+   */
+  public final String 
+  toUri()
+  {
+    if (components_.isEmpty())
+      return "/";
+
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < components_.size(); ++i) {
+      result.append("/");
+      toEscapedString(components_.get(i).getValue().buf(), result);
+    }
+
+    return result.toString();
+  }
   
   /**
    * Make a Blob value by decoding the escapedString between beginOffset and 
@@ -170,12 +348,12 @@ public class Name {
   fromEscapedString(String escapedString, int beginOffset, int endOffset)
   {
     String trimmedString = escapedString.substring(beginOffset, endOffset).trim();
-    String value = unescape(trimmedString);
+    ByteBuffer value = unescape(trimmedString);
 
     // Check for all dots.
     boolean gotNonDot = false;
-    for (int i = 0; i < value.length(); ++i) {
-      if (value.charAt(i) != '.') {
+    for (int i = value.position(); i < value.limit(); ++i) {
+      if (value.get(i) != '.') {
         gotNonDot = true;
         break;
       }
@@ -183,15 +361,17 @@ public class Name {
     
     if (!gotNonDot) {
       // Special case for component of only periods.  
-      if (value.length() <= 2)
+      if (value.remaining() <= 2)
         // Zero, one or two periods is illegal.  Ignore this component.
         return new Blob();
-      else
+      else {
         // Remove 3 periods.
-        return new Blob(value.substring(3).getBytes());
+        value.position(value.position() + 3);
+        return new Blob(value, false);
+      }
     }
     else
-      return new Blob(value.getBytes());
+      return new Blob(value, false);
   }
 
   /**
@@ -283,12 +463,13 @@ public class Name {
   /**
    * Return a copy of str, converting each escaped "%XX" to the char value.
    * @param str The escaped string.
-   * @return The unescaped string.
+   * @return The unescaped string as a ByteBuffer with position and limit set.
    */
-  private static String 
+  private static ByteBuffer 
   unescape(String str)
   {
-    StringBuilder result = new StringBuilder(str.length());
+    // We know the result will be shorter than the input str.
+    ByteBuffer result = ByteBuffer.allocate(str.length());
 
     for (int i = 0; i < str.length(); ++i) {
       if (str.charAt(i) == '%' && i + 2 < str.length()) {
@@ -297,24 +478,21 @@ public class Name {
 
         if (hi < 0 || lo < 0)
           // Invalid hex characters, so just keep the escaped string.
-          result.append(str.charAt(i)).append(str.charAt(i + 1)).append(str.charAt(i + 2));
+          result.put((byte)str.charAt(i)).put((byte)str.charAt(i + 1)).put
+            ((byte)str.charAt(i + 2));
         else
-          result.append((char)(16 * hi + lo));
+          result.put((byte)(16 * hi + lo));
 
         // Skip ahead past the escaped value.
         i += 2;
       }
       else
         // Just copy through.
-        result.append(str.charAt(i));
+        result.put((byte)str.charAt(i));
     }
 
-    return result.toString();
-  }
-  
-  public static void main(String[] args) 
-  {
-    System.out.println(Name.toEscapedString(Name.)
+    result.flip();
+    return result;
   }
 
   private final ArrayList<Component> components_;
