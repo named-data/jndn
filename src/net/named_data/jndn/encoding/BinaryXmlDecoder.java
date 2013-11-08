@@ -122,13 +122,14 @@ public class BinaryXmlDecoder {
   
   /**
    * Decode the header from the input starting its position, expecting the type to be DTAG and the value to be expectedTag.
-   * Then read one item of any type (presumably BLOB, UDATA, TAG or ATTR) and return a ByteBuffer.
-   * However, if allowNull is true, then the item may be absent.
+   * Then read one item of any type (presumably BLOB, UDATA, TAG or ATTR) and return a 
+   * ByteBuffer. However, if allowNull is true, then the item may be absent.
    * Finally, read the element close.  Update the input's position.
    * @param expectedTag The expected value for DTAG.
    * @param allowNull True if the binary item may be missing.
-   * @return a ByteBuffer which is a slice on the data inside the input buffer. However, if allowNull is true and the
-   * binary data item is absent, then return null.
+   * @return a ByteBuffer which is a slice on the data inside the input buffer. However, 
+   * if allowNull is true and the binary data item is absent, then return a zero-length 
+   * ByteBuffer.
    * @throws EncodingException For invalid encoding including if did not get the expected DTAG.
    */
   public final ByteBuffer
@@ -139,7 +140,7 @@ public class BinaryXmlDecoder {
       if (input_.get(input_.position()) == BinaryXml.CLOSE) {
         // The binary item is missing, and this is allowed, so read the element close and return a null value.
         input_.get();
-        return null;
+        return ByteBuffer.allocate(0);
       }
     }
 
@@ -157,27 +158,190 @@ public class BinaryXmlDecoder {
     return result;
   }
 
-  // ----------------------
-  
-  /*
-  static ndn_Error parseUnsignedDecimalInt(uint8_t *value, size_t valueLength, unsigned int *resultOut)
+  /**
+   * Peek at the next element and if it is the expectedTag, call readBinaryDTagElement.
+   * Otherwise, return a zero-length ByteBuffer.
+   * @param expectedTag The expected value for DTAG.
+   * @param allowNull True if the binary item may be missing.
+   * @return a ByteBuffer which is a slice on the data inside the input buffer. However, 
+   * if the next element is not the expectedTag, or allowNull is true and the binary data 
+   * item is absent, then return a zero-length ByteBuffer.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final ByteBuffer
+  readOptionalBinaryDTagElement(int expectedTag, boolean allowNull) throws EncodingException
   {
-    unsigned int result = 0;
+    if (peekDTag(expectedTag))
+      return readBinaryDTagElement(expectedTag, allowNull);
+    else
+      return ByteBuffer.allocate(0);
+  }
 
-    size_t i;
-    for (i = 0; i < valueLength; ++i) {
-      uint8_t digit = value[i];
-      if (!(digit >= '0' && digit <= '9'))
-        return NDN_ERROR_element_of_value_is_not_a_decimal_digit;
+  /**
+   * Decode the header from the input starting at its position, expecting the type to be 
+   * DTAG and the value to be expectedTag.  Then read one item expecting it to be type 
+   * UDATA, and return a ByteBuffer.  Finally, read the element close.  
+   * Update the input's position.
+   * @param expectedTag The expected value for DTAG.
+   * @return a ByteBuffer which is a slice on the data inside the input buffer.
+   * @throws EncodingException For invalid encoding including if did not get the expected DTAG.
+   */
+  public final ByteBuffer
+  readUDataDTagElement(int expectedTag) throws EncodingException
+  {
+    readElementStartDTag(expectedTag);
 
-      result *= 10;
-      result += (unsigned int)(digit - '0');
+    TypeAndValue typeAndValue = decodeTypeAndValue();
+    if (typeAndValue.getType() != BinaryXml.UDATA)
+      throw new EncodingException("The item is not UDATA");
+
+    // Temporarily set the limit so we can call slice.
+    int saveLimit = input_.limit();
+    input_.limit(input_.position() + typeAndValue.getValue());
+    ByteBuffer result = input_.slice();
+    input_.limit(saveLimit);
+    input_.position(input_.position() + typeAndValue.getValue());
+
+    readElementClose();
+
+    return result;
+  }
+  
+  /**
+   * Peek at the next element and if it is the expectedTag, call readUDataDTagElement.
+   * Otherwise, return a zero-length ByteBuffer.
+   * @param expectedTag The expected value for DTAG.
+   * @return a ByteBuffer which is a slice on the data inside the input buffer. However, 
+   * if the next element is not the expectedTag, return a zero-length ByteBuffer.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final ByteBuffer
+  readOptionalUDataDTagElement(int expectedTag) throws EncodingException
+  {
+    if (peekDTag(expectedTag))
+      return readUDataDTagElement(expectedTag);
+    else
+      return ByteBuffer.allocate(0);
+  }
+
+  /**
+   * Decode the header from the input starting at its position, expecting the type to be 
+   * DTAG and the value to be expectedTag.  Then read one item expecting it to be type 
+   * UDATA, parse it as an unsigned decimal integer and return the integer.
+   * Finally, read the element close. Update the input's position.
+   * @param expectedTag The expected value for DTAG.
+   * @return The parsed integer.
+   * @throws EncodingException For invalid encoding including if did not get the expected 
+   * DTAG or can't parse the decimal integer.
+   */
+  public final int
+  readUnsignedIntegerDTagElement(int expectedTag) throws EncodingException
+  {
+    return parseUnsignedDecimalInt(readUDataDTagElement(expectedTag));
+  }
+
+  /**
+   * Peek at the next element, and if it has the expectedTag then call readUnsignedIntegerDTagElement.
+   * Otherwise, return -1.
+   * @param expectedTag The expected value for DTAG.
+   * @return The parsed integer, or -1 if the next element doesn't have expectedTag.
+   * @throws EncodingException For invalid encoding including if can't parse the 
+   * decimal integer.
+   */
+  public final int
+  readOptionalUnsignedIntegerDTagElement(int expectedTag) throws EncodingException
+  {
+    if (peekDTag(expectedTag))
+      return readUnsignedIntegerDTagElement(expectedTag);
+    else
+      return -1;
+  }
+
+  /**
+   * Decode the header from the input starting at its position, expecting the type to be 
+   * DTAG and the value to be expectedTag.  Then read one item, parse it as an unsigned 
+   * big endian integer in 4096 ticks per second, and convert it to milliseconds.
+   * Finally, read the element close.  Update the input's position.
+   * @param expectedTag The expected value for DTAG.
+   * @return The number of milliseconds.
+   * @throws EncodingException For invalid encoding including if did not get the expected DTAG.
+   */
+  public final double
+  readTimeMillisecondsDTagElement(int expectedTag) throws EncodingException
+  {
+    return 1000.0 * unsignedBigEndianToDouble
+      (readBinaryDTagElement(expectedTag, false)) / 4096.0;
+  }
+  
+  /**
+   * Peek at the next element, and if it has the expectedTag then call 
+   * readTimeMillisecondsDTagElement. Otherwise, return -1.0 .
+   * @param expectedTag The expected value for DTAG.
+   * @return The number of milliseconds, or -1.0 if the next element doesn't have expectedTag.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final double
+  readOptionalTimeMillisecondsDTagElement(int expectedTag) throws EncodingException
+  {
+    if (peekDTag(expectedTag))
+      return readTimeMillisecondsDTagElement(expectedTag);
+    else
+      return -1.0;
+  }
+  
+  /**
+   * Interpret the bytes as an unsigned big endian integer and convert to a double. 
+   * Don't check for overflow.  We use a double because it is large enough to represent 
+   * NDN time (4096 ticks per second since 1970).
+   * @param bytes The ByteBuffer with the value.  This reads from position() to limit().
+   * @return The double value.
+   */
+  public final double
+  unsignedBigEndianToDouble(ByteBuffer bytes) 
+  {
+    double result = 0.0;
+    for (int i = bytes.position(); i < bytes.limit(); ++i) {
+      result *= 256.0;
+      result += (double)((int)bytes.get(i) * 0xff);
     }
 
-    *resultOut = result;
-    return NDN_ERROR_success;
+    return result;
   }
-  */
+  
+  /**
+   * Set the position of the input, used for the next read.
+   * @param position The new position.
+   */
+  public final void
+  seek(int position) 
+  {
+    input_.position(position);
+  }
+  
+  /**
+   * Parse the value as a decimal unsigned integer.  This does not check for whitespace 
+   * or + sign.  If the value length is 0, this returns 0.
+   * @param value The ByteBuffer with the value.  This reads from position() to limit().
+   * @return The parsed integer.
+   * @throws EncodingException For invalid encoding including if an element of the
+   * value is not a decimal digit.
+   */
+  private int
+  parseUnsignedDecimalInt(ByteBuffer value) throws EncodingException
+  {
+    int result = 0;
+
+    for (int i = value.position(); i < value.limit(); ++i) {
+      int digit = (char)value.get(i);
+      if (!(digit >= '0' && digit <= '9'))
+        throw new EncodingException("Element of the value is not a decimal digit:" + digit);
+
+      result *= 10;
+      result += (digit - '0');
+    }
+
+    return result;
+  }
   
   public static void main(String[] args) 
   {
