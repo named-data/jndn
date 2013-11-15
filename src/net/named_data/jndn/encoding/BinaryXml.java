@@ -130,5 +130,5 @@ public class BinaryXml {
   public static final int DTag_SyncConfigSliceOp = 126;
   public static final int DTag_SyncNodeDeltas = 127;
   public static final int DTag_SequenceNumber = 256;
-  public static final int DTag_CCNProtocolDataUnit = 17702112;
+  public static final int DTag_NDNProtocolDataUnit = 20587744; // the encoded empty element, viewed as a string is "NDN\202\000"
 }
