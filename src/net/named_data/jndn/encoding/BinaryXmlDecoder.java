@@ -132,8 +132,7 @@ public class BinaryXmlDecoder {
    * @param expectedTag The expected value for DTAG.
    * @param allowNull True if the binary item may be missing.
    * @return a ByteBuffer which is a slice on the data inside the input buffer. However, 
-   * if allowNull is true and the binary data item is absent, then return a zero-length 
-   * ByteBuffer.
+   * if allowNull is true and the binary data item is absent, then return null.
    * @throws EncodingException For invalid encoding including if did not get the expected DTAG.
    */
   public final ByteBuffer
@@ -144,7 +143,7 @@ public class BinaryXmlDecoder {
       if (input_.get(input_.position()) == BinaryXml.CLOSE) {
         // The binary item is missing, and this is allowed, so read the element close and return a null value.
         input_.get();
-        return ByteBuffer.allocate(0);
+        return null;
       }
     }
 
@@ -164,12 +163,12 @@ public class BinaryXmlDecoder {
 
   /**
    * Peek at the next element and if it is the expectedTag, call readBinaryDTagElement.
-   * Otherwise, return a zero-length ByteBuffer.
+   * Otherwise, return null.
    * @param expectedTag The expected value for DTAG.
    * @param allowNull True if the binary item may be missing.
    * @return a ByteBuffer which is a slice on the data inside the input buffer. However, 
    * if the next element is not the expectedTag, or allowNull is true and the binary data 
-   * item is absent, then return a zero-length ByteBuffer.
+   * item is absent, then return null.
    * @throws EncodingException For invalid encoding.
    */
   public final ByteBuffer
@@ -178,7 +177,7 @@ public class BinaryXmlDecoder {
     if (peekDTag(expectedTag))
       return readBinaryDTagElement(expectedTag, allowNull);
     else
-      return ByteBuffer.allocate(0);
+      return null;
   }
 
   /**
@@ -213,10 +212,10 @@ public class BinaryXmlDecoder {
   
   /**
    * Peek at the next element and if it is the expectedTag, call readUDataDTagElement.
-   * Otherwise, return a zero-length ByteBuffer.
+   * Otherwise, return null.
    * @param expectedTag The expected value for DTAG.
    * @return a ByteBuffer which is a slice on the data inside the input buffer. However, 
-   * if the next element is not the expectedTag, return a zero-length ByteBuffer.
+   * if the next element is not the expectedTag, return null.
    * @throws EncodingException For invalid encoding.
    */
   public final ByteBuffer
@@ -225,7 +224,7 @@ public class BinaryXmlDecoder {
     if (peekDTag(expectedTag))
       return readUDataDTagElement(expectedTag);
     else
-      return ByteBuffer.allocate(0);
+      return null;
   }
 
   /**
