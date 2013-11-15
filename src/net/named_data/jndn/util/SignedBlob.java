@@ -16,7 +16,8 @@ public class SignedBlob extends Blob {
   /**
    * Create a new SignedBlob with a null pointer and 0 for the offsets.
    */
-  public SignedBlob()
+  public 
+  SignedBlob()
   {  
   }
   
@@ -24,7 +25,8 @@ public class SignedBlob extends Blob {
    * Create a new SignedBlob as a copy of the given signedBlob.
    * @param signedBlob The SignedBlob to copy.
    */
-  public SignedBlob(SignedBlob signedBlob)
+  public 
+  SignedBlob(SignedBlob signedBlob)
   {
     super(signedBlob.buf(), false);
     signedPortionBeginOffset_ = signedBlob.signedPortionBeginOffset_;
@@ -38,7 +40,8 @@ public class SignedBlob extends Blob {
    * @param signedPortionBeginOffset The offset in the buffer of the beginning of the signed portion.
    * @param signedPortionEndOffset The offset in the buffer of the end of the signed portion.
    */
-  public SignedBlob(Blob blob, int signedPortionBeginOffset, int signedPortionEndOffset)
+  public 
+  SignedBlob(Blob blob, int signedPortionBeginOffset, int signedPortionEndOffset)
   {
     super(blob);
     signedPortionBeginOffset_ = signedPortionBeginOffset;
@@ -57,9 +60,8 @@ public class SignedBlob extends Blob {
    * @param signedPortionBeginOffset The offset in the buffer of the beginning of the signed portion.
    * @param signedPortionEndOffset The offset in the buffer of the end of the signed portion.
    */
-  public SignedBlob
-    (ByteBuffer buffer, boolean copy, int signedPortionBeginOffset, 
-     int signedPortionEndOffset)
+  public 
+  SignedBlob(ByteBuffer buffer, boolean copy, int signedPortionBeginOffset, int signedPortionEndOffset)
   {
     super(buffer, copy);
     signedPortionBeginOffset_ = signedPortionBeginOffset;
@@ -73,7 +75,8 @@ public class SignedBlob extends Blob {
    * @param signedPortionBeginOffset The offset in the buffer of the beginning of the signed portion.
    * @param signedPortionEndOffset The offset in the buffer of the end of the signed portion.
    */
-  public SignedBlob(byte[] value, int signedPortionBeginOffset, int signedPortionEndOffset)
+  public 
+  SignedBlob(byte[] value, int signedPortionBeginOffset, int signedPortionEndOffset)
   {
     super(value);
     signedPortionBeginOffset_ = signedPortionBeginOffset;
@@ -112,7 +115,8 @@ public class SignedBlob extends Blob {
   /**
    * Set up signedBuffer_ to a slice of buf() based on signedPortionBeginOffset_ and signedPortionEndOffset_.
    */
-  private void setSignedBuffer()
+  private void 
+  setSignedBuffer()
   {
     if (!isNull()) {
       // Note that the result of buf() is already a separate ByteBuffer, so it is OK to change the position.

@@ -18,21 +18,25 @@ public class BinaryXmlDecoder {
    * This calls input.duplicate(), but does not copy the underlying buffer whose contents must remain valid during 
    * the life of this object.
    */
-  public BinaryXmlDecoder(ByteBuffer input)
+  public 
+  BinaryXmlDecoder(ByteBuffer input)
   {
     input_ = input.duplicate();        
   }
   
   public class TypeAndValue {
-    public TypeAndValue(int type, int value)
+    public 
+    TypeAndValue(int type, int value)
     {
       type_ = type;
       value_ = value;
     }
     
-    int getType() { return type_; }
+    int 
+    getType() { return type_; }
     
-    int getValue() { return value_; }
+    int 
+    getValue() { return value_; }
     
     private int type_;
     private int value_;

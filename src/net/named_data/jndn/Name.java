@@ -22,7 +22,8 @@ public class Name {
     /**
      * Create a new Name.Component where the Blob buf() pointer is null.
      */
-    public Component() 
+    public 
+    Component() 
     {
       value_ = new Blob();
     }
@@ -31,10 +32,11 @@ public class Name {
      * Create a new Name.Component, using the existing the Blob value.
      * @param value The component value.  value may not be null, but value.buf() may be null.
      */
-    public Component(Blob value)
+    public 
+    Component(Blob value)
     {
       if (value == null)
-        throw new Error("Component: Blob value may not be null");
+        throw new NullPointerException("Component: Blob value may not be null");
       value_ = value;
     }
     
@@ -42,7 +44,8 @@ public class Name {
      * Create a new Name.Component, copying the given value.
      * @param value The value byte array.
      */
-    public Component(byte[] value)
+    public 
+    Component(byte[] value)
     {
       value_ = new Blob(value);
     }
@@ -53,7 +56,8 @@ public class Name {
      * Name.fromEscapedString.
      * @param value The string to convert to UTF8.
      */
-    public Component(String value)
+    public 
+    Component(String value)
     {
       value_ = new Blob(value.getBytes());
     }
@@ -236,7 +240,8 @@ public class Name {
   /**
    * Create a new Name with no components.
    */
-  public Name()
+  public 
+  Name()
   {
     components_ = new ArrayList<>();          
   }
@@ -245,7 +250,8 @@ public class Name {
    * Create a new Name with the components in the given name.
    * @param name The name with components to copy from.
    */
-  public Name(Name name)
+  public 
+  Name(Name name)
   {
     components_ = new ArrayList<>(name.components_);
   }
@@ -254,7 +260,8 @@ public class Name {
    * Create a new Name, copying the components.
    * @param components The components to copy.
    */
-  public Name(ArrayList<Component> components)
+  public 
+  Name(ArrayList<Component> components)
   {
     components_ = new ArrayList<>(components);
   }
@@ -263,7 +270,8 @@ public class Name {
    * Create a new Name, copying the components.
    * @param components The components to copy.
    */
-  public Name(Component[] components)
+  public 
+  Name(Component[] components)
   {
     components_ = new ArrayList<>();
     for (int i = 0; i < components.length; ++i)
@@ -274,7 +282,8 @@ public class Name {
    * Parse the uri according to the NDN URI Scheme and create the name with the components.
    * @param uri The URI string. 
    */
-  public Name(String uri)
+  public 
+  Name(String uri)
   {
     components_ = new ArrayList<>();
     set(uri);

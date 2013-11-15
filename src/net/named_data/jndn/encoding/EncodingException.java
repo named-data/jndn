@@ -7,7 +7,8 @@
 package net.named_data.jndn.encoding;
 
 public class EncodingException extends Exception {
-  public EncodingException(String message) 
+  public 
+  EncodingException(String message) 
   {
     super(message);
   }

@@ -17,7 +17,8 @@ public class Blob {
   /**
    * Create a new Blob with a null pointer.
    */
-  public Blob()
+  public 
+  Blob()
   {
     buffer_ = null;
   }
@@ -26,7 +27,8 @@ public class Blob {
    * Create a new Blob and take another pointer to the given blob's buffer.
    * @param blob The Blob from which we take another pointer to the same buffer.
    */
-  public Blob(Blob blob)
+  public 
+  Blob(Blob blob)
   {
     if (blob != null)
       buffer_ = blob.buffer_;
@@ -43,7 +45,8 @@ public class Blob {
    * @param copy If true, copy the contents into a new byte array.  If false,
    * just take a slice which uses the existing byte array in buffer.
    */
-  public Blob(ByteBuffer buffer, boolean copy)
+  public 
+  Blob(ByteBuffer buffer, boolean copy)
   {
     if (buffer != null) {
       if (copy) {
@@ -67,7 +70,8 @@ public class Blob {
    * Create a new Blob with a copy of the bytes in the array.
    * @param value The byte array to copy.
    */
-  public Blob(byte[] value)
+  public 
+  Blob(byte[] value)
   {
     buffer_ = ByteBuffer.allocate(value.length);
     buffer_.put(value);
@@ -78,7 +82,8 @@ public class Blob {
    * Get the read-only ByteBuffer.
    * @return The read-only ByteBuffer using asReadOnlyBuffer(), or null if the pointer is null.
    */
-  public ByteBuffer buf() 
+  public ByteBuffer 
+  buf() 
   { 
     if (buffer_ != null)
       // We call asReadOnlyBuffer each time because it is still allowed to change the position and
@@ -92,7 +97,8 @@ public class Blob {
    * Get the size of the buffer.
    * @return The length (remaining) of the ByteBuffer, or 0 if the pointer is null.
    */
-  public int size() 
+  public int 
+  size() 
   { 
     if (buffer_ != null)
       return buffer_.remaining(); 
@@ -104,7 +110,8 @@ public class Blob {
    * Check if the buffer pointer is null.
    * @return True if the buffer pointer is null, otherwise false.
    */
-  public boolean isNull()
+  public boolean 
+  isNull()
   {
     return buffer_ == null;
   }
@@ -113,7 +120,8 @@ public class Blob {
    * Return a hex string of buf() from position to limit.
    * @return A string of hex bytes, or "" if the buffer is null.
    */
-  public String toHex()
+  public String 
+  toHex()       
   {
     if (buffer_ == null)
       return "";
@@ -126,7 +134,8 @@ public class Blob {
    * @param buffer The buffer.
    * @return A string of hex bytes.
    */
-  public static String toHex(ByteBuffer buffer)
+  public static String 
+  toHex(ByteBuffer buffer)
   {
     StringBuilder output = new StringBuilder(buffer.remaining() * 2);
     for (int i = buffer.position(); i < buffer.limit(); ++i) {
