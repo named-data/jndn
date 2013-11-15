@@ -25,7 +25,17 @@ public class BinaryXmlEncoder {
     output_ = output;
     initialPosition_ = output_.position();
   }
-  
+
+  /**
+   * Create a new BinaryXmlEncoder with a default DynamicByteBuffer for the output buffer.  When done, call getOutput().
+   */
+  public 
+  BinaryXmlEncoder()
+  {
+    output_ = new DynamicByteBuffer(16);
+    initialPosition_ = output_.position();
+  }
+
   /**
    * Return a slice of the output buffer from the initial position up to the current position.
    * @return A ByteBuffer which shares the same underlying buffer with the output buffer.
