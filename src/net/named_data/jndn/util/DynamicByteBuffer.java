@@ -69,7 +69,8 @@ public class DynamicByteBuffer {
   }
   
   /**
-   * Call ensureCapacity to ensure there is capacity for 1 more byte and call buffer().put(b);
+   * Call ensureCapacity to ensure there is capacity for 1 more byte and call buffer().put(b).
+   * This increments the position by 1.
    * @param b The byte to put.
    */
   public void 
@@ -80,12 +81,63 @@ public class DynamicByteBuffer {
   }
 
   /**
+   * Call ensureCapacity to ensure there is capacity for buffer.remaining() more bytes and use buffer().put to copy.
+   * This increments the position by (limit - position).
+   * This does update buffer's position to its limit.
+   * @param buffer The buffer to copy from.  This does not change buffer.position() or buffer.limit().
+   */
+  public void 
+  ensuredPut(ByteBuffer buffer)
+  {
+    ensureRemainingCapacity(buffer.remaining());
+    buffer_.put(buffer);
+  }
+
+  /**
+   * Call ensureCapacity to ensure there is capacity for (limit - position) more bytes and use buffer().put to copy.
+   * This increments the position by (limit - position).
+   * @param buffer The buffer to copy from.  This does not change buffer.position() or buffer.limit().
+   * @param position The position in buffer to copy from.
+   * @param limit The limit in buffer to copy from.
+   */
+  public void 
+  ensuredPut(ByteBuffer buffer, int position, int limit)
+  {
+    ensureRemainingCapacity(limit - position);
+    int savePosition = buffer.position();
+    int saveLimit = buffer.limit();
+    try {
+      buffer.position(position);
+      buffer.limit(limit);
+      buffer_.put(buffer);
+    }
+    finally {
+      // put updates buffer's position and limit, so restore.
+      buffer.position(savePosition);
+      buffer.limit(saveLimit);
+    }
+  }
+
+  /**
    * Return the ByteBuffer.  Note that ensureCapacity can change the returned ByteBuffer. 
    * @return The ByteBuffer.
    */
   public ByteBuffer 
   buffer() { return buffer_; }
 
+  /**
+   * Return a new ByteBuffer which is the flipped version of buffer().  The returned buffer's position is 0 and its
+   * limit is position().
+   * @return A new ByteBuffer
+   */
+  public ByteBuffer
+  flippedBuffer()
+  {
+    ByteBuffer result = buffer_.duplicate();
+    result.flip();
+    return result;
+  }
+  
   /**
    * Return buffer_.position().
    * @return The position.

@@ -275,11 +275,7 @@ public class BinaryXmlEncoder {
   private void 
   writeBuffer(ByteBuffer buffer)
   {
-    output_.ensureRemainingCapacity(buffer.remaining());
-    int savePosition = buffer.position();
-    output_.buffer().put(buffer);
-    // put updates buffer.position(), so restore.
-    buffer.position(savePosition);
+    output_.ensuredPut(buffer, buffer.position(), buffer.limit());
   }
   
   /**
