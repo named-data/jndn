@@ -99,7 +99,8 @@ public class BinaryXmlWireFormat extends WireFormat {
     encoder.writeElementClose();
   }
   
-  private static void
+  // TODO: Make private after finished testing.
+  public static void
   decodeName(Name name, BinaryXmlDecoder decoder) throws EncodingException
   {
     decoder.readElementStartDTag(BinaryXml.DTag_Name);
