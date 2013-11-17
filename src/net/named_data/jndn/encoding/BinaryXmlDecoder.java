@@ -310,6 +310,13 @@ public class BinaryXmlDecoder {
 
     return result;
   }
+
+  /**
+   * Get the current position of the input, used for the next read.
+   * @return The position.
+   */
+  public final int
+  getOffset() { return input_.position(); }
   
   /**
    * Set the position of the input, used for the next read.
