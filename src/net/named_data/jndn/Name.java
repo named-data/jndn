@@ -243,7 +243,7 @@ public class Name {
   public 
   Name()
   {
-    components_ = new ArrayList<>();          
+    components_ = new ArrayList<Component>();          
   }
   
   /**
@@ -253,7 +253,7 @@ public class Name {
   public 
   Name(Name name)
   {
-    components_ = new ArrayList<>(name.components_);
+    components_ = new ArrayList<Component>(name.components_);
   }
   
   /**
@@ -263,7 +263,7 @@ public class Name {
   public 
   Name(ArrayList<Component> components)
   {
-    components_ = new ArrayList<>(components);
+    components_ = new ArrayList<Component>(components);
   }
 
   /**
@@ -273,7 +273,7 @@ public class Name {
   public 
   Name(Component[] components)
   {
-    components_ = new ArrayList<>();
+    components_ = new ArrayList<Component>();
     for (int i = 0; i < components.length; ++i)
       components_.add(components[i]);
   }
@@ -285,7 +285,7 @@ public class Name {
   public 
   Name(String uri)
   {
-    components_ = new ArrayList<>();
+    components_ = new ArrayList<Component>();
     set(uri);
   }
   
