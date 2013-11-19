@@ -13,6 +13,37 @@ import net.named_data.jndn.util.Blob;
  * SHA256-with-RSA signature in a data packet.
  */
 public class Sha256WithRsaSignature extends Signature {
+  /**
+   * Create a new Sha256WithRsaSignature with default values.
+   */
+  public Sha256WithRsaSignature()
+  {  
+  }
+  
+  /**
+   * Create a new Sha256WithRsaSignature with a copy of the fields in the given signature object.
+   * @param signature The signature object to copy.
+   */
+  public Sha256WithRsaSignature(Sha256WithRsaSignature signature)
+  {
+    digestAlgorithm_ = signature.digestAlgorithm_;
+    witness_ = signature.witness_;
+    signature_ = signature.signature_;
+    publisherPublicKeyDigest_ = new PublisherPublicKeyDigest(signature.publisherPublicKeyDigest_);
+    keyLocator_ = new KeyLocator(signature.keyLocator_);
+  }
+  
+  /**
+   * Return a new Signature which is a deep copy of this signature.
+   * @return A new Sha256WithRsaSignature.
+   * @throws CloneNotSupportedException 
+   */
+  @Override
+  public Object clone() throws CloneNotSupportedException
+  {
+    return new Sha256WithRsaSignature(this);
+  }
+  
   public final Blob 
   getDigestAlgorithm() { return digestAlgorithm_; }
 

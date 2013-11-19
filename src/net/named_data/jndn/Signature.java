@@ -11,4 +11,12 @@ package net.named_data.jndn;
  * You must create an object of a subclass, for example Sha256WithRsaSignature.
  */
 public abstract class Signature {
+  /**
+   * Return a new Signature which is a deep copy of this signature.
+   * This is abstract, the subclass must implement it.
+   * @return A new Sha256WithRsaSignature.
+   * @throws CloneNotSupportedException 
+   */
+  @Override
+  public abstract Object clone() throws CloneNotSupportedException;
 }

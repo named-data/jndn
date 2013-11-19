@@ -10,7 +10,7 @@ import net.named_data.jndn.util.Blob;
 
 public class KeyLocator {
   /**
-   * Create a new KeyLocator with fields set to NONE.
+   * Create a new KeyLocator with default values.
    */
   public KeyLocator()
   {
@@ -37,18 +37,6 @@ public class KeyLocator {
     NONE, PUBLISHER_PUBLIC_KEY_DIGEST, PUBLISHER_CERTIFICATE_DIGEST, PUBLISHER_ISSUER_KEY_DIGEST, PUBLISHER_ISSUER_CERTIFICATE_DIGEST
   }
 
-  /**
-   * Return a deep copy of this KeyLocator.
-   * @return A new KeyLocator.
-   * @throws CloneNotSupportedException 
-   */
-  @Override
-  public Object
-  clone() throws CloneNotSupportedException
-  {
-    return new KeyLocator(this);
-  }
-  
   public final KeyLocatorType 
   getType() { return type_; }
   

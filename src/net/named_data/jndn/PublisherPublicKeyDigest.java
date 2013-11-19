@@ -13,6 +13,22 @@ import net.named_data.jndn.util.Blob;
  * We make a separate class since this is used by multiple other classes.
  */
 public class PublisherPublicKeyDigest {
+  /**
+   * Create a new PublisherPublicKeyDigest with an empty value.
+   */
+  public PublisherPublicKeyDigest()
+  {  
+  }
+
+  /**
+   * Create a new PublisherPublicKeyDigest with a copy of the value in the given publisherPublicKeyDigest.
+   * @param publisherPublicKeyDigest The PublisherPublicKeyDigest to copy.
+   */
+  public PublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest)
+  {  
+    publisherPublicKeyDigest_ = publisherPublicKeyDigest.publisherPublicKeyDigest_;
+  }
+
   public final Blob 
   getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
 

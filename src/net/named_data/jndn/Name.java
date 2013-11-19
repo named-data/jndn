@@ -263,6 +263,7 @@ public class Name {
   public 
   Name(ArrayList<Component> components)
   {
+    // Don't need to deep-copy Component elements because they are read-only.
     components_ = new ArrayList<Component>(components);
   }
 
@@ -287,19 +288,6 @@ public class Name {
   {
     components_ = new ArrayList<Component>();
     set(uri);
-  }
-  
-  /**
-   * Return a deep copy of this name with a copy of the array of components.
-   * @return A new cloned Name.
-   * @throws CloneNotSupportedException
-   */
-  @Override
-  public Object
-  clone() throws CloneNotSupportedException
-  {
-    // Don't need to clone Component because it is read-only.
-    return new Name(this);
   }
   
   /**
