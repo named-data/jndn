@@ -84,7 +84,7 @@ public class Interest {
    * @param wireFormat A WireFormat object used to decode the input.
    * @return The encoded buffer.
    */
-  public Blob 
+  public final Blob 
   wireEncode(WireFormat wireFormat) 
   {
     return wireFormat.encodeInterest(this);
@@ -94,7 +94,7 @@ public class Interest {
    * Encode this Interest for the default wire format WireFormat.getDefaultWireFormat().
    * @return The encoded buffer.
    */
-  public Blob 
+  public final Blob 
   wireEncode() 
   {
     return this.wireEncode(WireFormat.getDefaultWireFormat());
@@ -106,7 +106,7 @@ public class Interest {
    * @param wireFormat A WireFormat object used to decode the input.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public final void 
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
     wireFormat.decodeInterest(this, input);
@@ -117,7 +117,7 @@ public class Interest {
    * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public final void 
   wireDecode(ByteBuffer input) throws EncodingException
   {
     wireDecode(input, WireFormat.getDefaultWireFormat());
@@ -129,7 +129,7 @@ public class Interest {
    * @param wireFormat A WireFormat object used to decode the input.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public final void 
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
     wireDecode(input.buf(), wireFormat);
@@ -140,66 +140,66 @@ public class Interest {
    * @param input The input blob to decode.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public final void 
   wireDecode(Blob input) throws EncodingException
   {
     wireDecode(input.buf());
   }
 
-  public Name
+  public final Name
   getName() { return name_; }
   
-  public int 
+  public final int 
   getMinSuffixComponents() { return minSuffixComponents_; }
   
-  public int 
+  public final int 
   getMaxSuffixComponents() { return maxSuffixComponents_; }
   
-  public PublisherPublicKeyDigest
+  public final PublisherPublicKeyDigest
   getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
   
   /* TODO
-  public Exclude
+  public final Exclude
   getExclude() { return exclude_; }
   */
   
-  public int 
+  public final int 
   getChildSelector() { return childSelector_; }
 
-  public int 
+  public final int 
   getAnswerOriginKind() { return answerOriginKind_; }
 
-  public int 
+  public final int 
   getScope() { return scope_; }
 
-  public double 
+  public final double 
   getInterestLifetimeMilliseconds() { return interestLifetimeMilliseconds_; }
 
-  public Blob
+  public final Blob
   getNonce() { return nonce_; }
 
-  public void
+  public final void
   setName(Name name) { name_ = (name == null ? new Name() : name); }
   
-  public void 
+  public final void 
   setMinSuffixComponents(int minSuffixComponents) { minSuffixComponents_ = minSuffixComponents; }
   
-  public void 
+  public final void 
   setMaxSuffixComponents(int maxSuffixComponents) { maxSuffixComponents_ = maxSuffixComponents; }
   
-  public void 
+  public final void 
   setChildSelector(int childSelector) { childSelector_ = childSelector; }
 
-  public void 
+  public final void 
   setAnswerOriginKind(int answerOriginKind) { answerOriginKind_ = answerOriginKind; }
 
-  public void 
+  public final void 
   setScope(int scope) { scope_ = scope; }
 
-  public void 
+  public final void 
   setInterestLifetimeMilliseconds(double interestLifetimeMilliseconds) { interestLifetimeMilliseconds_ = interestLifetimeMilliseconds; }
 
-  public void 
+  public final void 
   setNonce(Blob nonce) { nonce_ = (nonce == null ? new Blob() : nonce); }
   
   private Name name_ = new Name();

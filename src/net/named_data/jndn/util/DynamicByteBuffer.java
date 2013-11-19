@@ -29,7 +29,7 @@ public class DynamicByteBuffer {
    * Note that this does not copy the mark to the new buffer.
    * @param capacity The minimum needed capacity.
    */
-  public void 
+  public final void 
   ensureCapacity(int capacity)
   {
     if (buffer_.capacity() >= capacity) {
@@ -62,7 +62,7 @@ public class DynamicByteBuffer {
    * Use ensureCapacity to ensure there are remainingCapacity bytes after position().
    * @param remainingCapacity The desired minimum capacity after position().
    */
-  public void 
+  public final void 
   ensureRemainingCapacity(int remainingCapacity) 
   { 
     ensureCapacity(buffer_.position() + remainingCapacity); 
@@ -73,7 +73,7 @@ public class DynamicByteBuffer {
    * This increments the position by 1.
    * @param b The byte to put.
    */
-  public void 
+  public final void 
   ensuredPut(byte b)
   {
     ensureCapacity(buffer_.position() + 1);
@@ -86,7 +86,7 @@ public class DynamicByteBuffer {
    * This does update buffer's position to its limit.
    * @param buffer The buffer to copy from.  This does not change buffer.position() or buffer.limit().
    */
-  public void 
+  public final void 
   ensuredPut(ByteBuffer buffer)
   {
     ensureRemainingCapacity(buffer.remaining());
@@ -100,7 +100,7 @@ public class DynamicByteBuffer {
    * @param position The position in buffer to copy from.
    * @param limit The limit in buffer to copy from.
    */
-  public void 
+  public final void 
   ensuredPut(ByteBuffer buffer, int position, int limit)
   {
     ensureRemainingCapacity(limit - position);
@@ -122,7 +122,7 @@ public class DynamicByteBuffer {
    * Return the ByteBuffer.  Note that ensureCapacity can change the returned ByteBuffer. 
    * @return The ByteBuffer.
    */
-  public ByteBuffer 
+  public final ByteBuffer 
   buffer() { return buffer_; }
 
   /**
@@ -130,7 +130,7 @@ public class DynamicByteBuffer {
    * limit is position().
    * @return A new ByteBuffer
    */
-  public ByteBuffer
+  public final ByteBuffer
   flippedBuffer()
   {
     ByteBuffer result = buffer_.duplicate();
@@ -142,14 +142,14 @@ public class DynamicByteBuffer {
    * Return buffer_.position().
    * @return The position.
    */
-  public int 
+  public final int 
   position() { return buffer_.position(); }
 
   /**
    * Call buffer_.position(newPosition).
    * @param newPosition The new position.
    */
-  public void 
+  public final void 
   position(int newPosition) { buffer_.position(newPosition); }
   
   private ByteBuffer buffer_;       

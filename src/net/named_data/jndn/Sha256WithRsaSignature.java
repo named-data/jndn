@@ -13,37 +13,37 @@ import net.named_data.jndn.util.Blob;
  * SHA256-with-RSA signature in a data packet.
  */
 public class Sha256WithRsaSignature extends Signature {
-  public Blob 
+  public final Blob 
   getDigestAlgorithm() { return digestAlgorithm_; }
 
-  public Blob 
+  public final Blob 
   getWitness() { return witness_; }
 
-  public Blob 
+  public final Blob 
   getSignature() { return signature_; }
   
-  public PublisherPublicKeyDigest 
+  public final PublisherPublicKeyDigest 
   getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
   
-  public KeyLocator 
+  public final KeyLocator 
   getKeyLocator() { return keyLocator_; }
 
-  public void 
+  public final void 
   setDigestAlgorithm(Blob digestAlgorithm) { digestAlgorithm_ = (digestAlgorithm == null ? new Blob() : digestAlgorithm); }
   
-  public void 
+  public final void 
   setWitness(Blob witness) { witness_ = (witness == null ? new Blob() : witness); }
 
-  public void 
+  public final void 
   setSignature(Blob signature) { signature_ = (signature == null ? new Blob() : signature); }
 
-  public void 
+  public final void 
   setPublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest) 
   { 
     publisherPublicKeyDigest_ = (publisherPublicKeyDigest == null ? new PublisherPublicKeyDigest() : publisherPublicKeyDigest); 
   }
   
-  public void 
+  public final void 
   setKeyLocator(KeyLocator keyLocator) { keyLocator_ = (keyLocator == null ? new KeyLocator() : keyLocator); }
 
   private Blob digestAlgorithm_ = new Blob(); /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */

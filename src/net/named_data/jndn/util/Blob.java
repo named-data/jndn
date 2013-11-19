@@ -82,7 +82,7 @@ public class Blob {
    * Get the read-only ByteBuffer.
    * @return The read-only ByteBuffer using asReadOnlyBuffer(), or null if the pointer is null.
    */
-  public ByteBuffer 
+  public final ByteBuffer 
   buf() 
   { 
     if (buffer_ != null)
@@ -97,7 +97,7 @@ public class Blob {
    * Get the size of the buffer.
    * @return The length (remaining) of the ByteBuffer, or 0 if the pointer is null.
    */
-  public int 
+  public final int 
   size() 
   { 
     if (buffer_ != null)
@@ -110,7 +110,7 @@ public class Blob {
    * Check if the buffer pointer is null.
    * @return True if the buffer pointer is null, otherwise false.
    */
-  public boolean 
+  public final boolean 
   isNull()
   {
     return buffer_ == null;
@@ -120,7 +120,7 @@ public class Blob {
    * Return a hex string of buf() from position to limit.
    * @return A string of hex bytes, or "" if the buffer is null.
    */
-  public String 
+  public final String 
   toHex()       
   {
     if (buffer_ == null)

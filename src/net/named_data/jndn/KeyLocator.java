@@ -49,28 +49,28 @@ public class KeyLocator {
     return new KeyLocator(this);
   }
   
-  public KeyLocatorType 
+  public final KeyLocatorType 
   getType() { return type_; }
   
-  public Blob 
+  public final Blob 
   getKeyData() { return keyData_; }
 
-  public Name
+  public final Name
   getKeyName() { return keyName_; }
   
-  public KeyNameType 
+  public final KeyNameType 
   getKeyNameType() { return keyNameType_; }
 
-  public void 
+  public final void 
   setType(KeyLocatorType type) { type_ = type; }
     
-  public void 
+  public final void 
   setKeyData(Blob keyData) { keyData_ = (keyData == null ? new Blob() : keyData_); }
 
-  public void 
+  public final void 
   setKeyName(Name keyName) { keyName_ = (keyName == null ? new Name() : keyName); }
   
-  public void 
+  public final void 
   setKeyNameType(KeyNameType keyNameType) { keyNameType_ = keyNameType; }
 
   private KeyLocatorType type_ = KeyLocatorType.NONE;

@@ -88,7 +88,7 @@ public class SignedBlob extends Blob {
    * Get the length of the signed portion of the immutable byte buffer
    * @return The length of the signed portion, or null if the pointer is null.
    */
-  public int 
+  public final int 
   signedSize()
   {
     if (signedBuffer_ != null)
@@ -101,7 +101,7 @@ public class SignedBlob extends Blob {
    * Get a new read-only ByteBuffer for the signed portion of the byte buffer.
    * @return The new ByteBuffer, or null if the pointer is null.
    */
-  public ByteBuffer
+  public final ByteBuffer
   signedBuf()
   {
     if (signedBuffer_ != null)
