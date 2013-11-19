@@ -157,7 +157,7 @@ public class Data {
   setSignature(Signature signature) 
   { 
     try {
-      signature_ = (signature == null ? (Signature)null : (Signature)signature.clone());
+      signature_ = (signature == null ? new Sha256WithRsaSignature() : (Signature)signature.clone());
     } 
     catch (CloneNotSupportedException e) {
       // We don't expect this to happen, so just treat it as if we got a null pointer.
