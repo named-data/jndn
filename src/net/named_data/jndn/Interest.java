@@ -8,8 +8,8 @@ package net.named_data.jndn;
 
 import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
-import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.util.Blob;
 
 /**
  * An Interest holds a Name and other fields for an interest.
