@@ -740,5 +740,5 @@ public class Name {
     return result;
   }
   
-  private ArrayList<Component> components_;
+  private final ArrayList<Component> components_;
 }

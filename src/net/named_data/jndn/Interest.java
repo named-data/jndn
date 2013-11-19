@@ -179,40 +179,28 @@ public class Interest {
   getNonce() { return nonce_; }
 
   public void
-  setName(Name name) 
-  {
-    if (name != null)
-      name_ = name; 
-    else
-      name_ = new Name();
-  }
+  setName(Name name) { name_ = (name == null ? new Name() : name); }
   
   public void 
-  setMinSuffixComponents(int value) { minSuffixComponents_ = value; }
+  setMinSuffixComponents(int minSuffixComponents) { minSuffixComponents_ = minSuffixComponents; }
   
   public void 
-  setMaxSuffixComponents(int value) { maxSuffixComponents_ = value; }
+  setMaxSuffixComponents(int maxSuffixComponents) { maxSuffixComponents_ = maxSuffixComponents; }
   
   public void 
-  setChildSelector(int value) { childSelector_ = value; }
+  setChildSelector(int childSelector) { childSelector_ = childSelector; }
 
   public void 
-  setAnswerOriginKind(int value) { answerOriginKind_ = value; }
+  setAnswerOriginKind(int answerOriginKind) { answerOriginKind_ = answerOriginKind; }
 
   public void 
-  setScope(int value) { scope_ = value; }
+  setScope(int scope) { scope_ = scope; }
 
   public void 
-  setInterestLifetimeMilliseconds(double value) { interestLifetimeMilliseconds_ = value; }
+  setInterestLifetimeMilliseconds(double interestLifetimeMilliseconds) { interestLifetimeMilliseconds_ = interestLifetimeMilliseconds; }
 
   public void 
-  setNonce(Blob value) 
-  {
-    if (value != null)
-      nonce_ = value; 
-    else
-      nonce_ = new Blob();
-  }
+  setNonce(Blob nonce) { nonce_ = (nonce == null ? new Blob() : nonce); }
   
   private Name name_ = new Name();
   private int minSuffixComponents_ = -1;

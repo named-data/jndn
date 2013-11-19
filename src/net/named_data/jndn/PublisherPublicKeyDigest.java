@@ -17,12 +17,9 @@ public class PublisherPublicKeyDigest {
   getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
 
   public final void 
-  setPublisherPublicKeyDigest(Blob value) 
+  setPublisherPublicKeyDigest(Blob publisherPublicKeyDigest) 
   {
-    if (value != null)
-      publisherPublicKeyDigest_ = value; 
-    else
-      publisherPublicKeyDigest_ = new Blob();
+    publisherPublicKeyDigest_ = (publisherPublicKeyDigest == null ? new Blob() : publisherPublicKeyDigest);
   }
 
   /**
