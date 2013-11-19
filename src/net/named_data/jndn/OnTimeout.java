@@ -7,7 +7,7 @@
 package net.named_data.jndn;
 
 /**
- * A class implements OnTimeout if it has onTimeout, used to pass a callback to expressInterest.
+ * A class implements OnTimeout if it has onTimeout, used to pass a callback to Face.expressInterest.
  * @author jefft0
  */
 public interface OnTimeout {
