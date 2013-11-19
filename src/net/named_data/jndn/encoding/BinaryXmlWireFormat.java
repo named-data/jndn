@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.PublisherPublicKeyDigest;
 
 public class BinaryXmlWireFormat extends WireFormat {
   /**
@@ -48,9 +49,9 @@ public class BinaryXmlWireFormat extends WireFormat {
     encodeName(interest.getName(), encoder);
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MinSuffixComponents, interest.getMinSuffixComponents());
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MaxSuffixComponents, interest.getMaxSuffixComponents());
-    /* TODO
     // This will skip encoding if there is no publisherPublicKeyDigest.
     encodePublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest(), encoder);
+    /* TODO
     // This will skip encoding if there is no exclude.
     encodeExclude(interest.getExclude(), encoder);
      */
@@ -72,8 +73,8 @@ public class BinaryXmlWireFormat extends WireFormat {
     decodeName(interest.getName(), decoder);
     interest.setMinSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MinSuffixComponents));
     interest.setMaxSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MaxSuffixComponents));
+    decodeOptionalPublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest(), decoder);
     /* TODO
-    decodeOptionalPublisherPublicKeyDigest(interest.publisherPublicKeyDigest, decoder);
     if (decoder.peekDTag(BinaryXml.DTag_Exclude))
       decodeExclude(interest.getExclude(), decoder);
     else
@@ -115,5 +116,51 @@ public class BinaryXmlWireFormat extends WireFormat {
     }
 
     decoder.readElementClose();
+  }
+  
+  /**
+   * Encode the PublisherPublicKeyDigest using Binary XML.  If publisherPublicKeyDigest.getPublisherPublicKeyDigest().size()
+   * is 0, then do nothing. 
+   * @param publisherPublicKeyDigest The PublisherPublicKeyDigest to encode.
+   * @param encoder The BinaryXmlEncoder used to encode.
+   */
+  private static void
+  encodePublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest, BinaryXmlEncoder encoder)
+  {  
+    if (publisherPublicKeyDigest.getPublisherPublicKeyDigest().size() <= 0)
+      return;
+
+    encoder.writeBlobDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest, publisherPublicKeyDigest.getPublisherPublicKeyDigest());
+  }
+
+  /**
+   * Expect the next element to be a Binary XML PublisherPublicKeyDigest and decode into publisherPublicKeyDigest.
+   * @param publisherPublicKeyDigest The PublisherPublicKeyDigest to update.
+   * @param decoder The BinaryXmlDecoder used to decode.
+   * @throws EncodingException For invalid encoding.
+   */
+  private static void
+  decodePublisherPublicKeyDigest
+    (PublisherPublicKeyDigest publisherPublicKeyDigest, BinaryXmlDecoder decoder) throws EncodingException
+  {
+    publisherPublicKeyDigest.setPublisherPublicKeyDigest
+      (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest, false), true));
+  }
+
+  /**
+   * Peek the next element and if it is a Binary XML PublisherPublicKeyDigest decode into publisherPublicKeyDigest.
+   * Otherwise, set publisherPublicKeyDigest to none.
+   * @param publisherPublicKeyDigest The PublisherPublicKeyDigest to update.
+   * @param decoder The BinaryXmlDecoder used to decode.
+   * @throws EncodingException For invalid encoding.
+   */
+  private static void
+  decodeOptionalPublisherPublicKeyDigest
+    (PublisherPublicKeyDigest publisherPublicKeyDigest, BinaryXmlDecoder decoder) throws EncodingException
+  {
+    if (decoder.peekDTag(BinaryXml.DTag_PublisherPublicKeyDigest))
+      decodePublisherPublicKeyDigest(publisherPublicKeyDigest, decoder);
+    else
+      publisherPublicKeyDigest.clear();
   }
 }

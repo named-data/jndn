@@ -155,10 +155,10 @@ public class Interest {
   public int 
   getMaxSuffixComponents() { return maxSuffixComponents_; }
   
-  /* TODO
   public PublisherPublicKeyDigest
   getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
   
+  /* TODO
   public Exclude
   getExclude() { return exclude_; }
   */
@@ -217,8 +217,8 @@ public class Interest {
   private Name name_ = new Name();
   private int minSuffixComponents_ = -1;
   private int maxSuffixComponents_ = -1;  
+  private final PublisherPublicKeyDigest publisherPublicKeyDigest_ = new PublisherPublicKeyDigest();
   /* TODO
-  private PublisherPublicKeyDigest publisherPublicKeyDigest_ = new PublisherPublicKeyDigest();
   private Exclude exclude_ = new Exclude();
   */
   private int childSelector_ = -1;
