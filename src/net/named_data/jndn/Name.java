@@ -290,6 +290,19 @@ public class Name {
   }
   
   /**
+   * Return a deep copy of this name with a copy of the array of components.
+   * @return A new cloned Name.
+   * @throws CloneNotSupportedException
+   */
+  @Override
+  public Object
+  clone() throws CloneNotSupportedException
+  {
+    // Don't need to clone Component because it is read-only.
+    return new Name(this);
+  }
+  
+  /**
    * Get the number of components.
    * @return The number of components.
    */
@@ -727,5 +740,5 @@ public class Name {
     return result;
   }
   
-  private final ArrayList<Component> components_;
+  private ArrayList<Component> components_;
 }
