@@ -187,14 +187,14 @@ public class Data {
    * @return This Data so that you can chain calls to update values.
    */
   public final Data 
-  setMetainfo(MetaInfo metaInfo) 
+  setMetaInfo(MetaInfo metaInfo) 
   { 
     metaInfo_ = (metaInfo == null ? new MetaInfo(metaInfo) : metaInfo); 
     onChanged();
     return this;
   }
 
-  Data 
+  public final Data 
   setContent(Blob content) 
   { 
     content_ = (content == null ? new Blob() : content);
