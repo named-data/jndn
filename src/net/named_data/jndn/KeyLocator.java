@@ -61,6 +61,18 @@ public class KeyLocator {
   public final void 
   setKeyNameType(KeyNameType keyNameType) { keyNameType_ = keyNameType; }
 
+  /**
+   * Clear fields and reset to default values.
+   */
+  public final void 
+  clear()
+  {
+    type_ = KeyLocatorType.NONE;
+    keyData_ = new Blob();
+    keyName_ = new Name();
+    keyNameType_ = KeyNameType.NONE;
+  }
+  
   private KeyLocatorType type_ = KeyLocatorType.NONE;
   private Blob keyData_ = new Blob(); /**< A Blob for the key data as follows:
     *   If type_ is KeyLocatorType.KEY, the key data.
