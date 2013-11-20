@@ -7,16 +7,13 @@
 package net.named_data.jndn.tests;
 
 import java.nio.ByteBuffer;
-import net.named_data.jndn.Name;
+import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
-import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.ElementListener;
-import net.named_data.jndn.encoding.BinaryXmlDecoder;
 import net.named_data.jndn.encoding.EncodingException;
-import net.named_data.jndn.encoding.BinaryXmlStructureDecoder;
-import net.named_data.jndn.encoding.BinaryXmlWireFormat;
-import net.named_data.jndn.encoding.BinaryXml;
 import net.named_data.jndn.transport.TcpTransport;
+import net.named_data.jndn.util.Blob;
 
 class Counter implements ElementListener
 {
@@ -26,28 +23,11 @@ class Counter implements ElementListener
     if (element.get(0) == 0x04) {
       ++callbackCount_;
       try {
-        BinaryXmlDecoder decoder = new BinaryXmlDecoder(element);
-        
-        decoder.decodeTypeAndValue();
-        
-        // Skip the Signature.
-        BinaryXmlStructureDecoder structureDecoder = new BinaryXmlStructureDecoder();
-        structureDecoder.seek(decoder.getOffset());
-        structureDecoder.findElementEnd(element);
-        decoder.seek(structureDecoder.getOffset());
-        
-        Name name = new Name();
-        BinaryXmlWireFormat.decodeName(name, decoder);
-        
-        // Skip the SignedInfo.
-        structureDecoder = new BinaryXmlStructureDecoder();
-        structureDecoder.seek(decoder.getOffset());
-        structureDecoder.findElementEnd(element);
-        decoder.seek(structureDecoder.getOffset());
-        
-        ByteBuffer content = decoder.readBinaryDTagElement(BinaryXml.DTag_Content, false);
-        
-        System.out.println("Got data packet with name " + name.toUri());
+        Data data = new Data();
+        data.wireDecode(element);
+
+        System.out.println("Got data packet with name " + data.getName().toUri());
+        ByteBuffer content = data.getContent().buf();
         for (int i = content.position(); i < content.limit(); ++i)
           System.out.print((char)content.get(i));
         System.out.println("");

@@ -7,10 +7,16 @@
 package net.named_data.jndn.encoding;
 
 import java.nio.ByteBuffer;
-import net.named_data.jndn.Name;
-import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.KeyLocator;
+import net.named_data.jndn.KeyLocator.KeyLocatorType;
+import net.named_data.jndn.MetaInfo;
+import net.named_data.jndn.MetaInfo.ContentType;
+import net.named_data.jndn.Name;
 import net.named_data.jndn.PublisherPublicKeyDigest;
+import net.named_data.jndn.Sha256WithRsaSignature;
+import net.named_data.jndn.util.Blob;
 
 public class BinaryXmlWireFormat extends WireFormat {
   /**
@@ -100,8 +106,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     encoder.writeElementClose();
   }
   
-  // TODO: Make private after finished testing.
-  public static void
+  private static void
   decodeName(Name name, BinaryXmlDecoder decoder) throws EncodingException
   {
     decoder.readElementStartDTag(BinaryXml.DTag_Name);
@@ -114,6 +119,51 @@ public class BinaryXmlWireFormat extends WireFormat {
       name.append
         (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component, false), true));
     }
+
+    decoder.readElementClose();
+  }
+  
+  /**
+   * Decode input as a data packet in binary XML and set the fields in the data object.
+   * @param data The Data object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
+   * @param signedPortionBeginOffset Return the offset in the input buffer of the beginning of the signed portion by
+   * setting signedPortionBeginOffset[0].  If you are not decoding in order to verify, you can call 
+   * decodeData(data, input) to ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the input buffer of the end of the signed portion by
+   * setting signedPortionEndOffset[0]. If you are not decoding in order to verify, you can call 
+   * decodeData(data, input) to ignore this returned value.
+   * @throws UnsupportedOperationException for unimplemented if the derived class does not override.
+   * @throws EncodingException For invalid encoding.
+   */
+  @Override
+  public void 
+  decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset) throws EncodingException
+  {
+    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);  
+    decodeData(data, input, signedPortionBeginOffset, signedPortionEndOffset, decoder);
+  }
+  
+  private static void
+  decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, 
+              BinaryXmlDecoder decoder) throws EncodingException
+  {
+    decoder.readElementStartDTag(BinaryXml.DTag_ContentObject);
+
+    data.setSignature(new Sha256WithRsaSignature());
+    if (decoder.peekDTag(BinaryXml.DTag_Signature))
+      decodeSignature((Sha256WithRsaSignature)data.getSignature(), decoder);
+
+    signedPortionBeginOffset[0] = decoder.getOffset();
+
+    decodeName(data.getName(), decoder);
+    data.setMetaInfo(new MetaInfo());
+    if (decoder.peekDTag(BinaryXml.DTag_SignedInfo))
+      decodeSignedInfo((Sha256WithRsaSignature)data.getSignature(), data.getMetaInfo(), decoder);
+    // Require a Content element, but set allowNull to allow a missing BLOB.
+    data.setContent(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Content, true), true));
+
+    signedPortionEndOffset[0] = decoder.getOffset();
 
     decoder.readElementClose();
   }
@@ -163,4 +213,145 @@ public class BinaryXmlWireFormat extends WireFormat {
     else
       publisherPublicKeyDigest.clear();
   }
+  
+  private static void
+  encodeSignature(Sha256WithRsaSignature signature, BinaryXmlEncoder encoder)
+  {
+    encoder.writeElementStartDTag(BinaryXml.DTag_Signature);
+    
+    // TODO: Check if digestAlgorithm is the same as the default, and skip it, otherwise encode it as UDATA.
+    encoder.writeOptionalBlobDTagElement(BinaryXml.DTag_Witness, signature.getWitness());
+    // Require a signature.
+    encoder.writeBlobDTagElement(BinaryXml.DTag_SignatureBits, signature.getSignature());
+    encoder.writeElementClose();
+  }  
+  
+  private static void
+  decodeSignature(Sha256WithRsaSignature signature, BinaryXmlDecoder decoder) throws EncodingException
+  {
+    decoder.readElementStartDTag(BinaryXml.DTag_Signature);
+    /* TODO: digestAlgorithm as UDATA */ signature.setDigestAlgorithm(new Blob());
+    signature.setWitness(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Witness, false), true));
+    // Require a signature.
+    signature.setSignature(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_SignatureBits, false), true));
+    decoder.readElementClose();
+  }
+
+  /**
+   * Encode the ndn_KeyLocator struct using Binary XML.  If keyLocator.getType() == KeyLocatorType.NONE, then do nothing. 
+   * @param keyLocator The KeyLocator to encode.
+   * @param encoder The BinaryXmlEncoder used to encode.
+   */
+  private static void
+  encodeKeyLocator(KeyLocator keyLocator, BinaryXmlEncoder encoder)
+  {
+    if (keyLocator.getType() == KeyLocatorType.NONE)
+      return;
+
+    // TODO: Implement.
+  }
+  
+  /**
+   *  Expect the next element to be a Binary XML KeyLocator and decode into keyLocator.
+   * @param keyLocator The KeyLocator to update.
+   * @param decoder The BinaryXmlDecoder used to decode.
+   * @throws EncodingException For invalid encoding.
+   */
+  private static void
+  decodeKeyLocator(KeyLocator keyLocator, BinaryXmlDecoder decoder) throws EncodingException
+  {  
+    // TODO: Implement. For now, skip.
+    BinaryXmlStructureDecoder structureDecoder = new BinaryXmlStructureDecoder();
+    structureDecoder.seek(decoder.getOffset());
+    structureDecoder.findElementEnd(decoder.input_);
+    decoder.seek(structureDecoder.getOffset());
+  }
+  
+  /**
+   * Peek the next element and if it is a Binary XML KeyLocator then decode into the keyLocator.
+   * Otherwise, call keyLocator.clear().
+   * @param keyLocator The KeyLocator to update.
+   * @param decoder The BinaryXmlDecoder used to decode.
+   * @throws EncodingException For invalid encoding.
+   */
+  private static void
+  decodeOptionalKeyLocator(KeyLocator keyLocator, BinaryXmlDecoder decoder) throws EncodingException
+  {
+    if (decoder.peekDTag(BinaryXml.DTag_KeyLocator))
+      decodeKeyLocator(keyLocator, decoder);
+    else
+      keyLocator.clear();
+  }
+  
+  // Put these in a Blob so we can use ByteBuffer equals.
+  private static final Blob DATA_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x0C, (byte)0x04, (byte)0xC0 }), false);
+  private static final Blob ENCR_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x10, (byte)0xD0, (byte)0x91 }), false);
+  private static final Blob GONE_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x18, (byte)0xE3, (byte)0x44 }), false);
+  private static final Blob KEY_BYTES =  new Blob(ByteBuffer.wrap(new byte[] { (byte)0x28, (byte)0x46, (byte)0x3F }), false);
+  private static final Blob LINK_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x2C, (byte)0x83, (byte)0x4A }), false);
+  private static final Blob NACK_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x34, (byte)0x00, (byte)0x8A }), false);
+  
+  private static void
+  encodeSignedInfo(Sha256WithRsaSignature signature, MetaInfo metaInfo, BinaryXmlEncoder encoder)
+  {
+    encoder.writeElementStartDTag(BinaryXml.DTag_SignedInfo);
+    // This will skip encoding if there is no publisherPublicKeyDigest.
+    encodePublisherPublicKeyDigest(signature.getPublisherPublicKeyDigest(), encoder);
+    encoder.writeOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_Timestamp, metaInfo.getTimestampMilliseconds());
+    if (metaInfo.getType() != ContentType.DATA) {
+      // Not the default of DATA, so we need to encode the type.
+      Blob typeBytes = null;;
+      if (metaInfo.getType() == ContentType.ENCR)
+        typeBytes = ENCR_BYTES;
+      else if (metaInfo.getType() == ContentType.GONE)
+        typeBytes = GONE_BYTES;
+      else if (metaInfo.getType() == ContentType.KEY)
+        typeBytes = KEY_BYTES;
+      else if (metaInfo.getType() == ContentType.LINK)
+        typeBytes = LINK_BYTES;
+      else if (metaInfo.getType() == ContentType.NACK)
+        typeBytes = NACK_BYTES;
+
+      encoder.writeBlobDTagElement(BinaryXml.DTag_Type, typeBytes);
+    }
+
+    encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_FreshnessSeconds, metaInfo.getFreshnessSeconds());
+    encoder.writeOptionalBlobDTagElement(BinaryXml.DTag_FinalBlockID, metaInfo.getFinalBlockID().getValue());
+    // This will skip encoding if there is no key locator.
+    encodeKeyLocator(signature.getKeyLocator(), encoder);
+    encoder.writeElementClose();
+  }
+
+  private static void
+  decodeSignedInfo(Sha256WithRsaSignature signature, MetaInfo metaInfo, BinaryXmlDecoder decoder) throws EncodingException
+  {
+    decoder.readElementStartDTag(BinaryXml.DTag_SignedInfo);
+    decodeOptionalPublisherPublicKeyDigest(signature.getPublisherPublicKeyDigest(), decoder);
+    metaInfo.setTimestampMilliseconds(decoder.readOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_Timestamp));
+    ByteBuffer typeBytes = decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Type, false);
+    if (typeBytes == null)
+      // The default Type is DATA.
+      metaInfo.setType(ContentType.DATA);
+    else {
+      if (typeBytes.equals(DATA_BYTES.buf()))
+        metaInfo.setType(ContentType.DATA);
+      else if (typeBytes.equals(ENCR_BYTES.buf()))
+        metaInfo.setType(ContentType.ENCR);
+      else if (typeBytes.equals(GONE_BYTES.buf()))
+        metaInfo.setType(ContentType.GONE);
+      else if (typeBytes.equals(KEY_BYTES.buf()))
+        metaInfo.setType(ContentType.KEY);
+      else if (typeBytes.equals(LINK_BYTES.buf()))
+        metaInfo.setType(ContentType.LINK);
+      else if (typeBytes.equals(NACK_BYTES.buf()))
+        metaInfo.setType(ContentType.NACK);
+      else
+        throw new EncodingException("Unrecognized MetaInfo.ContentType");
+    }
+
+    metaInfo.setFreshnessSeconds(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_FreshnessSeconds));
+    metaInfo.setFinalBlockID(new Name.Component(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_FinalBlockID, false), true)));
+    decodeOptionalKeyLocator(signature.getKeyLocator(), decoder);
+    decoder.readElementClose();
+  }  
 }
