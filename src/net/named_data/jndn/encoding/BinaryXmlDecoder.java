@@ -305,7 +305,7 @@ public class BinaryXmlDecoder {
     double result = 0.0;
     for (int i = bytes.position(); i < bytes.limit(); ++i) {
       result *= 256.0;
-      result += (double)((int)bytes.get(i) * 0xff);
+      result += (double)((int)bytes.get(i) & 0xff);
     }
 
     return result;
