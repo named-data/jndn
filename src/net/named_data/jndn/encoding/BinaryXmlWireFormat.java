@@ -8,6 +8,7 @@ package net.named_data.jndn.encoding;
 
 import java.nio.ByteBuffer;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.Exclude;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocator.KeyLocatorType;
@@ -57,10 +58,8 @@ public class BinaryXmlWireFormat extends WireFormat {
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MaxSuffixComponents, interest.getMaxSuffixComponents());
     // This will skip encoding if there is no publisherPublicKeyDigest.
     encodePublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest(), encoder);
-    /* TODO
     // This will skip encoding if there is no exclude.
     encodeExclude(interest.getExclude(), encoder);
-     */
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_ChildSelector, interest.getChildSelector());
     if (interest.getAnswerOriginKind() >= 0 && interest.getAnswerOriginKind() != Interest.DEFAULT_ANSWER_ORIGIN_KIND)
       encoder.writeUnsignedDecimalIntDTagElement(BinaryXml.DTag_AnswerOriginKind, interest.getAnswerOriginKind());
@@ -80,12 +79,12 @@ public class BinaryXmlWireFormat extends WireFormat {
     interest.setMinSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MinSuffixComponents));
     interest.setMaxSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MaxSuffixComponents));
     decodeOptionalPublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest(), decoder);
-    /* TODO
+
     if (decoder.peekDTag(BinaryXml.DTag_Exclude))
       decodeExclude(interest.getExclude(), decoder);
     else
       interest.getExclude().clear();
-     */
+    
     interest.setChildSelector(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_ChildSelector));
     interest.setAnswerOriginKind(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_AnswerOriginKind));
     interest.setScope(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_Scope));
@@ -212,6 +211,60 @@ public class BinaryXmlWireFormat extends WireFormat {
       decodePublisherPublicKeyDigest(publisherPublicKeyDigest, decoder);
     else
       publisherPublicKeyDigest.clear();
+  }
+  
+  private static void 
+  encodeExclude(Exclude exclude, BinaryXmlEncoder encoder)
+  {
+    if (exclude.size() <= 0)
+      // Omit.
+      return;
+
+    encoder.writeElementStartDTag(BinaryXml.DTag_Exclude);
+
+    // TODO: Do we want to order the components (except for ANY)?
+    for (int i = 0; i < exclude.size(); ++i) {
+      Exclude.Entry entry = exclude.get(i);
+
+      if (entry.getType() == Exclude.Type.COMPONENT)
+        encoder.writeBlobDTagElement(BinaryXml.DTag_Component, entry.getComponent().getValue());
+      else {
+        // Type is ANY.
+        encoder.writeElementStartDTag(BinaryXml.DTag_Any);
+        encoder.writeElementClose();
+      }
+    }
+
+    encoder.writeElementClose();
+  }
+
+  private static void
+  decodeExclude(Exclude exclude, BinaryXmlDecoder decoder) throws EncodingException
+  {
+    decoder.readElementStartDTag(BinaryXml.DTag_Exclude);
+
+    exclude.clear();
+    while (true) {
+      if (decoder.peekDTag(BinaryXml.DTag_Component))
+        exclude.appendComponent(new Name.Component(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component, false), true)));
+      else if (decoder.peekDTag(BinaryXml.DTag_Any)) {
+        // Read the Any element.
+        decoder.readElementStartDTag(BinaryXml.DTag_Any);
+        decoder.readElementClose();
+        
+        exclude.appendAny();
+      }
+      else if (decoder.peekDTag(BinaryXml.DTag_Bloom)) {
+        // Skip the Bloom and treat it as Any.
+        decoder.readBinaryDTagElement(BinaryXml.DTag_Bloom, false);
+        exclude.appendAny();
+      }
+      else
+        // No more entries.
+        break;
+    }
+
+    decoder.readElementClose();
   }
   
   private static void

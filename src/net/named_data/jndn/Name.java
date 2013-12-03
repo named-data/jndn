@@ -6,10 +6,10 @@
 
 package net.named_data.jndn;
 
-import java.util.ArrayList;
 import java.nio.ByteBuffer;
-import net.named_data.jndn.util.Blob;
+import java.util.ArrayList;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.util.Blob;
 
 /**
  * A Name holds an array of Name.Component and represents an NDN name.

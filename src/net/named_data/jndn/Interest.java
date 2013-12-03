@@ -146,6 +146,50 @@ public class Interest {
     wireDecode(input.buf());
   }
 
+  /**
+   * Encode the name according to the "NDN URI Scheme".  If there are interest selectors, append "?" and
+   * added the selectors as a query string.  For example "/test/name?ndn.ChildSelector=1".
+   * @return The URI string.
+   */
+  public final String
+  toUri()
+  {
+    StringBuilder selectors = new StringBuilder();
+
+    if (minSuffixComponents_ >= 0)
+      selectors.append("&ndn.MinSuffixComponents=").append(minSuffixComponents_);
+    if (maxSuffixComponents_ >= 0)
+      selectors.append("&ndn.MaxSuffixComponents=").append(maxSuffixComponents_);
+    if (childSelector_ >= 0)
+      selectors.append("&ndn.ChildSelector=").append(childSelector_);
+    if (answerOriginKind_ >= 0)
+      selectors.append("&ndn.AnswerOriginKind=").append(answerOriginKind_);
+    if (scope_ >= 0)
+      selectors.append("&ndn.Scope=").append(scope_);
+    if (interestLifetimeMilliseconds_ >= 0)
+      selectors.append("&ndn.InterestLifetime=").append(interestLifetimeMilliseconds_);
+    if (publisherPublicKeyDigest_.getPublisherPublicKeyDigest().size() > 0) {
+      selectors.append("&ndn.PublisherPublicKeyDigest=");
+      Name.toEscapedString(publisherPublicKeyDigest_.getPublisherPublicKeyDigest().buf(), selectors);
+    }
+    if (nonce_.size() > 0) {
+      selectors.append("&ndn.Nonce=");
+      Name.toEscapedString(nonce_.buf(), selectors);
+    }
+    if (exclude_.size() > 0)
+      selectors.append("&ndn.Exclude=").append(exclude_.toUri());
+
+    StringBuilder result = new StringBuilder();
+
+    result.append(name_.toUri());
+    String selectorsString = selectors.toString();
+    if (selectorsString.length() > 0)
+      // Replace the first & with ?.
+      result.append("?").append(selectorsString.substring(1));
+
+    return result.toString();      
+  }
+
   public final Name
   getName() { return name_; }
   
@@ -158,10 +202,8 @@ public class Interest {
   public final PublisherPublicKeyDigest
   getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
   
-  /* TODO
   public final Exclude
   getExclude() { return exclude_; }
-  */
   
   public final int 
   getChildSelector() { return childSelector_; }
@@ -206,9 +248,7 @@ public class Interest {
   private int minSuffixComponents_ = -1;
   private int maxSuffixComponents_ = -1;  
   private final PublisherPublicKeyDigest publisherPublicKeyDigest_ = new PublisherPublicKeyDigest();
-  /* TODO
-  private Exclude exclude_ = new Exclude();
-  */
+  private final Exclude exclude_ = new Exclude();
   private int childSelector_ = -1;
   private int answerOriginKind_ = -1;
   private int scope_ = -1;
