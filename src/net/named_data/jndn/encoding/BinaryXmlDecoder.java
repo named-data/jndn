@@ -82,12 +82,22 @@ public class BinaryXmlDecoder {
   public final void
   readElementStartDTag(int expectedTag) throws EncodingException
   {
-    TypeAndValue typeAndValue = decodeTypeAndValue();
-    if (typeAndValue.getType() != BinaryXml.DTAG)
-      throw new EncodingException("Header type is not a DTAG");
+    if (input_.position() == previouslyPeekedDTagStartOffset_) {
+      // peekDTag already decoded this DTag.
+      if (previouslyPeekedDTag_ != expectedTag)
+        throw new EncodingException("Did not get the expected DTAG " + expectedTag + ", got " + previouslyPeekedDTag_);
+      
+      // Fast forward past the header.
+      input_.position(previouslyPeekedDTagEndOffset_);
+    }
+    else {
+      TypeAndValue typeAndValue = decodeTypeAndValue();
+      if (typeAndValue.getType() != BinaryXml.DTAG)
+        throw new EncodingException("Header type is not a DTAG");
 
-    if (typeAndValue.getValue() != expectedTag)
-      throw new EncodingException("Did not get the expected DTAG " + expectedTag + ", got " + typeAndValue.getValue());
+      if (typeAndValue.getValue() != expectedTag)
+        throw new EncodingException("Did not get the expected DTAG " + expectedTag + ", got " + typeAndValue.getValue());
+    }
   }
 
   /**
@@ -112,16 +122,30 @@ public class BinaryXmlDecoder {
   public final boolean
   peekDTag(int expectedTag) throws EncodingException
   {
-    // First check if it is an element close (which cannot be the expected tag).  
-    if (input_.get(input_.position()) == BinaryXml.CLOSE)
-      return false;
+    if (input_.position() == previouslyPeekedDTagStartOffset_)
+      // We already decoded this DTag.
+      return previouslyPeekedDTag_ == expectedTag;
+    else {
+      // First check if it is an element close (which cannot be the expected tag).  
+      if (input_.get(input_.position()) == BinaryXml.CLOSE)
+        return false;
 
-    int savePosition = input_.position();
-    TypeAndValue typeAndValue = decodeTypeAndValue();
-    // Restore the position.
-    input_.position(savePosition);
+      int savePosition = input_.position();
+      TypeAndValue typeAndValue = decodeTypeAndValue();
+      // readElementStartDTag will use this to fast forward.
+      previouslyPeekedDTagEndOffset_ = input_.position();
+      // Restore the position.
+      input_.position(savePosition);
 
-    return typeAndValue.getType() == BinaryXml.DTAG && typeAndValue.getValue() == expectedTag;
+      if (typeAndValue.getType() == BinaryXml.DTAG) {
+        previouslyPeekedDTagStartOffset_ = savePosition;
+        previouslyPeekedDTag_ = typeAndValue.getValue();
+
+        return typeAndValue.getValue() == expectedTag;
+      }
+      else
+        return false;
+    }
   }
   
   /**
@@ -354,4 +378,8 @@ public class BinaryXmlDecoder {
   }
   
   private final ByteBuffer input_;
+  // peekDTag sets and checks these, and readElementStartDTag uses them to avoid reading again.
+  private int previouslyPeekedDTagStartOffset_ = -1;
+  private int previouslyPeekedDTagEndOffset_;
+  private int previouslyPeekedDTag_;
 }
