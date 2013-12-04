@@ -12,6 +12,7 @@ import net.named_data.jndn.Exclude;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocator.KeyLocatorType;
+import net.named_data.jndn.KeyLocator.KeyNameType;
 import net.named_data.jndn.MetaInfo;
 import net.named_data.jndn.MetaInfo.ContentType;
 import net.named_data.jndn.Name;
@@ -291,7 +292,7 @@ public class BinaryXmlWireFormat extends WireFormat {
   }
 
   /**
-   * Encode the ndn_KeyLocator struct using Binary XML.  If keyLocator.getType() == KeyLocatorType.NONE, then do nothing. 
+   * Encode the KeyLocator using Binary XML.  If keyLocator.getType() == KeyLocatorType.NONE, then do nothing. 
    * @param keyLocator The KeyLocator to encode.
    * @param encoder The BinaryXmlEncoder used to encode.
    */
@@ -301,33 +302,64 @@ public class BinaryXmlWireFormat extends WireFormat {
     if (keyLocator.getType() == KeyLocatorType.NONE)
       return;
 
-    // TODO: Implement.
+    encoder.writeElementStartDTag(BinaryXml.DTag_KeyLocator);
+
+    if (keyLocator.getType() == KeyLocatorType.KEY)
+      encoder.writeBlobDTagElement(BinaryXml.DTag_Key, keyLocator.getKeyData());
+    else if (keyLocator.getType() == KeyLocatorType.CERTIFICATE)
+      encoder.writeBlobDTagElement(BinaryXml.DTag_Certificate, keyLocator.getKeyData());
+    else if (keyLocator.getType() == KeyLocatorType.KEYNAME) {
+      encoder.writeElementStartDTag(BinaryXml.DTag_KeyName);
+      encodeName(keyLocator.getKeyName(), encoder);
+
+      if (keyLocator.getKeyNameType() != KeyNameType.NONE && keyLocator.getKeyData().size() > 0) {
+        if (keyLocator.getKeyNameType() == KeyNameType.PUBLISHER_PUBLIC_KEY_DIGEST)
+          encoder.writeBlobDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest, keyLocator.getKeyData());
+        else if (keyLocator.getKeyNameType() == KeyNameType.PUBLISHER_CERTIFICATE_DIGEST)
+          encoder.writeBlobDTagElement(BinaryXml.DTag_PublisherCertificateDigest, keyLocator.getKeyData());
+        else if (keyLocator.getKeyNameType() == KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST)
+          encoder.writeBlobDTagElement(BinaryXml.DTag_PublisherIssuerKeyDigest, keyLocator.getKeyData());
+        else if (keyLocator.getKeyNameType() == KeyNameType.PUBLISHER_ISSUER_CERTIFICATE_DIGEST)
+          encoder.writeBlobDTagElement(BinaryXml.DTag_PublisherIssuerCertificateDigest, keyLocator.getKeyData());
+        else
+          // We don't expect this to happen since we use an enum.
+          throw new Error("unrecognized KeyNameType");
+      }
+
+      encoder.writeElementClose();
+    }
+    else
+      // We don't expect this to happen since we use an enum.
+      throw new Error("unrecognized KeyLocatorType");
+
+    encoder.writeElementClose();
   }
   
-  private static void decodeKeyNameData(KeyLocator keyLocator, BinaryXmlDecoder decoder) throws EncodingException
+  private static void 
+  decodeKeyNameData(KeyLocator keyLocator, BinaryXmlDecoder decoder) throws EncodingException
   {
     if (decoder.peekDTag(BinaryXml.DTag_PublisherPublicKeyDigest)) {
-      keyLocator.setKeyNameType(KeyLocator.KeyNameType.PUBLISHER_PUBLIC_KEY_DIGEST);
+      keyLocator.setKeyNameType(KeyNameType.PUBLISHER_PUBLIC_KEY_DIGEST);
       keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest, false), true));
     }
     else {
       if (decoder.peekDTag(BinaryXml.DTag_PublisherCertificateDigest)) {
-        keyLocator.setKeyNameType(KeyLocator.KeyNameType.PUBLISHER_CERTIFICATE_DIGEST);
+        keyLocator.setKeyNameType(KeyNameType.PUBLISHER_CERTIFICATE_DIGEST);
         keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherCertificateDigest, false), true));
       }
       else {
         if (decoder.peekDTag(BinaryXml.DTag_PublisherIssuerKeyDigest)) {
-          keyLocator.setKeyNameType(KeyLocator.KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST);
+          keyLocator.setKeyNameType(KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST);
           keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherIssuerKeyDigest, false), true));
         }
         else {
           if (decoder.peekDTag(BinaryXml.DTag_PublisherIssuerCertificateDigest)) {
-            keyLocator.setKeyNameType(KeyLocator.KeyNameType.PUBLISHER_ISSUER_CERTIFICATE_DIGEST);
+            keyLocator.setKeyNameType(KeyNameType.PUBLISHER_ISSUER_CERTIFICATE_DIGEST);
             keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherIssuerCertificateDigest, false), true));
           }
           else {
             // Key name data is omitted.
-            keyLocator.setKeyNameType(KeyLocator.KeyNameType.NONE);
+            keyLocator.setKeyNameType(KeyNameType.NONE);
             keyLocator.setKeyData(new Blob());
           }
         }
@@ -366,7 +398,7 @@ public class BinaryXmlWireFormat extends WireFormat {
           decoder.readElementClose();
         }
         else
-           throw new EncodingException("decodeBinaryXmlKeyLocator: unrecognized key locator type");
+           throw new EncodingException("decodeKeyLocator: unrecognized key locator type");
       }
     }
 
