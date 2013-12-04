@@ -15,11 +15,11 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.transport.TcpTransport;
 import net.named_data.jndn.util.Blob;
 
-class Counter implements ElementListener
-{
-
+class Counter implements ElementListener {
   @Override
-  public void onReceivedElement(ByteBuffer element) {
+  public void 
+  onReceivedElement(ByteBuffer element) 
+  {
     if (element.get(0) == 0x04) {
       ++callbackCount_;
       try {
@@ -43,7 +43,8 @@ class Counter implements ElementListener
 }
 
 public class TestGetAsync {
-  public static void main(String[] args) 
+  public static void 
+  main(String[] args) 
   {
     try {
       // Face face("C.hub.ndn.ucla.edu", 9695);
