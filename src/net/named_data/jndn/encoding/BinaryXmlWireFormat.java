@@ -304,8 +304,39 @@ public class BinaryXmlWireFormat extends WireFormat {
     // TODO: Implement.
   }
   
+  private static void decodeKeyNameData(KeyLocator keyLocator, BinaryXmlDecoder decoder) throws EncodingException
+  {
+    if (decoder.peekDTag(BinaryXml.DTag_PublisherPublicKeyDigest)) {
+      keyLocator.setKeyNameType(KeyLocator.KeyNameType.PUBLISHER_PUBLIC_KEY_DIGEST);
+      keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest, false), true));
+    }
+    else {
+      if (decoder.peekDTag(BinaryXml.DTag_PublisherCertificateDigest)) {
+        keyLocator.setKeyNameType(KeyLocator.KeyNameType.PUBLISHER_CERTIFICATE_DIGEST);
+        keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherCertificateDigest, false), true));
+      }
+      else {
+        if (decoder.peekDTag(BinaryXml.DTag_PublisherIssuerKeyDigest)) {
+          keyLocator.setKeyNameType(KeyLocator.KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST);
+          keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherIssuerKeyDigest, false), true));
+        }
+        else {
+          if (decoder.peekDTag(BinaryXml.DTag_PublisherIssuerCertificateDigest)) {
+            keyLocator.setKeyNameType(KeyLocator.KeyNameType.PUBLISHER_ISSUER_CERTIFICATE_DIGEST);
+            keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherIssuerCertificateDigest, false), true));
+          }
+          else {
+            // Key name data is omitted.
+            keyLocator.setKeyNameType(KeyLocator.KeyNameType.NONE);
+            keyLocator.setKeyData(new Blob());
+          }
+        }
+      }
+    }
+  }
+  
   /**
-   *  Expect the next element to be a Binary XML KeyLocator and decode into keyLocator.
+   * Expect the next element to be a Binary XML KeyLocator and decode into keyLocator.
    * @param keyLocator The KeyLocator to update.
    * @param decoder The BinaryXmlDecoder used to decode.
    * @throws EncodingException For invalid encoding.
@@ -313,11 +344,33 @@ public class BinaryXmlWireFormat extends WireFormat {
   private static void
   decodeKeyLocator(KeyLocator keyLocator, BinaryXmlDecoder decoder) throws EncodingException
   {  
-    // TODO: Implement. For now, skip.
-    BinaryXmlStructureDecoder structureDecoder = new BinaryXmlStructureDecoder();
-    structureDecoder.seek(decoder.getOffset());
-    structureDecoder.findElementEnd(decoder.input_);
-    decoder.seek(structureDecoder.getOffset());
+    keyLocator.clear();
+    decoder.readElementStartDTag(BinaryXml.DTag_KeyLocator);
+
+    if (decoder.peekDTag(BinaryXml.DTag_Key)) {
+      keyLocator.setType(KeyLocatorType.KEY);
+      keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Key, false), true));
+    }
+    else {
+      if (decoder.peekDTag(BinaryXml.DTag_Certificate)) {
+        keyLocator.setType(KeyLocatorType.CERTIFICATE);
+        keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Certificate, false), true));
+      }
+      else {
+        if (decoder.peekDTag(BinaryXml.DTag_KeyName)) {
+          keyLocator.setType(KeyLocatorType.KEYNAME);
+
+          decoder.readElementStartDTag(BinaryXml.DTag_KeyName);
+          decodeName(keyLocator.getKeyName(), decoder);
+          decodeKeyNameData(keyLocator, decoder);
+          decoder.readElementClose();
+        }
+        else
+           throw new EncodingException("decodeBinaryXmlKeyLocator: unrecognized key locator type");
+      }
+    }
+
+    decoder.readElementClose();
   }
   
   /**
