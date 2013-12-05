@@ -186,6 +186,20 @@ public class BinaryXmlDecoder {
   }
 
   /**
+   * Decode the header from the input starting its position, expecting the type to be DTAG and the value to be expectedTag.
+   * Then read one item of any type (presumably BLOB, UDATA, TAG or ATTR) and return a 
+   * ByteBuffer. Finally, read the element close.  Update the input's position.
+   * @param expectedTag The expected value for DTAG.
+   * @return a ByteBuffer which is a slice on the data inside the input buffer.
+   * @throws EncodingException For invalid encoding including if did not get the expected DTAG.
+   */
+  public final ByteBuffer
+  readBinaryDTagElement(int expectedTag) throws EncodingException
+  {
+    return readBinaryDTagElement(expectedTag, false);
+  }
+    
+  /**
    * Peek at the next element and if it is the expectedTag, call readBinaryDTagElement.
    * Otherwise, return null.
    * @param expectedTag The expected value for DTAG.
@@ -202,6 +216,19 @@ public class BinaryXmlDecoder {
       return readBinaryDTagElement(expectedTag, allowNull);
     else
       return null;
+  }
+  
+  /**
+   * Peek at the next element and if it is the expectedTag, call readBinaryDTagElement.
+   * Otherwise, return null.
+   * @param expectedTag The expected value for DTAG.
+   * @return a ByteBuffer which is a slice on the data inside the input buffer.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final ByteBuffer
+  readOptionalBinaryDTagElement(int expectedTag) throws EncodingException
+  {
+    return readOptionalBinaryDTagElement(expectedTag, false);
   }
 
   /**
@@ -296,8 +323,7 @@ public class BinaryXmlDecoder {
   public final double
   readTimeMillisecondsDTagElement(int expectedTag) throws EncodingException
   {
-    return 1000.0 * unsignedBigEndianToDouble
-      (readBinaryDTagElement(expectedTag, false)) / 4096.0;
+    return 1000.0 * unsignedBigEndianToDouble(readBinaryDTagElement(expectedTag)) / 4096.0;
   }
   
   /**

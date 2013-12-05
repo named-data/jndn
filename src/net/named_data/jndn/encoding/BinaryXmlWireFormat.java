@@ -90,7 +90,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     interest.setAnswerOriginKind(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_AnswerOriginKind));
     interest.setScope(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_Scope));
     interest.setInterestLifetimeMilliseconds(decoder.readOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_InterestLifetime));
-    interest.setNonce(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Nonce, false), true));
+    interest.setNonce(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Nonce), true));
 
     decoder.readElementClose();
   }
@@ -117,7 +117,7 @@ public class BinaryXmlWireFormat extends WireFormat {
         break;
 
       name.append
-        (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component, false), true));
+        (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component), true));
     }
 
     decoder.readElementClose();
@@ -194,7 +194,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     (PublisherPublicKeyDigest publisherPublicKeyDigest, BinaryXmlDecoder decoder) throws EncodingException
   {
     publisherPublicKeyDigest.setPublisherPublicKeyDigest
-      (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest, false), true));
+      (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest), true));
   }
 
   /**
@@ -247,7 +247,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     exclude.clear();
     while (true) {
       if (decoder.peekDTag(BinaryXml.DTag_Component))
-        exclude.appendComponent(new Name.Component(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component, false), true)));
+        exclude.appendComponent(new Name.Component(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component), true)));
       else if (decoder.peekDTag(BinaryXml.DTag_Any)) {
         // Read the Any element.
         decoder.readElementStartDTag(BinaryXml.DTag_Any);
@@ -257,7 +257,7 @@ public class BinaryXmlWireFormat extends WireFormat {
       }
       else if (decoder.peekDTag(BinaryXml.DTag_Bloom)) {
         // Skip the Bloom and treat it as Any.
-        decoder.readBinaryDTagElement(BinaryXml.DTag_Bloom, false);
+        decoder.readBinaryDTagElement(BinaryXml.DTag_Bloom);
         exclude.appendAny();
       }
       else
@@ -285,9 +285,9 @@ public class BinaryXmlWireFormat extends WireFormat {
   {
     decoder.readElementStartDTag(BinaryXml.DTag_Signature);
     /* TODO: digestAlgorithm as UDATA */ signature.setDigestAlgorithm(new Blob());
-    signature.setWitness(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Witness, false), true));
+    signature.setWitness(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Witness), true));
     // Require a signature.
-    signature.setSignature(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_SignatureBits, false), true));
+    signature.setSignature(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_SignatureBits), true));
     decoder.readElementClose();
   }
 
@@ -340,22 +340,22 @@ public class BinaryXmlWireFormat extends WireFormat {
   {
     if (decoder.peekDTag(BinaryXml.DTag_PublisherPublicKeyDigest)) {
       keyLocator.setKeyNameType(KeyNameType.PUBLISHER_PUBLIC_KEY_DIGEST);
-      keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest, false), true));
+      keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest), true));
     }
     else {
       if (decoder.peekDTag(BinaryXml.DTag_PublisherCertificateDigest)) {
         keyLocator.setKeyNameType(KeyNameType.PUBLISHER_CERTIFICATE_DIGEST);
-        keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherCertificateDigest, false), true));
+        keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherCertificateDigest), true));
       }
       else {
         if (decoder.peekDTag(BinaryXml.DTag_PublisherIssuerKeyDigest)) {
           keyLocator.setKeyNameType(KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST);
-          keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherIssuerKeyDigest, false), true));
+          keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherIssuerKeyDigest), true));
         }
         else {
           if (decoder.peekDTag(BinaryXml.DTag_PublisherIssuerCertificateDigest)) {
             keyLocator.setKeyNameType(KeyNameType.PUBLISHER_ISSUER_CERTIFICATE_DIGEST);
-            keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherIssuerCertificateDigest, false), true));
+            keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherIssuerCertificateDigest), true));
           }
           else {
             // Key name data is omitted.
@@ -381,12 +381,12 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     if (decoder.peekDTag(BinaryXml.DTag_Key)) {
       keyLocator.setType(KeyLocatorType.KEY);
-      keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Key, false), true));
+      keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Key), true));
     }
     else {
       if (decoder.peekDTag(BinaryXml.DTag_Certificate)) {
         keyLocator.setType(KeyLocatorType.CERTIFICATE);
-        keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Certificate, false), true));
+        keyLocator.setKeyData(new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Certificate), true));
       }
       else {
         if (decoder.peekDTag(BinaryXml.DTag_KeyName)) {
@@ -466,7 +466,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     decoder.readElementStartDTag(BinaryXml.DTag_SignedInfo);
     decodeOptionalPublisherPublicKeyDigest(signature.getPublisherPublicKeyDigest(), decoder);
     metaInfo.setTimestampMilliseconds(decoder.readOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_Timestamp));
-    ByteBuffer typeBytes = decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Type, false);
+    ByteBuffer typeBytes = decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Type);
     if (typeBytes == null)
       // The default Type is DATA.
       metaInfo.setType(ContentType.DATA);
@@ -488,7 +488,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     }
 
     metaInfo.setFreshnessSeconds(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_FreshnessSeconds));
-    metaInfo.setFinalBlockID(new Name.Component(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_FinalBlockID, false), true)));
+    metaInfo.setFinalBlockID(new Name.Component(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_FinalBlockID), true)));
     decodeOptionalKeyLocator(signature.getKeyLocator(), decoder);
     decoder.readElementClose();
   }  
