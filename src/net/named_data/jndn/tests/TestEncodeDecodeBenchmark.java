@@ -12,9 +12,9 @@ import net.named_data.jndn.encoding.EncodingException;
 
 public class TestEncodeDecodeBenchmark {
   private static double
-  getNowMicroseconds()
+  getNowSeconds()
   {
-    return System.currentTimeMillis() * 1000.0;
+    return System.currentTimeMillis() / 1000.0;
   }
 
   // Convert the int array to a ByteBuffer.
@@ -82,15 +82,19 @@ public class TestEncodeDecodeBenchmark {
       int nIterations = 5000000;
 
       int nameSize = 0;
-      double start = getNowMicroseconds();
+      double start = getNowSeconds();
       for (int i = 0; i < nIterations; ++i) {
         Data data = new Data();
         data.wireDecode(Data1);
         nameSize = data.getName().size();
       }
-      double finish = getNowMicroseconds();
+      double finish = getNowSeconds();
+ 
+      // Sanity check that we are actually decoding.
+     if (nameSize != 2)
+       throw new Error("Unexpected data packet name size");
 
-      System.out.println("Data decode: name size: " + nameSize + ", usec: " + ((finish - start) / nIterations));  
+      System.out.println("Data decode: Duration sec: " + (finish - start) + ", Hz: " + (nIterations / (finish - start)));  
     } catch (EncodingException e) {}
   }
   
