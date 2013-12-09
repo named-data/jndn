@@ -37,6 +37,16 @@ public class BinaryXmlEncoder {
   }
 
   /**
+   * Get the current offset where the next data will be written in the output buffer.
+   * @return The offset in the output buffer.
+   */
+  public final int
+  getOffset()
+  {
+    return output_.position();
+  }
+  
+  /**
    * Return a slice of the output buffer from the initial position up to the current position.
    * @return A ByteBuffer which shares the same underlying buffer with the output buffer.
    */
