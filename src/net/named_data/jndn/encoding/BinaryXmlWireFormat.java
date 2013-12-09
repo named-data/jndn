@@ -48,6 +48,76 @@ public class BinaryXmlWireFormat extends WireFormat {
     BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);  
     decodeInterest(interest, decoder);
   }
+  
+  /**
+   * Encode data and return the encoding.
+   * @param data The Data object to encode.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the beginning of the signed portion by
+   * setting signedPortionBeginOffset[0].
+   * If you are not encoding in order to sign, you can call encodeData(data) to ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the encoding of the end of the signed portion by
+   * setting signedPortionEndOffset[0].
+   * If you are not encoding in order to sign, you can call encodeData(data) to ignore this returned value.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived class does not override.
+   */
+  @Override
+  public Blob 
+  encodeData(Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
+  {
+    BinaryXmlEncoder encoder = new BinaryXmlEncoder();
+    encodeData(data, signedPortionBeginOffset, signedPortionEndOffset, encoder);
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as a data packet in binary XML and set the fields in the data object.
+   * @param data The Data object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
+   * @param signedPortionBeginOffset Return the offset in the input buffer of the beginning of the signed portion by
+   * setting signedPortionBeginOffset[0].  If you are not decoding in order to verify, you can call 
+   * decodeData(data, input) to ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the input buffer of the end of the signed portion by
+   * setting signedPortionEndOffset[0]. If you are not decoding in order to verify, you can call 
+   * decodeData(data, input) to ignore this returned value.
+   * @throws UnsupportedOperationException for unimplemented if the derived class does not override.
+   * @throws EncodingException For invalid encoding.
+   */
+  @Override
+  public void 
+  decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset) throws EncodingException
+  {
+    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);  
+    decodeData(data, input, signedPortionBeginOffset, signedPortionEndOffset, decoder);
+  }
+  
+  private static void
+  encodeName(Name name, BinaryXmlEncoder encoder)
+  {
+    encoder.writeElementStartDTag(BinaryXml.DTag_Name);
+
+    for (int i = 0; i < name.size(); ++i)
+      encoder.writeBlobDTagElement(BinaryXml.DTag_Component, name.get(i).getValue());
+
+    encoder.writeElementClose();
+  }
+  
+  private static void
+  decodeName(Name name, BinaryXmlDecoder decoder) throws EncodingException
+  {
+    decoder.readElementStartDTag(BinaryXml.DTag_Name);
+    name.clear();
+    while (true) {
+      if (!decoder.peekDTag(BinaryXml.DTag_Component))
+        // No more components.
+        break;
+
+      name.append
+        (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component), true));
+    }
+
+    decoder.readElementClose();
+  }
 
   private static void
   encodeInterest(Interest interest, BinaryXmlEncoder encoder)
@@ -94,56 +164,24 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     decoder.readElementClose();
   }
-    
-  private static void
-  encodeName(Name name, BinaryXmlEncoder encoder)
+      
+  private static void 
+  encodeData(Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, BinaryXmlEncoder encoder)
   {
-    encoder.writeElementStartDTag(BinaryXml.DTag_Name);
+    encoder.writeElementStartDTag(BinaryXml.DTag_ContentObject);
+    encodeSignature((Sha256WithRsaSignature)data.getSignature(), encoder);
+    
+    signedPortionBeginOffset[0] = encoder.getOffset();
 
-    for (int i = 0; i < name.size(); ++i)
-      encoder.writeBlobDTagElement(BinaryXml.DTag_Component, name.get(i).getValue());
+    encodeName(data.getName(), encoder);
+    encodeSignedInfo((Sha256WithRsaSignature)data.getSignature(), data.getMetaInfo(), encoder);
+    encoder.writeBlobDTagElement(BinaryXml.DTag_Content, data.getContent());
+
+    signedPortionEndOffset[0] = encoder.getOffset();
 
     encoder.writeElementClose();
   }
-  
-  private static void
-  decodeName(Name name, BinaryXmlDecoder decoder) throws EncodingException
-  {
-    decoder.readElementStartDTag(BinaryXml.DTag_Name);
-    name.clear();
-    while (true) {
-      if (!decoder.peekDTag(BinaryXml.DTag_Component))
-        // No more components.
-        break;
 
-      name.append
-        (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component), true));
-    }
-
-    decoder.readElementClose();
-  }
-  
-  /**
-   * Decode input as a data packet in binary XML and set the fields in the data object.
-   * @param data The Data object whose fields are updated.
-   * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
-   * @param signedPortionBeginOffset Return the offset in the input buffer of the beginning of the signed portion by
-   * setting signedPortionBeginOffset[0].  If you are not decoding in order to verify, you can call 
-   * decodeData(data, input) to ignore this returned value.
-   * @param signedPortionEndOffset Return the offset in the input buffer of the end of the signed portion by
-   * setting signedPortionEndOffset[0]. If you are not decoding in order to verify, you can call 
-   * decodeData(data, input) to ignore this returned value.
-   * @throws UnsupportedOperationException for unimplemented if the derived class does not override.
-   * @throws EncodingException For invalid encoding.
-   */
-  @Override
-  public void 
-  decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset) throws EncodingException
-  {
-    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);  
-    decodeData(data, input, signedPortionBeginOffset, signedPortionEndOffset, decoder);
-  }
-  
   private static void
   decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, 
               BinaryXmlDecoder decoder) throws EncodingException
