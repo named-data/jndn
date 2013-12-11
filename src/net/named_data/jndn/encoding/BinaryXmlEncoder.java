@@ -7,27 +7,26 @@
 package net.named_data.jndn.encoding;
 
 import java.nio.ByteBuffer;
-import net.named_data.jndn.util.DynamicByteBuffer;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.DynamicByteBuffer;
 
 /**
  * A BinaryXmlEncoder holds an output buffer and has methods to output Binary XML.
  */
 public class BinaryXmlEncoder {
   /**
-   * Create a new BinaryXmlEncoder to use the DynamicByteBuffer output buffer.  The methods in the class update
-   * output.position().  When done, call getOutput().
-   * @param output The DynamicByteBuffer output buffer.
+   * Create a new BinaryXmlEncoder to use a DynamicByteBuffer with the initialCapacity.  When done, you should call getOutput().
+   * @param initialCapacity The initial capacity of buffer().
    */
   public 
-  BinaryXmlEncoder(DynamicByteBuffer output)
+  BinaryXmlEncoder(int initialCapacity)
   {
-    output_ = output;
+    output_ = new DynamicByteBuffer(initialCapacity);
     initialPosition_ = output_.position();
   }
 
   /**
-   * Create a new BinaryXmlEncoder with a default DynamicByteBuffer for the output buffer.  When done, call getOutput().
+   * Create a new BinaryXmlEncoder with a default DynamicByteBuffer for the output buffer.  When done, you shoul call getOutput().
    */
   public 
   BinaryXmlEncoder()
