@@ -65,7 +65,7 @@ public class BinaryXmlWireFormat extends WireFormat {
   public Blob 
   encodeData(Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
-    BinaryXmlEncoder encoder = new BinaryXmlEncoder();
+    BinaryXmlEncoder encoder = new BinaryXmlEncoder(1500);
     encodeData(data, signedPortionBeginOffset, signedPortionEndOffset, encoder);
     return new Blob(encoder.getOutput(), false);
   }
