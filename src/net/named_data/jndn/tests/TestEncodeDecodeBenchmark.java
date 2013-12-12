@@ -189,7 +189,7 @@ public class TestEncodeDecodeBenchmark {
   /**
    * Call benchmarkEncodeDataSeconds and benchmarkDecodeDataSeconds with appropriate nInterations.  Print the 
    * results to System.out.
-   * @param useComplex See benchmarkEncodeDataSeconds and benchmarkDecodeDataSeconds.
+   * @param useComplex See benchmarkEncodeDataSeconds.
    * @param useCrypto See benchmarkEncodeDataSeconds and benchmarkDecodeDataSeconds.
    */
   private static void
