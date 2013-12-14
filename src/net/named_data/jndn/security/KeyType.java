@@ -5,7 +5,7 @@
  * See COPYING for copyright and distribution information.
  */
 
-package net.named_data.jndn;
+package net.named_data.jndn.security;
 
 public enum KeyType {
   RSA,
