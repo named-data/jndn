@@ -94,6 +94,21 @@ public class Blob {
   }
 
   /**
+   * Get a byte array by calling ByteBuffer.array().  This is called immutableArray to remind you not to change 
+   * the contents of the returned array.  This method is necessary because the read-only ByteBuffer returned by buf() 
+   * doesn't allow you to call array().
+   * @return A byte array which you should not modify, or null if the pointer is null.
+   */
+  public final byte[] 
+  getImmutableArray() 
+  { 
+    if (buffer_ != null)
+      return buffer_.array(); 
+    else
+      return null;
+  }
+
+  /**
    * Get the size of the buffer.
    * @return The length (remaining) of the ByteBuffer, or 0 if the pointer is null.
    */
