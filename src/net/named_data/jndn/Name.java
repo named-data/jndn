@@ -411,13 +411,6 @@ public class Name {
     return this;
   }
 
-      /**
-     * Create a new Name.Component, converting the value to UTF8 bytes.
-     * Note, this does not escape %XX values.  If you need to escape, use
-     * Name.fromEscapedString.
-     * @param value The string to convert to UTF8.
-     */
-
   /**
    * Convert the value to UTF8 bytes and append a Name.Component.
    * Note, this does not escape %XX values.  If you need to escape, use
@@ -469,13 +462,17 @@ public class Name {
   
   /**
    * Return a new Name with the first nComponents components of this Name.
-   * @param nComponents The number of prefix components.
+   * @param nComponents The number of prefix components.  If nComponents is -N then return the prefix up
+   * to name.size() - N. For example getPrefix(-1) returns the name without the final component.
    * @return A new Name. 
    */
   public final Name
   getPrefix(int nComponents)
   {
-    return getSubName(0, nComponents);
+    if (nComponents < 0)
+      return getSubName(0, components_.size() + nComponents);
+    else
+      return getSubName(0, nComponents);
   }
   
   /**
