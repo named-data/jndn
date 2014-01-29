@@ -54,7 +54,8 @@ public class TestGetAsync {
       TcpTransport transport = null;
       {
         transport = new TcpTransport();
-        transport.connect(new TcpTransport.ConnectionInfo("C.hub.ndn.ucla.edu", 9695), counter);
+        // Connect to port 9695 until the testbed hubs use NDNx and are connected to the test repo.
+        transport.connect(new TcpTransport.ConnectionInfo("borges.metwi.ucla.edu", 9695), counter);
       }
 
       Name name1 = new Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E");
