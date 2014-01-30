@@ -44,19 +44,38 @@ public class MetaInfo {
   getFinalBlockID() { return finalBlockID_; }
   
   public final void 
-  setTimestampMilliseconds(double timestampMilliseconds) { timestampMilliseconds_ = timestampMilliseconds; }
+  setTimestampMilliseconds(double timestampMilliseconds)
+  { 
+    timestampMilliseconds_ = timestampMilliseconds; 
+    ++changeCount_;
+  }
   
   public final void 
-  setType(ContentType type) { type_ = type; }
+  setType(ContentType type)
+  { 
+    type_ = type; 
+    ++changeCount_;
+  }
   
   public final void 
-  setFreshnessSeconds(int freshnessSeconds) { freshnessSeconds_ = freshnessSeconds; }
+  setFreshnessSeconds(int freshnessSeconds) 
+  { 
+    freshnessSeconds_ = freshnessSeconds; 
+    ++changeCount_;
+  }
 
   public final void 
-  setFinalBlockID(Name.Component finalBlockID) { finalBlockID_ = (finalBlockID == null ? new Name.Component() : finalBlockID); }
+  setFinalBlockID(Name.Component finalBlockID) 
+  { 
+    finalBlockID_ = (finalBlockID == null ? new Name.Component() : finalBlockID); 
+    ++changeCount_;
+  }
 
-  double timestampMilliseconds_;                       /**< milliseconds since 1/1/1970. -1 for none */
-  ContentType type_ = ContentType.DATA;                /**< default is ContentType.DATA. */
-  int freshnessSeconds_;                               /**< -1 for none */
-  Name.Component finalBlockID_ = new Name.Component(); /**< size 0 for none */
+  public final long getChangeCount() { return changeCount_; }
+  
+  private double timestampMilliseconds_;                       /**< milliseconds since 1/1/1970. -1 for none */
+  private ContentType type_ = ContentType.DATA;                /**< default is ContentType.DATA. */
+  private int freshnessSeconds_;                               /**< -1 for none */
+  private Name.Component finalBlockID_ = new Name.Component(); /**< size 0 for none */
+  private long changeCount_ = 0;
 }

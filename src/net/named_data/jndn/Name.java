@@ -308,7 +308,7 @@ public class Name {
   public final void 
   set(String uri) 
   {
-    components_.clear();
+    clear();
 
     uri = uri.trim();
     if (uri.length() == 0)
@@ -346,11 +346,10 @@ public class Name {
       if (iComponentEnd < 0)
         iComponentEnd = uri.length();
 
-      Component component = new Component
-        (fromEscapedString(uri, iComponentStart, iComponentEnd));
+      Component component = new Component(fromEscapedString(uri, iComponentStart, iComponentEnd));
       // Ignore illegal components.  This also gets rid of a trailing '/'.
       if (!component.getValue().isNull())
-        components_.add(component);
+        append(component);
 
       iComponentStart = iComponentEnd + 1;
     }
@@ -360,7 +359,11 @@ public class Name {
    * Clear all the components.
    */
   public final void 
-  clear() { components_.clear(); }
+  clear() 
+  { 
+    components_.clear();
+    ++changeCount_;
+  }
   
   /**
    * Append a new component, copying from value.
@@ -370,8 +373,7 @@ public class Name {
   public final Name 
   append(byte[] value)
   {
-    components_.add(new Component(value));
-    return this;
+    return append(new Component(value));
   }
   
   /**
@@ -382,8 +384,7 @@ public class Name {
   public final Name 
   append(Blob value)
   {
-    components_.add(new Component(value));
-    return this;
+    return append(new Component(value));
   }
   
   /**
@@ -395,6 +396,7 @@ public class Name {
   append(Component component)
   {
     components_.add(component);
+    ++changeCount_;
     return this;
   }
   
@@ -406,7 +408,7 @@ public class Name {
       return append(new Name(name));
 
     for (int i = 0; i < name.components_.size(); ++i)
-      components_.add(name.components_.get(i));
+      append(name.components_.get(i));
   
     return this;
   }
@@ -422,8 +424,7 @@ public class Name {
   public final Name 
   append(String value)
   {
-    components_.add(new Component(value));
-    return this;
+    return append(new Component(value));
   }
 
   /**
@@ -502,8 +503,7 @@ public class Name {
   public final Name
   appendSegment(long segment)
   {
-    components_.add(Component.fromNumberWithMarker(segment, (byte)0x00));
-    return this;
+    return append(Component.fromNumberWithMarker(segment, (byte)0x00));
   }
   
   /**
@@ -515,8 +515,7 @@ public class Name {
   public final Name
   appendVersion(long version)
   {
-    components_.add(Component.fromNumberWithMarker(version, (byte)0xFD));
-    return this;
+    return append(Component.fromNumberWithMarker(version, (byte)0xFD));
   }
   
   /**
@@ -563,6 +562,8 @@ public class Name {
     return true;
   }
 
+  public final long getChangeCount() { return changeCount_; }
+  
   /**
    * Make a Blob value by decoding the escapedString between beginOffset and 
    * endOffset according to the NDN URI Scheme. If the escaped string is 
@@ -726,4 +727,5 @@ public class Name {
   }
   
   private final ArrayList<Component> components_;
+  private long changeCount_ = 0;
 }

@@ -36,6 +36,7 @@ public class PublisherPublicKeyDigest {
   setPublisherPublicKeyDigest(Blob publisherPublicKeyDigest) 
   {
     publisherPublicKeyDigest_ = (publisherPublicKeyDigest == null ? new Blob() : publisherPublicKeyDigest);
+    ++changeCount_;
   }
 
   /**
@@ -45,7 +46,11 @@ public class PublisherPublicKeyDigest {
   clear()
   {
     publisherPublicKeyDigest_ = new Blob();
+    ++changeCount_;
   }
 
+  public final long getChangeCount() { return changeCount_; }
+
   private Blob publisherPublicKeyDigest_ = new Blob();
+  private long changeCount_ = 0;
 }

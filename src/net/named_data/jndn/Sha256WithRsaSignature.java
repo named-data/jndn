@@ -18,6 +18,8 @@ public class Sha256WithRsaSignature extends Signature {
    */
   public Sha256WithRsaSignature()
   {  
+    publisherPublicKeyDigestChangeCount_ = publisherPublicKeyDigest_.getChangeCount();
+    keyLocatorChangeCount_ = keyLocator_.getChangeCount();
   }
   
   /**
@@ -31,6 +33,8 @@ public class Sha256WithRsaSignature extends Signature {
     signature_ = signature.signature_;
     publisherPublicKeyDigest_ = new PublisherPublicKeyDigest(signature.publisherPublicKeyDigest_);
     keyLocator_ = new KeyLocator(signature.keyLocator_);
+    publisherPublicKeyDigestChangeCount_ = publisherPublicKeyDigest_.getChangeCount();
+    keyLocatorChangeCount_ = keyLocator_.getChangeCount();
   }
   
   /**
@@ -60,26 +64,63 @@ public class Sha256WithRsaSignature extends Signature {
   getKeyLocator() { return keyLocator_; }
 
   public final void 
-  setDigestAlgorithm(Blob digestAlgorithm) { digestAlgorithm_ = (digestAlgorithm == null ? new Blob() : digestAlgorithm); }
+  setDigestAlgorithm(Blob digestAlgorithm) 
+  {
+    digestAlgorithm_ = (digestAlgorithm == null ? new Blob() : digestAlgorithm); 
+    ++changeCount_;
+  }
   
   public final void 
-  setWitness(Blob witness) { witness_ = (witness == null ? new Blob() : witness); }
+  setWitness(Blob witness) 
+  { 
+    witness_ = (witness == null ? new Blob() : witness); 
+    ++changeCount_;
+  }
 
   public final void 
-  setSignature(Blob signature) { signature_ = (signature == null ? new Blob() : signature); }
+  setSignature(Blob signature) 
+  { 
+    signature_ = (signature == null ? new Blob() : signature); 
+    ++changeCount_;
+  }
 
   public final void 
   setPublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest) 
   { 
-    publisherPublicKeyDigest_ = (publisherPublicKeyDigest == null ? new PublisherPublicKeyDigest() : publisherPublicKeyDigest); 
+    publisherPublicKeyDigest_ = (publisherPublicKeyDigest == null ? new PublisherPublicKeyDigest() : publisherPublicKeyDigest);
+    publisherPublicKeyDigestChangeCount_ = publisherPublicKeyDigest_.getChangeCount();
+    ++changeCount_;
   }
   
   public final void 
-  setKeyLocator(KeyLocator keyLocator) { keyLocator_ = (keyLocator == null ? new KeyLocator() : keyLocator); }
+  setKeyLocator(KeyLocator keyLocator) 
+  {
+    keyLocator_ = (keyLocator == null ? new KeyLocator() : keyLocator); 
+    keyLocatorChangeCount_ = keyLocator_.getChangeCount();
+    ++changeCount_;
+  }
 
+  @Override
+  public long getChangeCount()
+  {
+    if (publisherPublicKeyDigestChangeCount_ != publisherPublicKeyDigest_.getChangeCount()) {
+      ++changeCount_;
+      publisherPublicKeyDigestChangeCount_ = publisherPublicKeyDigest_.getChangeCount();
+    }
+    if (keyLocatorChangeCount_ != keyLocator_.getChangeCount()) {
+      ++changeCount_;
+      keyLocatorChangeCount_ = keyLocator_.getChangeCount();
+    }
+    
+    return changeCount_;    
+  }
+  
   private Blob digestAlgorithm_ = new Blob(); /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */
   private Blob witness_ = new Blob();
   private Blob signature_ = new Blob();
   private PublisherPublicKeyDigest publisherPublicKeyDigest_ = new PublisherPublicKeyDigest();
+  private long publisherPublicKeyDigestChangeCount_;
   private KeyLocator keyLocator_ = new KeyLocator();
+  private long keyLocatorChangeCount_;
+  private long changeCount_ = 0;
 }
