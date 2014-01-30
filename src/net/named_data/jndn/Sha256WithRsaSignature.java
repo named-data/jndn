@@ -95,10 +95,16 @@ public class Sha256WithRsaSignature extends Signature {
     ++changeCount_;
   }
 
+  /**
+   * Get the change count, which is incremented each time this object (or a child object) is changed.
+   * @return The change count.
+   */
   @Override
-  public long getChangeCount()
+  public final long 
+  getChangeCount()
   {
     if (publisherPublicKeyDigest_.checkChanged() || keyLocator_.checkChanged())
+      // A child object has changed, so update the change count.
       ++changeCount_;
     
     return changeCount_;    

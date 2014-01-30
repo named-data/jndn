@@ -72,8 +72,13 @@ public class MetaInfo implements ChangeCountable {
     ++changeCount_;
   }
 
+  /**
+   * Get the change count, which is incremented each time this object is changed.
+   * @return The change count.
+   */
   @Override
-  public final long getChangeCount() { return changeCount_; }
+  public final long 
+  getChangeCount() { return changeCount_; }
   
   private double timestampMilliseconds_;                       /**< milliseconds since 1/1/1970. -1 for none */
   private ContentType type_ = ContentType.DATA;                /**< default is ContentType.DATA. */

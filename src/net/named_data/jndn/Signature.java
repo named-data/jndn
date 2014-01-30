@@ -21,6 +21,10 @@ public abstract class Signature implements ChangeCountable {
   @Override
   public abstract Object clone() throws CloneNotSupportedException;
   
+  /**
+   * Get the change count, which is incremented each time this object (or a child object) is changed.
+   * @return The change count.
+   */
   @Override
   public abstract long getChangeCount();
 }

@@ -118,22 +118,13 @@ public class Data implements ChangeCountable {
   }
 
   public final Signature 
-  getSignature() 
-  { 
-    return signature_.get(); 
-  }
+  getSignature() { return signature_.get(); }
   
   public final Name 
-  getName() 
-  { 
-    return name_.get(); 
-  }
+  getName() { return name_.get(); }
   
   public final MetaInfo 
-  getMetaInfo() 
-  { 
-    return metaInfo_.get(); 
-  }
+  getMetaInfo() { return metaInfo_.get(); }
   
   public final Blob 
   getContent() { return content_; }
@@ -208,10 +199,16 @@ public class Data implements ChangeCountable {
     return this;
   }
 
+  /**
+   * Get the change count, which is incremented each time this object (or a child object) is changed.
+   * @return The change count.
+   */
   @Override
-  public final long getChangeCount()
+  public final long 
+  getChangeCount()
   {
     if (signature_.checkChanged() || name_.checkChanged() || metaInfo_.checkChanged())
+      // A child object has changed, so update the change count.
       ++changeCount_;
     
     return changeCount_;

@@ -563,8 +563,13 @@ public class Name implements ChangeCountable {
     return true;
   }
 
+  /**
+   * Get the change count, which is incremented each time this object is changed.
+   * @return The change count.
+   */
   @Override
-  public final long getChangeCount() { return changeCount_; }
+  public final long 
+  getChangeCount() { return changeCount_; }
   
   /**
    * Make a Blob value by decoding the escapedString between beginOffset and 
