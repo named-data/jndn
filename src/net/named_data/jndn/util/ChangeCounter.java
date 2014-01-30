@@ -9,7 +9,7 @@ package net.named_data.jndn.util;
 /**
  * A ChangeCounter keeps a pointer to a target ChangeCountable whose change count is tracked by a local
  * change count.  You can set to a new target which updates the local change count, and you can call checkChanged
- * to check if the target (or one of the target's targets has been changed.
+ * to check if the target (or one of the target's targets) has been changed.
  * @param <T> The type of the target which also implements ChangeCountable.
  */
 public class ChangeCounter<T extends ChangeCountable> {
