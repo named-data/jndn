@@ -19,4 +19,6 @@ public abstract class Signature {
    */
   @Override
   public abstract Object clone() throws CloneNotSupportedException;
+  
+  public abstract long getChangeCount();
 }
