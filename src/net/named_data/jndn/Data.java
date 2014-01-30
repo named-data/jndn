@@ -49,7 +49,7 @@ public class Data implements ChangeCountable {
     name_.set(new Name(data.name_.get()));
     metaInfo_.set(new MetaInfo(data.metaInfo_.get()));
     content_ = data.content_;
-    defaultWireEncoding_ = data.defaultWireEncoding_;
+    setDefaultWireEncoding(data.defaultWireEncoding_);
   }
   
   /**
@@ -68,7 +68,7 @@ public class Data implements ChangeCountable {
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // This is the default wire encoding.
-      defaultWireEncoding_ = wireEncoding;
+      setDefaultWireEncoding(wireEncoding);
 
     return wireEncoding;
   }
@@ -100,9 +100,9 @@ public class Data implements ChangeCountable {
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // This is the default wire encoding.
-      defaultWireEncoding_ = new SignedBlob(input, true, signedPortionBeginOffset[0], signedPortionEndOffset[0]);
+      setDefaultWireEncoding(new SignedBlob(input, true, signedPortionBeginOffset[0], signedPortionEndOffset[0]));
     else
-      defaultWireEncoding_ = new SignedBlob();
+      setDefaultWireEncoding(new SignedBlob());
   }
 
   /**
@@ -212,6 +212,14 @@ public class Data implements ChangeCountable {
       ++changeCount_;
     
     return changeCount_;
+  }
+  
+  private void
+  setDefaultWireEncoding(SignedBlob defaultWireEncoding)
+  {
+    defaultWireEncoding_ = defaultWireEncoding;
+    // Set getDefaultWireEncodingChangeCount_ so that the next call to getDefaultWireEncoding() won't clear defaultWireEncoding_.
+    getDefaultWireEncodingChangeCount_ = getChangeCount();
   }
 
   private final ChangeCounter<Signature> signature_ = new ChangeCounter<Signature>(new Sha256WithRsaSignature());
