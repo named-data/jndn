@@ -10,19 +10,17 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.ChangeCounter;
+import net.named_data.jndn.util.ChangeCountable;
 import net.named_data.jndn.util.SignedBlob;
-import net.named_data.jndn.Sha256WithRsaSignature;
 
-public class Data {
+
+public class Data implements ChangeCountable {
   /**
    * Create a new Data object with default values and where the signature is a blank Sha256WithRsaSignature.
    */
   public Data()
   {  
-    signature_ = new Sha256WithRsaSignature();
-    signatureChangeCount_ = signature_.getChangeCount();
-    nameChangeCount_ = name_.getChangeCount();
-    metaInfoChangeCount_ = metaInfo_.getChangeCount();
   }
   
   /**
@@ -31,11 +29,7 @@ public class Data {
    */
   public Data(Name name)
   {
-    name_ = new Name(name);
-    signature_ = new Sha256WithRsaSignature();
-    signatureChangeCount_ = signature_.getChangeCount();
-    nameChangeCount_ = name_.getChangeCount();
-    metaInfoChangeCount_ = metaInfo_.getChangeCount();
+    name_.set(new Name(name));
   }
   
   /**
@@ -45,20 +39,17 @@ public class Data {
   public Data(Data data)
   {
     try {
-      signature_ = (data.signature_ == null ? new Sha256WithRsaSignature() : (Signature)data.signature_.clone());
+      signature_.set(data.signature_ == null ? new Sha256WithRsaSignature() : (Signature)data.signature_.get().clone());
     } 
     catch (CloneNotSupportedException e) {
       // We don't expect this to happen, so just treat it as if we got a null pointer.
       throw new NullPointerException("Data.setSignature: unexpected exception in clone(): " + e.getMessage());
     }
 
-    name_ = new Name(data.name_);
-    metaInfo_ = new MetaInfo(data.metaInfo_);
+    name_.set(new Name(data.name_.get()));
+    metaInfo_.set(new MetaInfo(data.metaInfo_.get()));
     content_ = data.content_;
     defaultWireEncoding_ = data.defaultWireEncoding_;
-    signatureChangeCount_ = signature_.getChangeCount();
-    nameChangeCount_ = name_.getChangeCount();
-    metaInfoChangeCount_ = metaInfo_.getChangeCount();
   }
   
   /**
@@ -129,19 +120,19 @@ public class Data {
   public final Signature 
   getSignature() 
   { 
-    return signature_; 
+    return signature_.get(); 
   }
   
   public final Name 
   getName() 
   { 
-    return name_; 
+    return name_.get(); 
   }
   
   public final MetaInfo 
   getMetaInfo() 
   { 
-    return metaInfo_; 
+    return metaInfo_.get(); 
   }
   
   public final Blob 
@@ -172,14 +163,13 @@ public class Data {
   setSignature(Signature signature) 
   { 
     try {
-      signature_ = (signature == null ? new Sha256WithRsaSignature() : (Signature)signature.clone());
+      signature_.set(signature == null ? new Sha256WithRsaSignature() : (Signature)signature.clone());
     } 
     catch (CloneNotSupportedException e) {
       // We don't expect this to happen, so just treat it as if we got a null pointer.
       throw new NullPointerException("Data.setSignature: unexpected exception in clone(): " + e.getMessage());
     }
     
-    signatureChangeCount_ = signature_.getChangeCount();
     ++changeCount_;
     return this;
   }
@@ -192,8 +182,7 @@ public class Data {
   public Data 
   setName(Name name)
   { 
-    name_ = (name == null ? new Name() : name); 
-    nameChangeCount_ = name_.getChangeCount();
+    name_.set((name == null ? new Name() : name)); 
     ++changeCount_;
     return this;
   }
@@ -206,8 +195,7 @@ public class Data {
   public final Data 
   setMetaInfo(MetaInfo metaInfo) 
   { 
-    metaInfo_ = (metaInfo == null ? new MetaInfo(metaInfo) : metaInfo); 
-    metaInfoChangeCount_ = metaInfo_.getChangeCount();
+    metaInfo_.set(metaInfo == null ? new MetaInfo(metaInfo) : metaInfo); 
     ++changeCount_;
     return this;
   }
@@ -220,30 +208,18 @@ public class Data {
     return this;
   }
 
+  @Override
   public final long getChangeCount()
   {
-    if (signatureChangeCount_ != signature_.getChangeCount()) {
+    if (signature_.checkChanged() || name_.checkChanged() || metaInfo_.checkChanged())
       ++changeCount_;
-      signatureChangeCount_ = signature_.getChangeCount();
-    }
-    if (nameChangeCount_ != name_.getChangeCount()) {
-      ++changeCount_;
-      nameChangeCount_ = name_.getChangeCount();
-    }
-    if (metaInfoChangeCount_ != metaInfo_.getChangeCount()) {
-      ++changeCount_;
-      metaInfoChangeCount_ = metaInfo_.getChangeCount();
-    }
     
     return changeCount_;
   }
 
-  private Signature signature_ = new Sha256WithRsaSignature();
-  private long signatureChangeCount_;
-  private Name name_ = new Name();
-  private long nameChangeCount_;
-  private MetaInfo metaInfo_ = new MetaInfo();
-  private long metaInfoChangeCount_;
+  private final ChangeCounter<Signature> signature_ = new ChangeCounter<Signature>(new Sha256WithRsaSignature());
+  private final ChangeCounter<Name> name_ = new ChangeCounter<Name>(new Name());
+  private final ChangeCounter<MetaInfo> metaInfo_ = new ChangeCounter<MetaInfo>(new MetaInfo());
   private Blob content_ = new Blob();
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
   private long getDefaultWireEncodingChangeCount_ = 0;

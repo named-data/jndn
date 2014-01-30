@@ -10,11 +10,12 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.ChangeCountable;
 
 /**
  * A Name holds an array of Name.Component and represents an NDN name.
  */
-public class Name {
+public class Name implements ChangeCountable {
   /**
    * A Name.Component holds a read-only name component value.
    */
@@ -562,6 +563,7 @@ public class Name {
     return true;
   }
 
+  @Override
   public final long getChangeCount() { return changeCount_; }
   
   /**

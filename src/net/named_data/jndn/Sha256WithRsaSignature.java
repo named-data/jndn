@@ -7,6 +7,7 @@
 package net.named_data.jndn;
 
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.ChangeCounter;
 
 /**
  * A Sha256WithRsaSignature extends Signature and holds the signature bits and other info representing a
@@ -18,8 +19,6 @@ public class Sha256WithRsaSignature extends Signature {
    */
   public Sha256WithRsaSignature()
   {  
-    publisherPublicKeyDigestChangeCount_ = publisherPublicKeyDigest_.getChangeCount();
-    keyLocatorChangeCount_ = keyLocator_.getChangeCount();
   }
   
   /**
@@ -31,10 +30,8 @@ public class Sha256WithRsaSignature extends Signature {
     digestAlgorithm_ = signature.digestAlgorithm_;
     witness_ = signature.witness_;
     signature_ = signature.signature_;
-    publisherPublicKeyDigest_ = new PublisherPublicKeyDigest(signature.publisherPublicKeyDigest_);
-    keyLocator_ = new KeyLocator(signature.keyLocator_);
-    publisherPublicKeyDigestChangeCount_ = publisherPublicKeyDigest_.getChangeCount();
-    keyLocatorChangeCount_ = keyLocator_.getChangeCount();
+    publisherPublicKeyDigest_.set(new PublisherPublicKeyDigest(signature.publisherPublicKeyDigest_.get()));
+    keyLocator_.set(new KeyLocator(signature.keyLocator_.get()));
   }
   
   /**
@@ -58,10 +55,10 @@ public class Sha256WithRsaSignature extends Signature {
   getSignature() { return signature_; }
   
   public final PublisherPublicKeyDigest 
-  getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_.get(); }
   
   public final KeyLocator 
-  getKeyLocator() { return keyLocator_; }
+  getKeyLocator() { return keyLocator_.get(); }
 
   public final void 
   setDigestAlgorithm(Blob digestAlgorithm) 
@@ -87,30 +84,22 @@ public class Sha256WithRsaSignature extends Signature {
   public final void 
   setPublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest) 
   { 
-    publisherPublicKeyDigest_ = (publisherPublicKeyDigest == null ? new PublisherPublicKeyDigest() : publisherPublicKeyDigest);
-    publisherPublicKeyDigestChangeCount_ = publisherPublicKeyDigest_.getChangeCount();
+    publisherPublicKeyDigest_.set((publisherPublicKeyDigest == null ? new PublisherPublicKeyDigest() : publisherPublicKeyDigest));
     ++changeCount_;
   }
   
   public final void 
   setKeyLocator(KeyLocator keyLocator) 
   {
-    keyLocator_ = (keyLocator == null ? new KeyLocator() : keyLocator); 
-    keyLocatorChangeCount_ = keyLocator_.getChangeCount();
+    keyLocator_.set((keyLocator == null ? new KeyLocator() : keyLocator)); 
     ++changeCount_;
   }
 
   @Override
   public long getChangeCount()
   {
-    if (publisherPublicKeyDigestChangeCount_ != publisherPublicKeyDigest_.getChangeCount()) {
+    if (publisherPublicKeyDigest_.checkChanged() || keyLocator_.checkChanged())
       ++changeCount_;
-      publisherPublicKeyDigestChangeCount_ = publisherPublicKeyDigest_.getChangeCount();
-    }
-    if (keyLocatorChangeCount_ != keyLocator_.getChangeCount()) {
-      ++changeCount_;
-      keyLocatorChangeCount_ = keyLocator_.getChangeCount();
-    }
     
     return changeCount_;    
   }
@@ -118,9 +107,8 @@ public class Sha256WithRsaSignature extends Signature {
   private Blob digestAlgorithm_ = new Blob(); /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */
   private Blob witness_ = new Blob();
   private Blob signature_ = new Blob();
-  private PublisherPublicKeyDigest publisherPublicKeyDigest_ = new PublisherPublicKeyDigest();
-  private long publisherPublicKeyDigestChangeCount_;
-  private KeyLocator keyLocator_ = new KeyLocator();
-  private long keyLocatorChangeCount_;
+  private final ChangeCounter<PublisherPublicKeyDigest> publisherPublicKeyDigest_ = 
+    new ChangeCounter<PublisherPublicKeyDigest>(new PublisherPublicKeyDigest());
+  private final ChangeCounter<KeyLocator> keyLocator_ = new ChangeCounter<KeyLocator>(new KeyLocator());
   private long changeCount_ = 0;
 }

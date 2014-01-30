@@ -7,14 +7,15 @@
 package net.named_data.jndn;
 
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.ChangeCountable;
+import net.named_data.jndn.util.ChangeCounter;
 
-public class KeyLocator {
+public class KeyLocator implements ChangeCountable {
   /**
    * Create a new KeyLocator with default values.
    */
   public KeyLocator()
   {
-    keyNameChangeCount_ = keyName_.getChangeCount();
   }
 
   /**
@@ -26,9 +27,8 @@ public class KeyLocator {
     type_ = keyLocator.type_;
     keyData_ = keyLocator.keyData_;
     if (keyLocator.keyName_ != null)
-      keyName_ = new Name(keyLocator.keyName_);
+      keyName_.set(new Name(keyLocator.keyName_.get()));
     keyNameType_ = keyLocator.keyNameType_;
-    keyNameChangeCount_ = keyName_.getChangeCount();
   }
   
   public enum KeyLocatorType {
@@ -46,7 +46,7 @@ public class KeyLocator {
   getKeyData() { return keyData_; }
 
   public final Name
-  getKeyName() { return keyName_; }
+  getKeyName() { return keyName_.get(); }
   
   public final KeyNameType 
   getKeyNameType() { return keyNameType_; }
@@ -68,8 +68,7 @@ public class KeyLocator {
   public final void 
   setKeyName(Name keyName) 
   { 
-    keyName_ = (keyName == null ? new Name() : keyName);
-    keyNameChangeCount_ = keyName_.getChangeCount();
+    keyName_.set((keyName == null ? new Name() : keyName));
     ++changeCount_;
   }
   
@@ -88,18 +87,16 @@ public class KeyLocator {
   {
     type_ = KeyLocatorType.NONE;
     keyData_ = new Blob();
-    keyName_ = new Name();
+    keyName_.set(new Name());
     keyNameType_ = KeyNameType.NONE;
-    keyNameChangeCount_ = keyName_.getChangeCount();
     ++changeCount_;
   }
 
+  @Override
   public long getChangeCount()
   {
-    if (keyNameChangeCount_ != keyName_.getChangeCount()) {
+    if (keyName_.checkChanged())
       ++changeCount_;
-      keyNameChangeCount_ = keyName_.getChangeCount();
-    }
     
     return changeCount_;    
   }
@@ -113,8 +110,7 @@ public class KeyLocator {
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST, the publisher issuer key digest. 
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_ISSUER_CERTIFICATE_DIGEST, the publisher issuer certificate digest. 
     */
-  private Name keyName_ = new Name();                  /**< The key name (only used if type_ KeyLocatorType.KEYNAME.) */
-  private long keyNameChangeCount_;
+  private final ChangeCounter<Name> keyName_ = new ChangeCounter<Name>(new Name()); /**< The key name (only used if type_ KeyLocatorType.KEYNAME.) */
   private KeyNameType keyNameType_ = KeyNameType.NONE; /**< The type of data for keyName_. (only used if type_ is KeyLocatorType.KEYNAME.) */
   private long changeCount_ = 0;
 }

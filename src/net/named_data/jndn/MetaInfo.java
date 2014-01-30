@@ -5,8 +5,9 @@
  */
 
 package net.named_data.jndn;
+import net.named_data.jndn.util.ChangeCountable;
 
-public class MetaInfo {
+public class MetaInfo implements ChangeCountable {
   /**
    * Create a new MetaInfo with default values.
    */
@@ -71,6 +72,7 @@ public class MetaInfo {
     ++changeCount_;
   }
 
+  @Override
   public final long getChangeCount() { return changeCount_; }
   
   private double timestampMilliseconds_;                       /**< milliseconds since 1/1/1970. -1 for none */

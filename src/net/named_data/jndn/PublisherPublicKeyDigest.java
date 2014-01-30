@@ -7,12 +7,13 @@
 package net.named_data.jndn;
 
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.ChangeCountable;
 
 /**
  * A PublisherPublicKeyDigest holds the publisher public key digest value, if any.
  * We make a separate class since this is used by multiple other classes.
  */
-public class PublisherPublicKeyDigest {
+public class PublisherPublicKeyDigest implements ChangeCountable {
   /**
    * Create a new PublisherPublicKeyDigest with an empty value.
    */
@@ -49,6 +50,7 @@ public class PublisherPublicKeyDigest {
     ++changeCount_;
   }
 
+  @Override
   public final long getChangeCount() { return changeCount_; }
 
   private Blob publisherPublicKeyDigest_ = new Blob();
