@@ -89,7 +89,8 @@ public class BinaryXmlEncoder {
   writeBlob(Blob value)
   {
     encodeTypeAndValue(BinaryXml.BLOB, value.size());
-    writeBuffer(value.buf());
+    if (value.size() > 0)
+      writeBuffer(value.buf());
   }
   
   /**
