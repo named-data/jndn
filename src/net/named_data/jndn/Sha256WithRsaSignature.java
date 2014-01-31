@@ -105,8 +105,7 @@ public class Sha256WithRsaSignature extends Signature {
   {
     // Make sure each of the checkChanged is called.
     boolean changed = publisherPublicKeyDigest_.checkChanged();
-    if (keyLocator_.checkChanged())
-      changed = true;
+    changed = keyLocator_.checkChanged() || changed;
     if (changed)
       // A child object has changed, so update the change count.
       ++changeCount_;

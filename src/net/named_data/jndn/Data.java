@@ -209,10 +209,8 @@ public class Data implements ChangeCountable {
   {
     // Make sure each of the checkChanged is called.
     boolean changed = signature_.checkChanged();
-    if (name_.checkChanged())
-      changed = true;
-    if (metaInfo_.checkChanged())
-      changed = true;
+    changed = name_.checkChanged() || changed;
+    changed = metaInfo_.checkChanged() || changed;
     if (changed)
       // A child object has changed, so update the change count.
       ++changeCount_;
