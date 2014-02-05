@@ -36,7 +36,8 @@ public class KeyLocator implements ChangeCountable {
   }
   
   public enum KeyNameType {
-    NONE, PUBLISHER_PUBLIC_KEY_DIGEST, PUBLISHER_CERTIFICATE_DIGEST, PUBLISHER_ISSUER_KEY_DIGEST, PUBLISHER_ISSUER_CERTIFICATE_DIGEST
+    NONE, PUBLISHER_PUBLIC_KEY_DIGEST, PUBLISHER_CERTIFICATE_DIGEST, 
+    PUBLISHER_ISSUER_KEY_DIGEST, PUBLISHER_ISSUER_CERTIFICATE_DIGEST
   }
 
   public final KeyLocatorType 
@@ -93,7 +94,8 @@ public class KeyLocator implements ChangeCountable {
   }
 
   /**
-   * Get the change count, which is incremented each time this object (or a child object) is changed.
+   * Get the change count, which is incremented each time this object 
+   * (or a child object) is changed.
    * @return The change count.
    */
   @Override
@@ -116,7 +118,11 @@ public class KeyLocator implements ChangeCountable {
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST, the publisher issuer key digest. 
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_ISSUER_CERTIFICATE_DIGEST, the publisher issuer certificate digest. 
     */
-  private final ChangeCounter<Name> keyName_ = new ChangeCounter<Name>(new Name()); /**< The key name (only used if type_ KeyLocatorType.KEYNAME.) */
-  private KeyNameType keyNameType_ = KeyNameType.NONE; /**< The type of data for keyName_. (only used if type_ is KeyLocatorType.KEYNAME.) */
+  private final ChangeCounter<Name> keyName_ = 
+    new ChangeCounter<Name>(new Name()); /**< The key name (only used if
+                                              type_ KeyLocatorType.KEYNAME.) */
+  private KeyNameType keyNameType_ =
+    KeyNameType.NONE; /**< The type of data for keyName_. (only used if
+                           type_ is KeyLocatorType.KEYNAME.) */
   private long changeCount_ = 0;
 }

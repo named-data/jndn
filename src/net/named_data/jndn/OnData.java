@@ -7,7 +7,8 @@
 package net.named_data.jndn;
 
 /**
- * A class implements OnData if it has onData, used to pass a callback to Face.expressInterest.
+ * A class implements OnData if it has onData, used to pass a callback to 
+ * Face.expressInterest.
  */
 public interface OnData {
   /**

@@ -32,7 +32,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param privateKeyDer The private key DER byte buffer.
    */
   public final void 
-  setKeyPairForKeyName(Name keyName, ByteBuffer publicKeyDer, ByteBuffer privateKeyDer)
+  setKeyPairForKeyName
+    (Name keyName, ByteBuffer publicKeyDer, ByteBuffer privateKeyDer)
   {
     KeyFactory keyFactory = null;
     try {
@@ -40,18 +41,24 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     } 
     catch (NoSuchAlgorithmException exception) {
       // Don't expect this to happen.
-      throw new Error("KeyFactory: RSA is not supported: " + exception.getMessage());
+      throw new Error
+        ("KeyFactory: RSA is not supported: " + exception.getMessage());
     }
     
     // TODO
     //publicKeyStore_.put(keyName.toUri(), PublicKey.fromDer(new Blob(publicKeyDer, true)));
     
     try {
-      privateKeyStore_.put(keyName.toUri(), keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKeyDer.array())));
+      privateKeyStore_.put
+        (keyName.toUri(),
+         keyFactory.generatePrivate
+           (new PKCS8EncodedKeySpec(privateKeyDer.array())));
     }
     catch (InvalidKeySpecException exception) {
       // Don't expect this to happen.
-      throw new Error("KeyFactory: PKCS8EncodedKeySpec is not supported: " + exception.getMessage());
+      throw new Error
+        ("KeyFactory: PKCS8EncodedKeySpec is not supported: " +
+         exception.getMessage());
     }
   }
   
@@ -64,9 +71,11 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    */
   @Override
   public void 
-  generateKeyPair(Name keyName, KeyType keyType, int keySize) throws SecurityException
+  generateKeyPair
+    (Name keyName, KeyType keyType, int keySize) throws SecurityException
   {
-    throw new UnsupportedOperationException("MemoryPrivateKeyStorage.generateKeyPair is not implemented");
+    throw new UnsupportedOperationException
+      ("MemoryPrivateKeyStorage.generateKeyPair is not implemented");
   }
 
   /**
@@ -81,12 +90,14 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   {
     PublicKey publicKey = publicKeyStore_.get(keyName.toUri());
     if (publicKey == null)
-      throw new SecurityException("MemoryPrivateKeyStorage: Cannot find public key " + keyName.toUri());
+      throw new SecurityException
+        ("MemoryPrivateKeyStorage: Cannot find public key " + keyName.toUri());
     return publicKey;    
   }
   
   /**
-   * Fetch the private key for keyName and sign the data, returning a signature Blob.
+   * Fetch the private key for keyName and sign the data, returning a signature
+   * Blob.
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
@@ -95,7 +106,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    */  
   @Override
   public Blob 
-  sign(ByteBuffer data, Name keyName, DigestAlgorithm digestAlgorithm) throws SecurityException
+  sign(ByteBuffer data, Name keyName, DigestAlgorithm digestAlgorithm) 
+       throws SecurityException
   {
     if (digestAlgorithm != DigestAlgorithm.SHA256)
       return new Blob();
@@ -103,7 +115,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     // Find the private key and sign.
     PrivateKey privateKey = privateKeyStore_.get(keyName.toUri());
     if (privateKey == null)
-      throw new SecurityException("MemoryPrivateKeyStorage: Cannot find private key " + keyName.toUri());
+      throw new SecurityException
+        ("MemoryPrivateKeyStorage: Cannot find private key " + keyName.toUri());
     
     Signature signature = null;
     try {
@@ -118,45 +131,55 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       signature.initSign(privateKey);
     }
     catch (InvalidKeyException exception) {
-      throw new SecurityException("InvalidKeyException: " + exception.getMessage());
+      throw new SecurityException
+        ("InvalidKeyException: " + exception.getMessage());
     }
     try {
       signature.update(data);
       return new Blob(signature.sign());
     }
     catch (SignatureException exception) {
-      throw new SecurityException("SignatureException: " + exception.getMessage());
+      throw new SecurityException
+        ("SignatureException: " + exception.getMessage());
     }
   }
 
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
-   * @param data The byte buffer to be decrypted, from its position to its limit.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
+   * @param data The byte buffer to be decrypted, from its position to its 
+   * limit.
+   * @param isSymmetric If true symmetric encryption is used, otherwise 
+   * asymmetric encryption is used.
    * @return The decrypted data.
    * @throws SecurityException
    */
   @Override
   public Blob 
-  decrypt(Name keyName, ByteBuffer data, boolean isSymmetric) throws SecurityException
+  decrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
+          throws SecurityException
   {
-    throw new UnsupportedOperationException("MemoryPrivateKeyStorage.decrypt is not implemented");
+    throw new UnsupportedOperationException
+      ("MemoryPrivateKeyStorage.decrypt is not implemented");
   }
 
   /**
    * Encrypt data.
    * @param keyName The name of the encrypting key.
-   * @param data The byte buffer to be encrypted, from its position to its limit.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
+   * @param data The byte buffer to be encrypted, from its position to its 
+   * limit.
+   * @param isSymmetric If true symmetric encryption is used, otherwise 
+   * asymmetric encryption is used.
    * @return The encrypted data.
    * @throws SecurityException
    */
   @Override
   public Blob
-  encrypt(Name keyName, ByteBuffer data, boolean isSymmetric) throws SecurityException
+  encrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
+         throws SecurityException
   {
-    throw new UnsupportedOperationException("MemoryPrivateKeyStorage.encrypt is not implemented");
+    throw new UnsupportedOperationException
+      ("MemoryPrivateKeyStorage.encrypt is not implemented");
   }
 
   /**
@@ -168,15 +191,18 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    */
   @Override
   public void 
-  generateKey(Name keyName, KeyType keyType, int keySize) throws SecurityException
+  generateKey(Name keyName, KeyType keyType, int keySize) 
+             throws SecurityException
   {
-    throw new UnsupportedOperationException("MemoryPrivateKeyStorage.generateKey is not implemented");
+    throw new UnsupportedOperationException
+      ("MemoryPrivateKeyStorage.generateKey is not implemented");
   }
   
   /**
    * Check if a particular key exists.
    * @param keyName The name of the key.
-   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
+   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC,
+   * KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
    * @return True if the key exists, otherwise false.
    */
   @Override
@@ -192,6 +218,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       return false;    
   }
   
-  private final HashMap<String, PublicKey> publicKeyStore_ = new HashMap<String, PublicKey>();     /**< The map key is the keyName.toUri() */  
-  private final HashMap<String, PrivateKey> privateKeyStore_ = new HashMap<String, PrivateKey>();  /**< The map key is the keyName.toUri() */  
+  private final HashMap<String, PublicKey> publicKeyStore_ = 
+    new HashMap<String, PublicKey>(); /**< The map key is the keyName.toUri() */  
+  private final HashMap<String, PrivateKey> privateKeyStore_ = 
+    new HashMap<String, PrivateKey>(); /**< The map key is the keyName.toUri() */  
 }

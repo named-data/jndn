@@ -95,20 +95,24 @@ public class TestEncodeDecodeBenchmark {
   /**
    * Loop to encode a data packet nIterations times.
    * @param nIterations The number of iterations.
-   * @param useComplex If true, use a large name, large content and all fields.  If false, use a small name, small content
+   * @param useComplex If true, use a large name, large content and all fields.  
+   * If false, use a small name, small content
    * and only required fields.
-   * @param useCrypto If true, sign the data packet.  If false, use a blank signature.
+   * @param useCrypto If true, sign the data packet.  If false, use a blank 
+   * signature.
    * @param encoding Set encoding[0] to the wire encoding.
    * @return The number of seconds for all iterations.
    */
   private static double
-  benchmarkEncodeDataSeconds(int nIterations, boolean useComplex, boolean useCrypto, Blob[] encoding)
+  benchmarkEncodeDataSeconds
+    (int nIterations, boolean useComplex, boolean useCrypto, Blob[] encoding)
   {
     Name name;
     Blob content;
     if (useComplex) {
       // Use a large name and content.
-      name = new Name("/ndn/ucla.edu/apps/lwndn-test/numbers.txt/%FD%05%05%E8%0C%CE%1D/%00"); 
+      name = new Name
+        ("/ndn/ucla.edu/apps/lwndn-test/numbers.txt/%FD%05%05%E8%0C%CE%1D/%00"); 
 
       StringBuilder contentStream = new StringBuilder();
       int count = 1;
@@ -122,16 +126,20 @@ public class TestEncodeDecodeBenchmark {
       name = new Name("/test");
       content = new Blob("abc".getBytes());
     }
-    Name.Component finalBlockId = new Name.Component(new Blob(new byte[] { (byte)0 }));
+    Name.Component finalBlockId = 
+      new Name.Component(new Blob(new byte[] { (byte)0 }));
 
     // Initialize the private key storage in case useCrypto is true.
     MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
     Name keyName = new Name("/testname/DSK-123");
-    Name certificateName = keyName.getSubName(0, keyName.size() - 1).append("KEY").append
-      (keyName.get(keyName.size() - 1)).append("ID-CERT").append("0");
-    privateKeyStorage.setKeyPairForKeyName(keyName, DEFAULT_PUBLIC_KEY_DER, DEFAULT_PRIVATE_KEY_DER);
+    Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
+      ("KEY").append(keyName.get(keyName.size() - 1)).append("ID-CERT").append
+      ("0");
+    privateKeyStorage.setKeyPairForKeyName
+      (keyName, DEFAULT_PUBLIC_KEY_DER, DEFAULT_PRIVATE_KEY_DER);
 
-    // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is false.
+    // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is 
+    //   false.
     Blob publisherPublicKeyDigest = new Blob(new byte[32]);
     Blob signatureBits = new Blob(new byte[128]);
     Blob emptyBlob = new Blob(new byte[0]);
@@ -150,19 +158,23 @@ public class TestEncodeDecodeBenchmark {
       keyLocator.setType(KeyLocator.KeyLocatorType.KEYNAME);
       keyLocator.setKeyName(certificateName);
       keyLocator.setKeyNameType(KeyLocator.KeyNameType.NONE);
-      Sha256WithRsaSignature sha256Signature = (Sha256WithRsaSignature)data.getSignature();
+      Sha256WithRsaSignature sha256Signature = 
+        (Sha256WithRsaSignature)data.getSignature();
       sha256Signature.setKeyLocator(keyLocator);
-      sha256Signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest(publisherPublicKeyDigest);
+      sha256Signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
+        (publisherPublicKeyDigest);
       if (useCrypto) {
         // Encode once to get the signed portion.
         sha256Signature.setSignature(emptyBlob);
         SignedBlob unsignedEncoding = data.wireEncode();
         try {
-          sha256Signature.setSignature(privateKeyStorage.sign(unsignedEncoding.signedBuf(), keyName));
+          sha256Signature.setSignature(privateKeyStorage.sign
+            (unsignedEncoding.signedBuf(), keyName));
         }
         catch (SecurityException exception) {
           // Don't expect this to happen.
-          throw new Error("SecurityException in sign: " + exception.getMessage());
+          throw new Error
+            ("SecurityException in sign: " + exception.getMessage());
         }
       }
       else
@@ -187,10 +199,12 @@ public class TestEncodeDecodeBenchmark {
 
     if (!(data.getSignature() instanceof Sha256WithRsaSignature))
       throw new Error("signature is not Sha256WithRsaSignature.");
-    Sha256WithRsaSignature signatureInfo = (Sha256WithRsaSignature)data.getSignature();
+    Sha256WithRsaSignature signatureInfo = 
+      (Sha256WithRsaSignature)data.getSignature();
     if (signatureInfo.getDigestAlgorithm().size() != 0)
       // TODO: Allow a non-default digest algorithm.
-      throw new Error("Cannot verify a data packet with a non-default digest algorithm.");
+      throw new Error
+        ("Cannot verify a data packet with a non-default digest algorithm.");
 
     KeyFactory keyFactory = null;
     try {
@@ -203,11 +217,13 @@ public class TestEncodeDecodeBenchmark {
 
     PublicKey publicKey = null;
     try {
-      publicKey = keyFactory.generatePublic(new X509EncodedKeySpec(publicKeyDer.array()));
+      publicKey = keyFactory.generatePublic
+        (new X509EncodedKeySpec(publicKeyDer.array()));
     }
     catch (InvalidKeySpecException exception) {
       // Don't expect this to happen.
-      throw new Error("X509EncodedKeySpec is not supported: " + exception.getMessage());
+      throw new Error
+        ("X509EncodedKeySpec is not supported: " + exception.getMessage());
     }
 
     Signature signature = null;
@@ -243,7 +259,8 @@ public class TestEncodeDecodeBenchmark {
    * @throws EncodingException 
    */
   private static double 
-  benchmarkDecodeDataSeconds(int nIterations, boolean useCrypto, Blob encoding) throws EncodingException
+  benchmarkDecodeDataSeconds
+    (int nIterations, boolean useCrypto, Blob encoding) throws EncodingException
   {
     double start = getNowSeconds();
     for (int i = 0; i < nIterations; ++i) {
@@ -261,27 +278,34 @@ public class TestEncodeDecodeBenchmark {
   }
   
   /**
-   * Call benchmarkEncodeDataSeconds and benchmarkDecodeDataSeconds with appropriate nInterations.  Print the 
-   * results to System.out.
+   * Call benchmarkEncodeDataSeconds and benchmarkDecodeDataSeconds with 
+   * appropriate nInterations.  Print the results to System.out.
    * @param useComplex See benchmarkEncodeDataSeconds.
-   * @param useCrypto See benchmarkEncodeDataSeconds and benchmarkDecodeDataSeconds.
+   * @param useCrypto See benchmarkEncodeDataSeconds and 
+   * benchmarkDecodeDataSeconds.
    */
   private static void
-  benchmarkEncodeDecodeData(boolean useComplex, boolean useCrypto) throws EncodingException
+  benchmarkEncodeDecodeData
+    (boolean useComplex, boolean useCrypto) throws EncodingException
   {
     Blob[] encoding = new Blob[1];
     {
       int nIterations = useCrypto ? 5000 : 5000000;
-      double duration = benchmarkEncodeDataSeconds(nIterations, useComplex, useCrypto, encoding);
-      System.out.println("Encode " + (useComplex ? "complex" : "simple ") + " data: Crypto? " + (useCrypto ? "yes" : "no ") 
-        + ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
+      double duration = benchmarkEncodeDataSeconds
+        (nIterations, useComplex, useCrypto, encoding);
+      System.out.println("Encode " + (useComplex ? "complex" : "simple ") + 
+        " data: Crypto? " + (useCrypto ? "yes" : "no ") +
+        ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
     }
     {
-      // Use an extra long duration for decoding until we understand why it gets a different rate at a shorter duration.
+      // Use an extra long duration for decoding until we understand why it gets
+      //   a different rate at a shorter duration.
       int nIterations = useCrypto ? 1000000 : 40000000;
-      double duration = benchmarkDecodeDataSeconds(nIterations, useCrypto, encoding[0]);
-      System.out.println("Decode " + (useComplex ? "complex" : "simple ") + " data: Crypto? " + (useCrypto ? "yes" : "no ") 
-           + ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
+      double duration = benchmarkDecodeDataSeconds
+        (nIterations, useCrypto, encoding[0]);
+      System.out.println("Decode " + (useComplex ? "complex" : "simple ") + 
+        " data: Crypto? " + (useCrypto ? "yes" : "no ") + 
+        ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
     }
   }
 

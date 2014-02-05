@@ -7,11 +7,13 @@
 package net.named_data.jndn.util;
 
 /**
- * A class implements ChangeCountable if it has a method getChangeCount.  This is used by the class ChangeCounter.
+ * A class implements ChangeCountable if it has a method getChangeCount.  This 
+ * is used by the class ChangeCounter.
  */
 public interface ChangeCountable {
   /**
-   * Get the change count for the object which increases monotonically when the fiends of the object are changed.
+   * Get the change count for the object which increases monotonically when the 
+   * fields of the object are changed.
    * @return The change count. 
    */
   long getChangeCount();

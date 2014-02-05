@@ -31,7 +31,8 @@ public class PublicKey {
   public final DerNode
   toDer()
   {
-    throw new UnsupportedOperationException("PublicKey.toDer is not implemented");
+    throw new UnsupportedOperationException
+      ("PublicKey.toDer is not implemented");
   }
 
   /**
@@ -43,7 +44,8 @@ public class PublicKey {
   fromDer(Blob keyDer)
   {
     // new X509EncodedKeySpec(publicKeyDer.array());
-    throw new UnsupportedOperationException("PublicKey.fromDer is not implemented");
+    throw new UnsupportedOperationException
+      ("PublicKey.fromDer is not implemented");
   }
 
   /*
@@ -53,7 +55,8 @@ public class PublicKey {
   public final Blob 
   getDigest(DigestAlgorithm digestAlgorithm)
   {
-    throw new UnsupportedOperationException("PublicKey.getDigest is not implemented");
+    throw new UnsupportedOperationException
+      ("PublicKey.getDigest is not implemented");
   }
 
   /*

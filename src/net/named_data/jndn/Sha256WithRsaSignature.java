@@ -10,7 +10,8 @@ import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCounter;
 
 /**
- * A Sha256WithRsaSignature extends Signature and holds the signature bits and other info representing a
+ * A Sha256WithRsaSignature extends Signature and holds the signature bits and 
+ * other info representing a
  * SHA256-with-RSA signature in a data packet.
  */
 public class Sha256WithRsaSignature extends Signature {
@@ -22,7 +23,8 @@ public class Sha256WithRsaSignature extends Signature {
   }
   
   /**
-   * Create a new Sha256WithRsaSignature with a copy of the fields in the given signature object.
+   * Create a new Sha256WithRsaSignature with a copy of the fields in the given 
+   * signature object.
    * @param signature The signature object to copy.
    */
   public Sha256WithRsaSignature(Sha256WithRsaSignature signature)
@@ -30,7 +32,8 @@ public class Sha256WithRsaSignature extends Signature {
     digestAlgorithm_ = signature.digestAlgorithm_;
     witness_ = signature.witness_;
     signature_ = signature.signature_;
-    publisherPublicKeyDigest_.set(new PublisherPublicKeyDigest(signature.publisherPublicKeyDigest_.get()));
+    publisherPublicKeyDigest_.set
+      (new PublisherPublicKeyDigest(signature.publisherPublicKeyDigest_.get()));
     keyLocator_.set(new KeyLocator(signature.keyLocator_.get()));
   }
   
@@ -84,7 +87,8 @@ public class Sha256WithRsaSignature extends Signature {
   public final void 
   setPublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest) 
   { 
-    publisherPublicKeyDigest_.set((publisherPublicKeyDigest == null ? new PublisherPublicKeyDigest() : publisherPublicKeyDigest));
+    publisherPublicKeyDigest_.set((publisherPublicKeyDigest == null ? 
+      new PublisherPublicKeyDigest() : publisherPublicKeyDigest));
     ++changeCount_;
   }
   
@@ -96,7 +100,8 @@ public class Sha256WithRsaSignature extends Signature {
   }
 
   /**
-   * Get the change count, which is incremented each time this object (or a child object) is changed.
+   * Get the change count, which is incremented each time this object 
+   * (or a child object) is changed.
    * @return The change count.
    */
   @Override
@@ -113,11 +118,13 @@ public class Sha256WithRsaSignature extends Signature {
     return changeCount_;    
   }
   
-  private Blob digestAlgorithm_ = new Blob(); /**< if empty, the default is 2.16.840.1.101.3.4.2.1 (sha-256) */
+  private Blob digestAlgorithm_ = new Blob(); /**< if empty, the default is 
+                                             2.16.840.1.101.3.4.2.1 (sha-256) */
   private Blob witness_ = new Blob();
   private Blob signature_ = new Blob();
   private final ChangeCounter<PublisherPublicKeyDigest> publisherPublicKeyDigest_ = 
     new ChangeCounter<PublisherPublicKeyDigest>(new PublisherPublicKeyDigest());
-  private final ChangeCounter<KeyLocator> keyLocator_ = new ChangeCounter<KeyLocator>(new KeyLocator());
+  private final ChangeCounter<KeyLocator> keyLocator_ = 
+    new ChangeCounter<KeyLocator>(new KeyLocator());
   private long changeCount_ = 0;
 }

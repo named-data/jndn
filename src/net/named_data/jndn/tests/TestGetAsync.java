@@ -26,7 +26,8 @@ class Counter implements ElementListener {
         Data data = new Data();
         data.wireDecode(element);
 
-        System.out.println("Got data packet with name " + data.getName().toUri());
+        System.out.println
+          ("Got data packet with name " + data.getName().toUri());
         ByteBuffer content = data.getContent().buf();
         for (int i = content.position(); i < content.limit(); ++i)
           System.out.print((char)content.get(i));
@@ -54,13 +55,18 @@ public class TestGetAsync {
       TcpTransport transport = null;
       {
         transport = new TcpTransport();
-        // Connect to port 9695 until the testbed hubs use NDNx and are connected to the test repo.
-        transport.connect(new TcpTransport.ConnectionInfo("ndn-remap-p02.it.ucla.edu", 9695), counter);
+        // Connect to port 9695 until the testbed hubs use NDNx and are 
+        //   connected to the test repo.
+        transport.connect(new TcpTransport.ConnectionInfo
+           ("ndn-remap-p02.it.ucla.edu", 9695), counter);
       }
 
-      Name name1 = new Name("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E/%00");
+      Name name1 = new Name
+        ("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E/%00");
       System.out.println("Express name " + name1.toUri());
-      // face.expressInterest(name1, bind(&Counter::onData, &counter, _1, _2), bind(&Counter::onTimeout, &counter, _1));
+      // face.expressInterest
+      //   (name1, bind(&Counter::onData, &counter, _1, _2), 
+      //    bind(&Counter::onTimeout, &counter, _1));
       {
         Interest interest = new Interest(name1, 4000.0);
         Blob encoding = interest.wireEncode();
@@ -73,7 +79,8 @@ public class TestGetAsync {
         {
           transport.processEvents();
         }
-        // We need to sleep for a few milliseconds so we don't use 100% of the CPU.
+        // We need to sleep for a few milliseconds so we don't use 100% of 
+        //   the CPU.
         Thread.sleep(5);
       }
     }

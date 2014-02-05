@@ -9,7 +9,8 @@ package net.named_data.jndn.util;
 import java.nio.ByteBuffer;
 
 /**
- * A DynamicByteBuffer maintains a ByteBuffer and provides methods to ensure a minimum capacity, resizing if necessary.
+ * A DynamicByteBuffer maintains a ByteBuffer and provides methods to ensure a 
+ * minimum capacity, resizing if necessary.
  */
 public class DynamicByteBuffer {
   /**
@@ -23,9 +24,11 @@ public class DynamicByteBuffer {
   }
    
   /**
-   * Ensure that buffer().capacity() is greater than or equal to capacity.  If it is, just set the limit to the capacity.
-   * Otherwise, allocate a new buffer and copy everything from 0 to the position to the new buffer, set the same position
-   * and set the limit to the new capacity.
+   * Ensure that buffer().capacity() is greater than or equal to capacity.  If 
+   * it is, just set the limit to the capacity.
+   * Otherwise, allocate a new buffer and copy everything from 0 to the position 
+   * to the new buffer, set the same position and set the limit to the new 
+   * capacity.
    * Note that this does not copy the mark to the new buffer.
    * @param capacity The minimum needed capacity.
    */
@@ -59,7 +62,8 @@ public class DynamicByteBuffer {
   }
 
   /**
-   * Use ensureCapacity to ensure there are remainingCapacity bytes after position().
+   * Use ensureCapacity to ensure there are remainingCapacity bytes after 
+   * position().
    * @param remainingCapacity The desired minimum capacity after position().
    */
   public final void 
@@ -69,7 +73,8 @@ public class DynamicByteBuffer {
   }
   
   /**
-   * Call ensureCapacity to ensure there is capacity for 1 more byte and call buffer().put(b).
+   * Call ensureCapacity to ensure there is capacity for 1 more byte and call 
+   * buffer().put(b).
    * This increments the position by 1.
    * @param b The byte to put.
    */
@@ -81,10 +86,12 @@ public class DynamicByteBuffer {
   }
 
   /**
-   * Call ensureCapacity to ensure there is capacity for buffer.remaining() more bytes and use buffer().put to copy.
+   * Call ensureCapacity to ensure there is capacity for buffer.remaining() more 
+   * bytes and use buffer().put to copy.
    * This increments the position by (limit - position).
    * This does update buffer's position to its limit.
-   * @param buffer The buffer to copy from.  This does not change buffer.position() or buffer.limit().
+   * @param buffer The buffer to copy from.  This does not change 
+   * buffer.position() or buffer.limit().
    */
   public final void 
   ensuredPut(ByteBuffer buffer)
@@ -94,9 +101,11 @@ public class DynamicByteBuffer {
   }
 
   /**
-   * Call ensureCapacity to ensure there is capacity for (limit - position) more bytes and use buffer().put to copy.
+   * Call ensureCapacity to ensure there is capacity for (limit - position) more 
+   * bytes and use buffer().put to copy.
    * This increments the position by (limit - position).
-   * @param buffer The buffer to copy from.  This does not change buffer.position() or buffer.limit().
+   * @param buffer The buffer to copy from.  This does not change 
+   * buffer.position() or buffer.limit().
    * @param position The position in buffer to copy from.
    * @param limit The limit in buffer to copy from.
    */
@@ -119,14 +128,16 @@ public class DynamicByteBuffer {
   }
 
   /**
-   * Return the ByteBuffer.  Note that ensureCapacity can change the returned ByteBuffer. 
+   * Return the ByteBuffer.  Note that ensureCapacity can change the returned 
+   * ByteBuffer. 
    * @return The ByteBuffer.
    */
   public final ByteBuffer 
   buffer() { return buffer_; }
 
   /**
-   * Return a new ByteBuffer which is the flipped version of buffer().  The returned buffer's position is 0 and its
+   * Return a new ByteBuffer which is the flipped version of buffer().  The 
+   * returned buffer's position is 0 and its
    * limit is position().
    * @return A new ByteBuffer
    */

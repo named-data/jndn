@@ -8,7 +8,8 @@ package net.named_data.jndn;
 import net.named_data.jndn.util.ChangeCountable;
 
 /**
- * A Signature is an abstract base class providing methods to work with the signature information in a Data packet.
+ * A Signature is an abstract base class providing methods to work with the 
+ * signature information in a Data packet.
  * You must create an object of a subclass, for example Sha256WithRsaSignature.
  */
 public abstract class Signature implements ChangeCountable {
@@ -22,7 +23,8 @@ public abstract class Signature implements ChangeCountable {
   public abstract Object clone() throws CloneNotSupportedException;
   
   /**
-   * Get the change count, which is incremented each time this object (or a child object) is changed.
+   * Get the change count, which is incremented each time this object 
+   * (or a child object) is changed.
    * @return The change count.
    */
   @Override

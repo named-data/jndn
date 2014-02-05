@@ -17,7 +17,8 @@ public class Exclude {
   }
   
   /**
-   * An Exclude.Entry holds an Exclude.Type, and if it is a COMPONENT, it holds the component value.
+   * An Exclude.Entry holds an Exclude.Type, and if it is a COMPONENT, it holds 
+   * the component value.
    */
   public static class Entry {
     /**
@@ -48,13 +49,15 @@ public class Exclude {
 
     /**
      * Get the component value for this entry (if it is of type COMPONENT).
-     * @return The component value, or null if this entry is not of type COMPONENT.
+     * @return The component value, or null if this entry is not of type 
+     * COMPONENT.
      */
     public final Name.Component 
     getComponent() { return component_; }
 
     private final Exclude.Type type_;
-    private final Name.Component component_; /**< only used if type_ is ndn_Exclude_COMPONENT */
+    private final Name.Component component_; /**< only used if type_ is 
+                                                  ndn_Exclude_COMPONENT */
   }
   
   /**
@@ -92,7 +95,8 @@ public class Exclude {
   }
   
   /**
-   * Append a new entry of type Exclude.Type.COMPONENT, taking another pointer to the Name.Component.
+   * Append a new entry of type Exclude.Type.COMPONENT, taking another pointer 
+   * to the Name.Component.
    * @param component The component value for the entry.
    * @return This Exclude so that you can chain calls to append.
    */
@@ -113,7 +117,8 @@ public class Exclude {
   }
   
   /**
-   * Encode this Exclude with elements separated by "," and Exclude.Type.ANY shown as "*".
+   * Encode this Exclude with elements separated by "," and Exclude.Type.ANY 
+   * shown as "*".
    * @return the URI string
    */
   public final String 
@@ -130,7 +135,8 @@ public class Exclude {
       if (entries_.get(i).getType() == Exclude.Type.ANY)
         result.append("*");
       else
-        Name.toEscapedString(entries_.get(i).getComponent().getValue().buf(), result);
+        Name.toEscapedString
+          (entries_.get(i).getComponent().getValue().buf(), result);
     }
 
     return result.toString();      

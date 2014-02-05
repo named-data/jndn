@@ -15,31 +15,12 @@ import net.named_data.jndn.util.Blob;
  * An Interest holds a Name and other fields for an interest.
  */
 public class Interest {
-  /*
-  public Interest(const Name& name, int minSuffixComponents, int maxSuffixComponents, 
-    const PublisherPublicKeyDigest& publisherPublicKeyDigest, const Exclude& exclude, int childSelector, int answerOriginKind, 
-    int scope, Milliseconds interestLifetimeMilliseconds, const std::vector<uint8_t>& nonce) 
-  : name_(name), minSuffixComponents_(minSuffixComponents), maxSuffixComponents_(maxSuffixComponents),
-  publisherPublicKeyDigest_(publisherPublicKeyDigest), exclude_(exclude), childSelector_(childSelector), 
-  answerOriginKind_(answerOriginKind), scope_(scope), interestLifetimeMilliseconds_(interestLifetimeMilliseconds),
-  nonce_(nonce)
-  {
-  }
-
-  public Interest(const Name& name, int minSuffixComponents, int maxSuffixComponents, 
-    const PublisherPublicKeyDigest& publisherPublicKeyDigest, const Exclude& exclude, int childSelector, int answerOriginKind, 
-    int scope, Milliseconds interestLifetimeMilliseconds) 
-  : name_(name), minSuffixComponents_(minSuffixComponents), maxSuffixComponents_(maxSuffixComponents),
-  publisherPublicKeyDigest_(publisherPublicKeyDigest), exclude_(exclude), childSelector_(childSelector), 
-  answerOriginKind_(answerOriginKind), scope_(scope), interestLifetimeMilliseconds_(interestLifetimeMilliseconds)
-  {
-  }
-  */
-  
   /**
-   * Create a new Interest with the given name and interest lifetime and "none" for other values.
+   * Create a new Interest with the given name and interest lifetime and "none" 
+   * for other values.
    * @param name The name for the interest.
-   * @param interestLifetimeMilliseconds The interest lifetime in milliseconds, or -1 for none.
+   * @param interestLifetimeMilliseconds The interest lifetime in milliseconds, 
+   * or -1 for none.
    */
   public 
   Interest(Name name, double interestLifetimeMilliseconds) 
@@ -75,9 +56,11 @@ public class Interest {
   public static final int ANSWER_CONTENT_STORE = 1;
   public static final int ANSWER_GENERATED = 2;
   public static final int ANSWER_STALE = 4;    // Stale answer OK
-  public static final int MARK_STALE = 16;     // Must have scope 0.  Michael calls this a "hack"
+  public static final int MARK_STALE = 16;     // Must have scope 0.  
+                                               // Michael calls this a "hack"
 
-  public static final int DEFAULT_ANSWER_ORIGIN_KIND = ANSWER_CONTENT_STORE | ANSWER_GENERATED;
+  public static final int DEFAULT_ANSWER_ORIGIN_KIND = 
+    ANSWER_CONTENT_STORE | ANSWER_GENERATED;
 
   /**
    * Encode this Interest for a particular wire format.
@@ -91,7 +74,8 @@ public class Interest {
   }
 
   /**
-   * Encode this Interest for the default wire format WireFormat.getDefaultWireFormat().
+   * Encode this Interest for the default wire format 
+   * WireFormat.getDefaultWireFormat().
    * @return The encoded buffer.
    */
   public final Blob 
@@ -102,7 +86,8 @@ public class Interest {
 
   /**
    * Decode the input using a particular wire format and update this Interest.
-   * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
+   * @param input The input buffer to decode.  This reads from position() to 
+   * limit(), but does not change the position.
    * @param wireFormat A WireFormat object used to decode the input.
    * @throws EncodingException For invalid encoding.
    */
@@ -113,8 +98,10 @@ public class Interest {
   }
 
   /**
-   * Decode the input using the default wire format WireFormat.getDefaultWireFormat() and update this Interest.
-   * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
+   * Decode the input using the default wire format 
+   * WireFormat.getDefaultWireFormat() and update this Interest.
+   * @param input The input buffer to decode.  This reads from position() to 
+   * limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.
    */
   public final void 
@@ -136,7 +123,8 @@ public class Interest {
   }
 
   /**
-   * Decode the input using the default wire format WireFormat.getDefaultWireFormat() and update this Interest.
+   * Decode the input using the default wire format 
+   * WireFormat.getDefaultWireFormat() and update this Interest.
    * @param input The input blob to decode.
    * @throws EncodingException For invalid encoding.
    */
@@ -147,8 +135,9 @@ public class Interest {
   }
 
   /**
-   * Encode the name according to the "NDN URI Scheme".  If there are interest selectors, append "?" and
-   * added the selectors as a query string.  For example "/test/name?ndn.ChildSelector=1".
+   * Encode the name according to the "NDN URI Scheme".  If there are interest 
+   * selectors, append "?" and added the selectors as a query string.  For 
+   * example "/test/name?ndn.ChildSelector=1".
    * @return The URI string.
    */
   public final String
@@ -167,10 +156,13 @@ public class Interest {
     if (scope_ >= 0)
       selectors.append("&ndn.Scope=").append(scope_);
     if (interestLifetimeMilliseconds_ >= 0)
-      selectors.append("&ndn.InterestLifetime=").append(interestLifetimeMilliseconds_);
+      selectors.append("&ndn.InterestLifetime=").append
+        (interestLifetimeMilliseconds_);
     if (publisherPublicKeyDigest_.getPublisherPublicKeyDigest().size() > 0) {
       selectors.append("&ndn.PublisherPublicKeyDigest=");
-      Name.toEscapedString(publisherPublicKeyDigest_.getPublisherPublicKeyDigest().buf(), selectors);
+      Name.toEscapedString
+        (publisherPublicKeyDigest_.getPublisherPublicKeyDigest().buf(), 
+         selectors);
     }
     if (nonce_.size() > 0) {
       selectors.append("&ndn.Nonce=");
@@ -224,22 +216,34 @@ public class Interest {
   setName(Name name) { name_ = (name == null ? new Name() : name); }
   
   public final void 
-  setMinSuffixComponents(int minSuffixComponents) { minSuffixComponents_ = minSuffixComponents; }
+  setMinSuffixComponents(int minSuffixComponents) 
+  {
+    minSuffixComponents_ = minSuffixComponents;
+  }
   
   public final void 
-  setMaxSuffixComponents(int maxSuffixComponents) { maxSuffixComponents_ = maxSuffixComponents; }
+  setMaxSuffixComponents(int maxSuffixComponents) 
+  { 
+    maxSuffixComponents_ = maxSuffixComponents; 
+  }
   
   public final void 
   setChildSelector(int childSelector) { childSelector_ = childSelector; }
 
   public final void 
-  setAnswerOriginKind(int answerOriginKind) { answerOriginKind_ = answerOriginKind; }
+  setAnswerOriginKind(int answerOriginKind) 
+  { 
+    answerOriginKind_ = answerOriginKind; 
+  }
 
   public final void 
   setScope(int scope) { scope_ = scope; }
 
   public final void 
-  setInterestLifetimeMilliseconds(double interestLifetimeMilliseconds) { interestLifetimeMilliseconds_ = interestLifetimeMilliseconds; }
+  setInterestLifetimeMilliseconds(double interestLifetimeMilliseconds) 
+  { 
+    interestLifetimeMilliseconds_ = interestLifetimeMilliseconds; 
+  }
 
   public final void 
   setNonce(Blob nonce) { nonce_ = (nonce == null ? new Blob() : nonce); }
@@ -247,7 +251,8 @@ public class Interest {
   private Name name_ = new Name();
   private int minSuffixComponents_ = -1;
   private int maxSuffixComponents_ = -1;  
-  private final PublisherPublicKeyDigest publisherPublicKeyDigest_ = new PublisherPublicKeyDigest();
+  private final PublisherPublicKeyDigest publisherPublicKeyDigest_ = 
+    new PublisherPublicKeyDigest();
   private final Exclude exclude_ = new Exclude();
   private int childSelector_ = -1;
   private int answerOriginKind_ = -1;

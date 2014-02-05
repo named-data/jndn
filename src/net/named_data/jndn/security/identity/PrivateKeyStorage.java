@@ -25,7 +25,8 @@ public abstract class PrivateKeyStorage {
    * @throws SecurityException
    */
   public abstract void 
-  generateKeyPair(Name keyName, KeyType keyType, int keySize) throws SecurityException;
+  generateKeyPair
+    (Name keyName, KeyType keyType, int keySize) throws SecurityException;
 
   /**
    * Generate a pair of asymmetric keys with key size 2048.
@@ -60,7 +61,8 @@ public abstract class PrivateKeyStorage {
   getPublicKey(Name keyName) throws SecurityException;
   
   /**
-   * Fetch the private key for keyName and sign the data, returning a signature Blob.
+   * Fetch the private key for keyName and sign the data, returning a signature 
+   * Blob.
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
@@ -68,10 +70,12 @@ public abstract class PrivateKeyStorage {
    * @throws SecurityException
    */  
   public abstract Blob 
-  sign(ByteBuffer data, Name keyName, DigestAlgorithm digestAlgorithm) throws SecurityException;
+  sign(ByteBuffer data, Name keyName, DigestAlgorithm digestAlgorithm)
+      throws SecurityException;
 
   /**
-   * Fetch the private key for keyName and sign the data using DigestAlgorithm.SHA256, returning a signature Blob.
+   * Fetch the private key for keyName and sign the data using 
+   * DigestAlgorithm.SHA256, returning a signature Blob.
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
    * @return The signature, or a null pointer if signing fails.
@@ -86,18 +90,22 @@ public abstract class PrivateKeyStorage {
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
-   * @param data The byte buffer to be decrypted, from its position to its limit.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
+   * @param data The byte buffer to be decrypted, from its position to its 
+   * limit.
+   * @param isSymmetric If true symmetric encryption is used, otherwise 
+   * asymmetric encryption is used.
    * @return The decrypted data.
    * @throws SecurityException
    */
   public abstract Blob 
-  decrypt(Name keyName, ByteBuffer data, boolean isSymmetric) throws SecurityException;
+  decrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
+         throws SecurityException;
 
   /**
    * Decrypt data using asymmetric encryption.
    * @param keyName The name of the decrypting key.
-   * @param data The byte buffer to be decrypted, from its position to its limit.
+   * @param data The byte buffer to be decrypted, from its position to its 
+   * limit.
    * @return The decrypted data.
    * @throws SecurityException
    */
@@ -110,18 +118,22 @@ public abstract class PrivateKeyStorage {
   /**
    * Encrypt data.
    * @param keyName The name of the encrypting key.
-   * @param data The byte buffer to be encrypted, from its position to its limit.
-   * @param isSymmetric If true symmetric encryption is used, otherwise asymmetric encryption is used.
+   * @param data The byte buffer to be encrypted, from its position to its 
+   * limit.
+   * @param isSymmetric If true symmetric encryption is used, otherwise 
+   * asymmetric encryption is used.
    * @return The encrypted data.
    * @throws SecurityException
    */
   public abstract Blob
-  encrypt(Name keyName, ByteBuffer data, boolean isSymmetric) throws SecurityException;
+  encrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
+          throws SecurityException;
 
   /**
    * Encrypt data using asymmetric encryption.
    * @param keyName The name of the encrypting key.
-   * @param data The byte buffer to be encrypted, from its position to its limit.
+   * @param data The byte buffer to be encrypted, from its position to its 
+   * limit.
    * @return The encrypted data.
    * @throws SecurityException
    */
@@ -139,7 +151,8 @@ public abstract class PrivateKeyStorage {
    * @throws SecurityException
    */
   public abstract void 
-  generateKey(Name keyName, KeyType keyType, int keySize) throws SecurityException;
+  generateKey(Name keyName, KeyType keyType, int keySize) 
+             throws SecurityException;
 
   /**
    * Generate a symmetric key of size 256.
@@ -167,7 +180,8 @@ public abstract class PrivateKeyStorage {
   /**
    * Check if a particular key exists.
    * @param keyName The name of the key.
-   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
+   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, 
+   * KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
    * @return True if the key exists, otherwise false.
    */
   public abstract boolean

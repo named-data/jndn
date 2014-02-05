@@ -16,7 +16,8 @@ import net.named_data.jndn.encoding.EncodingException;
 
 public class TcpTransport extends Transport {
   /**
-   * A TcpTransport::ConnectionInfo extends Transport::ConnectionInfo to hold the host and port info for the TCP connection.
+   * A TcpTransport::ConnectionInfo extends Transport::ConnectionInfo to hold 
+   * the host and port info for the TCP connection.
    */
   public static class ConnectionInfo extends Transport.ConnectionInfo {
     /**
@@ -63,16 +64,21 @@ public class TcpTransport extends Transport {
   /**
    * Connect according to the info in ConnectionInfo, and use elementListener.
    * @param connectionInfo A TcpTransport.ConnectionInfo.
-   * @param elementListener The ElementListener must remain valid during the life of this object.
+   * @param elementListener The ElementListener must remain valid during the 
+   * life of this object.
    * @throws IOException For I/O error.
    */
   @Override
   public void 
-  connect(Transport.ConnectionInfo connectionInfo, ElementListener elementListener) throws IOException
+  connect
+    (Transport.ConnectionInfo connectionInfo, ElementListener elementListener) 
+    throws IOException
   {
     close();    
     
-    channel_ = SocketChannel.open(new InetSocketAddress(((ConnectionInfo)connectionInfo).getHost(), ((ConnectionInfo)connectionInfo).getPort()));
+    channel_ = SocketChannel.open
+      (new InetSocketAddress(((ConnectionInfo)connectionInfo).getHost(), 
+       ((ConnectionInfo)connectionInfo).getPort()));
     channel_.configureBlocking(false);
     
     elementReader_ = new BinaryXmlElementReader(elementListener);
@@ -80,7 +86,8 @@ public class TcpTransport extends Transport {
   
   /**
    * Set data to the host
-   * @param data The buffer of data to send.  This reads from position() to limit(), but does not change the position.
+   * @param data The buffer of data to send.  This reads from position() to 
+   * limit(), but does not change the position.
    * @throws IOException For I/O error.
    */
   @Override
@@ -88,7 +95,8 @@ public class TcpTransport extends Transport {
   send(ByteBuffer data) throws IOException
   {
     if (channel_ == null)
-      throw new IOException("Cannot send because the socket is not open.  Use connect.");
+      throw new IOException
+        ("Cannot send because the socket is not open.  Use connect.");
     
     // Save and restore the position.
     int savePosition = data.position();
@@ -102,10 +110,13 @@ public class TcpTransport extends Transport {
   }
   
   /**
-   * Process any data to receive.  For each element received, call elementListener.onReceivedElement.
-   * This is non-blocking and will return immediately if there is no data to receive.
-   * You should normally not call this directly since it is called by Face.processEvents.
-   * If you call this from an main event loop, you may want to catch and log/disregard all exceptions.
+   * Process any data to receive.  For each element received, call 
+   * elementListener.onReceivedElement.
+   * This is non-blocking and will return immediately if there is no data to 
+   * receive. You should normally not call this directly since it is called by 
+   * Face.processEvents.
+   * If you call this from an main event loop, you may want to catch and 
+   * log/disregard all exceptions.
    * @throws IOException For I/O error.
    * @throws EncodingException For invalid encoding.
    */
@@ -143,7 +154,8 @@ public class TcpTransport extends Transport {
   }
     
   /**
-   * Close the connection.  This base class implementation does nothing, but your derived class can override.
+   * Close the connection.  This base class implementation does nothing, but 
+   * your derived class can override.
    * @throws IOException For I/O error.
    */
   @Override
