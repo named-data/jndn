@@ -64,7 +64,7 @@ public class Interest {
 
   /**
    * Encode this Interest for a particular wire format.
-   * @param wireFormat A WireFormat object used to decode the input.
+   * @param wireFormat A WireFormat object used to encode this Interest.
    * @return The encoded buffer.
    */
   public final Blob 
