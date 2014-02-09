@@ -23,7 +23,7 @@ public class TcpTransport extends Transport {
     /**
      * Create a ConnectionInfo with the given host and port.
      * @param host The host for the connection.
-     * @param port The port number for the connection. If omitted, use 6363.
+     * @param port The port number for the connection.
      */
     public
     ConnectionInfo(String host, int port)
@@ -154,8 +154,7 @@ public class TcpTransport extends Transport {
   }
     
   /**
-   * Close the connection.  This base class implementation does nothing, but 
-   * your derived class can override.
+   * Close the connection.  If not connected, this does nothing.
    * @throws IOException For I/O error.
    */
   @Override
