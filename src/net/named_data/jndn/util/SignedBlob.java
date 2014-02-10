@@ -98,8 +98,8 @@ public class SignedBlob extends Blob {
   }
 
   /**
-   * Get the length of the signed portion of the immutable byte buffer
-   * @return The length of the signed portion, or null if the pointer is null.
+   * Get the length of the signed portion of the immutable byte buffer.
+   * @return The length of the signed portion, or 0 if the pointer is null.
    */
   public final int 
   signedSize()
