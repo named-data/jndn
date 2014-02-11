@@ -28,10 +28,6 @@ public class MetaInfo implements ChangeCountable {
     finalBlockID_ = metaInfo.finalBlockID_;
   }
 
-  public enum ContentType {
-    DATA, ENCR, GONE, KEY, LINK, NACK
-  }
-
   public final double 
   getTimestampMilliseconds() { return timestampMilliseconds_; }
   

@@ -30,16 +30,7 @@ public class KeyLocator implements ChangeCountable {
       keyName_.set(new Name(keyLocator.keyName_.get()));
     keyNameType_ = keyLocator.keyNameType_;
   }
-  
-  public enum KeyLocatorType {
-    NONE, KEY, CERTIFICATE, KEYNAME
-  }
-  
-  public enum KeyNameType {
-    NONE, PUBLISHER_PUBLIC_KEY_DIGEST, PUBLISHER_CERTIFICATE_DIGEST, 
-    PUBLISHER_ISSUER_KEY_DIGEST, PUBLISHER_ISSUER_CERTIFICATE_DIGEST
-  }
-
+    
   public final KeyLocatorType 
   getType() { return type_; }
   

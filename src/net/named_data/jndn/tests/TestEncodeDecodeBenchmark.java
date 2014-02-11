@@ -17,6 +17,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.KeyLocator;
+import net.named_data.jndn.KeyLocatorType;
+import net.named_data.jndn.KeyNameType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
@@ -155,9 +157,9 @@ public class TestEncodeDecodeBenchmark {
       }
 
       KeyLocator keyLocator = new KeyLocator();    
-      keyLocator.setType(KeyLocator.KeyLocatorType.KEYNAME);
+      keyLocator.setType(KeyLocatorType.KEYNAME);
       keyLocator.setKeyName(certificateName);
-      keyLocator.setKeyNameType(KeyLocator.KeyNameType.NONE);
+      keyLocator.setKeyNameType(KeyNameType.NONE);
       Sha256WithRsaSignature sha256Signature = 
         (Sha256WithRsaSignature)data.getSignature();
       sha256Signature.setKeyLocator(keyLocator);
