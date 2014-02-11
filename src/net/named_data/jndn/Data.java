@@ -54,7 +54,7 @@ public class Data implements ChangeCountable {
     name_.set(new Name(data.name_.get()));
     metaInfo_.set(new MetaInfo(data.metaInfo_.get()));
     content_ = data.content_;
-    setDefaultWireEncoding(data.defaultWireEncoding_);
+    setDefaultWireEncoding(data.defaultWireEncoding_, null);
   }
   
   /**
@@ -66,6 +66,11 @@ public class Data implements ChangeCountable {
   public final SignedBlob 
   wireEncode(WireFormat wireFormat)
   {
+    if (!getDefaultWireEncoding().isNull() && 
+        getDefaultWireEncodingFormat() == wireFormat)
+      // We already have an encoding in the desired format.
+      return getDefaultWireEncoding();
+  
     int[] signedPortionBeginOffset = new int[1];
     int[] signedPortionEndOffset = new int[1];
     Blob encoding = wireFormat.encodeData
@@ -75,7 +80,7 @@ public class Data implements ChangeCountable {
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // This is the default wire encoding.
-      setDefaultWireEncoding(wireEncoding);
+      setDefaultWireEncoding(wireEncoding, WireFormat.getDefaultWireFormat());
 
     return wireEncoding;
   }
@@ -112,9 +117,9 @@ public class Data implements ChangeCountable {
       // This is the default wire encoding.
       setDefaultWireEncoding
         (new SignedBlob(input, true, signedPortionBeginOffset[0], 
-         signedPortionEndOffset[0]));
+         signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
     else
-      setDefaultWireEncoding(new SignedBlob());
+      setDefaultWireEncoding(new SignedBlob(), null);
   }
 
   /**
@@ -144,7 +149,8 @@ public class Data implements ChangeCountable {
   getContent() { return content_; }
 
   /**
-   * Return a pointer to the defaultWireEncoding.
+   * Return a pointer to the defaultWireEncoding, which was encoded with
+   * getDefaultWireEncodingFormat().
    * @return The default wire encoding. Its pointer may be null.
    */
   public final SignedBlob
@@ -153,11 +159,20 @@ public class Data implements ChangeCountable {
     if (getDefaultWireEncodingChangeCount_ != getChangeCount()) {
       // The values have changed, so the default wire encoding is invalidated.
       defaultWireEncoding_ = new SignedBlob();
+      defaultWireEncodingFormat_ = null;
       getDefaultWireEncodingChangeCount_ = getChangeCount();
     }
     
     return defaultWireEncoding_; 
   }
+  
+  /**
+   * Get the WireFormat which is used by getDefaultWireEncoding().
+   * @return The WireFormat, which is only meaningful if the 
+   * getDefaultWireEncoding() does not have a null pointer.
+   */
+  WireFormat
+  getDefaultWireEncodingFormat() { return defaultWireEncodingFormat_; }
   
   /**
    * Set the signature to a copy of the given signature.
@@ -238,9 +253,11 @@ public class Data implements ChangeCountable {
   }
   
   private void
-  setDefaultWireEncoding(SignedBlob defaultWireEncoding)
+  setDefaultWireEncoding
+    (SignedBlob defaultWireEncoding, WireFormat defaultWireEncodingFormat)
   {
     defaultWireEncoding_ = defaultWireEncoding;
+    defaultWireEncodingFormat_ = defaultWireEncodingFormat;
     // Set getDefaultWireEncodingChangeCount_ so that the next call to 
     //   getDefaultWireEncoding() won't clear defaultWireEncoding_.
     getDefaultWireEncodingChangeCount_ = getChangeCount();
@@ -253,6 +270,7 @@ public class Data implements ChangeCountable {
     new ChangeCounter<MetaInfo>(new MetaInfo());
   private Blob content_ = new Blob();
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
+  private WireFormat defaultWireEncodingFormat_;
   private long getDefaultWireEncodingChangeCount_ = 0;
   private long changeCount_ = 0;
 }
