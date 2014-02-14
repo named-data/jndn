@@ -39,8 +39,8 @@ public class TestEncodeDecodeBenchmark {
   toBuffer(int[] array) 
   {
     ByteBuffer result = ByteBuffer.allocate(array.length);
-    for (int value : array)
-      result.put((byte)(value & 0xff));
+    for (int i = 0; i < array.length; ++i)
+      result.put((byte)(array[i] & 0xff));
     
     result.flip();
     return result;
