@@ -158,7 +158,7 @@ public class Blob {
   public static String 
   toHex(ByteBuffer buffer)
   {
-    StringBuilder output = new StringBuilder(buffer.remaining() * 2);
+    StringBuffer output = new StringBuffer(buffer.remaining() * 2);
     for (int i = buffer.position(); i < buffer.limit(); ++i) {
       String hex = Integer.toHexString((int)buffer.get(i) & 0xff).toUpperCase();
       if (hex.length() <= 1)
