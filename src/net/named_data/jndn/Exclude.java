@@ -65,7 +65,7 @@ public class Exclude {
    */
   public Exclude() 
   {
-    entries_ = new ArrayList<Entry>();
+    entries_ = new ArrayList();
   }
   
   /**
