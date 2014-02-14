@@ -27,7 +27,7 @@ public class KeyLocator implements ChangeCountable {
     type_ = keyLocator.type_;
     keyData_ = keyLocator.keyData_;
     if (keyLocator.keyName_ != null)
-      keyName_.set(new Name(keyLocator.keyName_.get()));
+      keyName_.set(new Name(keyLocator.getKeyName()));
     keyNameType_ = keyLocator.keyNameType_;
   }
     
@@ -38,7 +38,7 @@ public class KeyLocator implements ChangeCountable {
   getKeyData() { return keyData_; }
 
   public final Name
-  getKeyName() { return keyName_.get(); }
+  getKeyName() { return (Name)keyName_.get(); }
   
   public final KeyNameType 
   getKeyNameType() { return keyNameType_; }
@@ -108,9 +108,9 @@ public class KeyLocator implements ChangeCountable {
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST, the publisher issuer key digest. 
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_ISSUER_CERTIFICATE_DIGEST, the publisher issuer certificate digest. 
     */
-  private final ChangeCounter<Name> keyName_ = 
-    new ChangeCounter<Name>(new Name()); /**< The key name (only used if
-                                              type_ KeyLocatorType.KEYNAME.) */
+  private final ChangeCounter keyName_ = 
+    new ChangeCounter(new Name()); /**< The key name (only used if
+                                        type_ KeyLocatorType.KEYNAME.) */
   private KeyNameType keyNameType_ =
     KeyNameType.NONE; /**< The type of data for keyName_. (only used if
                            type_ is KeyLocatorType.KEYNAME.) */

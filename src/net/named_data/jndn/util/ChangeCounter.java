@@ -11,15 +11,14 @@ package net.named_data.jndn.util;
  * count is tracked by a local change count.  You can set to a new target which 
  * updates the local change count, and you can call checkChanged
  * to check if the target (or one of the target's targets) has been changed.
- * @param <T> The type of the target which also implements ChangeCountable.
  */
-public class ChangeCounter<T extends ChangeCountable> {
+public class ChangeCounter {
   /**
    * Create a new ChangeCounter to track the given target.  This sets the local
    * change counter to target.getChangeCount().
    * @param target The target to track.
    */
-  public ChangeCounter(T target)
+  public ChangeCounter(ChangeCountable target)
   {
     target_ = target;
     changeCount_ = target_.getChangeCount();
@@ -30,14 +29,14 @@ public class ChangeCounter<T extends ChangeCountable> {
    * detect it.
    * @return The target object.
    */
-  public final T get() { return target_; }
+  public final ChangeCountable get() { return target_; }
 
   /**
    * Set the target to the given target.  This sets the local change counter to 
    * target.getChangeCount().
    * @param target The target to track.
    */
-  public final void set(T target) 
+  public final void set(ChangeCountable target) 
   {
     target_ = target;
     changeCount_ = target_.getChangeCount();
@@ -62,6 +61,6 @@ public class ChangeCounter<T extends ChangeCountable> {
       return false;
   }
           
-  private T target_;
+  private ChangeCountable target_;
   private long changeCount_;
 }

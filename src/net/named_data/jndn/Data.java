@@ -43,7 +43,7 @@ public class Data implements ChangeCountable {
   {
     try {
       signature_.set(data.signature_ == null ? 
-        new Sha256WithRsaSignature() : (Signature)data.signature_.get().clone());
+        new Sha256WithRsaSignature() : (Signature)data.getSignature().clone());
     } 
     catch (CloneNotSupportedException e) {
       // We don't expect this to happen, so just treat it as if we got a null pointer.
@@ -51,8 +51,8 @@ public class Data implements ChangeCountable {
         ("Data.setSignature: unexpected exception in clone(): " + e.getMessage());
     }
 
-    name_.set(new Name(data.name_.get()));
-    metaInfo_.set(new MetaInfo(data.metaInfo_.get()));
+    name_.set(new Name(data.getName()));
+    metaInfo_.set(new MetaInfo(data.getMetaInfo()));
     content_ = data.content_;
     setDefaultWireEncoding(data.defaultWireEncoding_, null);
   }
@@ -137,13 +137,13 @@ public class Data implements ChangeCountable {
   }
 
   public final Signature 
-  getSignature() { return signature_.get(); }
+  getSignature() { return (Signature)signature_.get(); }
   
   public final Name 
-  getName() { return name_.get(); }
+  getName() { return (Name)name_.get(); }
   
   public final MetaInfo 
-  getMetaInfo() { return metaInfo_.get(); }
+  getMetaInfo() { return (MetaInfo)metaInfo_.get(); }
   
   public final Blob 
   getContent() { return content_; }
@@ -262,11 +262,11 @@ public class Data implements ChangeCountable {
     getDefaultWireEncodingChangeCount_ = getChangeCount();
   }
 
-  private final ChangeCounter<Signature> signature_ =
-    new ChangeCounter<Signature>(new Sha256WithRsaSignature());
-  private final ChangeCounter<Name> name_ = new ChangeCounter<Name>(new Name());
-  private final ChangeCounter<MetaInfo> metaInfo_ = 
-    new ChangeCounter<MetaInfo>(new MetaInfo());
+  private final ChangeCounter signature_ =
+    new ChangeCounter(new Sha256WithRsaSignature());
+  private final ChangeCounter name_ = new ChangeCounter(new Name());
+  private final ChangeCounter metaInfo_ = 
+    new ChangeCounter(new MetaInfo());
   private Blob content_ = new Blob();
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
   private WireFormat defaultWireEncodingFormat_;
