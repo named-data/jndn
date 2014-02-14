@@ -81,7 +81,7 @@ public class Exclude {
    * @return The entry at the index.
    */
   public final Exclude.Entry
-  get(int i) { return entries_.get(i); }
+  get(int i) { return (Exclude.Entry)entries_.get(i); }
   
   /**
    * Append a new entry of type Exclude.Type.ANY.
@@ -132,15 +132,14 @@ public class Exclude {
       if (i > 0)
         result.append(",");
 
-      if (entries_.get(i).getType() == Exclude.Type.ANY)
+      if (get(i).getType() == Exclude.Type.ANY)
         result.append("*");
       else
-        Name.toEscapedString
-          (entries_.get(i).getComponent().getValue().buf(), result);
+        Name.toEscapedString(get(i).getComponent().getValue().buf(), result);
     }
 
     return result.toString();      
   }
   
-  private final ArrayList<Entry> entries_;
+  private final ArrayList entries_;
 }
