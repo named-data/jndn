@@ -143,7 +143,7 @@ public class Interest {
   public final String
   toUri()
   {
-    StringBuilder selectors = new StringBuilder();
+    StringBuffer selectors = new StringBuffer();
 
     if (minSuffixComponents_ >= 0)
       selectors.append("&ndn.MinSuffixComponents=").append(minSuffixComponents_);
@@ -171,7 +171,7 @@ public class Interest {
     if (exclude_.size() > 0)
       selectors.append("&ndn.Exclude=").append(exclude_.toUri());
 
-    StringBuilder result = new StringBuilder();
+    StringBuffer result = new StringBuffer();
 
     result.append(name_.toUri());
     String selectorsString = selectors.toString();

@@ -74,10 +74,10 @@ public class Name implements ChangeCountable {
     /**
      * Write this component value to result, escaping characters according to 
      * the NDN URI Scheme. This also adds "..." to a value with zero or more ".".
-     * @param result The StringBuilder to write to.
+     * @param result The StringBuffer to write to.
      */
     public final void 
-    toEscapedString(StringBuilder result)
+    toEscapedString(StringBuffer result)
     {
       Name.toEscapedString(value_.buf(), result);
     }
@@ -275,10 +275,10 @@ public class Name implements ChangeCountable {
    * @param components The components to copy.
    */
   public 
-  Name(ArrayList<Component> components)
+  Name(ArrayList components)
   {
     // Don't need to deep-copy Component elements because they are read-only.
-    components_ = new ArrayList<Component>(components);
+    components_ = new ArrayList(components);
   }
 
   /**
@@ -288,7 +288,7 @@ public class Name implements ChangeCountable {
   public 
   Name(Component[] components)
   {
-    components_ = new ArrayList<Component>();
+    components_ = new ArrayList();
     for (int i = 0; i < components.length; ++i)
       components_.add(components[i]);
   }
@@ -301,7 +301,7 @@ public class Name implements ChangeCountable {
   public 
   Name(String uri)
   {
-    components_ = new ArrayList<Component>();
+    components_ = new ArrayList();
     set(uri);
   }
   
@@ -505,7 +505,7 @@ public class Name implements ChangeCountable {
     if (components_.isEmpty())
       return "/";
 
-    StringBuilder result = new StringBuilder();
+    StringBuffer result = new StringBuffer();
     for (int i = 0; i < components_.size(); ++i) {
       result.append("/");
       toEscapedString(get(i).getValue().buf(), result);
@@ -658,10 +658,10 @@ public class Name implements ChangeCountable {
    * This also adds "..." to a value with zero or more ".".
    * @param value The ByteBuffer with the value.  This reads from position() to 
    * limit().
-   * @param result The StringBuilder to write to.
+   * @param result The StringBuffer to write to.
    */
   public static void
-  toEscapedString(ByteBuffer value, StringBuilder result)
+  toEscapedString(ByteBuffer value, StringBuffer result)
   {
     boolean gotNonDot = false;
     for (int i = value.position(); i < value.limit(); ++i) {
@@ -704,7 +704,7 @@ public class Name implements ChangeCountable {
   public static String
   toEscapedString(ByteBuffer value)
   {
-    StringBuilder result = new StringBuilder(value.remaining());
+    StringBuffer result = new StringBuffer(value.remaining());
     toEscapedString(value, result);
     return result.toString();
   }

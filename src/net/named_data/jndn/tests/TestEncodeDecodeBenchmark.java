@@ -116,7 +116,7 @@ public class TestEncodeDecodeBenchmark {
       name = new Name
         ("/ndn/ucla.edu/apps/lwndn-test/numbers.txt/%FD%05%05%E8%0C%CE%1D/%00"); 
 
-      StringBuilder contentStream = new StringBuilder();
+      StringBuffer contentStream = new StringBuffer();
       int count = 1;
       contentStream.append(count++);
       while (contentStream.toString().length() < 1170)

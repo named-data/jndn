@@ -127,7 +127,7 @@ public class Exclude {
     if (entries_.isEmpty())
       return "";
 
-    StringBuilder result = new StringBuilder();
+    StringBuffer result = new StringBuffer();
     for (int i = 0; i < entries_.size(); ++i) {
       if (i > 0)
         result.append(",");
