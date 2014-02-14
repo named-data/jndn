@@ -86,7 +86,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   public PublicKey
   getPublicKey(Name keyName) throws SecurityException
   {
-    PublicKey publicKey = publicKeyStore_.get(keyName.toUri());
+    PublicKey publicKey = (PublicKey)publicKeyStore_.get(keyName.toUri());
     if (publicKey == null)
       throw new SecurityException
         ("MemoryPrivateKeyStorage: Cannot find public key " + keyName.toUri());
@@ -110,7 +110,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       return new Blob();
     
     // Find the private key and sign.
-    PrivateKey privateKey = privateKeyStore_.get(keyName.toUri());
+    PrivateKey privateKey = (PrivateKey)privateKeyStore_.get(keyName.toUri());
     if (privateKey == null)
       throw new SecurityException
         ("MemoryPrivateKeyStorage: Cannot find private key " + keyName.toUri());
@@ -211,8 +211,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       return false;    
   }
   
-  private final HashMap<String, PublicKey> publicKeyStore_ = 
-    new HashMap<String, PublicKey>(); /**< The map key is the keyName.toUri() */  
-  private final HashMap<String, PrivateKey> privateKeyStore_ = 
-    new HashMap<String, PrivateKey>(); /**< The map key is the keyName.toUri() */  
+  private final HashMap publicKeyStore_ = 
+    new HashMap(); /**< The map key is the keyName.toUri() */  
+  private final HashMap privateKeyStore_ = 
+    new HashMap(); /**< The map key is the keyName.toUri() */  
 }
