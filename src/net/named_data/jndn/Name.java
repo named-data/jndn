@@ -257,7 +257,7 @@ public class Name implements ChangeCountable {
   public 
   Name()
   {
-    components_ = new ArrayList<Component>();          
+    components_ = new ArrayList();          
   }
   
   /**
@@ -267,7 +267,7 @@ public class Name implements ChangeCountable {
   public 
   Name(Name name)
   {
-    components_ = new ArrayList<Component>(name.components_);
+    components_ = new ArrayList(name.components_);
   }
   
   /**
@@ -318,7 +318,7 @@ public class Name implements ChangeCountable {
    * @return The name component at the index.
    */
   public final Component 
-  get(int i) { return components_.get(i); }
+  get(int i) { return (Component)components_.get(i); }
   
   public final void 
   set(String uri) 
@@ -424,7 +424,7 @@ public class Name implements ChangeCountable {
       return append(new Name(name));
 
     for (int i = 0; i < name.components_.size(); ++i)
-      append(name.components_.get(i));
+      append(name.get(i));
   
     return this;
   }
@@ -508,7 +508,7 @@ public class Name implements ChangeCountable {
     StringBuilder result = new StringBuilder();
     for (int i = 0; i < components_.size(); ++i) {
       result.append("/");
-      toEscapedString(components_.get(i).getValue().buf(), result);
+      toEscapedString(get(i).getValue().buf(), result);
     }
 
     return result.toString();
@@ -556,8 +556,7 @@ public class Name implements ChangeCountable {
       return false;
 
     for (int i = 0; i < components_.size(); ++i) {
-      if (!components_.get(i).getValue().buf().equals
-          (name.components_.get(i).getValue().buf()))
+      if (!get(i).getValue().buf().equals(name.get(i).getValue().buf()))
         return false;
     }
 
@@ -580,8 +579,7 @@ public class Name implements ChangeCountable {
 
     // Check if at least one of given components doesn't match.
     for (int i = 0; i < components_.size(); ++i) {
-      if (!components_.get(i).getValue().buf().equals
-          (name.components_.get(i).getValue().buf()))
+      if (!get(i).getValue().buf().equals(name.get(i).getValue().buf()))
         return false;
     }
 
@@ -764,6 +762,6 @@ public class Name implements ChangeCountable {
     return result;
   }
   
-  private final ArrayList<Component> components_;
+  private final ArrayList components_;
   private long changeCount_ = 0;
 }
