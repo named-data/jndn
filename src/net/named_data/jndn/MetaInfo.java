@@ -72,7 +72,6 @@ public class MetaInfo implements ChangeCountable {
    * Get the change count, which is incremented each time this object is changed.
    * @return The change count.
    */
-  @Override
   public final long 
   getChangeCount() { return changeCount_; }
   

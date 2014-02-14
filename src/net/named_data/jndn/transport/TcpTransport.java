@@ -68,7 +68,6 @@ public class TcpTransport extends Transport {
    * life of this object.
    * @throws IOException For I/O error.
    */
-  @Override
   public void 
   connect
     (Transport.ConnectionInfo connectionInfo, ElementListener elementListener) 
@@ -90,7 +89,6 @@ public class TcpTransport extends Transport {
    * limit(), but does not change the position.
    * @throws IOException For I/O error.
    */
-  @Override
   public void 
   send(ByteBuffer data) throws IOException
   {
@@ -120,7 +118,6 @@ public class TcpTransport extends Transport {
    * @throws IOException For I/O error.
    * @throws EncodingException For invalid encoding.
    */
-  @Override
   public void
   processEvents() throws IOException, EncodingException
   {
@@ -143,7 +140,6 @@ public class TcpTransport extends Transport {
    * Check if the transport is connected.
    * @return True if connected.
    */
-  @Override
   public boolean
   getIsConnected()
   {
@@ -157,7 +153,6 @@ public class TcpTransport extends Transport {
    * Close the connection.  If not connected, this does nothing.
    * @throws IOException For I/O error.
    */
-  @Override
   public void 
   close() throws IOException
   {

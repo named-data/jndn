@@ -237,7 +237,6 @@ public class Data implements ChangeCountable {
    * (or a child object) is changed.
    * @return The change count.
    */
-  @Override
   public final long 
   getChangeCount()
   {

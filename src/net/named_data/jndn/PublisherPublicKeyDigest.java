@@ -60,7 +60,6 @@ public class PublisherPublicKeyDigest implements ChangeCountable {
    * changed.
    * @return The change count.
    */
-  @Override
   public final long 
   getChangeCount() { return changeCount_; }
 

@@ -16,7 +16,6 @@ import net.named_data.jndn.transport.TcpTransport;
 import net.named_data.jndn.util.Blob;
 
 class Counter implements ElementListener {
-  @Override
   public void 
   onReceivedElement(ByteBuffer element) 
   {

@@ -26,7 +26,6 @@ public class BinaryXmlWireFormat extends WireFormat {
    * @param interest The Interest object to encode.
    * @return A Blob containing the encoding.
    */  
-  @Override
   public Blob 
   encodeInterest(Interest interest)
   {
@@ -41,7 +40,6 @@ public class BinaryXmlWireFormat extends WireFormat {
    * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.
    */
-  @Override
   public void 
   decodeInterest(Interest interest, ByteBuffer input) throws EncodingException
   {
@@ -61,7 +59,6 @@ public class BinaryXmlWireFormat extends WireFormat {
    * @return A Blob containing the encoding.
    * @throws UnsupportedOperationException for unimplemented if the derived class does not override.
    */
-  @Override
   public Blob 
   encodeData(Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
@@ -83,7 +80,6 @@ public class BinaryXmlWireFormat extends WireFormat {
    * @throws UnsupportedOperationException for unimplemented if the derived class does not override.
    * @throws EncodingException For invalid encoding.
    */
-  @Override
   public void 
   decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset) throws EncodingException
   {

@@ -42,7 +42,6 @@ public class Sha256WithRsaSignature extends Signature {
    * @return A new Sha256WithRsaSignature.
    * @throws CloneNotSupportedException 
    */
-  @Override
   public Object clone() throws CloneNotSupportedException
   {
     return new Sha256WithRsaSignature(this);
@@ -104,7 +103,6 @@ public class Sha256WithRsaSignature extends Signature {
    * (or a child object) is changed.
    * @return The change count.
    */
-  @Override
   public final long 
   getChangeCount()
   {

@@ -19,7 +19,6 @@ public abstract class Signature implements ChangeCountable {
    * @return A new Sha256WithRsaSignature.
    * @throws CloneNotSupportedException 
    */
-  @Override
   public abstract Object clone() throws CloneNotSupportedException;
   
   /**
@@ -27,6 +26,5 @@ public abstract class Signature implements ChangeCountable {
    * (or a child object) is changed.
    * @return The change count.
    */
-  @Override
   public abstract long getChangeCount();
 }

@@ -69,7 +69,6 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param keySize The size of the key pair.
    * @throws SecurityException
    */
-  @Override
   public void 
   generateKeyPair
     (Name keyName, KeyType keyType, int keySize) throws SecurityException
@@ -84,7 +83,6 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @return The public key.
    * @throws SecurityException
    */
-  @Override
   public PublicKey
   getPublicKey(Name keyName) throws SecurityException
   {
@@ -104,7 +102,6 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @return The signature, or Blob with a null pointer if signing fails.
    * @throws SecurityException
    */  
-  @Override
   public Blob 
   sign(ByteBuffer data, Name keyName, DigestAlgorithm digestAlgorithm) 
        throws SecurityException
@@ -154,7 +151,6 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @return The decrypted data.
    * @throws SecurityException
    */
-  @Override
   public Blob 
   decrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
           throws SecurityException
@@ -173,7 +169,6 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @return The encrypted data.
    * @throws SecurityException
    */
-  @Override
   public Blob
   encrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
          throws SecurityException
@@ -189,7 +184,6 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param keySize The size of the key.
    * @throws SecurityException
    */
-  @Override
   public void 
   generateKey(Name keyName, KeyType keyType, int keySize) 
              throws SecurityException
@@ -205,7 +199,6 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
    * @return True if the key exists, otherwise false.
    */
-  @Override
   public boolean
   doesKeyExist(Name keyName, KeyClass keyClass)
   {
