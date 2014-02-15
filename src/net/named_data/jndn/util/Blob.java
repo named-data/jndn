@@ -78,6 +78,20 @@ public class Blob {
     buffer_.put(value);
     buffer_.flip();
   }
+
+  /**
+   * Create a new Blob with a copy of the bytes in the array.
+   * @param value The array of integer to copy where each integer is in
+   * the range 0 to 255.
+   */
+  public 
+  Blob(int[] value)
+  {
+    buffer_ = ByteBuffer.allocate(value.length);
+    for (int i = 0; i < value.length; ++i)
+      buffer_.put((byte)value[i]);
+    buffer_.flip();
+  }
   
   /**
    * Get the read-only ByteBuffer.
