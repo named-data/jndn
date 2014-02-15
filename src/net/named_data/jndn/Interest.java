@@ -245,6 +245,10 @@ public class Interest {
     interestLifetimeMilliseconds_ = interestLifetimeMilliseconds; 
   }
 
+  /**
+   * @deprecated You should let the wire encoder generate a random nonce 
+   * internally before sending the interest.
+   */
   public final void 
   setNonce(Blob nonce) { nonce_ = (nonce == null ? new Blob() : nonce); }
   
