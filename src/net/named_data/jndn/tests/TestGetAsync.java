@@ -60,8 +60,7 @@ public class TestGetAsync {
            ("ndn-remap-p02.it.ucla.edu", 9695), counter);
       }
 
-      Name name1 = new Name
-        ("/ndn/ucla.edu/apps/ndn-js-test/hello.txt/level2/%FD%05%0B%16%7D%95%0E/%00");
+      Name name1 = new Name("/");
       System.out.println("Express name " + name1.toUri());
       // face.expressInterest
       //   (name1, bind(&Counter::onData, &counter, _1, _2), 
