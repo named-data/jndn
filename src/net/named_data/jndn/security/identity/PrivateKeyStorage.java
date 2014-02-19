@@ -20,7 +20,7 @@ public abstract class PrivateKeyStorage {
   /**
    * Generate a pair of asymmetric keys.
    * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
+   * @param keyType The type of the key pair, e.g. KeyType.RSA.
    * @param keySize The size of the key pair.
    * @throws SecurityException
    */
@@ -31,7 +31,7 @@ public abstract class PrivateKeyStorage {
   /**
    * Generate a pair of asymmetric keys with key size 2048.
    * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
+   * @param keyType The type of the key pair, e.g. KeyType.RSA.
    * @throws SecurityException
    */
   public final void 
@@ -180,8 +180,8 @@ public abstract class PrivateKeyStorage {
   /**
    * Check if a particular key exists.
    * @param keyName The name of the key.
-   * @param keyClass The class of the key, e.g. KEY_CLASS_PUBLIC, 
-   * KEY_CLASS_PRIVATE, or KEY_CLASS_SYMMETRIC.
+   * @param keyClass The class of the key, e.g. KeyClass.PUBLIC, 
+   * KeyClass.PRIVATE, or KeyClass.SYMMETRIC.
    * @return True if the key exists, otherwise false.
    */
   public abstract boolean
