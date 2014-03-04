@@ -158,7 +158,7 @@ public class Name implements ChangeCountable {
      * conventions (a network-ordered number where the first byte is the marker 
      * 0xFD).  Note that this returns the exact number from the component
      * without converting it to a time representation.
-     * @return The integer segment number.
+     * @return The integer version number.
      * @throws EncodingException If the first byte of the component is not the 
      * expected marker.
      */
