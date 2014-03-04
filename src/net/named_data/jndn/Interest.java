@@ -10,6 +10,8 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.ChangeCounter;
+import net.named_data.jndn.util.ChangeCountable;
 
 /**
  * An Interest holds a Name and other fields for an interest.
@@ -26,7 +28,7 @@ public class Interest {
   Interest(Name name, double interestLifetimeMilliseconds) 
   {
     if (name != null)
-      name_ = new Name(name);
+      name_.set(new Name(name));
     interestLifetimeMilliseconds_ = interestLifetimeMilliseconds;
   }
 
@@ -38,7 +40,7 @@ public class Interest {
   Interest(Name name) 
   {
     if (name != null)
-      name_ = new Name(name);
+      name_.set(new Name(name));
   }
 
   /**
@@ -183,7 +185,7 @@ public class Interest {
   }
 
   public final Name
-  getName() { return name_; }
+  getName() { return (Name)name_.get(); }
   
   public final int 
   getMinSuffixComponents() { return minSuffixComponents_; }
@@ -192,10 +194,13 @@ public class Interest {
   getMaxSuffixComponents() { return maxSuffixComponents_; }
   
   public final PublisherPublicKeyDigest
-  getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
+  getPublisherPublicKeyDigest() 
+  { 
+    return (PublisherPublicKeyDigest)publisherPublicKeyDigest_.get(); 
+  }
   
   public final Exclude
-  getExclude() { return exclude_; }
+  getExclude() { return (Exclude)exclude_.get(); }
   
   public final int 
   getChildSelector() { return childSelector_; }
@@ -209,40 +214,70 @@ public class Interest {
   public final double 
   getInterestLifetimeMilliseconds() { return interestLifetimeMilliseconds_; }
 
+  /**
+   * Return the nonce value from the incoming interest.  If you change any of 
+   * the fields in this Interest object, then the nonce value is cleared.
+   * @return The nonce.
+   */
   public final Blob
-  getNonce() { return nonce_; }
+  getNonce() 
+  { 
+    if (getNonceChangeCount_ != getChangeCount()) {
+      // The values have changed, so the existing nonce is invalidated.
+      nonce_ = new Blob();
+      getNonceChangeCount_ = getChangeCount();
+    }
+
+    return nonce_; 
+  }
 
   public final void
-  setName(Name name) { name_ = (name == null ? new Name() : name); }
+  setName(Name name) 
+  { 
+    name_.set((name == null ? new Name() : name));
+    ++changeCount_;
+  }
   
   public final void 
   setMinSuffixComponents(int minSuffixComponents) 
   {
     minSuffixComponents_ = minSuffixComponents;
+    ++changeCount_;
   }
   
   public final void 
   setMaxSuffixComponents(int maxSuffixComponents) 
   { 
     maxSuffixComponents_ = maxSuffixComponents; 
+    ++changeCount_;
   }
   
   public final void 
-  setChildSelector(int childSelector) { childSelector_ = childSelector; }
+  setChildSelector(int childSelector) 
+  { 
+    childSelector_ = childSelector; 
+    ++changeCount_;
+  }
 
   public final void 
   setAnswerOriginKind(int answerOriginKind) 
   { 
     answerOriginKind_ = answerOriginKind; 
+    ++changeCount_;
   }
 
   public final void 
-  setScope(int scope) { scope_ = scope; }
+  setScope(int scope) 
+  { 
+    scope_ = scope; 
+    ++changeCount_;
+  }
 
   public final void 
   setInterestLifetimeMilliseconds(double interestLifetimeMilliseconds) 
   { 
     interestLifetimeMilliseconds_ = interestLifetimeMilliseconds; 
+    ++changeCount_;
   }
 
   /**
@@ -250,17 +285,45 @@ public class Interest {
    * internally before sending the interest.
    */
   public final void 
-  setNonce(Blob nonce) { nonce_ = (nonce == null ? new Blob() : nonce); }
-  
-  private Name name_ = new Name();
+  setNonce(Blob nonce) 
+  { 
+    nonce_ = (nonce == null ? new Blob() : nonce); 
+    // Set getNonceChangeCount_ so that the next call to getNonce() won't 
+    //   clear nonce_.
+    ++changeCount_;
+    getNonceChangeCount_ = getChangeCount();
+  }
+
+  /**
+   * Get the change count, which is incremented each time this object 
+   * (or a child object) is changed.
+   * @return The change count.
+   */
+  public final long 
+  getChangeCount()
+  {
+    // Make sure each of the checkChanged is called.
+    boolean changed = name_.checkChanged();
+    changed = publisherPublicKeyDigest_.checkChanged() || changed;
+    changed = exclude_.checkChanged() || changed;
+    if (changed)
+      // A child object has changed, so update the change count.
+      ++changeCount_;
+    
+    return changeCount_;
+  }
+
+  private final ChangeCounter name_ = new ChangeCounter(new Name());
   private int minSuffixComponents_ = -1;
   private int maxSuffixComponents_ = -1;  
-  private final PublisherPublicKeyDigest publisherPublicKeyDigest_ = 
-    new PublisherPublicKeyDigest();
-  private final Exclude exclude_ = new Exclude();
+  private final ChangeCounter publisherPublicKeyDigest_ = 
+    new ChangeCounter(new PublisherPublicKeyDigest());
+  private final ChangeCounter exclude_ = new ChangeCounter(new Exclude());
   private int childSelector_ = -1;
   private int answerOriginKind_ = -1;
   private int scope_ = -1;
   private double interestLifetimeMilliseconds_ = -1;
   private Blob nonce_ = new Blob();
+  private long getNonceChangeCount_ = 0;
+  private long changeCount_ = 0;
 }
