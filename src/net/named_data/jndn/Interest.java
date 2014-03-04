@@ -160,22 +160,22 @@ public class Interest {
     if (interestLifetimeMilliseconds_ >= 0)
       selectors.append("&ndn.InterestLifetime=").append
         (interestLifetimeMilliseconds_);
-    if (publisherPublicKeyDigest_.getPublisherPublicKeyDigest().size() > 0) {
+    if (getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
       selectors.append("&ndn.PublisherPublicKeyDigest=");
       Name.toEscapedString
-        (publisherPublicKeyDigest_.getPublisherPublicKeyDigest().buf(), 
+        (getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().buf(), 
          selectors);
     }
     if (nonce_.size() > 0) {
       selectors.append("&ndn.Nonce=");
       Name.toEscapedString(nonce_.buf(), selectors);
     }
-    if (exclude_.size() > 0)
-      selectors.append("&ndn.Exclude=").append(exclude_.toUri());
+    if (getExclude().size() > 0)
+      selectors.append("&ndn.Exclude=").append(getExclude().toUri());
 
     StringBuffer result = new StringBuffer();
 
-    result.append(name_.toUri());
+    result.append(getName().toUri());
     String selectorsString = selectors.toString();
     if (selectorsString.length() > 0)
       // Replace the first & with ?.
