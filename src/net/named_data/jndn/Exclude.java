@@ -7,11 +7,12 @@
 package net.named_data.jndn;
 
 import java.util.ArrayList;
+import net.named_data.jndn.util.ChangeCountable;
 
 /**
  * An Exclude holds an Array of Exclude.Entry.
  */
-public class Exclude {
+public class Exclude implements ChangeCountable {
   public enum Type {
     COMPONENT, ANY
   }
@@ -91,6 +92,7 @@ public class Exclude {
   appendAny()
   {    
     entries_.add(new Entry());
+    ++changeCount_;
     return this;
   }
   
@@ -104,6 +106,7 @@ public class Exclude {
   appendComponent(Name.Component component) 
   {
     entries_.add(new Entry(component));
+    ++changeCount_;
     return this;
   }
   
@@ -114,6 +117,7 @@ public class Exclude {
   clear() 
   {
     entries_.clear();
+    ++changeCount_;
   }
   
   /**
@@ -140,6 +144,15 @@ public class Exclude {
 
     return result.toString();      
   }
+
+  /**
+   * Get the change count, which is incremented each time this object is 
+   * changed.
+   * @return The change count.
+   */
+  public final long 
+  getChangeCount() { return changeCount_; }
   
   private final ArrayList entries_;
+  private long changeCount_ = 0;
 }
