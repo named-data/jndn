@@ -22,7 +22,6 @@ public class BinaryXmlEncoder {
   BinaryXmlEncoder(int initialCapacity)
   {
     output_ = new DynamicByteBuffer(initialCapacity);
-    initialPosition_ = output_.position();
   }
 
   /**
@@ -32,7 +31,6 @@ public class BinaryXmlEncoder {
   BinaryXmlEncoder()
   {
     output_ = new DynamicByteBuffer(16);
-    initialPosition_ = output_.position();
   }
 
   /**
@@ -53,8 +51,7 @@ public class BinaryXmlEncoder {
   getOutput()
   {
     ByteBuffer tempBuffer = output_.buffer().duplicate();
-    tempBuffer.position(initialPosition_);
-    tempBuffer.limit(output_.position());
+    tempBuffer.flip();
     return tempBuffer.slice();
   }
   
@@ -394,5 +391,4 @@ public class BinaryXmlEncoder {
   }
   
   private final DynamicByteBuffer output_;
-  private final int initialPosition_;
 }
