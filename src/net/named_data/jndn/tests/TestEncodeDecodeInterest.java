@@ -9,6 +9,7 @@ package net.named_data.jndn.tests;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Blob;
 
@@ -54,9 +55,22 @@ public class TestEncodeDecodeInterest {
     System.out.println("maxSuffixComponents: " +
       (interest.getMaxSuffixComponents() >= 0 ?
        "" + interest.getMaxSuffixComponents() : "<none>"));
+    System.out.print("keyLocator: ");
+    if (interest.getKeyLocator().getType() == KeyLocatorType.NONE)
+      System.out.println("<none>");
+    else if (interest.getKeyLocator().getType() == KeyLocatorType.KEY)
+      System.out.println("Key: " + interest.getKeyLocator().getKeyData().toHex());
+    else if (interest.getKeyLocator().getType() == KeyLocatorType.CERTIFICATE)
+      System.out.println("Certificate: " + interest.getKeyLocator().getKeyData().toHex());
+    else if (interest.getKeyLocator().getType() ==KeyLocatorType.KEY_LOCATOR_DIGEST)
+      System.out.println("KeyLocatorDigest: " + interest.getKeyLocator().getKeyData().toHex());
+    else if (interest.getKeyLocator().getType() == KeyLocatorType.KEYNAME)
+      System.out.println("KeyName: " + interest.getKeyLocator().getKeyName().toUri());
+    else
+      System.out.println("<unrecognized ndn_KeyLocatorType>");
     System.out.println
       ("exclude: " + (interest.getExclude().size() > 0 ? 
-              interest.getExclude().toUri() : "<none>"));
+                      interest.getExclude().toUri() : "<none>"));
     System.out.println("lifetimeMilliseconds: " +
       (interest.getInterestLifetimeMilliseconds() >= 0 ?
        "" + interest.getInterestLifetimeMilliseconds() : "<none>"));
@@ -66,7 +80,8 @@ public class TestEncodeDecodeInterest {
     System.out.println("scope: " +
       (interest.getScope() >= 0 ? "" + interest.getScope() : "<none>"));
     System.out.println("nonce: " +
-      (interest.getNonce().size() > 0 ? "" + interest.getNonce().toHex() : "<none>"));
+      (interest.getNonce().size() > 0 ? 
+       "" + interest.getNonce().toHex() : "<none>"));
   }
 
   public static void 
@@ -90,7 +105,8 @@ public class TestEncodeDecodeInterest {
       Interest freshInterest = new Interest(new Name("/ndn/abc"));
       freshInterest.setMinSuffixComponents(4);
       freshInterest.setMaxSuffixComponents(6);
-      freshInterest.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
+      freshInterest.getKeyLocator().setType(KeyLocatorType.KEY_LOCATOR_DIGEST);
+      freshInterest.getKeyLocator().setKeyData
           (new Blob(new byte[] {
            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 
            0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F }));

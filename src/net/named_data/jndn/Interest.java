@@ -16,7 +16,7 @@ import net.named_data.jndn.util.ChangeCountable;
 /**
  * An Interest holds a Name and other fields for an interest.
  */
-public class Interest {
+public class Interest implements ChangeCountable {
   /**
    * Create a new Interest with the given name and interest lifetime and "none" 
    * for other values.
@@ -193,12 +193,20 @@ public class Interest {
   public final int 
   getMaxSuffixComponents() { return maxSuffixComponents_; }
   
+  /**
+   * @deprecated. The Interest publisherPublicKeyDigest is deprecated.  If you 
+   * need a publisher public key digest, set the keyLocator keyLocatorType to 
+   * KEY_LOCATOR_DIGEST and set its key data to the digest.
+   */
   public final PublisherPublicKeyDigest
   getPublisherPublicKeyDigest() 
   { 
     return (PublisherPublicKeyDigest)publisherPublicKeyDigest_.get(); 
   }
   
+  public final KeyLocator
+  getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
+
   public final Exclude
   getExclude() { return (Exclude)exclude_.get(); }
   
@@ -234,7 +242,7 @@ public class Interest {
   public final void
   setName(Name name) 
   { 
-    name_.set((name == null ? new Name() : name));
+    name_.set(name == null ? new Name() : name);
     ++changeCount_;
   }
   
@@ -294,6 +302,13 @@ public class Interest {
     getNonceChangeCount_ = getChangeCount();
   }
 
+  public final void
+  setKeyLocator(KeyLocator keyLocator) 
+  { 
+    keyLocator_.set(keyLocator == null ? new KeyLocator() : keyLocator);
+    ++changeCount_;
+  }
+  
   /**
    * Get the change count, which is incremented each time this object 
    * (or a child object) is changed.
@@ -305,6 +320,7 @@ public class Interest {
     // Make sure each of the checkChanged is called.
     boolean changed = name_.checkChanged();
     changed = publisherPublicKeyDigest_.checkChanged() || changed;
+    changed = keyLocator_.checkChanged() || changed;
     changed = exclude_.checkChanged() || changed;
     if (changed)
       // A child object has changed, so update the change count.
@@ -316,8 +332,12 @@ public class Interest {
   private final ChangeCounter name_ = new ChangeCounter(new Name());
   private int minSuffixComponents_ = -1;
   private int maxSuffixComponents_ = -1;  
+  /** @deprecated. The Interest publisherPublicKeyDigest is deprecated. If you 
+   * need a publisher public key digest, set the keyLocator keyLocatorType to 
+   * KEY_LOCATOR_DIGEST and set its key data to the digest. */
   private final ChangeCounter publisherPublicKeyDigest_ = 
     new ChangeCounter(new PublisherPublicKeyDigest());
+  private final ChangeCounter keyLocator_ = new ChangeCounter(new KeyLocator());
   private final ChangeCounter exclude_ = new ChangeCounter(new Exclude());
   private int childSelector_ = -1;
   private int answerOriginKind_ = -1;

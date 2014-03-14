@@ -123,8 +123,18 @@ public class BinaryXmlWireFormat extends WireFormat {
     encodeName(interest.getName(), encoder);
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MinSuffixComponents, interest.getMinSuffixComponents());
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MaxSuffixComponents, interest.getMaxSuffixComponents());
-    // This will skip encoding if there is no publisherPublicKeyDigest.
-    encodePublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest(), encoder);
+    
+    if (interest.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST && 
+        interest.getKeyLocator().getKeyData().size() > 0)
+      // There is a KEY_LOCATOR_DIGEST. Use this instead of the publisherPublicKeyDigest.
+      encoder.writeBlobDTagElement
+        (BinaryXml.DTag_PublisherPublicKeyDigest, 
+         interest.getKeyLocator().getKeyData());
+    else
+      // This will skip encoding if there is no publisherPublicKeyDigest.
+      encodePublisherPublicKeyDigest
+        (interest.getPublisherPublicKeyDigest(), encoder);
+    
     // This will skip encoding if there is no exclude.
     encodeExclude(interest.getExclude(), encoder);
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_ChildSelector, interest.getChildSelector());
@@ -145,7 +155,17 @@ public class BinaryXmlWireFormat extends WireFormat {
     decodeName(interest.getName(), decoder);
     interest.setMinSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MinSuffixComponents));
     interest.setMaxSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MaxSuffixComponents));
+    
+    // Initially clear the keyLocator.
+    interest.getKeyLocator().clear();
     decodeOptionalPublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest(), decoder);
+    if (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
+      // We keep the deprecated publisherPublicKeyDigest for backwards 
+      //   compatibility.  Also set the key locator.
+      interest.getKeyLocator().setType(KeyLocatorType.KEY_LOCATOR_DIGEST);
+      interest.getKeyLocator().setKeyData
+        (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest());
+    }
 
     if (decoder.peekDTag(BinaryXml.DTag_Exclude))
       decodeExclude(interest.getExclude(), decoder);
