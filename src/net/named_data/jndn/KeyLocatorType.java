@@ -10,5 +10,18 @@ package net.named_data.jndn;
  * A KeyLocatorType specifies the key locator type in a KeyLocator object.
  */
 public enum KeyLocatorType {
-  NONE, KEY, CERTIFICATE, KEYNAME
+  NONE(0), 
+  KEYNAME(1),
+  KEY_LOCATOR_DIGEST(2),
+  KEY(3), 
+  CERTIFICATE(4);
+  
+  KeyLocatorType (int type)
+  {
+    this.type_ = type;
+  }
+
+  public int getNumericType() { return type_; }
+
+  private int type_;
 }

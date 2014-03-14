@@ -53,7 +53,7 @@ public class KeyLocator implements ChangeCountable {
   public final void 
   setKeyData(Blob keyData) 
   { 
-    keyData_ = (keyData == null ? new Blob() : keyData_); 
+    keyData_ = (keyData == null ? new Blob() : keyData); 
     ++changeCount_;
   }
 
@@ -103,6 +103,7 @@ public class KeyLocator implements ChangeCountable {
   private Blob keyData_ = new Blob(); /**< A Blob for the key data as follows:
     *   If type_ is KeyLocatorType.KEY, the key data.
     *   If type_ is KeyLocatorType.CERTIFICATE, the certificate data. 
+    *   If type_ is KeyLocatorType.KEY_LOCATOR_DIGEST, the digest data. 
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_PUBLIC_KEY_DIGEST, the publisher public key digest. 
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_CERTIFICATE_DIGEST, the publisher certificate digest. 
     *   If type_ is KeyLocatorType.KEYNAME and keyNameType_ is KeyNameType.PUBLISHER_ISSUER_KEY_DIGEST, the publisher issuer key digest. 
@@ -111,6 +112,7 @@ public class KeyLocator implements ChangeCountable {
   private final ChangeCounter keyName_ = 
     new ChangeCounter(new Name()); /**< The key name (only used if
                                         type_ KeyLocatorType.KEYNAME.) */
+  /** @deprecated The use of a digest attached to the KeyName is deprecated. */
   private KeyNameType keyNameType_ =
     KeyNameType.NONE; /**< The type of data for keyName_. (only used if
                            type_ is KeyLocatorType.KEYNAME.) */
