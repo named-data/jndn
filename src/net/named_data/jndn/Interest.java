@@ -213,9 +213,25 @@ public class Interest implements ChangeCountable {
   public final int 
   getChildSelector() { return childSelector_; }
 
+  /**
+   * @deprecated Use getMustBeFresh.
+   */
   public final int 
   getAnswerOriginKind() { return answerOriginKind_; }
 
+  /**
+   * Get the must be fresh flag. If not specified, the default is true.
+   * @return The must be fresh flag.
+   */
+  public final boolean
+  getMustBeFresh()
+  {
+    if (answerOriginKind_ < 0)
+      return true;
+    else
+      return (answerOriginKind_ & ANSWER_STALE) == 0;
+  }
+  
   public final int 
   getScope() { return scope_; }
 
@@ -267,6 +283,9 @@ public class Interest implements ChangeCountable {
     ++changeCount_;
   }
 
+  /**
+   * @deprecated Use setMustBeFresh.
+   */
   public final void 
   setAnswerOriginKind(int answerOriginKind) 
   { 
@@ -274,6 +293,32 @@ public class Interest implements ChangeCountable {
     ++changeCount_;
   }
 
+  /**
+   * Set the MustBeFresh flag.
+   * @param mustBeFresh True if the content must be fresh, otherwise false.
+   */
+  public final void 
+  setMustBeFresh(boolean mustBeFresh) 
+  {
+    if (answerOriginKind_ < 0) {
+      // It is is already the default where MustBeFresh is true.
+      if (!mustBeFresh) {
+        // Set answerOriginKind_ so that getMustBeFresh returns false.
+        answerOriginKind_ = ANSWER_STALE; 
+        ++changeCount_;
+      }
+    }
+    else {
+      if (mustBeFresh)
+        // Clear the stale bit.
+        answerOriginKind_ &= ~ANSWER_STALE;
+      else
+        // Set the stale bit.
+        answerOriginKind_ |= ANSWER_STALE;
+      ++changeCount_;
+    }    
+  }
+  
   public final void 
   setScope(int scope) 
   { 
