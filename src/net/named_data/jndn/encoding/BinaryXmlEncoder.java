@@ -44,15 +44,13 @@ public class BinaryXmlEncoder {
   }
   
   /**
-   * Return a slice of the output buffer from the initial position up to the current position.
+   * Return a slice of the output buffer up to the current position.
    * @return A ByteBuffer which shares the same underlying buffer with the output buffer.
    */
   public final ByteBuffer
   getOutput()
   {
-    ByteBuffer tempBuffer = output_.buffer().duplicate();
-    tempBuffer.flip();
-    return tempBuffer.slice();
+    return output_.flippedBuffer();
   }
   
   public static final int ENCODING_LIMIT_1_BYTE = ((1 << BinaryXml.TT_VALUE_BITS) - 1);
