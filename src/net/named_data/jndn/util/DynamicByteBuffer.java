@@ -50,8 +50,7 @@ public class DynamicByteBuffer {
     ByteBuffer newBuffer = ByteBuffer.allocate(newCapacity);
     // Save the position so we can reset before calling put.
     int savePosition = buffer_.position();
-    buffer_.position(0);
-    buffer_.limit(savePosition);
+    buffer_.flip();
     newBuffer.put(buffer_);
     
     // Preserve the position and limit.
@@ -126,6 +125,42 @@ public class DynamicByteBuffer {
       buffer.limit(saveLimit);
     }
   }
+   
+  /**
+   * Ensure that buffer().capacity() is greater than or equal to capacity.  If 
+   * it is, just set the limit to the capacity.
+   * Otherwise, allocate a new buffer and copy everything from the position to 
+   * the limit to the back of the new buffer, set the limit to the new capacity
+   * and set the position to keep the same number of remaining bytes.
+   * Note that this does not copy the mark to the new buffer.
+   * @param capacity The minimum needed capacity.
+   */
+  public final void 
+  ensureCapacityFromBack(int capacity)
+  {
+    if (buffer_.capacity() >= capacity) {
+      // Make sure the limit stays at the capacity while we are writing.
+      buffer_.limit(buffer_.capacity());
+      return;
+    }
+    
+    // See if double is enough.
+    int newCapacity = buffer_.capacity() * 2;
+    if (capacity > newCapacity)
+      // The needed capacity is much greater, so use it.
+      newCapacity = capacity;
+    
+    ByteBuffer newBuffer = ByteBuffer.allocate(newCapacity);
+    // Save the remaining so we can restore the position later.
+    int saveRemaining = buffer_.remaining();
+    newBuffer.position(newBuffer.capacity() - saveRemaining);
+    newBuffer.put(buffer_);
+    
+    // The limit is still at capacity().  Set the position.
+    newBuffer.position(newBuffer.capacity() - saveRemaining);
+    
+    buffer_ = newBuffer;
+  }
 
   /**
    * Return the ByteBuffer.  Note that ensureCapacity can change the returned 
@@ -162,6 +197,20 @@ public class DynamicByteBuffer {
    */
   public final void 
   position(int newPosition) { buffer_.position(newPosition); }
+  
+  /**
+   * Return buffer_.limit().
+   * @return The limit.
+   */
+  public final int 
+  limit() { return buffer_.limit(); }
+  
+  /**
+   * Return buffer_.remaining().
+   * @return The number of remaining bytes.
+   */
+  public final int 
+  remaining() { return buffer_.remaining(); }
   
   private ByteBuffer buffer_;       
 }
