@@ -163,6 +163,22 @@ public class DynamicByteBuffer {
   }
 
   /**
+   * Change the position so that there are remaining bytes in the buffer. If 
+   * position would be negative, use ensureCapacityFromBack to expand the
+   * buffer.
+   * @param remaining The desired remaining bytes which causes the position
+   * to be changed.
+   * @return The new position.
+   */
+  public final int
+  setRemainingFromBack(int remaining)
+  {
+    ensureCapacityFromBack(remaining);
+    buffer_.position(buffer_.limit() - remaining);
+    return buffer_.position();
+  }
+  
+  /**
    * Return the ByteBuffer.  Note that ensureCapacity can change the returned 
    * ByteBuffer. 
    * @return The ByteBuffer.
