@@ -12,6 +12,8 @@ import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.encoding.TlvWireFormat;
 
 public class TestEncodeDecodeInterest {
   // Convert the int array to a ByteBuffer.
@@ -43,6 +45,27 @@ public class TestEncodeDecodeInterest {
   0x02, 0xca, 0xb5, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x00, 
 0x00, 
 1    
+  });
+
+  private static final ByteBuffer TlvInterest = toBuffer(new int[] {
+0x05, 0x53, // Interest
+  0x07, 0x0A, 0x08, 0x03, 0x6E, 0x64, 0x6E, 0x08, 0x03, 0x61, 0x62, 0x63, // Name
+  0x09, 0x38, // Selectors
+    0x0D, 0x01, 0x04, // MinSuffixComponents
+    0x0E, 0x01, 0x06, // MaxSuffixComponents
+    0x1C, 0x22, // KeyLocator
+      0x1D, 0x20, // KeyLocatorDigest
+                  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                  0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+    0x10, 0x07, // Exclude
+      0x08, 0x03, 0x61, 0x62, 0x63, // NameComponent
+      0x13, 0x00, // Any
+    0x11, 0x01, 0x01, // ChildSelector
+    0x12, 0x00, // MustBeFesh
+  0x0A, 0x04, 0x61, 0x62, 0x61, 0x62,	// Nonce
+  0x0B, 0x01, 0x02, // Scope
+  0x0C, 0x02, 0x75, 0x30, // InterestLifetime
+1
   });
           
   private static void 
@@ -90,16 +113,20 @@ public class TestEncodeDecodeInterest {
   {
     try {
       Interest interest = new Interest();
-      interest.wireDecode(new Blob(BinaryXmlInterest, false));
+      // Note: While we transition to the TLV wire format, check if it has been made the default.
+      if (WireFormat.getDefaultWireFormat() == TlvWireFormat.get())
+        interest.wireDecode(new Blob(TlvInterest, false));
+      else
+        interest.wireDecode(new Blob(BinaryXmlInterest, false));
       System.out.println("Interest:");
       dumpInterest(interest);
 
       Blob encoding = interest.wireEncode();
+      System.out.println("");
       System.out.println("Re-encoded interest " + encoding.toHex());
 
       Interest reDecodedInterest = new Interest();
       reDecodedInterest.wireDecode(encoding);
-      System.out.println("");
       System.out.println("Re-decoded Interest:");
       dumpInterest(reDecodedInterest);
 
