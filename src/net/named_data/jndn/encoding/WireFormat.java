@@ -146,5 +146,5 @@ public class WireFormat {
     return defaultWireFormat_;
   }
 
-  private static WireFormat defaultWireFormat_ = new BinaryXmlWireFormat();
+  private static WireFormat defaultWireFormat_ = BinaryXmlWireFormat.get();
 }
