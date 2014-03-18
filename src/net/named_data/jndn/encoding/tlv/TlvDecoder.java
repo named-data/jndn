@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2014 Regents of the University of California.
+ * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * See COPYING for copyright and distribution information.
  */
@@ -10,8 +10,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 
 /**
- *
- * @author jefft0
+ * A TlvDecoder has methods to decode an input according to NDN-TLV.
  */
 public class TlvDecoder {
   /**
