@@ -57,7 +57,6 @@ public class BinaryXmlWireFormat extends WireFormat {
    * setting signedPortionEndOffset[0].
    * If you are not encoding in order to sign, you can call encodeData(data) to ignore this returned value.
    * @return A Blob containing the encoding.
-   * @throws UnsupportedOperationException for unimplemented if the derived class does not override.
    */
   public Blob 
   encodeData(Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
@@ -77,7 +76,6 @@ public class BinaryXmlWireFormat extends WireFormat {
    * @param signedPortionEndOffset Return the offset in the input buffer of the end of the signed portion by
    * setting signedPortionEndOffset[0]. If you are not decoding in order to verify, you can call 
    * decodeData(data, input) to ignore this returned value.
-   * @throws UnsupportedOperationException for unimplemented if the derived class does not override.
    * @throws EncodingException For invalid encoding.
    */
   public void 
