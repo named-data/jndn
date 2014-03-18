@@ -534,11 +534,11 @@ public class BinaryXmlWireFormat extends WireFormat {
     metaInfo.setTimestampMilliseconds(decoder.readOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_Timestamp));
     ByteBuffer typeBytes = decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Type);
     if (typeBytes == null)
-      // The default Type is DATA.
-      metaInfo.setType(ContentType.DATA);
+      // The default Type is BLOB.
+      metaInfo.setType(ContentType.BLOB);
     else {
       if (typeBytes.equals(DATA_BYTES.buf()))
-        metaInfo.setType(ContentType.DATA);
+        metaInfo.setType(ContentType.BLOB);
       else if (typeBytes.equals(ENCR_BYTES.buf()))
         metaInfo.setType(ContentType.ENCR);
       else if (typeBytes.equals(GONE_BYTES.buf()))
