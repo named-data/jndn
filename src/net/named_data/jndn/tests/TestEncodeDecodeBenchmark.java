@@ -26,6 +26,9 @@ import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.SignedBlob;
+import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.encoding.BinaryXmlWireFormat;
+import net.named_data.jndn.encoding.TlvWireFormat;
 
 public class TestEncodeDecodeBenchmark {
   private static double
@@ -135,8 +138,7 @@ public class TestEncodeDecodeBenchmark {
     MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
     Name keyName = new Name("/testname/DSK-123");
     Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
-      ("KEY").append(keyName.get(keyName.size() - 1)).append("ID-CERT").append
-      ("0");
+      ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
     privateKeyStorage.setKeyPairForKeyName
       (keyName, DEFAULT_PUBLIC_KEY_DER, DEFAULT_PRIVATE_KEY_DER);
 
@@ -151,8 +153,7 @@ public class TestEncodeDecodeBenchmark {
       Data data = new Data(name);
       data.setContent(content);
       if (useComplex) {
-        data.getMetaInfo().setTimestampMilliseconds(1.3e+12);
-        data.getMetaInfo().setFreshnessSeconds(1000);
+        data.getMetaInfo().setFreshnessPeriod(30000);
         data.getMetaInfo().setFinalBlockID(finalBlockId);
       }
 
@@ -290,13 +291,16 @@ public class TestEncodeDecodeBenchmark {
   benchmarkEncodeDecodeData
     (boolean useComplex, boolean useCrypto) throws EncodingException
   {
+    String format = 
+      (WireFormat.getDefaultWireFormat() == BinaryXmlWireFormat.get() ? 
+       "ndnb" : "TLV ");
     Blob[] encoding = new Blob[1];
     {
       int nIterations = useCrypto ? 5000 : 5000000;
       double duration = benchmarkEncodeDataSeconds
         (nIterations, useComplex, useCrypto, encoding);
-      System.out.println("Encode " + (useComplex ? "complex" : "simple ") + 
-        " data: Crypto? " + (useCrypto ? "yes" : "no ") +
+      System.out.println("Encode " + (useComplex ? "complex " : "simple  ") + 
+        format + " data: Crypto? " + (useCrypto ? "yes" : "no ") +
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
     }
     {
@@ -305,8 +309,8 @@ public class TestEncodeDecodeBenchmark {
       int nIterations = useCrypto ? 1000000 : 40000000;
       double duration = benchmarkDecodeDataSeconds
         (nIterations, useCrypto, encoding[0]);
-      System.out.println("Decode " + (useComplex ? "complex" : "simple ") + 
-        " data: Crypto? " + (useCrypto ? "yes" : "no ") + 
+      System.out.println("Decode " + (useComplex ? "complex " : "simple  ") + 
+        format + " data: Crypto? " + (useCrypto ? "yes" : "no ") + 
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
     }
   }
@@ -315,10 +319,18 @@ public class TestEncodeDecodeBenchmark {
   main(String[] args) 
   {
     try {
-      benchmarkEncodeDecodeData(false, false);
-      benchmarkEncodeDecodeData(true, false);
-      benchmarkEncodeDecodeData(false, true);
-      benchmarkEncodeDecodeData(true, true);
+      // Make two passes, one for each wire format.
+      for (int i = 1; i <= 2; ++i) {
+        if (i == 1)
+          WireFormat.setDefaultWireFormat(BinaryXmlWireFormat.get());
+        else
+          WireFormat.setDefaultWireFormat(TlvWireFormat.get());
+
+        benchmarkEncodeDecodeData(false, false);
+        benchmarkEncodeDecodeData(true, false);
+        benchmarkEncodeDecodeData(false, true);
+        benchmarkEncodeDecodeData(true, true);
+      }
     } catch (EncodingException e) {}
   }
 }
