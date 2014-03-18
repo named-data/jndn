@@ -43,17 +43,16 @@ public class TlvDecoder {
   }
     
   /**
-   * A private function to do the work of readVarNumber, given the firstOctet
-   * which is >= 253. Update the input buffer position.
+   * Do the work of readVarNumber, given the firstOctet which is >= 253. Update 
+   * the input buffer position.
    * @param firstOctet The first octet which is >= 253, used to decode the 
    * remaining bytes.
    * @return The decoded VAR-NUMBER as a Java 32-bit int.
    * @throws EncodingException if the VAR-NUMBER is 64-bit.
    */
-  private int
+  public final int
   readExtendedVarNumber(int firstOctet) throws EncodingException
   {
-    // This is a private function so we know firstOctet >= 253.
     if (firstOctet == 253)
       return (((int)input_.get() & 0xff) << 8) +
               ((int)input_.get() & 0xff);
