@@ -23,7 +23,7 @@ public enum ContentType {
   
   ContentType (int type)
   {
-    this.type_ = type;
+    type_ = type;
   }
 
   public int getNumericType() { return type_; }

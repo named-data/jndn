@@ -203,7 +203,7 @@ public class TlvEncoder {
     output_.position(position);
     value.position(saveValuePosition);
 
-    this.writeTypeAndLength(type, value.remaining());
+    writeTypeAndLength(type, value.remaining());
   }
   
   /**
@@ -218,7 +218,7 @@ public class TlvEncoder {
   writeOptionalBlobTlv(int type, ByteBuffer value)
   {
     if (value != null && value.remaining() > 0)
-      this.writeBlobTlv(type, value);
+      writeBlobTlv(type, value);
   }
   
   /**
