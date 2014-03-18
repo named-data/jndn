@@ -83,7 +83,7 @@ public class Interest implements ChangeCountable {
   public final Blob 
   wireEncode() 
   {
-    return this.wireEncode(WireFormat.getDefaultWireFormat());
+    return wireEncode(WireFormat.getDefaultWireFormat());
   }
 
   /**
