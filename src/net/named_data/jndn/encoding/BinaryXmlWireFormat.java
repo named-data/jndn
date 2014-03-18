@@ -502,7 +502,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     // This will skip encoding if there is no publisherPublicKeyDigest.
     encodePublisherPublicKeyDigest(signature.getPublisherPublicKeyDigest(), encoder);
     encoder.writeOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_Timestamp, metaInfo.getTimestampMilliseconds());
-    if (metaInfo.getType() != ContentType.DATA) {
+    if (!(metaInfo.getType() == ContentType.DATA || metaInfo.getType() == ContentType.BLOB)) {
       // Not the default of DATA, so we need to encode the type.
       Blob typeBytes = null;;
       if (metaInfo.getType() == ContentType.ENCR)
