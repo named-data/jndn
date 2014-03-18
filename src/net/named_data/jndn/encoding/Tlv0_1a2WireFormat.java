@@ -143,11 +143,11 @@ public class Tlv0_1a2WireFormat extends WireFormat {
 
     // Use getSignatureOrMetaInfoKeyLocator for the transition of moving
     //   the key locator from the MetaInfo to the Signauture object.
-    Tlv0_1a2WireFormat.encodeSignatureSha256WithRsaValue
+    encodeSignatureSha256WithRsaValue
       ((Sha256WithRsaSignature)data.getSignature(), encoder);
     encoder.writeBlobTlv(Tlv.Content, data.getContent().buf());
-    Tlv0_1a2WireFormat.encodeMetaInfo(data.getMetaInfo(), encoder);
-    Tlv0_1a2WireFormat.encodeName(data.getName(), encoder);
+    encodeMetaInfo(data.getMetaInfo(), encoder);
+    encodeName(data.getName(), encoder);
     int signedPortionBeginOffsetFromBack = encoder.getLength();
 
     encoder.writeTypeAndLength(Tlv.Data, encoder.getLength() - saveLength);
