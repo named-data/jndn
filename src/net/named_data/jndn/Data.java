@@ -99,7 +99,48 @@ public class Data implements ChangeCountable {
   /**
    * Decode the input using a particular wire format and update this Data. If 
    * wireFormat is the default wire format, also set the defaultWireEncoding 
-   * field to the input.
+   * field another pointer to the input Blob.
+   * @param input The input Blob to decode.  This reads from buf().position() to 
+   * buf().limit(), but does not change the position.
+   * @param wireFormat A WireFormat object used to decode the input.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void 
+  wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
+  {
+    int[] signedPortionBeginOffset = new int[1];
+    int[] signedPortionEndOffset = new int[1];
+    wireFormat.decodeData
+      (this, input.buf(), signedPortionBeginOffset, signedPortionEndOffset);
+
+    if (wireFormat == WireFormat.getDefaultWireFormat())
+      // This is the default wire encoding.
+      setDefaultWireEncoding
+        (new SignedBlob(input, signedPortionBeginOffset[0], 
+         signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
+    else
+      setDefaultWireEncoding(new SignedBlob(), null);
+  }
+    
+  /**
+   * Decode the input using the default wire format 
+   * WireFormat.getDefaultWireFormat() and update this Data. Also set the 
+   * defaultWireEncoding field another pointer to the input Blob.
+   * @param input The input Blob to decode.  This reads from buf().position() to 
+   * buf().limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void 
+  wireDecode(Blob input) throws EncodingException
+  {
+    wireDecode(input, WireFormat.getDefaultWireFormat());
+  }
+    
+  /**
+   * Decode the input using a particular wire format and update this Data. If 
+   * wireFormat is the default wire format, also set the defaultWireEncoding 
+   * field to a copy of the input. (To not copy the input, see 
+   * wireDecode(Blob).)
    * @param input The input buffer to decode.  This reads from position() to 
    * limit(), but does not change the position.
    * @param wireFormat A WireFormat object used to decode the input.
