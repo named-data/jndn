@@ -6,17 +6,21 @@
 
 package net.named_data.jndn.encoding;
 
-import java.security.SecureRandom;
 import java.nio.ByteBuffer;
-import net.named_data.jndn.Name;
+import java.security.SecureRandom;
+import net.named_data.jndn.ContentType;
+import net.named_data.jndn.Data;
 import net.named_data.jndn.Exclude;
+import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
-import net.named_data.jndn.Interest;
-import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.MetaInfo;
+import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.tlv.Tlv;
-import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
+import net.named_data.jndn.util.Blob;
 
 /**
  * A Tlv0_1a2WireFormat implements the WireFormat interface for encoding and 
@@ -105,6 +109,92 @@ public class Tlv0_1a2WireFormat extends WireFormat {
 
     // Set the nonce last because setting other interest fields clears it.
     interest.setNonce(new Blob(nonce, true));
+
+    decoder.finishNestedTlvs(endOffset);
+  }
+
+  /**
+   * Encode data in NDN-TLV and return the encoding.
+   * @param data The Data object to encode.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * beginning of the signed portion by setting signedPortionBeginOffset[0].
+   * If you are not encoding in order to sign, you can call encodeData(data) to 
+   * ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * of the signed portion by setting signedPortionEndOffset[0].
+   * If you are not encoding in order to sign, you can call encodeData(data) to 
+   * ignore this returned value.
+   * @return A Blob containing the encoding.
+   */
+  public Blob 
+  encodeData
+    (Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
+  {
+    TlvEncoder encoder = new TlvEncoder(1500);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    // TODO: The library needs to handle other signature types than 
+    //   SignatureSha256WithRsa.
+    encoder.writeBlobTlv
+      (Tlv.SignatureValue, 
+       ((Sha256WithRsaSignature)data.getSignature()).getSignature().buf());
+    int signedPortionEndOffsetFromBack = encoder.getLength();
+
+    // Use getSignatureOrMetaInfoKeyLocator for the transition of moving
+    //   the key locator from the MetaInfo to the Signauture object.
+    Tlv0_1a2WireFormat.encodeSignatureSha256WithRsaValue
+      ((Sha256WithRsaSignature)data.getSignature(), encoder);
+    encoder.writeBlobTlv(Tlv.Content, data.getContent().buf());
+    Tlv0_1a2WireFormat.encodeMetaInfo(data.getMetaInfo(), encoder);
+    Tlv0_1a2WireFormat.encodeName(data.getName(), encoder);
+    int signedPortionBeginOffsetFromBack = encoder.getLength();
+
+    encoder.writeTypeAndLength(Tlv.Data, encoder.getLength() - saveLength);
+    
+    signedPortionBeginOffset[0] = 
+      encoder.getLength() - signedPortionBeginOffsetFromBack;
+    signedPortionEndOffset[0] = 
+      encoder.getLength() - signedPortionEndOffsetFromBack;
+    return new Blob(encoder.getOutput(), false);  
+  }
+
+  /**
+   * Decode input as a data packet in NDN-TLV and set the fields in the data 
+   * object.
+   * @param data The Data object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to 
+   * limit(), but does not change the position.
+   * @param signedPortionBeginOffset Return the offset in the input buffer of 
+   * the beginning of the signed portion by setting signedPortionBeginOffset[0].  
+   * If you are not decoding in order to verify, you can call 
+   * decodeData(data, input) to ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the input buffer of the 
+   * end of the signed portion by setting signedPortionEndOffset[0]. If you are 
+   * not decoding in order to verify, you can call decodeData(data, input) to 
+   * ignore this returned value.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void 
+  decodeData
+    (Data data, ByteBuffer input, int[] signedPortionBeginOffset, 
+     int[] signedPortionEndOffset) throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);  
+
+    int endOffset = decoder.readNestedTlvsStart(Tlv.Data);
+    signedPortionBeginOffset[0] = decoder.getOffset();
+
+    decodeName(data.getName(), decoder);
+    decodeMetaInfo(data.getMetaInfo(), decoder);
+    data.setContent(new Blob(decoder.readBlobTlv(Tlv.Content), true));
+    decodeSignatureInfo(data, decoder);
+
+    signedPortionEndOffset[0] = decoder.getOffset();
+    // TODO: The library needs to handle other signature types than 
+    //   SignatureSha256WithRsa.
+    ((Sha256WithRsaSignature)data.getSignature()).setSignature
+      (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
 
     decoder.finishNestedTlvs(endOffset);
   }
@@ -311,6 +401,109 @@ public class Tlv0_1a2WireFormat extends WireFormat {
     decoder.finishNestedTlvs(endOffset);
   }
   
+  private static void
+  encodeSignatureSha256WithRsaValue
+    (Sha256WithRsaSignature signature, TlvEncoder encoder)
+  {
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    encodeKeyLocator(signature.getKeyLocator(), encoder);
+    encoder.writeNonNegativeIntegerTlv
+      (Tlv.SignatureType, Tlv.SignatureType_SignatureSha256WithRsa);
+
+    encoder.writeTypeAndLength
+      (Tlv.SignatureInfo, encoder.getLength() - saveLength);
+  };
+
+  private static void
+  decodeSignatureInfo(Data data, TlvDecoder decoder) throws EncodingException
+  {
+    int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
+
+    int signatureType = (int)decoder.readNonNegativeIntegerTlv(Tlv.SignatureType);
+    // TODO: The library needs to handle other signature types than 
+    //     SignatureSha256WithRsa.
+    if (signatureType == Tlv.SignatureType_SignatureSha256WithRsa) {
+        data.setSignature(new Sha256WithRsaSignature());
+        // Modify data's signature object because if we create an object
+        //   and set it, then data will have to copy all the fields.
+        Sha256WithRsaSignature signatureInfo = 
+          (Sha256WithRsaSignature)data.getSignature();
+        decodeKeyLocator(signatureInfo.getKeyLocator(), decoder);
+    }
+    else
+        throw new EncodingException
+         ("decodeSignatureInfo: unrecognized SignatureInfo type" + signatureType);
+
+    decoder.finishNestedTlvs(endOffset);
+  };
+
+  private static void
+  encodeMetaInfo(MetaInfo metaInfo, TlvEncoder encoder)
+  {
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    ByteBuffer finalBlockIdBuf = metaInfo.getFinalBlockID().getValue().buf();
+    if (finalBlockIdBuf != null && finalBlockIdBuf.remaining() > 0) {
+      // FinalBlockId has an inner NameComponent.
+      int finalBlockIdSaveLength = encoder.getLength();
+      encoder.writeBlobTlv(Tlv.NameComponent, finalBlockIdBuf);
+      encoder.writeTypeAndLength
+        (Tlv.FinalBlockId, encoder.getLength() - finalBlockIdSaveLength);
+    }
+
+    encoder.writeOptionalNonNegativeIntegerTlvFromDouble
+      (Tlv.FreshnessPeriod, metaInfo.getFreshnessPeriod());
+    if (metaInfo.getType() != ContentType.BLOB) {
+      // Not the default, so we need to encode the type.
+      if (metaInfo.getType() == ContentType.LINK ||
+          metaInfo.getType() == ContentType.KEY)
+        // The ContentType enum is set up with the correct integer for 
+        // each NDN-TLV ContentType.
+        encoder.writeNonNegativeIntegerTlv
+          (Tlv.ContentType, metaInfo.getType().getNumericType());
+      else
+        throw new Error("unrecognized TLV ContentType");
+    }
+
+    encoder.writeTypeAndLength(Tlv.MetaInfo, encoder.getLength() - saveLength);
+  };
+
+  private static void
+  decodeMetaInfo(MetaInfo metaInfo, TlvDecoder decoder) throws EncodingException
+  {
+    int endOffset = decoder.readNestedTlvsStart(Tlv.MetaInfo);  
+
+    // The ContentType enum is set up with the correct integer for each 
+    // NDN-TLV ContentType.  If readOptionalNonNegativeIntegerTlv returns
+    // None, then setType will convert it to BLOB.
+    int type = (int)decoder.readOptionalNonNegativeIntegerTlv
+      (Tlv.ContentType, endOffset);
+    if (type == ContentType.LINK.getNumericType())
+      metaInfo.setType(ContentType.LINK);
+    if (type == ContentType.KEY.getNumericType())
+      metaInfo.setType(ContentType.KEY);
+    else
+      // Default to BLOB.
+      metaInfo.setType(ContentType.BLOB);
+    
+    metaInfo.setFreshnessPeriod
+      (decoder.readOptionalNonNegativeIntegerTlv(Tlv.FreshnessPeriod, endOffset));
+    if (decoder.peekType(Tlv.FinalBlockId, endOffset)) {
+      int finalBlockIdEndOffset = decoder.readNestedTlvsStart(Tlv.FinalBlockId);
+      metaInfo.setFinalBlockID
+        (new Name.Component
+         (new Blob(decoder.readBlobTlv(Tlv.NameComponent), true)));
+      decoder.finishNestedTlvs(finalBlockIdEndOffset);
+    }
+    else
+      metaInfo.setFinalBlockID(null);
+
+    decoder.finishNestedTlvs(endOffset);
+  };
+
   private static final SecureRandom random_ = new SecureRandom();
   private static Tlv0_1a2WireFormat instance_ = new Tlv0_1a2WireFormat();
 }
