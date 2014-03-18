@@ -14,12 +14,13 @@ import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.transport.TcpTransport;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.encoding.tlv.Tlv;
 
 class Counter implements ElementListener {
   public void 
   onReceivedElement(ByteBuffer element) 
   {
-    if (element.get(0) == 0x04) {
+    if (element.get(0) == Tlv.Data) {
       ++callbackCount_;
       try {
         Data data = new Data();
