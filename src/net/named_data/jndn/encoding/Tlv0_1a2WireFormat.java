@@ -358,7 +358,7 @@ public class Tlv0_1a2WireFormat extends WireFormat {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
-    if (keyLocator.getType() != null) {
+    if (keyLocator.getType() != KeyLocatorType.NONE) {
       if (keyLocator.getType() == KeyLocatorType.KEYNAME)
         encodeName(keyLocator.getKeyName(), encoder);
       else if (keyLocator.getType() == KeyLocatorType.KEY_LOCATOR_DIGEST &&
