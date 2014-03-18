@@ -314,11 +314,18 @@ public class Name implements ChangeCountable {
   
   /**
    * Get the component at the given index.
-   * @param i The index of the component, starting from 0.
+   * @param i The index of the component, starting from 0. However, if i is 
+   * negative, return the component at size() - (-i).
    * @return The name component at the index.
    */
   public final Component 
-  get(int i) { return (Component)components_.get(i); }
+  get(int i) 
+  {
+    if (i >= 0)
+      return (Component)components_.get(i); 
+    else
+      return (Component)components_.get(components_.size() - (-i)); 
+  }
   
   public final void 
   set(String uri) 
