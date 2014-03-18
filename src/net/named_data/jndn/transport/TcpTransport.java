@@ -11,7 +11,7 @@ import java.net.InetSocketAddress;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.ElementListener;
-import net.named_data.jndn.encoding.BinaryXmlElementReader;
+import net.named_data.jndn.encoding.ElementReader;
 import net.named_data.jndn.encoding.EncodingException;
 
 public class TcpTransport extends Transport {
@@ -80,7 +80,7 @@ public class TcpTransport extends Transport {
        ((ConnectionInfo)connectionInfo).getPort()));
     channel_.configureBlocking(false);
     
-    elementReader_ = new BinaryXmlElementReader(elementListener);
+    elementReader_ = new ElementReader(elementListener);
   }
   
   /**
@@ -166,5 +166,5 @@ public class TcpTransport extends Transport {
   SocketChannel channel_;
   ByteBuffer inputBuffer_ = ByteBuffer.allocate(8000);
   // TODO: This belongs in the socket listener.
-  private BinaryXmlElementReader elementReader_;
+  private ElementReader elementReader_;
 }
