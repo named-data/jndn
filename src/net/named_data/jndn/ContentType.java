@@ -10,5 +10,23 @@ package net.named_data.jndn;
  * A ContentType specifies the content type in a MetaInfo object.
  */
 public enum ContentType {
-  DATA, ENCR, GONE, KEY, LINK, NACK
+  BLOB(0),
+  // ContentType DATA is deprecated. Use BLOB.
+  DATA(0),
+  LINK(1),
+  KEY (2),
+  // ContentType ENCR, GONE and NACK are not supported in NDN-TLV encoding and 
+  //   are deprecated.
+  ENCR(3),
+  GONE(4),
+  NACK(5);
+  
+  ContentType (int type)
+  {
+    this.type_ = type;
+  }
+
+  public int getNumericType() { return type_; }
+
+  private int type_;
 }
