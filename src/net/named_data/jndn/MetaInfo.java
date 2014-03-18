@@ -23,23 +23,38 @@ public class MetaInfo implements ChangeCountable {
   {
     timestampMilliseconds_ = metaInfo.timestampMilliseconds_;
     type_ = metaInfo.type_; 
-    freshnessSeconds_ = metaInfo.freshnessSeconds_; 
+    freshnessPeriod_ = metaInfo.freshnessPeriod_; 
     // Name.Component is read-only, so we don't need a deep copy.
     finalBlockID_ = metaInfo.finalBlockID_;
   }
 
+  /**
+   * @deprecated Use the application-specific content to store a timestamp.
+   */
   public final double 
   getTimestampMilliseconds() { return timestampMilliseconds_; }
   
   public final ContentType 
   getType() { return type_; }
   
+  public final double 
+  getFreshnessPeriod() { return freshnessPeriod_; }
+  
+  /**
+   * @deprecated Use getFreshnessPeriod.
+   */
   public final int 
-  getFreshnessSeconds() { return freshnessSeconds_; }
+  getFreshnessSeconds() 
+  { 
+    return freshnessPeriod_ < 0 ? -1 : (int)Math.round(freshnessPeriod_ / 1000.0); 
+  }
   
   public final Name.Component 
   getFinalBlockID() { return finalBlockID_; }
   
+  /**
+   * @deprecated Use the application-specific content to store a timestamp.
+   */
   public final void 
   setTimestampMilliseconds(double timestampMilliseconds)
   { 
@@ -55,10 +70,20 @@ public class MetaInfo implements ChangeCountable {
   }
   
   public final void 
+  setFreshnessPeriod(double freshnessPeriod) 
+  { 
+    freshnessPeriod_ = freshnessPeriod; 
+    ++changeCount_;
+  }
+  
+  /**
+   * @deprecated Use setFreshnessPeriod.
+   */
+  public final void 
   setFreshnessSeconds(int freshnessSeconds) 
   { 
-    freshnessSeconds_ = freshnessSeconds; 
-    ++changeCount_;
+    setFreshnessPeriod
+      (freshnessSeconds < 0 ? -1.0 : (double)freshnessSeconds * 1000.0); 
   }
 
   public final void 
@@ -77,7 +102,7 @@ public class MetaInfo implements ChangeCountable {
   
   private double timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
   private ContentType type_ = ContentType.DATA; /**< default is ContentType.DATA. */
-  private int freshnessSeconds_; /**< -1 for none */
+  private double freshnessPeriod_; /**< -1 for none */
   private Name.Component finalBlockID_ = new Name.Component(); /**< size 0 for none */
   private long changeCount_ = 0;
 }
