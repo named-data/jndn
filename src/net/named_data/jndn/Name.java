@@ -227,6 +227,23 @@ public class Name implements ChangeCountable {
     }
     
     /**
+     * Check if this is the same component as other.
+     * @param other The other Component to compare with.
+     * @return True if the components are equal, otherwise false.
+     */
+    public boolean
+    equals(Component other) { return value_.equals(other.value_); }
+
+    public boolean
+    equals(Object other) 
+    {
+      if (!(other instanceof Component))
+        return false;
+      
+      return equals((Component)other); 
+    }
+
+    /**
      * Reverse the bytes in buffer starting at position, up to but not including 
      * limit.
      * @param buffer
@@ -563,7 +580,7 @@ public class Name implements ChangeCountable {
       return false;
 
     for (int i = 0; i < components_.size(); ++i) {
-      if (!get(i).getValue().buf().equals(name.get(i).getValue().buf()))
+      if (!get(i).getValue().equals(name.get(i).getValue()))
         return false;
     }
 
@@ -586,7 +603,7 @@ public class Name implements ChangeCountable {
 
     // Check if at least one of given components doesn't match.
     for (int i = 0; i < components_.size(); ++i) {
-      if (!get(i).getValue().buf().equals(name.get(i).getValue().buf()))
+      if (!get(i).getValue().equals(name.get(i).getValue()))
         return false;
     }
 
