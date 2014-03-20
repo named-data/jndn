@@ -189,7 +189,10 @@ public class Blob {
     if (!(other instanceof Blob))
       return false;
     
-    return buffer_.equals(((Blob)other).buffer_);
+    if (buffer_ == null)
+      return ((Blob)other).buffer_ == null;
+    else
+      return buffer_.equals(((Blob)other).buffer_);
   }
   
   private final ByteBuffer buffer_;
