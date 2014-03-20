@@ -55,7 +55,7 @@ public class TestGetAsync {
       TcpTransport transport = null;
       {
         transport = new TcpTransport();
-        transport.connect(new TcpTransport.ConnectionInfo("spurs.cs.ucla.edu"), 
+        transport.connect(new TcpTransport.ConnectionInfo("borges.metwi.ucla.edu"), 
                           counter);
       }
 
