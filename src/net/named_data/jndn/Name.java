@@ -244,6 +244,25 @@ public class Name implements ChangeCountable {
     }
 
     /**
+     * Compare this to the other Component using NDN canonical ordering.
+     * @param other The other Component to compare with.
+     * @return 0 If they compare equal, -1 if this comes before other in the 
+     * canonical ordering, or 1 if this comes after other in the canonical 
+     * ordering.
+     */
+    public int 
+    compare(Component other)
+    {
+      if (value_.size() < other.value_.size())
+        return -1;
+      if (value_.size() > other.value_.size())
+        return 1;
+
+      // The components are equal length. Just do a byte compare. 
+      return value_.buf().compareTo(other.value_.buf());
+    }
+    
+    /**
      * Reverse the bytes in buffer starting at position, up to but not including 
      * limit.
      * @param buffer
@@ -610,6 +629,49 @@ public class Name implements ChangeCountable {
     return true;
   }
 
+  /**
+   * Compare this to the other Name using NDN canonical ordering.  If the first 
+   * components of each name are not equal, this returns -1 if the first comes 
+   * before the second using the NDN canonical ordering for name components, or 
+   * 1 if it comes after. If they are equal, this compares the second components 
+   * of each name, etc.  If both names are the same up to the size of the 
+   * shorter name, this returns -1 if the first name is shorter than the second 
+   * or 1 if it is longer.  For example, std::sort gives: 
+   * /a/b/d /a/b/cc /c /c/a /bb .  This is intuitive because all names with the 
+   * prefix /a are next to each other.  But it may be also be counter-intuitive 
+   * because /c comes before /bb according to NDN canonical ordering since it is 
+   * shorter.  
+   * @param other The other Name to compare with.
+   * @return 0 If they compare equal, -1 if *this comes before other in the 
+   * canonical ordering, or 1 if *this comes after other in the canonical 
+   * ordering.
+   * 
+   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   */
+  public int
+  compare(Name other)
+  {
+    for (int i = 0; i < size() && i < other.size(); ++i) {
+      int comparison = ((Component)components_.get(i)).compare
+        ((Component)other.components_.get(i));
+      if (comparison == 0)
+        // The components at this index are equal, so check the next components.
+        continue;
+
+      // Otherwise, the result is based on the components at this index.
+      return comparison;
+    }
+
+    // The components up to min(this.size(), other.size()) are equal, so the 
+    //   shorter name is less.
+    if (size() < other.size())
+      return -1;
+    else if (size() > other.size())
+      return 1;
+    else
+      return 0;
+  }
+  
   /**
    * Get the change count, which is incremented each time this object is changed.
    * @return The change count.
