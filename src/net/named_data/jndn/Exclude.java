@@ -58,7 +58,7 @@ public class Exclude implements ChangeCountable {
 
     private final Exclude.Type type_;
     private final Name.Component component_; /**< only used if type_ is 
-                                                  ndn_Exclude_COMPONENT */
+                                                  Exclude.Type.COMPONENT */
   }
   
   /**
@@ -118,6 +118,66 @@ public class Exclude implements ChangeCountable {
   {
     entries_.clear();
     ++changeCount_;
+  }
+  
+  /**
+   * Check if the component matches any of the exclude criteria.
+   * @param component The name component to check.
+   * @return True if the component matches any of the exclude criteria, 
+   * otherwise false.
+   */
+  public boolean
+  matches(Name.Component component)
+  {
+    for (int i = 0; i < entries_.size(); ++i) {
+      if (get(i).getType() == Exclude.Type.ANY) {
+        Entry lowerBound = null;
+        if (i > 0)
+          lowerBound = get(i - 1);
+
+        // Find the upper bound, possibly skipping over multiple ANY in a row.
+        int iUpperBound;
+        Entry upperBound = null;
+        for (iUpperBound = i + 1; iUpperBound < entries_.size(); ++iUpperBound) {
+          if (get(iUpperBound).getType() == Exclude.Type.COMPONENT) {
+            upperBound = get(iUpperBound);
+            break;
+          }
+        }
+
+        // If lowerBound != null, we already checked component equals lowerBound on the last pass.
+        // If upperBound != null, we will check component equals upperBound on the next pass.
+        if (upperBound != null) {
+          if (lowerBound != null) {
+            if (component.compare(lowerBound.getComponent()) > 0 &&
+                component.compare(upperBound.getComponent()) > 0)
+              return true;
+          }
+          else {
+            if (component.compare(upperBound.getComponent()) < 0)
+              return true;
+          }
+
+          // Make i equal iUpperBound on the next pass.
+          i = iUpperBound - 1;
+        }
+        else {
+          if (lowerBound != null) {
+            if (component.compare(lowerBound.getComponent()) > 0)
+              return true;
+          }
+          else
+            // entries_ has only ANY.
+            return true;
+        }
+      }
+      else {
+        if (component.equals(get(i).getComponent()))
+          return true;
+      }
+    }
+
+    return false;
   }
   
   /**
