@@ -183,6 +183,14 @@ public class Blob {
     
     return output.toString();
   }
+
+  public boolean equals(Object other)
+  {
+    if (!(other instanceof Blob))
+      return false;
+    
+    return buffer_.equals(((Blob)other).buffer_);
+  }
   
   private final ByteBuffer buffer_;
 }
