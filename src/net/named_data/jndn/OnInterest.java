@@ -26,5 +26,5 @@ public interface OnInterest {
    */
   void onInterest
     (Name prefix, Interest interest, Transport transport, 
-     int registeredPrefixId);
+     long registeredPrefixId);
 }
