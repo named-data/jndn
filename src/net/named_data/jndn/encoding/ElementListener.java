@@ -20,5 +20,5 @@ public interface ElementListener
    * this call.  If you need the data
    * later, you must copy.
    */
-  void onReceivedElement(ByteBuffer element);
+  void onReceivedElement(ByteBuffer element) throws EncodingException;
 }
