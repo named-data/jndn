@@ -70,6 +70,16 @@ public class Exclude implements ChangeCountable {
   }
   
   /**
+   * Create a new Exclude as a copy of the given exclude.
+   * @param exclude The Exclude to copy.
+   */
+  public Exclude(Exclude exclude)
+  {
+    // Each entry is read-only, so do a shallow copy.
+    entries_ = new ArrayList(exclude.entries_);
+  }
+  
+  /**
    * Get the number of entries.
    * @return The number of entries.
    */
