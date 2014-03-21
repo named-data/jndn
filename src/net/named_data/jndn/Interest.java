@@ -280,7 +280,7 @@ public class Interest implements ChangeCountable {
   public final void
   setName(Name name) 
   { 
-    name_.set(name == null ? new Name() : name);
+    name_.set(name == null ? new Name() : new Name(name));
     ++changeCount_;
   }
   
@@ -372,7 +372,14 @@ public class Interest implements ChangeCountable {
   public final void
   setKeyLocator(KeyLocator keyLocator) 
   { 
-    keyLocator_.set(keyLocator == null ? new KeyLocator() : keyLocator);
+    keyLocator_.set(keyLocator == null ? new KeyLocator() : new KeyLocator(keyLocator));
+    ++changeCount_;
+  }
+
+  public final void
+  setExclude(Exclude exclude) 
+  { 
+    exclude_.set(exclude == null ? new Exclude() : new Exclude(exclude));
     ++changeCount_;
   }
   
