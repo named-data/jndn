@@ -44,6 +44,28 @@ public class Interest implements ChangeCountable {
   }
 
   /**
+   * Create a new interest as a deep copy of the given interest.
+   * @param interest The interest to copy.
+   */
+  public 
+  Interest(Interest interest) 
+  {
+    name_.set(new Name(interest.getName()));
+    minSuffixComponents_ = interest.minSuffixComponents_;
+    maxSuffixComponents_ = interest.maxSuffixComponents_;
+    publisherPublicKeyDigest_.set
+      (new PublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest()));
+    keyLocator_.set(new KeyLocator(interest.getKeyLocator()));
+    exclude_.set(new Exclude(interest.getExclude()));
+    childSelector_ = interest.childSelector_;
+    answerOriginKind_ = interest.answerOriginKind_;
+
+    interestLifetimeMilliseconds_ = interest.interestLifetimeMilliseconds_;
+    scope_ = interest.scope_;
+    nonce_ = interest.getNonce();
+  }
+
+  /**
    * Create a new Interest with an empty name and "none" for all values.
    */
   public 
