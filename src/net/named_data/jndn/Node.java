@@ -114,11 +114,15 @@ public class Node implements ElementListener {
   }
 
   /**
-   * Process any data to receive.  For each element received, call 
-   * onReceivedElement. This is non-blocking and will return immediately if 
-   * there is no data to receive. You should repeatedly call this from an event 
-   * loop, with calls to sleep as needed so that the loop doesn't use 100% of 
-   * the CPU. This may throw an exception for reading data or in the callback for 
+   * Process any packets to receive and call callbacks such as onData, 
+   * onInterest or onTimeout. This returns immediately if there is no data to 
+   * receive. This blocks while calling the callbacks. You should repeatedly 
+   * call this from an event loop, with calls to sleep as needed so that the 
+   * loop doesn’t use 100% of the CPU. Since processEvents modifies the pending 
+   * interest table, your application should make sure that it calls 
+   * processEvents in the same thread as expressInterest (which also modifies 
+   * the pending interest table).
+   * This may throw an exception for reading data or in the callback for 
    * processing the data. If you call this from an main event loop, you may want 
    * to catch and log/disregard all exceptions.
    */
