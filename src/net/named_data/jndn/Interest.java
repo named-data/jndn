@@ -355,6 +355,33 @@ public class Interest implements ChangeCountable {
   }
   
   /**
+   * Check if this Interest's name matches the given name (using Name::match) 
+   * and the given name also conforms to the interest selectors.
+   * @param name The name to check.
+   * @return True if the name and interest selectors match, otherwise false.
+   */
+  public final boolean
+  matchesName(Name name)
+  {
+    if (!getName().match(name))
+      return false;
+
+    if (minSuffixComponents_ >= 0 &&
+        // Add 1 for the implicit digest.
+        !(name.size() + 1 - getName().size() >= minSuffixComponents_))
+      return false;
+    if (maxSuffixComponents_ >= 0 &&
+        // Add 1 for the implicit digest.
+        !(name.size() + 1 - getName().size() <= maxSuffixComponents_))
+      return false;
+    if (getExclude().size() > 0 && name.size() > getName().size() &&
+        getExclude().matches(name.get(getName().size())))
+      return false;
+
+    return true; 
+  }
+  
+  /**
    * Get the change count, which is incremented each time this object 
    * (or a child object) is changed.
    * @return The change count.
