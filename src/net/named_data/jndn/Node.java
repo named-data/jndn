@@ -118,7 +118,9 @@ public class Node implements ElementListener {
    * onReceivedElement. This is non-blocking and will return immediately if 
    * there is no data to receive. You should repeatedly call this from an event 
    * loop, with calls to sleep as needed so that the loop doesn't use 100% of 
-   * the CPU.
+   * the CPU. This may throw an exception for reading data or in the callback for 
+   * processing the data. If you call this from an main event loop, you may want 
+   * to catch and log/disregard all exceptions.
    */
   public void 
   processEvents() throws IOException, EncodingException
