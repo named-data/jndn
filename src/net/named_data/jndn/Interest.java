@@ -163,6 +163,8 @@ public class Interest implements ChangeCountable {
    * selectors, append "?" and added the selectors as a query string.  For 
    * example "/test/name?ndn.ChildSelector=1".
    * @return The URI string.
+   * @note This is an experimental feature.  See the API docs for more detail at
+   * http://named-data.net/doc/ndn-ccl-api/interest.html#interest-touri-method .
    */
   public final String
   toUri()
