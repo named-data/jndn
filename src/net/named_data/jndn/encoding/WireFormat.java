@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.ForwardingEntry;
 
 public class WireFormat {
   /**
@@ -121,8 +122,38 @@ public class WireFormat {
     decodeData(data, input, new int[1], new int[1]);
   }
   
-  // TODO ForwardingEntry
+  /**
+   * Encode forwardingEntry and return the encoding. Your derived class should 
+   * override.
+   * @param forwardingEntry The ForwardingEntry object to encode.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived 
+   * class does not override.
+   */
+  public Blob 
+  encodeForwardingEntry(ForwardingEntry forwardingEntry)
+  {
+    throw new UnsupportedOperationException
+      ("encodeForwardingEntry is not implemented");
+  }
   
+  /**
+   * Decode input as a forwarding entry and set the fields of the 
+   * forwardingEntry object. Your derived class should override.
+   * @param forwardingEntry The ForwardingEntry object whose fields are updated.
+   * @param input ByteBuffer input.
+   * @throws UnsupportedOperationException for unimplemented if the derived 
+   * class does not override.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void 
+  decodeForwardingEntry
+    (ForwardingEntry forwardingEntry, ByteBuffer input) throws EncodingException
+  {
+    throw new UnsupportedOperationException
+      ("decodeForwardingEntry is not implemented");
+  }
+    
   /**
    * Set the static default WireFormat used by default encoding and decoding 
    * methods.
