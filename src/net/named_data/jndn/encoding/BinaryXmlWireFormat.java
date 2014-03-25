@@ -7,7 +7,6 @@
 package net.named_data.jndn.encoding;
 
 import java.nio.ByteBuffer;
-import java.util.HashSet;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Exclude;
@@ -136,7 +135,8 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     ByteBuffer action = decoder.readOptionalUDataDTagElement(BinaryXml.DTag_Action);
     if (action != null)
-      forwardingEntry.setAction(new String(action.array()));
+      forwardingEntry.setAction
+        (new String(new Blob(action, true).getImmutableArray()));
     else
       forwardingEntry.setAction("");
 
