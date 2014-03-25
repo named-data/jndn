@@ -6,6 +6,11 @@
 
 package net.named_data.jndn;
 
+import java.nio.ByteBuffer;
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.util.Blob;
+
 /**
  * A ForwardingEntry holds an action and Name prefix and other fields for a
  * forwarding entry.
@@ -53,6 +58,78 @@ public class ForwardingEntry {
   setFreshnessPeriod(double freshnessPeriod) 
   { 
     freshnessPeriod_ = freshnessPeriod; 
+  }
+
+  /**
+   * Encode this ForwardingEntry for a particular wire format.
+   * @param wireFormat A WireFormat object used to encode this ForwardingEntry.
+   * @return The encoded buffer.
+   */
+  public final Blob 
+  wireEncode(WireFormat wireFormat) 
+  {
+    return wireFormat.encodeForwardingEntry(this);
+  }
+
+  /**
+   * Encode this ForwardingEntry for the default wire format 
+   * WireFormat.getDefaultWireFormat().
+   * @return The encoded buffer.
+   */
+  public final Blob 
+  wireEncode() 
+  {
+    return wireEncode(WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Decode the input using a particular wire format and update this ForwardingEntry.
+   * @param input The input buffer to decode.  This reads from position() to 
+   * limit(), but does not change the position.
+   * @param wireFormat A WireFormat object used to decode the input.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void 
+  wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
+  {
+    wireFormat.decodeForwardingEntry(this, input);
+  }
+
+  /**
+   * Decode the input using the default wire format 
+   * WireFormat.getDefaultWireFormat() and update this ForwardingEntry.
+   * @param input The input buffer to decode.  This reads from position() to 
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void 
+  wireDecode(ByteBuffer input) throws EncodingException
+  {
+    wireDecode(input, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Decode the input using a particular wire format and update this ForwardingEntry.
+   * @param input The input blob to decode.
+   * @param wireFormat A WireFormat object used to decode the input.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void 
+  wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
+  {
+    wireDecode(input.buf(), wireFormat);
+  }
+
+  /**
+   * Decode the input using the default wire format 
+   * WireFormat.getDefaultWireFormat() and update this ForwardingEntry.
+   * @param input The input blob to decode.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void 
+  wireDecode(Blob input) throws EncodingException
+  {
+    wireDecode(input.buf());
   }
 
   private String action_ = ""; /**< "" for none. */
