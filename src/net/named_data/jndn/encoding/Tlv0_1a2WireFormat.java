@@ -46,9 +46,9 @@ public class Tlv0_1a2WireFormat extends WireFormat {
     // Encode the Nonce as 4 bytes.
     if (interest.getNonce().size() == 0)
     {
+      // This is the most common case. Generate a nonce.
       ByteBuffer nonce = ByteBuffer.allocate(4);
       random_.nextBytes(nonce.array());
-      // This is the most common case. Generate a nonce.
       encoder.writeBlobTlv(Tlv.Nonce, nonce);
     }
     else if (interest.getNonce().size() < 4) {
