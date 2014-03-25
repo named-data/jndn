@@ -343,7 +343,105 @@ public class Face {
     node_.removePendingInterest(pendingInterestId);
   }
   
-  // TODO: registerPrefix
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a 
+   * matching interest is received.
+   * @param prefix A Name for the prefix to register. This copies the Name.
+   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
+   * a matching interest is received.
+   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
+   * if failed to retrieve the connected hub’s ID or failed to register the 
+   * prefix.
+   * @param flags The flags for finer control of which interests are forwarded 
+   * to the application.
+   * @param wireFormat A WireFormat object used to encode the message.
+   * @return The registered prefix ID which can be used with 
+   * removeRegisteredPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   */
+  public long 
+  registerPrefix
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
+     ForwardingFlags flags, WireFormat wireFormat) throws IOException
+  {
+    return node_.registerPrefix
+      (prefix, onInterest, onRegisterFailed, flags, wireFormat);
+  }
+  
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a 
+   * matching interest is received.
+   * This uses the default WireFormat.getDefaultWireFormat().
+   * @param prefix A Name for the prefix to register. This copies the Name.
+   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
+   * a matching interest is received.
+   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
+   * if failed to retrieve the connected hub’s ID or failed to register the 
+   * prefix.
+   * @param flags The flags for finer control of which interests are forwarded 
+   * to the application.
+   * @return The registered prefix ID which can be used with 
+   * removeRegisteredPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   */
+  public long 
+  registerPrefix
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
+     ForwardingFlags flags) throws IOException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, flags, 
+       WireFormat.getDefaultWireFormat());
+  }
+  
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a 
+   * matching interest is received.
+   * Use default ForwardingFlags.
+   * @param prefix A Name for the prefix to register. This copies the Name.
+   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
+   * a matching interest is received.
+   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
+   * if failed to retrieve the connected hub’s ID or failed to register the 
+   * prefix.
+   * @param wireFormat A WireFormat object used to encode the message.
+   * @return The registered prefix ID which can be used with 
+   * removeRegisteredPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   */
+  public long 
+  registerPrefix
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
+     WireFormat wireFormat) throws IOException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, new ForwardingFlags(), wireFormat);
+  }
+  
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a 
+   * matching interest is received.
+   * This uses the default WireFormat.getDefaultWireFormat().
+   * Use default ForwardingFlags.
+   * @param prefix A Name for the prefix to register. This copies the Name.
+   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
+   * a matching interest is received.
+   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
+   * if failed to retrieve the connected hub’s ID or failed to register the 
+   * prefix.
+   * @return The registered prefix ID which can be used with 
+   * removeRegisteredPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   */
+  public long 
+  registerPrefix
+    (Name prefix, OnInterest onInterest, 
+     OnRegisterFailed onRegisterFailed) throws IOException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, new ForwardingFlags(), 
+       WireFormat.getDefaultWireFormat());
+  }
   
   /**
    * Remove the registered prefix entry with the registeredPrefixId from the 
