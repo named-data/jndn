@@ -84,21 +84,22 @@ public class TestEncodeDecodeForwardingEntry {
 
     System.out.print("forwardingFlags:");
     if (forwardingEntry.getForwardingFlags().getActive())
-      System.out.println(" active");
+      System.out.print(" active");
     if (forwardingEntry.getForwardingFlags().getChildInherit())
-      System.out.println(" childInherit");
+      System.out.print(" childInherit");
     if (forwardingEntry.getForwardingFlags().getAdvertise())
-      System.out.println(" advertise");
+      System.out.print(" advertise");
     if (forwardingEntry.getForwardingFlags().getLast())
-      System.out.println(" last");
+      System.out.print(" last");
     if (forwardingEntry.getForwardingFlags().getCapture())
-      System.out.println(" capture");
+      System.out.print(" capture");
     if (forwardingEntry.getForwardingFlags().getLocal())
-      System.out.println(" local");
+      System.out.print(" local");
     if (forwardingEntry.getForwardingFlags().getTap())
-      System.out.println(" tap");
+      System.out.print(" tap");
     if (forwardingEntry.getForwardingFlags().getCaptureOk())
-      System.out.println(" captureOk");
+      System.out.print(" captureOk");
+    System.out.println();
 
     System.out.println("freshnessPeriod (milliseconds): " +
       (forwardingEntry.getFreshnessPeriod() >= 0 ?
