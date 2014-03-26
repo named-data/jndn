@@ -7,10 +7,14 @@
 
 package net.named_data.jndn.security.certificate;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.encoding.OID;
 import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.security.DigestAlgorithm;
+import net.named_data.jndn.security.UnrecognizedDigestAlgorithmException;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 public class PublicKey {
   /**
@@ -43,20 +47,22 @@ public class PublicKey {
   public static PublicKey
   fromDer(Blob keyDer)
   {
-    // new X509EncodedKeySpec(publicKeyDer.array());
-    throw new UnsupportedOperationException
-      ("PublicKey.fromDer is not implemented");
+    // TODO: Do a test decode and use RSA_OID.
+    return new PublicKey(null, keyDer);
   }
 
   /*
    * Get the digest of the public key.
    * @param digestAlgorithm The digest algorithm.
    */
-  public final Blob 
-  getDigest(DigestAlgorithm digestAlgorithm)
+  public final Blob
+  getDigest(DigestAlgorithm digestAlgorithm) throws UnrecognizedDigestAlgorithmException
   {
-    throw new UnsupportedOperationException
-      ("PublicKey.getDigest is not implemented");
+    if (digestAlgorithm == DigestAlgorithm.SHA256) {
+      return new Blob(Common.digestSha256(keyDer_.buf()));
+    }
+    else
+      throw new UnrecognizedDigestAlgorithmException("Wrong format!");
   }
 
   /*
@@ -65,7 +71,13 @@ public class PublicKey {
   public final Blob 
   getDigest()
   {
-    return getDigest(DigestAlgorithm.SHA256);
+    try {
+      return getDigest(DigestAlgorithm.SHA256);
+    } 
+    catch (UnrecognizedDigestAlgorithmException ex) {
+      // We don't expect this exception.
+      throw new Error("UnrecognizedDigestAlgorithmException " + ex.getMessage());
+    }
   }
 
   /*
