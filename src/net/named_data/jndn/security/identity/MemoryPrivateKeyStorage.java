@@ -45,8 +45,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
         ("KeyFactory: RSA is not supported: " + exception.getMessage());
     }
     
-    // TODO
-    //publicKeyStore_.put(keyName.toUri(), PublicKey.fromDer(new Blob(publicKeyDer, true)));
+    publicKeyStore_.put
+      (keyName.toUri(), PublicKey.fromDer(new Blob(publicKeyDer, true)));
     
     try {
       privateKeyStore_.put
@@ -212,7 +212,9 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   }
   
   private final HashMap publicKeyStore_ = 
-    new HashMap(); /**< The map key is the keyName.toUri() */  
+    new HashMap(); /**< The map key is the keyName.toUri(). 
+                      * The value is security.certificate.PublicKey. */  
   private final HashMap privateKeyStore_ = 
-    new HashMap(); /**< The map key is the keyName.toUri() */  
+    new HashMap(); /**< The map key is the keyName.toUri(). 
+                      * The value is PrivateKey. */  
 }
