@@ -26,7 +26,7 @@ public abstract class IdentityStorage {
    * @param identityName The identity name.
    * @return True if the identity exists, otherwise false.
    */
-  abstract boolean 
+  public abstract boolean 
   doesIdentityExist(Name identityName);
 
   /**
@@ -35,14 +35,14 @@ public abstract class IdentityStorage {
    * @param identityName The identity name to be added.
    * @throws SecurityException if the identityName is already added.
    */
-  abstract void
+  public abstract void
   addIdentity(Name identityName) throws SecurityException;
   
   /**
    * Revoke the identity.
    * @return True if the identity was revoked, false if not.
    */
-  abstract boolean
+  public abstract boolean
   revokeIdentity();
   
   /**
@@ -77,7 +77,7 @@ public abstract class IdentityStorage {
    * @param keyName The name of the key.
    * @return true if the key exists, otherwise false.
    */
-  abstract boolean 
+  public abstract boolean 
   doesKeyExist(Name keyName);
 
   /**
@@ -87,7 +87,7 @@ public abstract class IdentityStorage {
    * @param publicKeyDer A blob of the public key DER to be added.
    * @throws SecurityException if a key with the keyName already exists.
    */
-  abstract void 
+  public abstract void 
   addKey(Name keyName, KeyType keyType, Blob publicKeyDer) throws SecurityException;
 
   /**
@@ -95,7 +95,7 @@ public abstract class IdentityStorage {
    * @param keyName The name of the requested public key.
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
-  abstract Blob
+  public abstract Blob
   getKey(Name keyName);
 
   /**
@@ -103,7 +103,7 @@ public abstract class IdentityStorage {
    * be used in packet signing.
    * @param keyName The name of the key.
    */
-  abstract void 
+  public abstract void 
   activateKey(Name keyName);
 
   /**
@@ -111,7 +111,7 @@ public abstract class IdentityStorage {
    * be used in packet signing.
    * @param keyName The name of the key.
    */
-  abstract void 
+  public abstract void 
   deactivateKey(Name keyName);
 
   /**
@@ -119,7 +119,7 @@ public abstract class IdentityStorage {
    * @param certificateName The name of the certificate.
    * @return True if the certificate exists, otherwise false.
    */
-  abstract boolean
+  public abstract boolean
   doesCertificateExist(Name certificateName);
 
   /**
@@ -128,7 +128,7 @@ public abstract class IdentityStorage {
    * certificate.
    * @throws SecurityException if the certificate is already installed.
    */
-  abstract void 
+  public abstract void 
   addCertificate(IdentityCertificate certificate) throws SecurityException;
 
   /**
@@ -138,7 +138,7 @@ public abstract class IdentityStorage {
    * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
-  abstract Data
+  public abstract Data
   getCertificate(Name certificateName, boolean allowAny);
 
   /**
@@ -162,7 +162,7 @@ public abstract class IdentityStorage {
    * @param return The name of default identity, or an empty name if there is 
    * no default.
    */
-  abstract Name 
+  public abstract Name 
   getDefaultIdentity();
 
   /**
@@ -170,7 +170,7 @@ public abstract class IdentityStorage {
    * @param identityName The identity name.
    * @return The default key name.
    */
-  abstract Name 
+  public abstract Name 
   getDefaultKeyNameForIdentity(Name identityName);
 
   /**
@@ -190,7 +190,7 @@ public abstract class IdentityStorage {
    * @param keyName The key name.
    * @return The default certificate name.
    */
-  abstract Name 
+  public abstract Name 
   getDefaultCertificateNameForKey(Name keyName);
 
   /**
@@ -198,7 +198,7 @@ public abstract class IdentityStorage {
    * the default identity so that getDefaultIdentity() returns an empty name.
    * @param identityName The default identity name.
    */
-  abstract void 
+  public abstract void 
   setDefaultIdentity(Name identityName);
 
   /**
@@ -206,7 +206,7 @@ public abstract class IdentityStorage {
    * @param keyName The key name.
    * @param identityNameCheck The identity name to check the keyName.
    */
-  abstract void 
+  public abstract void 
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck);
 
   /**
@@ -224,6 +224,6 @@ public abstract class IdentityStorage {
    * @param keyName The key name.
    * @param certificateName The certificate name.
    */
-  abstract void 
+  public abstract void 
   setDefaultCertificateNameForKey(Name keyName, Name certificateName);  
 }

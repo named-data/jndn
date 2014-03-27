@@ -14,7 +14,7 @@ import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.util.Blob;
 
 public abstract class EncryptionManager {
-  abstract void 
+  public abstract void 
   createSymmetricKey
     (Name keyName, KeyType keyType, Name signkeyName, boolean isSymmetric);
 
@@ -30,7 +30,7 @@ public abstract class EncryptionManager {
     createSymmetricKey(keyName, keyType, new Name(), true);
   }
 
-  abstract Blob
+  public abstract Blob
   encrypt
     (Name keyName, ByteBuffer data, boolean useSymmetric, 
      EncryptMode encryptMode);
@@ -47,7 +47,7 @@ public abstract class EncryptionManager {
     return encrypt(keyName, data, false, EncryptMode.DEFAULT);
   }
 
-  abstract Blob
+  public abstract Blob
   decrypt
     (Name keyName, ByteBuffer data, boolean useSymmetric, 
      EncryptMode encryptMode);
