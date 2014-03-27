@@ -7,8 +7,6 @@
 
 package net.named_data.jndn.security.certificate;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.named_data.jndn.encoding.OID;
 import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.security.DigestAlgorithm;

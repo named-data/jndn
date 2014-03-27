@@ -17,8 +17,6 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.named_data.jndn.encoding.BinaryXml;
 import net.named_data.jndn.encoding.BinaryXmlDecoder;
 import net.named_data.jndn.encoding.BinaryXmlWireFormat;
