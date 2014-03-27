@@ -7,12 +7,24 @@
 
 package net.named_data.jndn.security.policy;
 
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifyFailed;
 import net.named_data.jndn.security.ValidationRequest;
+import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.identity.IdentityStorage;
+import net.named_data.jndn.util.Blob;
 
 /**
  * A SelfVerifyPolicyManager implements a PolicyManager to use the public key 
@@ -45,33 +57,173 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   {
     identityStorage_ = null;
   }
-  
-  private IdentityStorage identityStorage_;
 
+  /**
+   * Never skip verification.
+   * @param data The received data packet.
+   * @return false.
+   */
   public boolean skipVerifyAndTrust(Data data) 
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return false;
   }
 
+  /**
+   * Always return true to use the self-verification rule for the received data.
+   * @param data The received data packet.
+   * @return true.
+   */
   public boolean requireVerify(Data data) 
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return true;
   }
 
+  /**
+   * Use the public key DER in the data packet's KeyLocator (if available) or 
+   * look in the IdentityStorage for the public key with the name in the 
+   * KeyLocator (if available) and use it to verify the data packet.  If the 
+   * public key can't be found, call onVerifyFailed.
+   * @param data The Data object with the signature to check.
+   * @param stepCount The number of verification steps that have been done, used 
+   * to track the verification progress. (stepCount is ignored.)
+   * @param onVerified If the signature is verified, this calls onVerified(data).
+   * @param onVerifyFailed If the signature check fails or can't find the public 
+   * key, this calls onVerifyFailed(data).
+   * @return null for no further step for looking up a certificate chain.
+   */
   public ValidationRequest checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified, 
      OnVerifyFailed onVerifyFailed) 
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    if (!(data.getSignature() instanceof Sha256WithRsaSignature))
+      throw new SecurityException("SelfVerifyPolicyManager: Signature is not Sha256WithRsaSignature.");
+    Sha256WithRsaSignature signature = 
+      (Sha256WithRsaSignature)data.getSignature();
+
+    if (signature.getKeyLocator().getType() == KeyLocatorType.KEY) {
+      // Use the public key DER directly.
+      if (verifySha256WithRsaSignature
+          (data, signature.getKeyLocator().getKeyData()))
+        onVerified.onVerified(data);
+      else
+        onVerifyFailed.onVerifyFailed(data); 
+    }
+    else if (signature.getKeyLocator().getType() == KeyLocatorType.KEYNAME && 
+             identityStorage_ != null) {
+      // Assume the key name is a certificate name.
+      Blob publicKeyDer = identityStorage_.getKey
+        (IdentityCertificate.certificateNameToPublicKeyName
+         (signature.getKeyLocator().getKeyName()));
+      if (publicKeyDer.isNull())
+        // Can't find the public key with the name.
+        onVerifyFailed.onVerifyFailed(data);
+
+      if (verifySha256WithRsaSignature(data, publicKeyDer))
+        onVerified.onVerified(data);
+      else
+        onVerifyFailed.onVerifyFailed(data); 
+    }
+    else
+      // Can't find a key to verify.
+      onVerifyFailed.onVerifyFailed(data); 
+
+    // No more steps, so return a null ValidationRequest.
+    return null;
   }
 
+  /**
+   * Override to always indicate that the signing certificate name and data name 
+   * satisfy the signing policy.
+   * @param dataName The name of data to be signed.
+   * @param certificateName The name of signing certificate.
+   * @return true to indicate that the signing certificate can be used to sign 
+   * the data.
+   */
   public boolean checkSigningPolicy(Name dataName, Name certificateName) 
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return true;
   }
 
+  /**
+   * Override to indicate that the signing identity cannot be inferred.
+   * @param dataName The name of data to be signed.
+   * @return An empty name because cannot infer. 
+   */
   public Name inferSigningIdentity(Name dataName) 
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return new Name();
   }
+  
+  /**
+   * Verify the signature on the data packet using the given public key.  If 
+   * there is no data.getDefaultWireEncoding(), this calls data.wireEncode() to 
+   * set it.
+   * TODO: Move this general verification code to a more central location.
+   * @param data The data packet with the signed portion and the signature to 
+   * verify.  The data packet must have a Sha256WithRsaSignature.
+   * @param publicKeyDer The DER-encoded public key used to verify the signature.
+   * @return true if the signature verifies, false if not.
+   * @throw SecurityException if data does not have a Sha256WithRsaSignature.
+   */
+  private static boolean
+  verifySha256WithRsaSignature(Data data, Blob publicKeyDer)
+  {
+    if (!(data.getSignature() instanceof Sha256WithRsaSignature))
+      throw new SecurityException("signature is not Sha256WithRsaSignature.");
+    Sha256WithRsaSignature signature = 
+      (Sha256WithRsaSignature)data.getSignature();
+    if (signature.getDigestAlgorithm().size() != 0)
+      // TODO: Allow a non-default digest algorithm.
+      throw new SecurityException
+        ("Cannot verify a data packet with a non-default digest algorithm.");
+  
+    KeyFactory keyFactory = null;
+    try {
+      keyFactory = KeyFactory.getInstance("RSA");
+    } 
+    catch (NoSuchAlgorithmException exception) {
+      // Don't expect this to happen.
+      throw new SecurityException
+        ("RSA is not supported: " + exception.getMessage());
+    }
+
+    PublicKey publicKey = null;
+    try {
+      publicKey = keyFactory.generatePublic
+        (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
+    }
+    catch (InvalidKeySpecException exception) {
+      // Don't expect this to happen.
+      throw new SecurityException
+        ("X509EncodedKeySpec is not supported: " + exception.getMessage());
+    }
+
+    Signature rsaSignature = null;
+    try {
+      rsaSignature = Signature.getInstance("SHA256withRSA");
+    } 
+    catch (NoSuchAlgorithmException e) {
+      // Don't expect this to happen.
+      throw new SecurityException("SHA256withRSA algorithm is not supported");
+    }
+
+    try {
+      rsaSignature.initVerify(publicKey);
+    }
+    catch (InvalidKeyException exception) {
+      throw new SecurityException
+        ("InvalidKeyException: " + exception.getMessage());
+    }
+    try {
+      // wireEncode returns the cached encoding if available.
+      rsaSignature.update(data.wireEncode().signedBuf());
+      return rsaSignature.verify(signature.getSignature().getImmutableArray());
+    }
+    catch (SignatureException exception) {
+      throw new SecurityException
+        ("SignatureException: " + exception.getMessage());
+    }    
+  }
+
+  private IdentityStorage identityStorage_;
 }
