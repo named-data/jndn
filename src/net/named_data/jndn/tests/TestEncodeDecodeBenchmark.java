@@ -29,6 +29,10 @@ import net.named_data.jndn.util.SignedBlob;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.BinaryXmlWireFormat;
 import net.named_data.jndn.encoding.TlvWireFormat;
+import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.identity.IdentityManager;
+import net.named_data.jndn.security.identity.MemoryIdentityStorage;
+import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 
 public class TestEncodeDecodeBenchmark {
   private static double
@@ -134,8 +138,12 @@ public class TestEncodeDecodeBenchmark {
     Name.Component finalBlockId = 
       new Name.Component(new Blob(new byte[] { (byte)0 }));
 
-    // Initialize the private key storage in case useCrypto is true.
+    // Initialize the KeyChain storage in case useCrypto is true.
+    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
     MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+    KeyChain keyChain = new KeyChain
+      (new IdentityManager(identityStorage, privateKeyStorage), 
+       new SelfVerifyPolicyManager(identityStorage));
     Name keyName = new Name("/testname/DSK-123");
     Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
       ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
@@ -157,22 +165,10 @@ public class TestEncodeDecodeBenchmark {
         data.getMetaInfo().setFinalBlockID(finalBlockId);
       }
 
-      KeyLocator keyLocator = new KeyLocator();    
-      keyLocator.setType(KeyLocatorType.KEYNAME);
-      keyLocator.setKeyName(certificateName);
-      keyLocator.setKeyNameType(KeyNameType.NONE);
-      Sha256WithRsaSignature sha256Signature = 
-        (Sha256WithRsaSignature)data.getSignature();
-      sha256Signature.setKeyLocator(keyLocator);
-      sha256Signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-        (publisherPublicKeyDigest);
       if (useCrypto) {
-        // Encode once to get the signed portion.
-        sha256Signature.setSignature(emptyBlob);
-        SignedBlob unsignedEncoding = data.wireEncode();
         try {
-          sha256Signature.setSignature(privateKeyStorage.sign
-            (unsignedEncoding.signedBuf(), keyName));
+          // This sets the signature fields.
+          keyChain.sign(data, certificateName);
         }
         catch (SecurityException exception) {
           // Don't expect this to happen.
@@ -180,9 +176,20 @@ public class TestEncodeDecodeBenchmark {
             ("SecurityException in sign: " + exception.getMessage());
         }
       }
-      else
-        // Set the signature field, but don't sign.
+      else {
+        // Imitate IdentityManager.signByCertificate to set up the signature 
+        //   fields, but don't sign.
+        KeyLocator keyLocator = new KeyLocator();    
+        keyLocator.setType(KeyLocatorType.KEYNAME);
+        keyLocator.setKeyName(certificateName);
+        keyLocator.setKeyNameType(KeyNameType.NONE);
+        Sha256WithRsaSignature sha256Signature = 
+          (Sha256WithRsaSignature)data.getSignature();
+        sha256Signature.setKeyLocator(keyLocator);
+        sha256Signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
+          (publisherPublicKeyDigest);
         sha256Signature.setSignature(signatureBits);
+      }
 
       encoding[0] = data.wireEncode();
     }

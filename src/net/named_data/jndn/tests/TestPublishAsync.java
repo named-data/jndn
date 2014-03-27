@@ -18,8 +18,13 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.OnInterest;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.Sha256WithRsaSignature;
+import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.identity.IdentityManager;
+import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
+import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 import net.named_data.jndn.transport.Transport;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.SignedBlob;
@@ -86,16 +91,9 @@ public class TestPublishAsync {
   });
 
   private static class Echo implements OnInterest, OnRegisterFailed {
-    public Echo
-      (/* KeyChain keyChain, */ MemoryPrivateKeyStorage privateKeyStorage,
-       Name keyName, Name certificateName)
+    public Echo(KeyChain keyChain, Name certificateName)
     { 
-      /*
-      keyChain_ = keyChain;
-      */
-      privateKeyStorage_ = privateKeyStorage;
-      keyName_ = keyName;
-      
+      keyChain_ = keyChain;      
       certificateName_ = certificateName;
     }
     
@@ -111,26 +109,8 @@ public class TestPublishAsync {
       // setTimestampMilliseconds is needed for BinaryXml compatibility.
       data.getMetaInfo().setTimestampMilliseconds(System.currentTimeMillis());
       
-      /*
-      keyChain_.sign(data, certificateName_);
-      */
-      KeyLocator keyLocator = new KeyLocator();    
-      keyLocator.setType(KeyLocatorType.KEYNAME);
-      keyLocator.setKeyName(certificateName_);
-      keyLocator.setKeyNameType(KeyNameType.NONE);
-      Sha256WithRsaSignature sha256Signature = 
-        (Sha256WithRsaSignature)data.getSignature();
-      sha256Signature.setKeyLocator(keyLocator);
-      // Use an empty digest.
-      sha256Signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-        (new Blob(new byte[32]));
-      // Encode once to get the signed portion.
-      sha256Signature.setSignature(new Blob(new byte[0]));
-      SignedBlob unsignedEncoding = data.wireEncode();
       try {
-        sha256Signature.setSignature(privateKeyStorage_.sign
-          (unsignedEncoding.signedBuf(), keyName_));
-      }
+        keyChain_.sign(data, certificateName_);      }
       catch (SecurityException exception) {
         // Don't expect this to happen.
         throw new Error
@@ -153,12 +133,7 @@ public class TestPublishAsync {
       System.out.println("Register failed for prefix " + prefix.toUri());
     }
     
-    /*
     KeyChain keyChain_;
-    */
-    MemoryPrivateKeyStorage privateKeyStorage_;
-    Name keyName_;
-    
     Name certificateName_;
     int responseCount_ = 0;
   }
@@ -170,28 +145,22 @@ public class TestPublishAsync {
     try {
       Face face = new Face("localhost");
 
-      /*
       MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
-       */
       MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
-      /*
       KeyChain keyChain = new KeyChain
         (new IdentityManager(identityStorage, privateKeyStorage), 
          new SelfVerifyPolicyManager(identityStorage));
-       */
+      keyChain.setFace(face);
 
       // Initialize the storage.
       Name keyName = new Name("/testname/DSK-123");
       Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
         ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
-      /*
-      identityStorage.addKey(keyName, KEY_TYPE_RSA, new Blob(DEFAULT_PUBLIC_KEY_DER)));
-       */
+      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_PUBLIC_KEY_DER, false));
       privateKeyStorage.setKeyPairForKeyName
         (keyName, DEFAULT_PUBLIC_KEY_DER, DEFAULT_PRIVATE_KEY_DER);
 
-      Echo echo = new Echo
-        (/* keyChain, */ privateKeyStorage, keyName, certificateName);
+      Echo echo = new Echo(keyChain, certificateName);
       Name prefix = new Name("/testecho");
       System.out.println("Register prefix  " + prefix.toUri());
       face.registerPrefix(prefix, echo, echo);

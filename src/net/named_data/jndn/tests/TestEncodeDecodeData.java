@@ -12,10 +12,14 @@ import net.named_data.jndn.Data;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
-import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.identity.IdentityManager;
+import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
+import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
 
 public class TestEncodeDecodeData {
@@ -238,29 +242,21 @@ public class TestEncodeDecodeData {
       freshData.getMetaInfo().setFreshnessPeriod(5000);
       freshData.getMetaInfo().setFinalBlockID(new Name("/%00%09").get(0));
 
-      /*
       MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
-       */
       MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
-      /*
       KeyChain keyChain = new KeyChain
         (new IdentityManager(identityStorage, privateKeyStorage), 
          new SelfVerifyPolicyManager(identityStorage));
-       */
 
       // Initialize the storage.
       Name keyName = new Name("/testname/DSK-123");
       Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
         ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
-      /*
-      identityStorage.addKey(keyName, KEY_TYPE_RSA, new Blob(DEFAULT_PUBLIC_KEY_DER)));
-       */
+      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_PUBLIC_KEY_DER, false));
       privateKeyStorage.setKeyPairForKeyName
         (keyName, DEFAULT_PUBLIC_KEY_DER, DEFAULT_PRIVATE_KEY_DER);
 
-      /*
-      keyChain.sign(*freshData, certificateName);
-       */
+      keyChain.sign(freshData, certificateName);
       System.out.println();
       System.out.println("Freshly-signed Data:");
       dumpData(freshData);
@@ -269,7 +265,7 @@ public class TestEncodeDecodeData {
       keyChain.verifyData(freshData, bind(&onVerified, "Freshly-signed Data", _1), bind(&onVerifyFailed, "Freshly-signed Data", _1));
        */
     } 
-    catch (EncodingException e) {
+    catch (Exception e) {
       System.out.println(e.getMessage());
     }
   }
