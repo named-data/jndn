@@ -7,10 +7,16 @@
 
 package net.named_data.jndn.security;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
+import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.encryption.EncryptionManager;
@@ -165,6 +171,27 @@ public class KeyChain {
     (Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed, 
      int stepCount)
   {
+    Logger.getLogger(this.getClass().getName()).log
+      (Level.INFO, "Enter Verify");
+
+    if (policyManager_.requireVerify(data)) {
+      ValidationRequest nextStep = policyManager_.checkVerificationPolicy
+        (data, stepCount, onVerified, onVerifyFailed);
+      if (nextStep != null) {
+        VerifyCallbacks callbacks = new VerifyCallbacks
+          (nextStep, nextStep.retry_, onVerifyFailed, data);
+        try {
+          face_.expressInterest(nextStep.interest_, callbacks, callbacks);
+        } 
+        catch (IOException ex) {
+          onVerifyFailed.onVerifyFailed(data);
+        }
+      }
+    }
+    else if (policyManager_.skipVerifyAndTrust(data))
+      onVerified.onVerified(data);
+    else
+      onVerifyFailed.onVerifyFailed(data);
   }
   
   /**
@@ -190,14 +217,61 @@ public class KeyChain {
   
   /**
    * Set the Face which will be used to fetch required certificates.
-   * @param face A pointer to the Face object.
+   * @param face The Face object.
    */
   public void
   setFace(Face face) { face_ = face; }
   
-  IdentityManager identityManager_;
-  PolicyManager policyManager_;
-  EncryptionManager encryptionManager_;
-  Face face_ = null;
-  int maxSteps_ = 100;
+  /**
+   * A VerifyCallbacks is used for callbacks from verifyData.
+   */
+  private class VerifyCallbacks implements OnData, OnTimeout {
+    public VerifyCallbacks
+      (ValidationRequest nextStep, int retry, OnVerifyFailed onVerifyFailed,
+       Data data)
+    {
+      nextStep_ = nextStep;
+      retry_ = retry;
+      onVerifyFailed_ = onVerifyFailed;
+      data_ = data;
+    }
+
+    public void onData(Interest interest, Data data)
+    {
+      // Try to verify the certificate (data) according to the parameters in 
+      //   nextStep.
+      verifyData
+        (data, nextStep_.onVerified_, nextStep_.onVerifyFailed_, 
+         nextStep_.stepCount_);
+    }
+
+    public void onTimeout(Interest interest) 
+    {
+      if (retry_ > 0) {
+        // Issue the same expressInterest as in verifyData except decrement 
+        //   retry.
+        VerifyCallbacks callbacks = new VerifyCallbacks
+          (nextStep_, retry_ - 1, onVerifyFailed_, data_);
+        try {
+          face_.expressInterest(interest, callbacks, callbacks);
+        } 
+        catch (IOException ex) {
+          onVerifyFailed_.onVerifyFailed(data_);
+        }
+      }
+      else
+        onVerifyFailed_.onVerifyFailed(data_);
+    }
+
+    private ValidationRequest nextStep_;
+    private int retry_;
+    private OnVerifyFailed onVerifyFailed_;
+    private Data data_;
+  }
+  
+  private IdentityManager identityManager_;
+  private PolicyManager policyManager_;
+  private EncryptionManager encryptionManager_;
+  private Face face_ = null;
+  private int maxSteps_ = 100;
 }
