@@ -7,6 +7,8 @@
 package net.named_data.jndn.tests;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.KeyLocatorType;
@@ -16,6 +18,8 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.OnVerified;
+import net.named_data.jndn.security.OnVerifyFailed;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
@@ -214,10 +218,29 @@ public class TestEncodeDecodeData {
     }
   }
   
+  private static class VerifyCallbacks implements OnVerified, OnVerifyFailed {
+    public VerifyCallbacks(String prefix) { prefix_ = prefix; }
+    
+    private String prefix_;
+
+    public void onVerified(Data data) 
+    {
+      System.out.println(prefix_ + " signature verification: VERIFIED");
+    }
+
+    public void onVerifyFailed(Data data) 
+    {
+      System.out.println(prefix_ + " signature verification: FAILED");
+    }
+  }
+  
   public static void 
   main(String[] args) 
   {
     try {
+      // Don't show INFO log messages.
+      Logger.getLogger("").setLevel(Level.WARNING);
+      
       Data data = new Data();
       // Note: While we transition to the TLV wire format, check if it has been made the default.
       if (WireFormat.getDefaultWireFormat() == TlvWireFormat.get())
@@ -261,9 +284,8 @@ public class TestEncodeDecodeData {
       System.out.println("Freshly-signed Data:");
       dumpData(freshData);
 
-      /*
-      keyChain.verifyData(freshData, bind(&onVerified, "Freshly-signed Data", _1), bind(&onVerifyFailed, "Freshly-signed Data", _1));
-       */
+      VerifyCallbacks callbacks = new VerifyCallbacks("Freshly-signed Data");
+      keyChain.verifyData(freshData, callbacks, callbacks);
     } 
     catch (Exception e) {
       System.out.println(e.getMessage());
