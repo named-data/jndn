@@ -54,19 +54,19 @@ public class IdentityManager {
   createIdentity(Name identityName) throws SecurityException
   {
     if (!identityStorage_.doesIdentityExist(identityName)) {
-      Logger.getLogger(IdentityManager.class.getName()).log
+      Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Create Identity");
       identityStorage_.addIdentity(identityName);
 
-      Logger.getLogger(IdentityManager.class.getName()).log
+      Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Create Default RSA key pair");
       Name keyName = generateRSAKeyPairAsDefault(identityName, true);
 
-      Logger.getLogger(IdentityManager.class.getName()).log
+      Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Create self-signed certificate");
       IdentityCertificate selfCert = selfSign(keyName); 
 
-      Logger.getLogger(IdentityManager.class.getName()).log
+      Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Add self-signed certificate as default");
 
       addCertificateAsDefault(selfCert);
@@ -488,15 +488,15 @@ public class IdentityManager {
     (Name identityName, boolean isKsk, KeyType keyType, 
      int keySize) throws SecurityException
   {
-    Logger.getLogger(IdentityManager.class.getName()).log
+    Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Get new key ID");    
     Name keyName = identityStorage_.getNewKeyName(identityName, isKsk);
 
-    Logger.getLogger(IdentityManager.class.getName()).log
+    Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Generate key pair in private storage");
     privateKeyStorage_.generateKeyPair(keyName, keyType, keySize);
 
-    Logger.getLogger(IdentityManager.class.getName()).log
+    Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Create a key record in public storage");
     PublicKey pubKey = privateKeyStorage_.getPublicKey(keyName);
     identityStorage_.addKey(keyName, keyType, pubKey.getKeyDer());
