@@ -41,7 +41,7 @@ public class TestGetAsync {
   main(String[] args) 
   {
     try {
-      Face face = new Face("borges.metwi.ucla.edu");
+      Face face = new Face("aleph.ndn.ucla.edu");
       
       Counter counter = new Counter();
 
