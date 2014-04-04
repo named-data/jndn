@@ -85,7 +85,7 @@ public class Node implements ElementListener {
   /**
    * Remove the pending interest entry with the pendingInterestId from the 
    * pending interest table. This does not affect another pending interest with 
-   * a different pendingInterestId, even it if has the same interest name.
+   * a different pendingInterestId, even if it has the same interest name.
    * If there is no entry with the pendingInterestId, do nothing.
    * @param pendingInterestId The ID returned from expressInterest.
    */
@@ -145,8 +145,8 @@ public class Node implements ElementListener {
   
   /**
    * Remove the registered prefix entry with the registeredPrefixId from the 
-   * pending interest table. This does not affect another registered prefix with 
-   * a different registeredPrefixId, even it if has the same prefix name.
+   * registered prefix table. This does not affect another registered prefix with 
+   * a different registeredPrefixId, even if it has the same prefix name.
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
