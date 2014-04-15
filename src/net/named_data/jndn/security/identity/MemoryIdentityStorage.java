@@ -219,7 +219,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   getDefaultIdentity() throws SecurityException
   {
     if (defaultIdentity_.length() == 0)
-      throw new SecurityException("MemoryIdentityStorage::getDefaultIdentity: The default identity is not defined");
+      throw new SecurityException("MemoryIdentityStorage.getDefaultIdentity: The default identity is not defined");
   
     return new Name(defaultIdentity_);
   }
