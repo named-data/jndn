@@ -159,11 +159,11 @@ public abstract class IdentityStorage {
 
   /**
    * Get the default identity. 
-   * @param return The name of default identity, or an empty name if there is 
-   * no default.
+   * @return The name of default identity.
+   * @throws SecurityException if the default identity is not set.
    */
   public abstract Name 
-  getDefaultIdentity();
+  getDefaultIdentity() throws SecurityException;
 
   /**
    * Get the default key name for the specified identity.
@@ -195,7 +195,7 @@ public abstract class IdentityStorage {
 
   /**
    * Set the default identity.  If the identityName does not exist, then clear 
-   * the default identity so that getDefaultIdentity() returns an empty name.
+   * the default identity so that getDefaultIdentity() throws an exception.
    * @param identityName The default identity name.
    */
   public abstract void 

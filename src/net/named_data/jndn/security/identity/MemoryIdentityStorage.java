@@ -212,12 +212,15 @@ public class MemoryIdentityStorage extends IdentityStorage {
 
   /**
    * Get the default identity. 
-   * @param return The name of default identity, or an empty name if there is 
-   * no default.
+   * @return The name of default identity.
+   * @throws SecurityException if the default identity is not set.
    */
   public Name 
-  getDefaultIdentity()
+  getDefaultIdentity() throws SecurityException
   {
+    if (defaultIdentity_.length() == 0)
+      throw new SecurityException("MemoryIdentityStorage::getDefaultIdentity: The default identity is not defined");
+  
     return new Name(defaultIdentity_);
   }
 
@@ -247,7 +250,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
 
   /**
    * Set the default identity.  If the identityName does not exist, then clear 
-   * the default identity so that getDefaultIdentity() returns an empty name.
+   * the default identity so that getDefaultIdentity() throws an exception.
    * @param identityName The default identity name.
    */
   public void 

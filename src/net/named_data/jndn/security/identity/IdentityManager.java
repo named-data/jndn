@@ -79,10 +79,11 @@ public class IdentityManager {
   
   /**
    * Get the default identity.
-   * @return The default identity name.
+   * @return The name of default identity.
+   * @throws SecurityException if the default identity is not set.
    */
   public Name
-  getDefaultIdentity()
+  getDefaultIdentity() throws SecurityException
   {
     return identityStorage_.getDefaultIdentity();
   }
@@ -374,9 +375,10 @@ public class IdentityManager {
    * Get the default certificate name of the default identity, which will be 
    * used when signing is based on identity and the identity is not specified.
    * @return The requested certificate name.
+   * @throws SecurityException if the default identity is not set.
    */
   public Name
-  getDefaultCertificateName()
+  getDefaultCertificateName() throws SecurityException
   {
     return identityStorage_.getDefaultCertificateNameForIdentity
       (getDefaultIdentity());
