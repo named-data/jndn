@@ -22,6 +22,7 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.encryption.EncryptionManager;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.policy.PolicyManager;
+import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 
 /**
  * KeyChain is the main class of the security library.
@@ -34,13 +35,29 @@ import net.named_data.jndn.security.policy.PolicyManager;
  * http://named-data.net/doc/ndn-ccl-api/key-chain.html .
  */
 public class KeyChain {
+  /**
+   * Create a new KeyChain with the given IdentityManager and PolicyManager.
+   * @param identityManager An object of a subclass of IdentityManager.
+   * @param policyManager An object of a subclass of PolicyManager.
+   */
   public KeyChain
     (IdentityManager identityManager, PolicyManager policyManager)
   {
     identityManager_ = identityManager;
     policyManager_ = policyManager;
   }
-  
+
+  /**
+   * Create a new KeyChain with the given IdentityManager and a 
+   * NoVerifyPolicyManager.
+   * @param identityManager An object of a subclass of IdentityManager.
+   */
+  public KeyChain(IdentityManager identityManager)
+  {
+    identityManager_ = identityManager;
+    policyManager_ = new NoVerifyPolicyManager();
+  }
+    
   /*****************************************
    *              Sign/Verify              *
    *****************************************/
