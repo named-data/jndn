@@ -21,12 +21,12 @@ public class Name implements ChangeCountable {
    */
   public static class Component {
     /**
-     * Create a new Name.Component where the Blob buf() pointer is null.
+     * Create a new Name.Component with a zero-length value.
      */
     public 
     Component() 
     {
-      value_ = new Blob();
+      value_ = new Blob(ByteBuffer.allocate(0), false);
     }
     
     /**
