@@ -156,9 +156,10 @@ public class IdentityManager {
    * @param identityName the name of the identity. If empty, the identity name 
    * is inferred from the keyName.
    * @return The default key name.
+   * @throws SecurityException if the default key name for the identity is not set.
    */
   public Name
-  getDefaultKeyNameForIdentity(Name identityName)
+  getDefaultKeyNameForIdentity(Name identityName) throws SecurityException
   {
     return identityStorage_.getDefaultKeyNameForIdentity(identityName);
   }
@@ -364,9 +365,11 @@ public class IdentityManager {
    * used when signing is performed based on identity.
    * @param identityName The name of the specified identity.
    * @return The requested certificate name.
+   * @throws SecurityException if the default key name for the identity is not 
+   * set or the default certificate name for the key name is not set.
    */
   public Name
-  getDefaultCertificateNameForIdentity(Name identityName)
+  getDefaultCertificateNameForIdentity(Name identityName) throws SecurityException
   {
     return identityStorage_.getDefaultCertificateNameForIdentity(identityName);
   }
@@ -375,7 +378,9 @@ public class IdentityManager {
    * Get the default certificate name of the default identity, which will be 
    * used when signing is based on identity and the identity is not specified.
    * @return The requested certificate name.
-   * @throws SecurityException if the default identity is not set.
+   * @throws SecurityException if the default identity is not set or the default 
+   * key name for the identity is not set or the default certificate name for 
+   * the key name is not set.
    */
   public Name
   getDefaultCertificateName() throws SecurityException

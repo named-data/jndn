@@ -169,17 +169,20 @@ public abstract class IdentityStorage {
    * Get the default key name for the specified identity.
    * @param identityName The identity name.
    * @return The default key name.
+   * @throws SecurityException if the default key name for the identity is not set.
    */
   public abstract Name 
-  getDefaultKeyNameForIdentity(Name identityName);
+  getDefaultKeyNameForIdentity(Name identityName) throws SecurityException;
 
   /**
    * Get the default certificate name for the specified identity.
    * @param identityName The identity name.
    * @return The default certificate name.
+   * @throws SecurityException if the default key name for the identity is not 
+   * set or the default certificate name for the key name is not set.
    */
   Name 
-  getDefaultCertificateNameForIdentity(Name identityName)
+  getDefaultCertificateNameForIdentity(Name identityName) throws SecurityException
   {
     Name keyName = getDefaultKeyNameForIdentity(identityName);    
     return getDefaultCertificateNameForKey(keyName);
@@ -189,9 +192,11 @@ public abstract class IdentityStorage {
    * Get the default certificate name for the specified key.
    * @param keyName The key name.
    * @return The default certificate name.
+   * @throws SecurityException if the default certificate name for the key name 
+   * is not set.
    */
   public abstract Name 
-  getDefaultCertificateNameForKey(Name keyName);
+  getDefaultCertificateNameForKey(Name keyName) throws SecurityException;
 
   /**
    * Set the default identity.  If the identityName does not exist, then clear 

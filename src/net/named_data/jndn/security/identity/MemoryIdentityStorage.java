@@ -228,9 +228,10 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * Get the default key name for the specified identity.
    * @param identityName The identity name.
    * @return The default key name.
+   * @throws SecurityException if the default key name for the identity is not set.
    */
   public Name 
-  getDefaultKeyNameForIdentity(Name identityName)
+  getDefaultKeyNameForIdentity(Name identityName) throws SecurityException
   {
     throw new UnsupportedOperationException
       ("MemoryIdentityStorage::getDefaultKeyNameForIdentity not implemented");
@@ -240,9 +241,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * Get the default certificate name for the specified key.
    * @param keyName The key name.
    * @return The default certificate name.
+   * @throws SecurityException if the default certificate name for the key name 
+   * is not set.
    */
   public Name 
-  getDefaultCertificateNameForKey(Name keyName)
+  getDefaultCertificateNameForKey(Name keyName) throws SecurityException
   {
     throw new UnsupportedOperationException
       ("MemoryIdentityStorage::getDefaultCertificateNameForKey not implemented");
