@@ -167,9 +167,10 @@ public class IdentityManager {
   /**
    * Get the default key for an identity, inferred from the keyName.
    * @return The default key name.
+   * @throws SecurityException if the default key name for the identity is not set.
    */
   public Name
-  getDefaultKeyNameForIdentity()
+  getDefaultKeyNameForIdentity() throws SecurityException
   {
     return getDefaultKeyNameForIdentity(new Name());
   }
