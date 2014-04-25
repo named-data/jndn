@@ -174,7 +174,7 @@ public class Blob {
   {
     StringBuffer output = new StringBuffer(buffer.remaining() * 2);
     for (int i = buffer.position(); i < buffer.limit(); ++i) {
-      String hex = Integer.toHexString((int)buffer.get(i) & 0xff).toUpperCase();
+      String hex = Integer.toHexString((int)buffer.get(i) & 0xff);
       if (hex.length() <= 1)
         // Append the leading zero.
         output.append("0");
