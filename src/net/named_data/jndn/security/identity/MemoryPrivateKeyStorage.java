@@ -26,14 +26,24 @@ import net.named_data.jndn.util.Blob;
 
 public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   /**
-   * Set the public and private key for the keyName.
+   * Set the public key for the keyName.
    * @param keyName The key name.
    * @param publicKeyDer The public key DER byte buffer.
+   */
+  public final void 
+  setKeyPairForKeyName(Name keyName, ByteBuffer publicKeyDer)
+  {
+    publicKeyStore_.put
+      (keyName.toUri(), PublicKey.fromDer(new Blob(publicKeyDer, true)));
+  }
+  
+  /**
+   * Set the private key for the keyName.
+   * @param keyName The key name.
    * @param privateKeyDer The private key DER byte buffer.
    */
   public final void 
-  setKeyPairForKeyName
-    (Name keyName, ByteBuffer publicKeyDer, ByteBuffer privateKeyDer)
+  setPrivateKeyForKeyName(Name keyName, ByteBuffer privateKeyDer)
   {
     KeyFactory keyFactory = null;
     try {
@@ -44,9 +54,6 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       throw new Error
         ("KeyFactory: RSA is not supported: " + exception.getMessage());
     }
-    
-    publicKeyStore_.put
-      (keyName.toUri(), PublicKey.fromDer(new Blob(publicKeyDer, true)));
     
     try {
       privateKeyStore_.put
@@ -60,6 +67,20 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
         ("KeyFactory: PKCS8EncodedKeySpec is not supported: " +
          exception.getMessage());
     }
+  }
+  
+  /**
+   * Set the public and private key for the keyName.
+   * @param keyName The key name.
+   * @param publicKeyDer The public key DER byte buffer.
+   * @param privateKeyDer The private key DER byte buffer.
+   */
+  public final void 
+  setKeyPairForKeyName
+    (Name keyName, ByteBuffer publicKeyDer, ByteBuffer privateKeyDer)
+  {
+    setKeyPairForKeyName(keyName, publicKeyDer);
+    setPrivateKeyForKeyName(keyName, privateKeyDer);
   }
   
   /**
