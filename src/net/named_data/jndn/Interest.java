@@ -183,7 +183,7 @@ public class Interest implements ChangeCountable {
       selectors.append("&ndn.Scope=").append(scope_);
     if (interestLifetimeMilliseconds_ >= 0)
       selectors.append("&ndn.InterestLifetime=").append
-        (interestLifetimeMilliseconds_);
+        ((long)Math.round(interestLifetimeMilliseconds_));
     if (getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
       selectors.append("&ndn.PublisherPublicKeyDigest=");
       Name.toEscapedString
