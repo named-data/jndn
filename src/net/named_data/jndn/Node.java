@@ -584,11 +584,12 @@ public class Node implements ElementListener {
     Sha256WithRsaSignature signature = (Sha256WithRsaSignature)data.getSignature();
 
     // Set the public key.
-    // Set the KEY_LOCATOR_DIGEST, which will be encoded as a 
-    //   publisherPublicKeyDigest if needed.
-    signature.getKeyLocator().setType(KeyLocatorType.KEY_LOCATOR_DIGEST);
-    signature.getKeyLocator().setKeyData
+    // Since we encode the register prefix message as BinaryXml, use the full
+    //   public key in the key locator to make the legacy NDNx happy.
+    signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
       (new Blob(Common.digestSha256(SELFREG_PUBLIC_KEY_DER)));
+    signature.getKeyLocator().setType(KeyLocatorType.KEY);
+    signature.getKeyLocator().setKeyData(new Blob(SELFREG_PUBLIC_KEY_DER, false));
     
     // Set the private key.
     KeyFactory keyFactory = null;
@@ -721,10 +722,6 @@ public class Node implements ElementListener {
     data.setContent(content);
     // Use the deprecated setTimestampMilliseconds because ndnd requires it.
     data.getMetaInfo().setTimestampMilliseconds(Common.getNowMilliseconds());
-    // Set the name to a random value so that each request is unique.
-    ByteBuffer nonce = ByteBuffer.allocate(4);
-    random_.nextBytes(nonce.array());
-    data.getName().append(new Blob(nonce, false));
     // For now, self sign with an arbirary key.  In the future, we may not 
     //   require a signature to register.
     // Always encode as BinaryXml since the internals of ndnd expect it.
