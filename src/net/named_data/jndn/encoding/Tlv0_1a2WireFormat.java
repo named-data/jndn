@@ -252,7 +252,8 @@ public class Tlv0_1a2WireFormat extends WireFormat {
       encodeExclude(interest.getExclude(), encoder);
 
     if (interest.getKeyLocator().getType() != null)
-      encodeKeyLocator(interest.getKeyLocator(), encoder);
+      encodeKeyLocator
+        (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), encoder);
     else {
       // There is no keyLocator. If there is a publisherPublicKeyDigest, then 
       //   encode as KEY_LOCATOR_DIGEST. (When we remove the deprecated 
@@ -289,8 +290,9 @@ public class Tlv0_1a2WireFormat extends WireFormat {
 
     // Initially set publisherPublicKeyDigest to none.
     interest.getPublisherPublicKeyDigest().clear();
-    if (decoder.peekType(Tlv.KeyLocator, endOffset)) {
-      decodeKeyLocator(interest.getKeyLocator(), decoder);
+    if (decoder.peekType(Tlv.PublisherPublicKeyLocator, endOffset)) {
+      decodeKeyLocator
+        (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), decoder);
       if (interest.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST) {
         // For backwards compatibility, also set the publisherPublicKeyDigest.
         interest.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
@@ -353,7 +355,7 @@ public class Tlv0_1a2WireFormat extends WireFormat {
   }
 
   private static void
-  encodeKeyLocator(KeyLocator keyLocator, TlvEncoder encoder)
+  encodeKeyLocator(int type, KeyLocator keyLocator, TlvEncoder encoder)
   {
     int saveLength = encoder.getLength();
 
@@ -368,14 +370,14 @@ public class Tlv0_1a2WireFormat extends WireFormat {
         throw new Error("Unrecognized KeyLocatorType " + keyLocator.getType());
     }
 
-    encoder.writeTypeAndLength(Tlv.KeyLocator, encoder.getLength() - saveLength);
+    encoder.writeTypeAndLength(type, encoder.getLength() - saveLength);
   }
   
   private static void
   decodeKeyLocator
-    (KeyLocator keyLocator, TlvDecoder decoder) throws EncodingException
+    (int expectedType, KeyLocator keyLocator, TlvDecoder decoder) throws EncodingException
   {
-    int endOffset = decoder.readNestedTlvsStart(Tlv.KeyLocator);
+    int endOffset = decoder.readNestedTlvsStart(expectedType);
 
     keyLocator.clear();
 
@@ -408,7 +410,7 @@ public class Tlv0_1a2WireFormat extends WireFormat {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
-    encodeKeyLocator(signature.getKeyLocator(), encoder);
+    encodeKeyLocator(Tlv.KeyLocator, signature.getKeyLocator(), encoder);
     encoder.writeNonNegativeIntegerTlv
       (Tlv.SignatureType, Tlv.SignatureType_SignatureSha256WithRsa);
 
@@ -430,7 +432,7 @@ public class Tlv0_1a2WireFormat extends WireFormat {
         //   and set it, then data will have to copy all the fields.
         Sha256WithRsaSignature signatureInfo = 
           (Sha256WithRsaSignature)data.getSignature();
-        decodeKeyLocator(signatureInfo.getKeyLocator(), decoder);
+        decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
     }
     else
         throw new EncodingException
