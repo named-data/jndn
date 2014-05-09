@@ -24,7 +24,7 @@ public class Common {
   
   /**
    * Compute the sha-256 digest of data.
-   * @param data The input byte buffer.
+   * @param data The input byte buffer. This does not change the position.
    * @return The digest.
    */
   public static byte[]
@@ -39,7 +39,9 @@ public class Common {
       throw new Error
         ("MessageDigest: SHA-256 is not supported: " + exception.getMessage());
     }
+    int savePosition = data.position();
     sha256.update(data);
+    data.position(savePosition);
     return sha256.digest();
   }
 }
