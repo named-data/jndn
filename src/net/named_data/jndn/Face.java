@@ -64,7 +64,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long 
+  public final long 
   expressInterest
     (Interest interest, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
@@ -85,7 +85,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long 
+  public final long 
   expressInterest
     (Interest interest, OnData onData, OnTimeout onTimeout) throws IOException
   {
@@ -104,7 +104,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long 
+  public final long 
   expressInterest
     (Interest interest, OnData onData, WireFormat wireFormat) throws IOException
   {
@@ -122,7 +122,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long 
+  public final long 
   expressInterest(Interest interest, OnData onData) throws IOException
   {
     return node_.expressInterest
@@ -145,7 +145,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest
     (Name name, Interest interestTemplate, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
@@ -184,7 +184,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest
     (Name name, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
@@ -208,7 +208,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest
     (Name name, Interest interestTemplate, OnData onData,
      WireFormat wireFormat) throws IOException
@@ -232,7 +232,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest
     (Name name, Interest interestTemplate, OnData onData, 
      OnTimeout onTimeout) throws IOException
@@ -257,7 +257,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest
     (Name name, Interest interestTemplate, OnData onData) throws IOException
   {
@@ -280,7 +280,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest
     (Name name, OnData onData, OnTimeout onTimeout) throws IOException
   {
@@ -302,7 +302,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest
     (Name name, OnData onData, WireFormat wireFormat) throws IOException
   {
@@ -323,7 +323,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest(Name name, OnData onData) throws IOException
   {
     return expressInterest
@@ -337,7 +337,7 @@ public class Face {
    * If there is no entry with the pendingInterestId, do nothing.
    * @param pendingInterestId The ID returned from expressInterest.
    */
-  public void
+  public final void
   removePendingInterest(long pendingInterestId)
   {
     node_.removePendingInterest(pendingInterestId);
@@ -359,7 +359,7 @@ public class Face {
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
    */
-  public long 
+  public final long 
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
      ForwardingFlags flags, WireFormat wireFormat) throws IOException
@@ -384,7 +384,7 @@ public class Face {
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
    */
-  public long 
+  public final long 
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
      ForwardingFlags flags) throws IOException
@@ -409,7 +409,7 @@ public class Face {
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
    */
-  public long 
+  public final long 
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
      WireFormat wireFormat) throws IOException
@@ -433,7 +433,7 @@ public class Face {
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
    */
-  public long 
+  public final long 
   registerPrefix
     (Name prefix, OnInterest onInterest, 
      OnRegisterFailed onRegisterFailed) throws IOException
@@ -450,7 +450,7 @@ public class Face {
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
-  public void
+  public final void
   removeRegisteredPrefix(long registeredPrefixId)
   {
     node_.removeRegisteredPrefix(registeredPrefixId);
@@ -469,7 +469,7 @@ public class Face {
    * processing the data. If you call this from an main event loop, you may want 
    * to catch and log/disregard all exceptions.
    */
-  public void 
+  public final void 
   processEvents() throws IOException, EncodingException
   {
     // Just call Node's processEvents.
@@ -479,7 +479,7 @@ public class Face {
   /**
    * Shut down and disconnect this Face.
    */
-  public void 
+  public final void 
   shutdown()
   {
     node_.shutdown();

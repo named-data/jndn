@@ -63,7 +63,7 @@ public class Node implements ElementListener {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public long
+  public final long
   expressInterest
     (Interest interest, OnData onData, OnTimeout onTimeout, 
      WireFormat wireFormat) throws IOException
@@ -89,7 +89,7 @@ public class Node implements ElementListener {
    * If there is no entry with the pendingInterestId, do nothing.
    * @param pendingInterestId The ID returned from expressInterest.
    */
-  public void
+  public final void
   removePendingInterest(long pendingInterestId)
   {
     // Go backwards through the list so we can remove entries.
@@ -117,7 +117,7 @@ public class Node implements ElementListener {
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
    */
-  public long 
+  public final long 
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
      ForwardingFlags flags, WireFormat wireFormat) throws IOException
@@ -150,7 +150,7 @@ public class Node implements ElementListener {
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
-  public void
+  public final void
   removeRegisteredPrefix(long registeredPrefixId)
   {
     // Go backwards through the list so we can remove entries.
@@ -175,7 +175,7 @@ public class Node implements ElementListener {
    * processing the data. If you call this from an main event loop, you may want 
    * to catch and log/disregard all exceptions.
    */
-  public void 
+  public final void 
   processEvents() throws IOException, EncodingException
   {
     transport_.processEvents();
@@ -198,13 +198,13 @@ public class Node implements ElementListener {
     }
   }
   
-  public Transport
+  public final Transport
   getTransport() { return transport_; }
   
-  public Transport.ConnectionInfo
+  public final Transport.ConnectionInfo
   getConnectionInfo() { return connectionInfo_; }
   
-  public void onReceivedElement(ByteBuffer element) throws EncodingException
+  public final void onReceivedElement(ByteBuffer element) throws EncodingException
   {
     // First, decode as Interest or Data.
     Interest interest = null;
@@ -253,7 +253,7 @@ public class Node implements ElementListener {
     }
   }
   
-  public void 
+  public final void 
   shutdown()
   {
     try {
