@@ -92,6 +92,19 @@ public class Blob {
       buffer_.put((byte)value[i]);
     buffer_.flip();
   }
+
+  /**
+   * Create a new Blob from the UTF8 encoding of the Unicode string.
+   * @param value The Unicode string which is encoded as UTF8.
+   */
+  public 
+  Blob(String value)
+  {
+    byte[] utf8 = value.getBytes();
+    buffer_ = ByteBuffer.allocate(utf8.length);
+    buffer_.put(utf8);
+    buffer_.flip();
+  }
   
   /**
    * Get the read-only ByteBuffer.
