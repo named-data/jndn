@@ -61,7 +61,7 @@ public class Name implements ChangeCountable {
     public 
     Component(String value)
     {
-      value_ = new Blob(value.getBytes());
+      value_ = new Blob(value);
     }
     
     /**

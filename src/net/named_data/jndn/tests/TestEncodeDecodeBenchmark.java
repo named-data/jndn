@@ -128,12 +128,12 @@ public class TestEncodeDecodeBenchmark {
       contentStream.append(count++);
       while (contentStream.toString().length() < 1170)
         contentStream.append(" ").append(count++);
-      content = new Blob(contentStream.toString().getBytes());
+      content = new Blob(contentStream.toString());
     }
     else {
       // Use a small name and content.
       name = new Name("/test");
-      content = new Blob("abc".getBytes());
+      content = new Blob("abc");
     }
     Name.Component finalBlockId = 
       new Name.Component(new Blob(new byte[] { (byte)0 }));

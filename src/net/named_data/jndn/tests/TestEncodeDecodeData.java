@@ -261,7 +261,7 @@ public class TestEncodeDecodeData {
       dumpData(reDecodedData);
 
       Data freshData = new Data(new Name("/ndn/abc"));
-      freshData.setContent(new Blob("SUCCESS!".getBytes()));
+      freshData.setContent(new Blob("SUCCESS!"));
       freshData.getMetaInfo().setFreshnessPeriod(5000);
       freshData.getMetaInfo().setFinalBlockID(new Name("/%00%09").get(0));
 

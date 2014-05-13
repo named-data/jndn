@@ -99,7 +99,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     encoder.writeElementStartDTag(BinaryXml.DTag_ForwardingEntry);
 
     encoder.writeOptionalUDataDTagElement
-      (BinaryXml.DTag_Action, new Blob(forwardingEntry.getAction().getBytes()));
+      (BinaryXml.DTag_Action, new Blob(forwardingEntry.getAction()));
     encodeName(forwardingEntry.getPrefix(), encoder);
     // This will skip encoding if there is no publisherPublicKeyDigest.
     encodePublisherPublicKeyDigest

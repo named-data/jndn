@@ -100,7 +100,7 @@ public class TestPublishAsyncNdnx {
       // Make and sign a Data packet.
       Data data = new Data(interest.getName());
       String content = "Echo " + interest.getName().toUri();
-      data.setContent(new Blob(content.getBytes()));
+      data.setContent(new Blob(content));
       // setTimestampMilliseconds is needed for BinaryXml compatibility.
       data.getMetaInfo().setTimestampMilliseconds(System.currentTimeMillis());
       
