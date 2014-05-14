@@ -19,10 +19,13 @@ import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.security.certificate.Certificate;
+import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.encryption.EncryptionManager;
 import net.named_data.jndn.security.identity.IdentityManager;
-import net.named_data.jndn.security.policy.PolicyManager;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
+import net.named_data.jndn.security.policy.PolicyManager;
+import net.named_data.jndn.util.Blob;
 
 /**
  * KeyChain is the main class of the security library.
@@ -57,6 +60,258 @@ public class KeyChain {
     identityManager_ = identityManager;
     policyManager_ = new NoVerifyPolicyManager();
   }
+
+  // TODO: KeyChain()
+  
+  /*****************************************
+   *          Identity Management          *
+   *****************************************/
+
+  /**
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
+   * @param identityName The name of the identity.
+   * @return The key name of the auto-generated KSK of the identity.
+   * @throws SecurityException if the identity has already been created.
+   */
+  public final Name
+  createIdentity(Name identityName) throws SecurityException
+  {
+    return identityManager_.createIdentity(identityName);
+  }
+
+  /**
+   * Get the default identity.
+   * @return The name of default identity.
+   * @throw SecurityException if the default identity is not set.
+   * @throws SecurityException if the default identity is not set.
+   */
+  public final Name
+  getDefaultIdentity() throws SecurityException
+  {
+    return identityManager_.getDefaultIdentity();
+  }
+    
+  /**
+   * Get the default certificate name of the default identity.
+   * @return The requested certificate name.
+   * @throw SecurityException if the default identity is not set or the default 
+   * key name for the identity is not set or the default certificate name for 
+   * the key name is not set.
+   * @throws SecurityException if the default identity is not set or the default 
+   * key name for the identity is not set or the default certificate name for 
+   * the key name is not set.
+   */
+  public final Name
+  getDefaultCertificateName() throws SecurityException
+  {
+    return identityManager_.getDefaultCertificateName();
+  }
+  
+  
+  /**
+   * Generate a pair of RSA keys for the specified identity.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @param keySize The size of the key.
+   * @return The generated key name.
+   */
+  public final Name
+  generateRSAKeyPair
+    (Name identityName, boolean isKsk, int keySize) throws SecurityException
+  {
+    return identityManager_.generateRSAKeyPair(identityName, isKsk, keySize);
+  }
+  
+  /**
+   * Generate a pair of RSA keys for the specified identity and default keySize
+   * 2048.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @return The generated key name.
+   */
+  public final Name
+  generateRSAKeyPair(Name identityName, boolean isKsk) throws SecurityException
+  {
+    return identityManager_.generateRSAKeyPair(identityName, isKsk);
+  }
+  
+  /**
+   * Generate a pair of RSA keys for the specified identity for a 
+   * Data-Signing-Key and default keySize 2048.
+   * @param identityName The name of the identity.
+   * @return The generated key name.
+   */
+  public final Name
+  generateRSAKeyPair(Name identityName) throws SecurityException
+  {
+    return identityManager_.generateRSAKeyPair(identityName);
+  }
+
+  /**
+   * Set a key as the default key of an identity.
+   * @param keyName The name of the key.
+   * @param identityName the name of the identity. If empty, the 
+   * identity name is inferred from the keyName.
+   */
+  public final void
+  setDefaultKeyForIdentity(Name keyName, Name identityName)
+  {
+    identityManager_.setDefaultKeyForIdentity(keyName, identityName);
+  }
+
+  /**
+   * Set a key as the default key of an identity, inferred from the keyName.
+   * @param keyName The name of the key.
+   */
+  public final void
+  setDefaultKeyForIdentity(Name keyName)
+  {
+    identityManager_.setDefaultKeyForIdentity(keyName);
+  }
+
+  /**
+   * Generate a pair of RSA keys for the specified identity and set it as 
+   * default key for the identity.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @param keySize The size of the key.
+   * @return The generated key name.
+   */
+  public final Name
+  generateRSAKeyPairAsDefault
+    (Name identityName, boolean isKsk, int keySize) throws SecurityException
+  {
+    return identityManager_.generateRSAKeyPairAsDefault(identityName, isKsk, keySize);
+  }
+  
+  /**
+   * Generate a pair of RSA keys for the specified identity and set it as 
+   * default key for the identity, using the default keySize 2048.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @return The generated key name.
+   */
+  public final Name
+  generateRSAKeyPairAsDefault(Name identityName, boolean isKsk) throws SecurityException
+  {
+    return identityManager_.generateRSAKeyPairAsDefault(identityName, isKsk);
+  }
+  
+  /**
+   * Generate a pair of RSA keys for the specified identity and set it as 
+   * default key for the identity for a Data-Signing-Key and using the default 
+   * keySize 2048.
+   * @param identityName The name of the identity.
+   * @return The generated key name.
+   */
+  public final Name
+  generateRSAKeyPairAsDefault(Name identityName) throws SecurityException
+  {
+    return identityManager_.generateRSAKeyPairAsDefault(identityName);
+  }
+
+  /**
+   * Create a public key signing request.
+   * @param keyName The name of the key.
+   * @return The signing request data.
+   */
+  public final Blob
+  createSigningRequest(Name keyName)
+  {
+    return identityManager_.getPublicKey(keyName).getKeyDer();
+  }
+
+  /**
+   * Install an identity certificate into the public key identity storage.
+   * @param certificate The certificate to to added.
+   */
+  public final void
+  installIdentityCertificate(IdentityCertificate certificate) throws SecurityException
+  {
+    identityManager_.addCertificate(certificate);
+  }
+
+  /**
+   * Set the certificate as the default for its corresponding key.
+   * @param certificate The certificate.
+   */
+  public final void
+  setDefaultCertificateForKey(IdentityCertificate certificate) throws SecurityException
+  {
+    identityManager_.setDefaultCertificateForKey(certificate);
+  }
+
+  /**
+   * Get a certificate with the specified name.
+   * @param certificateName The name of the requested certificate.
+   * @return The requested certificate which is valid.
+   */
+  public final Certificate
+  getCertificate(Name certificateName)
+  {
+    return identityManager_.getCertificate(certificateName);
+  }
+
+  /**
+   * Get a certificate even if the certificate is not valid anymore.
+   * @param certificateName The name of the requested certificate.
+   * @return The requested certificate.
+   */
+  public final Certificate
+  getAnyCertificate(Name certificateName)
+  {
+    return identityManager_.getAnyCertificate(certificateName);
+  }
+
+  /**
+   * Get an identity certificate with the specified name.
+   * @param certificateName The name of the requested certificate.
+   * @return The requested certificate which is valid.
+   */
+  public final IdentityCertificate
+  getIdentityCertificate(Name certificateName)
+  {
+    return identityManager_.getCertificate(certificateName);
+  }
+
+  /**
+   * Get an identity certificate even if the certificate is not valid anymore.
+   * @param certificateName The name of the requested certificate.
+   * @return The requested certificate.
+   */
+  public final IdentityCertificate
+  getAnyIdentityCertificate(Name certificateName)
+  {
+    return identityManager_.getAnyCertificate(certificateName);
+  }
+
+  /**
+   * Revoke a key.
+   * @param keyName The name of the key that will be revoked.
+   */
+  public final void 
+  revokeKey(Name keyName)
+  {
+    //TODO: Implement
+  }
+
+  /**
+   * Revoke a certificate.
+   * @param certificateName The name of the certificate that will be revoked.
+   */
+  public final void 
+  revokeCertificate(Name certificateName)
+  {
+    //TODO: Implement
+  }
+
+  /**
+   * Get the identity manager given to or created by the constructor.
+   * @return The identity manager.
+   */
+  public final IdentityManager
+  getIdentityManager() { return identityManager_; }
+  
     
   /*****************************************
    *              Sign/Verify              *
