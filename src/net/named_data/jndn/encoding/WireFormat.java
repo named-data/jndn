@@ -17,15 +17,41 @@ public class WireFormat {
    * Encode interest and return the encoding.  Your derived class should 
    * override.
    * @param interest The Interest object to encode.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * If you are not encoding in order to sign, you can call 
+   * encodeInterest(const Interest& interest) to ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * If you are not encoding in order to sign, you can call 
+   * encodeInterest(const Interest& interest) to ignore this returned value.
    * @return A Blob containing the encoding.
    * @throws UnsupportedOperationException for unimplemented if the derived 
    * class does not override.
    */
   public Blob 
-  encodeInterest(Interest interest)
+  encodeInterest(Interest interest, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
     throw new UnsupportedOperationException
       ("encodeInterest is not implemented");
+  }
+
+  /**
+   * Encode interest and return the encoding.  Your derived class should 
+   * override.
+   * @param interest The Interest object to encode.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived 
+   * class does not override.
+   */
+  public final Blob 
+  encodeInterest(Interest interest)
+  {
+    return encodeInterest(interest, new int[1], new int[1]);
   }
   
   /**

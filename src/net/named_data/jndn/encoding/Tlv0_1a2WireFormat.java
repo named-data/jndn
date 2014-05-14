@@ -30,10 +30,19 @@ public class Tlv0_1a2WireFormat extends WireFormat {
   /**
    * Encode interest using NDN-TLV and return the encoding.
    * @param interest The Interest object to encode.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
    * @return A Blob containing the encoding.
    */  
   public Blob 
-  encodeInterest(Interest interest)
+  encodeInterest
+    (Interest interest, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
     TlvEncoder encoder = new TlvEncoder();
     int saveLength = encoder.getLength();
@@ -76,9 +85,21 @@ public class Tlv0_1a2WireFormat extends WireFormat {
     }
 
     encodeSelectors(interest, encoder);
-    encodeName(interest.getName(), encoder);
+    int[] tempSignedPortionBeginOffset = new int[1];
+    int[] tempSignedPortionEndOffset = new int[1];
+    encodeName
+      (interest.getName(), tempSignedPortionBeginOffset, 
+       tempSignedPortionEndOffset, encoder);
+    int signedPortionBeginOffsetFromBack = 
+      encoder.getLength() - tempSignedPortionBeginOffset[0];
+    int signedPortionEndOffsetFromBack = 
+      encoder.getLength() - tempSignedPortionEndOffset[0];
 
     encoder.writeTypeAndLength(Tlv.Interest, encoder.getLength() - saveLength);
+    signedPortionBeginOffset[0] = 
+      encoder.getLength() - signedPortionBeginOffsetFromBack;
+    signedPortionEndOffset[0] = 
+      encoder.getLength() - signedPortionEndOffsetFromBack;
 
     return new Blob(encoder.getOutput(), false);
   }
@@ -147,7 +168,7 @@ public class Tlv0_1a2WireFormat extends WireFormat {
       ((Sha256WithRsaSignature)data.getSignature(), encoder);
     encoder.writeBlobTlv(Tlv.Content, data.getContent().buf());
     encodeMetaInfo(data.getMetaInfo(), encoder);
-    encodeName(data.getName(), encoder);
+    encodeName(data.getName(), new int[1], new int[1], encoder);
     int signedPortionBeginOffsetFromBack = encoder.getLength();
 
     encoder.writeTypeAndLength(Tlv.Data, encoder.getLength() - saveLength);
@@ -210,16 +231,46 @@ public class Tlv0_1a2WireFormat extends WireFormat {
     return instance_;
   }
   
+  /**
+   * Encode the name to the encoder.
+   * @param name The name to encode.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param encoder The TlvEncoder to receive the encoding.
+   */
   private static void
-  encodeName(Name name, TlvEncoder encoder)
+  encodeName
+    (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, 
+     TlvEncoder encoder)
   {
     int saveLength = encoder.getLength();
 
     // Encode the components backwards.
-    for (int i = name.size() - 1; i >= 0; --i)
+    int signedPortionEndOffsetFromBack = 0;
+    for (int i = name.size() - 1; i >= 0; --i) {
       encoder.writeBlobTlv(Tlv.NameComponent, name.get(i).getValue().buf());
+      if (i == name.size() - 1)
+          signedPortionEndOffsetFromBack = encoder.getLength();
+    }
 
+    int signedPortionBeginOffsetFromBack = encoder.getLength();
     encoder.writeTypeAndLength(Tlv.Name, encoder.getLength() - saveLength);
+
+    signedPortionBeginOffset[0] =
+      encoder.getLength() - signedPortionBeginOffsetFromBack;
+    if (name.size() == 0)
+        // There is no "final component", so set signedPortionEndOffset 
+        //   arbitrarily.
+        signedPortionEndOffset[0] = signedPortionBeginOffset[0];
+    else
+        signedPortionEndOffset[0] = 
+          encoder.getLength() - signedPortionEndOffsetFromBack;
   }
 
   private static void
@@ -362,7 +413,7 @@ public class Tlv0_1a2WireFormat extends WireFormat {
     // Encode backwards.
     if (keyLocator.getType() != KeyLocatorType.NONE) {
       if (keyLocator.getType() == KeyLocatorType.KEYNAME)
-        encodeName(keyLocator.getKeyName(), encoder);
+        encodeName(keyLocator.getKeyName(), new int[1], new int[1], encoder);
       else if (keyLocator.getType() == KeyLocatorType.KEY_LOCATOR_DIGEST &&
                keyLocator.getKeyData().size() > 0)
         encoder.writeBlobTlv(Tlv.KeyLocatorDigest, keyLocator.getKeyData().buf());

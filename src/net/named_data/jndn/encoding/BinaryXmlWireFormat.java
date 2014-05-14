@@ -25,13 +25,22 @@ public class BinaryXmlWireFormat extends WireFormat {
   /**
    * Encode interest in binary XML and return the encoding.
    * @param interest The Interest object to encode.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
    * @return A Blob containing the encoding.
    */  
   public Blob 
-  encodeInterest(Interest interest)
+  encodeInterest(Interest interest, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
     BinaryXmlEncoder encoder = new BinaryXmlEncoder();
-    encodeInterest(interest, encoder);
+    encodeInterest
+      (interest, signedPortionBeginOffset, signedPortionEndOffset, encoder);
     return new Blob(encoder.getOutput(), false);
   }
 
@@ -100,7 +109,7 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     encoder.writeOptionalUDataDTagElement
       (BinaryXml.DTag_Action, new Blob(forwardingEntry.getAction()));
-    encodeName(forwardingEntry.getPrefix(), encoder);
+    encodeName(forwardingEntry.getPrefix(), new int[1], new int[1], encoder);
     // This will skip encoding if there is no publisherPublicKeyDigest.
     encodePublisherPublicKeyDigest
       (forwardingEntry.getPublisherPublicKeyDigest(), encoder);
@@ -177,14 +186,41 @@ public class BinaryXmlWireFormat extends WireFormat {
     return instance_;
   }
 
+  /**
+   * Encode the name to the encoder.
+   * @param name The name to encode.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param encoder The TlvEncoder to receive the encoding.
+   */
   private static void
-  encodeName(Name name, BinaryXmlEncoder encoder)
+  encodeName
+    (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, 
+     BinaryXmlEncoder encoder)
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_Name);
 
-    for (int i = 0; i < name.size(); ++i)
-      encoder.writeBlobDTagElement(BinaryXml.DTag_Component, name.get(i).getValue());
+    signedPortionBeginOffset[0] = encoder.getOffset();
 
+    if (name.size() == 0)
+      // There is no "final component", so set signedPortionEndOffset arbitrarily.
+      signedPortionEndOffset[0] = signedPortionBeginOffset[0];
+    else {
+      for (int i = 0; i < name.size(); ++i) {
+        if (i == name.size() - 1)
+          // We will begin the final component.
+          signedPortionEndOffset[0] = encoder.getOffset();
+        
+        encoder.writeBlobDTagElement(BinaryXml.DTag_Component, name.get(i).getValue());
+      }
+    }
+    
     encoder.writeElementClose();
   }
   
@@ -206,11 +242,14 @@ public class BinaryXmlWireFormat extends WireFormat {
   }
 
   private static void
-  encodeInterest(Interest interest, BinaryXmlEncoder encoder)
+  encodeInterest
+    (Interest interest, int[] signedPortionBeginOffset, 
+     int[] signedPortionEndOffset, BinaryXmlEncoder encoder)
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_Interest);
 
-    encodeName(interest.getName(), encoder);
+    encodeName
+      (interest.getName(), signedPortionBeginOffset, signedPortionEndOffset, encoder);
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MinSuffixComponents, interest.getMinSuffixComponents());
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MaxSuffixComponents, interest.getMaxSuffixComponents());
     
@@ -279,7 +318,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     
     signedPortionBeginOffset[0] = encoder.getOffset();
 
-    encodeName(data.getName(), encoder);
+    encodeName(data.getName(), new int[1], new int[1], encoder);
     encodeSignedInfo((Sha256WithRsaSignature)data.getSignature(), data.getMetaInfo(), encoder);
     encoder.writeBlobDTagElement(BinaryXml.DTag_Content, data.getContent());
 
@@ -459,7 +498,7 @@ public class BinaryXmlWireFormat extends WireFormat {
       encoder.writeBlobDTagElement(BinaryXml.DTag_Certificate, keyLocator.getKeyData());
     else if (keyLocator.getType() == KeyLocatorType.KEYNAME) {
       encoder.writeElementStartDTag(BinaryXml.DTag_KeyName);
-      encodeName(keyLocator.getKeyName(), encoder);
+      encodeName(keyLocator.getKeyName(), new int[1], new int[1], encoder);
 
       if (keyLocator.getKeyNameType() != KeyNameType.NONE && keyLocator.getKeyData().size() > 0) {
         if (keyLocator.getKeyNameType() == KeyNameType.PUBLISHER_PUBLIC_KEY_DIGEST)
