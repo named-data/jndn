@@ -14,11 +14,16 @@ import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
+import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
+import net.named_data.jndn.encoding.Tlv0_1a2WireFormat;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.encoding.tlv.Tlv;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.security.certificate.Certificate;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.encryption.EncryptionManager;
@@ -26,6 +31,7 @@ import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.security.policy.PolicyManager;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.SignedBlob;
 
 /**
  * KeyChain is the main class of the security library.
@@ -341,6 +347,44 @@ public class KeyChain {
   sign(Data data, Name certificateName) throws SecurityException
   {
     sign(data, certificateName, WireFormat.getDefaultWireFormat());
+  }
+
+  public void 
+  sign(Interest interest, Name certificateName, WireFormat wireFormat) throws SecurityException
+  {
+    // TODO: Handle signature algorithms other than Sha256WithRsa.
+    Sha256WithRsaSignature signature = new Sha256WithRsaSignature();
+    signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+    signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
+
+    // Append the encoded SignatureInfo.
+    { // TODO: Move this into a WireFormat abstraction.
+      TlvEncoder encoder = new TlvEncoder(256);
+      Tlv0_1a2WireFormat.encodeSignatureSha256WithRsa(signature, encoder);
+
+      interest.getName().append(new Blob(encoder.getOutput(), false));  
+    }
+
+    // Append an empty signature so that the "signedPortion" is correct.
+    interest.getName().append(new Name.Component());
+    // Encode once to get the signed portion.
+    SignedBlob encoding = interest.wireEncode(wireFormat);
+    Sha256WithRsaSignature signedSignature = (Sha256WithRsaSignature)sign
+      (encoding.signedBuf(), certificateName);
+
+    // Remove the empty signature and append the real one.
+    { // TODO: Move this into a WireFormat abstraction.
+      TlvEncoder encoder = new TlvEncoder(256);
+      encoder.writeBlobTlv(Tlv.SignatureValue, signedSignature.getSignature().buf());
+      interest.setName(interest.getName().getPrefix(-1).append
+        (new Blob(encoder.getOutput(), false)));
+    }
+  }
+
+  public void 
+  sign(Interest interest, Name certificateName) throws SecurityException
+  {
+    sign(interest, certificateName, WireFormat.getDefaultWireFormat());
   }
   
   /**
