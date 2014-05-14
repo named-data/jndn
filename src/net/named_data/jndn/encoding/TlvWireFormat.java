@@ -7,11 +7,11 @@
 package net.named_data.jndn.encoding;
 
 /**
- * A TlvWireFormat extends Tlv0_1a2WireFormat to override its methods to 
+ * A TlvWireFormat extends WireFormat to override its methods to 
  * implement encoding and decoding using the preferred implementation of 
  * NDN-TLV.
  */
-public class TlvWireFormat extends Tlv0_1a2WireFormat {
+public class TlvWireFormat extends Tlv0_1WireFormat {
   /**
    * Get a singleton instance of a TlvWireFormat.  Assuming that the default 
    * wire format was set with 
@@ -20,7 +20,7 @@ public class TlvWireFormat extends Tlv0_1a2WireFormat {
    * if (WireFormat.getDefaultWireFormat() == TlvWireFormat.get()).
    * @return The singleton instance.
    */
-  public static Tlv0_1a2WireFormat
+  public static TlvWireFormat
   get()
   {
     return instance_;

@@ -20,7 +20,7 @@ import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
-import net.named_data.jndn.encoding.Tlv0_1a2WireFormat;
+import net.named_data.jndn.encoding.Tlv0_1WireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
@@ -360,7 +360,7 @@ public class KeyChain {
     // Append the encoded SignatureInfo.
     { // TODO: Move this into a WireFormat abstraction.
       TlvEncoder encoder = new TlvEncoder(256);
-      Tlv0_1a2WireFormat.encodeSignatureSha256WithRsa(signature, encoder);
+      Tlv0_1WireFormat.encodeSignatureSha256WithRsa(signature, encoder);
 
       interest.getName().append(new Blob(encoder.getOutput(), false));  
     }

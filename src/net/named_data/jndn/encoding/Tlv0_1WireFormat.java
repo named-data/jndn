@@ -23,10 +23,10 @@ import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.util.Blob;
 
 /**
- * A Tlv0_1a2WireFormat implements the WireFormat interface for encoding and 
- * decoding with the NDN-TLV wire format, version 0.1a2.
+ * A Tlv0_1WireFormat implements the WireFormat interface for encoding and 
+ * decoding with the NDN-TLV wire format, version 0.1.
  */
-public class Tlv0_1a2WireFormat extends WireFormat {
+public class Tlv0_1WireFormat extends WireFormat {
   /**
    * Encode interest using NDN-TLV and return the encoding.
    * @param interest The Interest object to encode.
@@ -225,7 +225,7 @@ public class Tlv0_1a2WireFormat extends WireFormat {
    * preferred version NDN-TLV, you should use TlvWireFormat.get().
    * @return The singleton instance.
    */
-  public static Tlv0_1a2WireFormat
+  public static Tlv0_1WireFormat
   get()
   {
     return instance_;
@@ -559,5 +559,5 @@ public class Tlv0_1a2WireFormat extends WireFormat {
   };
 
   private static final SecureRandom random_ = new SecureRandom();
-  private static Tlv0_1a2WireFormat instance_ = new Tlv0_1a2WireFormat();
+  private static Tlv0_1WireFormat instance_ = new Tlv0_1WireFormat();
 }
