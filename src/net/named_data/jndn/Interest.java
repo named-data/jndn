@@ -10,8 +10,9 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.util.Blob;
-import net.named_data.jndn.util.ChangeCounter;
 import net.named_data.jndn.util.ChangeCountable;
+import net.named_data.jndn.util.ChangeCounter;
+import net.named_data.jndn.util.SignedBlob;
 
 /**
  * An Interest holds a Name and other fields for an interest.
@@ -91,10 +92,15 @@ public class Interest implements ChangeCountable {
    * @param wireFormat A WireFormat object used to encode this Interest.
    * @return The encoded buffer.
    */
-  public final Blob 
+  public final SignedBlob 
   wireEncode(WireFormat wireFormat) 
   {
-    return wireFormat.encodeInterest(this);
+    int[] signedPortionBeginOffset = new int[1];
+    int[] signedPortionEndOffset = new int[1];
+    Blob encoding = wireFormat.encodeInterest
+      (this, signedPortionBeginOffset, signedPortionEndOffset);
+    return new SignedBlob
+      (encoding, signedPortionBeginOffset[0], signedPortionEndOffset[0]);
   }
 
   /**
