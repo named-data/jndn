@@ -231,7 +231,7 @@ public class Name implements ChangeCountable {
      * @param other The other Component to compare with.
      * @return True if the components are equal, otherwise false.
      */
-    public boolean
+    public final boolean
     equals(Component other) { return value_.equals(other.value_); }
 
     public boolean
@@ -250,7 +250,7 @@ public class Name implements ChangeCountable {
      * canonical ordering, or 1 if this comes after other in the canonical 
      * ordering.
      */
-    public int 
+    public final int 
     compare(Component other)
     {
       if (value_.size() < other.value_.size())
@@ -636,7 +636,7 @@ public class Name implements ChangeCountable {
    * 1 if it comes after. If they are equal, this compares the second components 
    * of each name, etc.  If both names are the same up to the size of the 
    * shorter name, this returns -1 if the first name is shorter than the second 
-   * or 1 if it is longer.  For example, std::sort gives: 
+   * or 1 if it is longer.  For example, sorted gives: 
    * /a/b/d /a/b/cc /c /c/a /bb .  This is intuitive because all names with the 
    * prefix /a are next to each other.  But it may be also be counter-intuitive 
    * because /c comes before /bb according to NDN canonical ordering since it is 
@@ -648,7 +648,7 @@ public class Name implements ChangeCountable {
    * 
    * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
    */
-  public int
+  public final int
   compare(Name other)
   {
     for (int i = 0; i < size() && i < other.size(); ++i) {
