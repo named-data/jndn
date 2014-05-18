@@ -43,6 +43,17 @@ public class Name implements ChangeCountable {
     }
     
     /**
+     * Create a new Name.Component, taking another pointer to the component's 
+     * read-only value.
+     * @param component The component to copy.
+     */
+    public 
+    Component(Component component)
+    {
+      value_ = component.value_;
+    }
+    
+    /**
      * Create a new Name.Component, copying the given value.
      * @param value The value byte array.
      */
