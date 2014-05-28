@@ -23,8 +23,9 @@ package net.named_data.jndn.security;
 public enum KeyType {
   RSA,
   // DSA,
-  AES
+  AES,
   // DES,
   // RC4,
-  // RC2  
+  // RC2
+  EC
 }
