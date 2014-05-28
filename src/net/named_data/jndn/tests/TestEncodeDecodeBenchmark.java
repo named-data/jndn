@@ -34,18 +34,19 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.KeyNameType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
-import net.named_data.jndn.encoding.EncodingException;
-import net.named_data.jndn.security.SecurityException;
-import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
-import net.named_data.jndn.util.Blob;
-import net.named_data.jndn.util.SignedBlob;
-import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.BinaryXmlWireFormat;
+import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.TlvWireFormat;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
+import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
+import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.SignedBlob;
 
 public class TestEncodeDecodeBenchmark {
   private static double
@@ -122,12 +123,14 @@ public class TestEncodeDecodeBenchmark {
    * and only required fields.
    * @param useCrypto If true, sign the data packet.  If false, use a blank 
    * signature.
+   * @param keyType KeyType.RSA or EC, used if useCrypto is true.
    * @param encoding Set encoding[0] to the wire encoding.
    * @return The number of seconds for all iterations.
    */
   private static double
   benchmarkEncodeDataSeconds
-    (int nIterations, boolean useComplex, boolean useCrypto, Blob[] encoding)
+    (int nIterations, boolean useComplex, boolean useCrypto, KeyType keyType, 
+     Blob[] encoding)
   {
     Name name;
     Blob content;
@@ -277,13 +280,14 @@ public class TestEncodeDecodeBenchmark {
    * Loop to decode a data packet nIterations times.
    * @param nIterations The number of iterations.
    * @param useCrypto If true, verify the signature.  If false, don't verify.
+   * @param keyType KeyType.RSA or EC, used if useCrypto is true.
    * @param encoding The wire encoding to decode.
    * @return The number of seconds for all iterations.
    * @throws EncodingException 
    */
   private static double 
   benchmarkDecodeDataSeconds
-    (int nIterations, boolean useCrypto, Blob encoding) throws EncodingException
+    (int nIterations, boolean useCrypto, KeyType keyType, Blob encoding) throws EncodingException
   {
     double start = getNowSeconds();
     for (int i = 0; i < nIterations; ++i) {
@@ -306,10 +310,11 @@ public class TestEncodeDecodeBenchmark {
    * @param useComplex See benchmarkEncodeDataSeconds.
    * @param useCrypto See benchmarkEncodeDataSeconds and 
    * benchmarkDecodeDataSeconds.
+   * @param keyType KeyType.RSA or EC, used if useCrypto is true.
    */
   private static void
   benchmarkEncodeDecodeData
-    (boolean useComplex, boolean useCrypto) throws EncodingException
+    (boolean useComplex, boolean useCrypto, KeyType keyType) throws EncodingException
   {
     String format = 
       (WireFormat.getDefaultWireFormat() == BinaryXmlWireFormat.get() ? 
@@ -318,9 +323,10 @@ public class TestEncodeDecodeBenchmark {
     {
       int nIterations = useCrypto ? 5000 : 5000000;
       double duration = benchmarkEncodeDataSeconds
-        (nIterations, useComplex, useCrypto, encoding);
+        (nIterations, useComplex, useCrypto, keyType, encoding);
       System.out.println("Encode " + (useComplex ? "complex " : "simple  ") + 
-        format + " data: Crypto? " + (useCrypto ? "yes" : "no ") +
+        format + " data: Crypto? " + 
+        (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "no ") +
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
     }
     {
@@ -328,9 +334,10 @@ public class TestEncodeDecodeBenchmark {
       //   a different rate at a shorter duration.
       int nIterations = useCrypto ? 1000000 : 40000000;
       double duration = benchmarkDecodeDataSeconds
-        (nIterations, useCrypto, encoding[0]);
+        (nIterations, useCrypto, keyType, encoding[0]);
       System.out.println("Decode " + (useComplex ? "complex " : "simple  ") + 
-        format + " data: Crypto? " + (useCrypto ? "yes" : "no ") + 
+        format + " data: Crypto? " + 
+        (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "no ") + 
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
     }
   }
@@ -346,10 +353,11 @@ public class TestEncodeDecodeBenchmark {
         else
           WireFormat.setDefaultWireFormat(TlvWireFormat.get());
 
-        benchmarkEncodeDecodeData(false, false);
-        benchmarkEncodeDecodeData(true, false);
-        benchmarkEncodeDecodeData(false, true);
-        benchmarkEncodeDecodeData(true, true);
+        KeyType keyType = KeyType.RSA;
+        benchmarkEncodeDecodeData(false, false, keyType);
+        benchmarkEncodeDecodeData(true, false, keyType);
+        benchmarkEncodeDecodeData(false, true, keyType);
+        benchmarkEncodeDecodeData(true, true, keyType);
       }
     } catch (EncodingException e) {}
   }
