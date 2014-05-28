@@ -28,6 +28,8 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
@@ -40,6 +42,8 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.OnVerified;
+import net.named_data.jndn.security.OnVerifyFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
@@ -213,69 +217,19 @@ public class TestEncodeDecodeBenchmark {
 
     return finish - start;    
   }
-  
-  private static boolean
-  verifyData(Data data, ByteBuffer publicKeyDer)
-  {  
-    // Set the data packet's default wire encoding if it is not already there.
-    if (data.getDefaultWireEncoding().isNull())
-      data.wireEncode();
+    
+  private static class VerifyCallbacks implements OnVerified, OnVerifyFailed {
+    public void onVerified(Data data) 
+    {
+    }
 
-    SignedBlob encodingSignedBlob = data.getDefaultWireEncoding();
-
-    if (!(data.getSignature() instanceof Sha256WithRsaSignature))
-      throw new Error("signature is not Sha256WithRsaSignature.");
-    Sha256WithRsaSignature signatureInfo = 
-      (Sha256WithRsaSignature)data.getSignature();
-    if (signatureInfo.getDigestAlgorithm().size() != 0)
-      // TODO: Allow a non-default digest algorithm.
-      throw new Error
-        ("Cannot verify a data packet with a non-default digest algorithm.");
-
-    KeyFactory keyFactory = null;
-    try {
-      keyFactory = KeyFactory.getInstance("RSA");
-    } 
-    catch (NoSuchAlgorithmException exception) {
+    public void onVerifyFailed(Data data) 
+    {
       // Don't expect this to happen.
-      throw new Error("RSA is not supported: " + exception.getMessage());
+      System.out.println("signature verification FAILED");
     }
-
-    PublicKey publicKey = null;
-    try {
-      publicKey = keyFactory.generatePublic
-        (new X509EncodedKeySpec(publicKeyDer.array()));
-    }
-    catch (InvalidKeySpecException exception) {
-      // Don't expect this to happen.
-      throw new Error
-        ("X509EncodedKeySpec is not supported: " + exception.getMessage());
-    }
-
-    Signature signature = null;
-    try {
-      signature = Signature.getInstance("SHA256withRSA");
-    } 
-    catch (NoSuchAlgorithmException e) {
-      // Don't expect this to happen.
-      throw new Error("SHA256withRSA algorithm is not supported");
-    }
-
-    try {
-      signature.initVerify(publicKey);
-    }
-    catch (InvalidKeyException exception) {
-      throw new Error("InvalidKeyException: " + exception.getMessage());
-    }
-    try {
-      signature.update(encodingSignedBlob.signedBuf());
-      return signature.verify(signatureInfo.getSignature().getImmutableArray());
-    }
-    catch (SignatureException exception) {
-      throw new Error("SignatureException: " + exception.getMessage());
-    }    
   }
-  
+
   /**
    * Loop to decode a data packet nIterations times.
    * @param nIterations The number of iterations.
@@ -289,15 +243,29 @@ public class TestEncodeDecodeBenchmark {
   benchmarkDecodeDataSeconds
     (int nIterations, boolean useCrypto, KeyType keyType, Blob encoding) throws EncodingException
   {
+    // Initialize the KeyChain storage in case useCrypto is true.
+    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
+    KeyChain keyChain = new KeyChain
+      (new IdentityManager(identityStorage, new MemoryPrivateKeyStorage()), 
+       new SelfVerifyPolicyManager(identityStorage));
+    Name keyName = new Name("/testname/DSK-123");
+    Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
+      ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
+    try {
+      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_PUBLIC_KEY_DER, false));
+    }
+    catch (SecurityException exception) {
+      throw new Error("SecurityException: " + exception.getMessage());
+    }    
+    VerifyCallbacks callbacks = new VerifyCallbacks();
+
     double start = getNowSeconds();
     for (int i = 0; i < nIterations; ++i) {
       Data data = new Data();
       data.wireDecode(encoding.buf());
       
-      if (useCrypto) {
-        if (!verifyData(data, DEFAULT_PUBLIC_KEY_DER))
-          throw new Error("Signature verification: FAILED");
-      }
+      if (useCrypto)
+        keyChain.verifyData(data, callbacks, callbacks);
     }
     double finish = getNowSeconds();
 
@@ -345,6 +313,7 @@ public class TestEncodeDecodeBenchmark {
   public static void 
   main(String[] args) 
   {
+    Logger.getLogger("").setLevel(Level.OFF);
     try {
       // Make two passes, one for each wire format.
       for (int i = 1; i <= 2; ++i) {
