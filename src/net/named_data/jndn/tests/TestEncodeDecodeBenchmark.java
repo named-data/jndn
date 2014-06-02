@@ -192,7 +192,7 @@ public class TestEncodeDecodeBenchmark {
       StringBuffer contentStream = new StringBuffer();
       int count = 1;
       contentStream.append(count++);
-      while (contentStream.toString().length() < 1170)
+      while (contentStream.toString().length() < 1115)
         contentStream.append(" ").append(count++);
       content = new Blob(contentStream.toString());
     }
