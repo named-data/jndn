@@ -219,7 +219,7 @@ public class TestEncodeDecodeBenchmark {
     // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is 
     //   false.
     Blob publisherPublicKeyDigest = new Blob(new byte[32]);
-    Blob signatureBits = new Blob(new byte[128]);
+    Blob signatureBits = new Blob(new byte[256]);
     Blob emptyBlob = new Blob(new byte[0]);
 
     double start = getNowSeconds();
