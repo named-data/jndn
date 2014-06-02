@@ -335,7 +335,7 @@ public class TestEncodeDecodeBenchmark {
        "ndnb" : "TLV ");
     Blob[] encoding = new Blob[1];
     {
-      int nIterations = useCrypto ? 5000 : 5000000;
+      int nIterations = useCrypto ? 2000 : 5000000;
       double duration = benchmarkEncodeDataSeconds
         (nIterations, useComplex, useCrypto, keyType, encoding);
       System.out.println("Encode " + (useComplex ? "complex " : "simple  ") + 
@@ -346,7 +346,7 @@ public class TestEncodeDecodeBenchmark {
     {
       // Use an extra long duration for decoding until we understand why it gets
       //   a different rate at a shorter duration.
-      int nIterations = useCrypto ? 1000000 : 40000000;
+      int nIterations = useCrypto ? 500000 : 40000000;
       double duration = benchmarkDecodeDataSeconds
         (nIterations, useCrypto, keyType, encoding[0]);
       System.out.println("Decode " + (useComplex ? "complex " : "simple  ") + 
