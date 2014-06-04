@@ -29,8 +29,9 @@ public interface OnInterest {
   /**
    * When an interest is received which matches the name prefix, onInterest is 
    * called.
-   * @param prefix The prefix given to registerPrefix.
-   * @param interest The received interest.
+   * @param prefix The prefix given to registerPrefix. NOTE: You must not change 
+   * the prefix object - if you need to change it then make a copy.
+   * @param interest The received interest. 
    * @param transport The Transport with the connection which received the 
    * interest. 
    * You must encode a signed Data packet and send it using transport.send().
