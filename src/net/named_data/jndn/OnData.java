@@ -26,7 +26,8 @@ package net.named_data.jndn;
 public interface OnData {
   /**
    * When a matching data packet is received, onData is called.
-   * @param interest The interest given to Face.expressInterest.
+   * @param interest The interest given to Face.expressInterest. NOTE: You must 
+   * not change the interest object - if you need to change it then make a copy.
    * @param data The received Data object.
    */
   void onData(Interest interest, Data data);
