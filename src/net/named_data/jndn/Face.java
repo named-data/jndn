@@ -68,10 +68,14 @@ public class Face {
    * Send the Interest through the transport, read the entire response and call 
    * onData(interest, data).
    * @param interest The Interest to send.  This copies the Interest.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.  
-   * If onTimeout is null, this does not use it.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
+   * @param onTimeout If the interest times out according to the interest 
+   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the 
+   * interest given to expressInterest. If onTimeout is null, this does not use 
+   * it.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
@@ -90,10 +94,14 @@ public class Face {
    * onData(interest, data).
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param interest The Interest to send.  This copies the Interest.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.  
-   * If onTimeout is null, this does not use it.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
+   * @param onTimeout If the interest times out according to the interest 
+   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the 
+   * interest given to expressInterest. If onTimeout is null, this does not use 
+   * it.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -110,8 +118,10 @@ public class Face {
    * Send the Interest through the transport, read the entire response and call 
    * onData(interest, data).  Ignore if the interest times out.
    * @param interest The Interest to send.  This copies the Interest.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
@@ -129,8 +139,10 @@ public class Face {
    * onData(interest, data).  Ignore if the interest times out.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param interest The Interest to send.  This copies the Interest.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -149,10 +161,14 @@ public class Face {
    * @param name A Name for the interest. This copies the Name.
    * @param interestTemplate If not null, copy interest selectors from the 
    * template. This does not keep a pointer to the Interest object.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.  
-   * If onTimeout is null, this does not use it.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
+   * @param onTimeout If the interest times out according to the interest 
+   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the 
+   * interest given to expressInterest. If onTimeout is null, this does not use 
+   * it.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
@@ -188,10 +204,14 @@ public class Face {
    * entire response and call onData(interest, data).
    * Use a default interest lifetime.
    * @param name A Name for the interest. This copies the Name.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.  
-   * If onTimeout is null, this does not use it.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
+   * @param onTimeout If the interest times out according to the interest 
+   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the 
+   * interest given to expressInterest. If onTimeout is null, this does not use 
+   * it.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
@@ -214,8 +234,10 @@ public class Face {
    * @param name A Name for the interest. This copies the Name.
    * @param interestTemplate If not null, copy interest selectors from the 
    * template. This does not keep a pointer to the Interest object.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
@@ -237,10 +259,14 @@ public class Face {
    * @param name A Name for the interest. This copies the Name.
    * @param interestTemplate If not null, copy interest selectors from the 
    * template. This does not keep a pointer to the Interest object.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.  
-   * If onTimeout is null, this does not use it.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
+   * @param onTimeout If the interest times out according to the interest 
+   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the 
+   * interest given to expressInterest. If onTimeout is null, this does not use 
+   * it.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -264,8 +290,10 @@ public class Face {
    * @param name A Name for the interest. This copies the Name.
    * @param interestTemplate If not null, copy interest selectors from the 
    * template. This does not keep a pointer to the Interest object.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -285,10 +313,14 @@ public class Face {
    * Use a default interest lifetime.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param name A Name for the interest. This copies the Name.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.  
-   * If onTimeout is null, this does not use it.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
+   * @param onTimeout If the interest times out according to the interest 
+   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the 
+   * interest given to expressInterest. If onTimeout is null, this does not use 
+   * it.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -308,8 +340,10 @@ public class Face {
    * Use a default interest lifetime.
    * Ignore if the interest times out.
    * @param name A Name for the interest. This copies the Name.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
@@ -330,8 +364,10 @@ public class Face {
    * Ignore if the interest times out.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param name A Name for the interest. This copies the Name.
-   * @param onData  This calls onData.onData when a matching data packet is 
-   * received.
+   * @param onData  When a matching data packet is received, this calls 
+   * onData.onData(interest, data) where interest is the interest given to 
+   * expressInterest and data is the received Data object. NOTE: You must not 
+   * change the interest object - if you need to change it then make a copy.
    * @return The pending interest ID which can be used with 
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
