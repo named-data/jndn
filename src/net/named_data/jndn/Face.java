@@ -396,11 +396,13 @@ public class Face {
    * Register prefix with the connected NDN hub and call onInterest when a 
    * matching interest is received.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
-   * a matching interest is received.
-   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
-   * if failed to retrieve the connected hub’s ID or failed to register the 
-   * prefix.
+   * @param onInterest When an interest is received which matches the name 
+   * prefix, this calls 
+   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId). 
+   * NOTE: You must not change the prefix object - if you need to change it then 
+   * make a copy.
+   * @param onRegisterFailed If register prefix fails for any reason, this 
+   * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param flags The flags for finer control of which interests are forwarded 
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.
@@ -422,11 +424,13 @@ public class Face {
    * matching interest is received.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
-   * a matching interest is received.
-   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
-   * if failed to retrieve the connected hub’s ID or failed to register the 
-   * prefix.
+   * @param onInterest When an interest is received which matches the name 
+   * prefix, this calls 
+   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId). 
+   * NOTE: You must not change the prefix object - if you need to change it then 
+   * make a copy.
+   * @param onRegisterFailed If register prefix fails for any reason, this 
+   * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param flags The flags for finer control of which interests are forwarded 
    * to the application.
    * @return The registered prefix ID which can be used with 
@@ -448,11 +452,13 @@ public class Face {
    * matching interest is received.
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
-   * a matching interest is received.
-   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
-   * if failed to retrieve the connected hub’s ID or failed to register the 
-   * prefix.
+   * @param onInterest When an interest is received which matches the name 
+   * prefix, this calls 
+   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId). 
+   * NOTE: You must not change the prefix object - if you need to change it then 
+   * make a copy.
+   * @param onRegisterFailed If register prefix fails for any reason, this 
+   * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with 
    * removeRegisteredPrefix.
@@ -473,11 +479,13 @@ public class Face {
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
-   * a matching interest is received.
-   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
-   * if failed to retrieve the connected hub’s ID or failed to register the 
-   * prefix.
+   * @param onInterest When an interest is received which matches the name 
+   * prefix, this calls 
+   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId). 
+   * NOTE: You must not change the prefix object - if you need to change it then 
+   * make a copy.
+   * @param onRegisterFailed If register prefix fails for any reason, this 
+   * calls onRegisterFailed.onRegisterFailed(prefix).
    * @return The registered prefix ID which can be used with 
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
