@@ -20,12 +20,23 @@
 
 package net.named_data.jndn.security;
 
+// The KeyType integer is used by the Sqlite key storage, so don't change them.
+// Make these the same as ndn-cpp in case the Sqlite file is shared.
 public enum KeyType {
-  RSA,
+  RSA(0),
   // DSA,
-  AES,
+  AES(1),
   // DES,
   // RC4,
   // RC2
-  EC
+  EC(2);
+  
+  KeyType (int type)
+  {
+    type_ = type;
+  }
+
+  public int getNumericType() { return type_; }
+
+  private int type_;
 }
