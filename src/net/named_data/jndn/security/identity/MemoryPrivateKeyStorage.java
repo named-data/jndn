@@ -44,7 +44,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param publicKeyDer The public key DER byte buffer.
    */
   public final void 
-  setKeyPairForKeyName(Name keyName, ByteBuffer publicKeyDer)
+  setPublicKeyForKeyName(Name keyName, ByteBuffer publicKeyDer)
   {
     publicKeyStore_.put
       (keyName.toUri(), PublicKey.fromDer(new Blob(publicKeyDer, true)));
@@ -92,7 +92,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   setKeyPairForKeyName
     (Name keyName, ByteBuffer publicKeyDer, ByteBuffer privateKeyDer)
   {
-    setKeyPairForKeyName(keyName, publicKeyDer);
+    setPublicKeyForKeyName(keyName, publicKeyDer);
     setPrivateKeyForKeyName(keyName, privateKeyDer);
   }
   
