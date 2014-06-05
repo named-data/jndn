@@ -62,7 +62,7 @@ public class TestEncodeDecodeBenchmark {
     return result;
   }
   
-  private static final ByteBuffer DEFAULT_PUBLIC_KEY_DER = toBuffer(new int[] {
+  private static final ByteBuffer DEFAULT_RSA_PUBLIC_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
     0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0f, 0x00, 0x30, 0x82, 0x01, 0x0a, 0x02, 0x82, 0x01, 0x01,
     0x00, 0xb8, 0x09, 0xa7, 0x59, 0x82, 0x84, 0xec, 0x4f, 0x06, 0xfa, 0x1c, 0xb2, 0xe1, 0x38, 0x93,
@@ -85,7 +85,7 @@ public class TestEncodeDecodeBenchmark {
   });
 
   // Java uses an unencrypted PKCS #8 PrivateKeyInfo, not a PKCS #1 RSAPrivateKey.
-  private static final ByteBuffer DEFAULT_PRIVATE_KEY_DER = toBuffer(new int[] {  
+  private static final ByteBuffer DEFAULT_RSA_PRIVATE_KEY_DER = toBuffer(new int[] {  
     0x30, 0x82, 0x04, 0xbf, 0x02, 0x01, 0x00, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7,
     0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x04, 0x82, 0x04, 0xa9, 0x30, 0x82, 0x04, 0xa5, 0x02, 0x01,
     0x00, 0x02, 0x82, 0x01, 0x01, 0x00, 0xb8, 0x09, 0xa7, 0x59, 0x82, 0x84, 0xec, 0x4f, 0x06, 0xfa,
@@ -214,7 +214,7 @@ public class TestEncodeDecodeBenchmark {
     Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
       ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
     privateKeyStorage.setKeyPairForKeyName
-      (keyName, DEFAULT_PUBLIC_KEY_DER, DEFAULT_PRIVATE_KEY_DER);
+      (keyName, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
 
     // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is 
     //   false.
@@ -298,7 +298,7 @@ public class TestEncodeDecodeBenchmark {
     Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
       ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
     try {
-      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_PUBLIC_KEY_DER, false));
+      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
     }
     catch (SecurityException exception) {
       throw new Error("SecurityException: " + exception.getMessage());
