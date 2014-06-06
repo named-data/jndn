@@ -112,6 +112,15 @@ public abstract class IdentityStorage {
   getKey(Name keyName);
 
   /**
+   * Get the KeyType of the public key with the given keyName.
+   * @param keyName The name of the requested public key.
+   * @return The KeyType, for example KeyType.RSA.
+   * @throws SecurityException if the keyName is not found.
+   */
+  public abstract KeyType
+  getKeyType(Name keyName) throws SecurityException;
+
+  /**
    * Activate a key.  If a key is marked as inactive, its private part will not 
    * be used in packet signing.
    * @param keyName The name of the key.
