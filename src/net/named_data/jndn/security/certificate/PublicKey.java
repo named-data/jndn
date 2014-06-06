@@ -60,9 +60,10 @@ public class PublicKey {
    * @param keyType The KeyType, such as KeyType.RSA.
    * @param keyDer The DER blob.
    * @return The decoded public key.
+   * @throws SecurityException if can't decode the key DER.
    */
   public static PublicKey
-  fromDer(KeyType keyType, Blob keyDer)
+  fromDer(KeyType keyType, Blob keyDer) throws SecurityException
   {
     if (keyType == KeyType.RSA) {
       KeyFactory keyFactory = null;

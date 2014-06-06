@@ -233,9 +233,10 @@ public class KeyChain {
    * Create a public key signing request.
    * @param keyName The name of the key.
    * @return The signing request data.
+   * @throws SecurityException if the keyName is not found.
    */
   public final Blob
-  createSigningRequest(Name keyName)
+  createSigningRequest(Name keyName) throws SecurityException
   {
     return identityManager_.getPublicKey(keyName).getKeyDer();
   }
