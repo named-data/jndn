@@ -237,11 +237,13 @@ public class IdentityManager {
    * Get the public key with the specified name.
    * @param keyName The name of the key.
    * @return The public key.
+   * @throws SecurityException if the keyName is not found.
    */
   public final PublicKey
-  getPublicKey(Name keyName)
+  getPublicKey(Name keyName) throws SecurityException
   {
-    return PublicKey.fromDer(identityStorage_.getKey(keyName));
+    return PublicKey.fromDer
+      (identityStorage_.getKeyType(keyName), identityStorage_.getKey(keyName));
   }
 
   /**
@@ -262,7 +264,7 @@ public class IdentityManager {
     Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
 
     Blob keyBlob = identityStorage_.getKey(keyName);
-    PublicKey publicKey = PublicKey.fromDer(keyBlob);
+    PublicKey publicKey = PublicKey.fromDer(KeyType.RSA, keyBlob);
 
     IdentityCertificate certificate = createIdentityCertificate
       (certificatePrefix, publicKey,  signerCertificateName, notBefore, notAfter);

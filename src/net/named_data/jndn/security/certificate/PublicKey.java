@@ -20,9 +20,14 @@
 
 package net.named_data.jndn.security.certificate;
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import net.named_data.jndn.encoding.OID;
 import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.security.DigestAlgorithm;
+import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.UnrecognizedDigestAlgorithmException;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
@@ -30,12 +35,12 @@ import net.named_data.jndn.util.Common;
 public class PublicKey {
   /**
    * Create a new PublicKey with the given values.
-   * @param algorithm The algorithm of the public key.
+   * @param keyType The KeyType, such as KeyType.RSA.
    * @param keyDer The blob of the PublicKeyInfo in terms of DER.
    */
-  public PublicKey(OID algorithm, Blob keyDer)
+  public PublicKey(KeyType keyType, Blob keyDer)
   {
-    algorithm_ = algorithm;
+    keyType_ = keyType;
     keyDer_ = keyDer;
   }
 
@@ -52,16 +57,64 @@ public class PublicKey {
 
   /**
    * Decode the public key from DER blob.
+   * @param keyType The KeyType, such as KeyType.RSA.
    * @param keyDer The DER blob.
    * @return The decoded public key.
    */
   public static PublicKey
-  fromDer(Blob keyDer)
+  fromDer(KeyType keyType, Blob keyDer)
   {
-    // TODO: Do a test decode and use RSA_OID.
-    return new PublicKey(null, keyDer);
+    if (keyType == KeyType.RSA) {
+      KeyFactory keyFactory = null;
+      try {
+        keyFactory = KeyFactory.getInstance("RSA");
+      } 
+      catch (NoSuchAlgorithmException exception) {
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("RSA is not supported: " + exception.getMessage());
+      }
+
+      try {
+        keyFactory.generatePublic
+          (new X509EncodedKeySpec(keyDer.getImmutableArray()));
+      }
+      catch (InvalidKeySpecException exception) {
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("X509EncodedKeySpec is not supported for RSA: " + exception.getMessage());
+      }
+    }
+    else if (keyType == KeyType.EC) {
+      KeyFactory keyFactory = null;
+      try {
+        keyFactory = KeyFactory.getInstance("EC");
+      } 
+      catch (NoSuchAlgorithmException exception) {
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("EC is not supported: " + exception.getMessage());
+      }
+
+      try {
+        keyFactory.generatePublic
+          (new X509EncodedKeySpec(keyDer.getImmutableArray()));
+      }
+      catch (InvalidKeySpecException exception) {
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("X509EncodedKeySpec is not supported for EC: " + exception.getMessage());
+      }
+    }
+    else
+      throw new SecurityException("PublicKey::fromDer: Unrecognized keyType");
+  
+    return new PublicKey(keyType, keyDer);
   }
 
+  public KeyType 
+  getKeyType() { return keyType_; }
+  
   /*
    * Get the digest of the public key.
    * @param digestAlgorithm The digest algorithm.
@@ -97,6 +150,6 @@ public class PublicKey {
   public final Blob 
   getKeyDer() { return keyDer_; }
     
-  private final OID algorithm_; /**< Algorithm */
+  private final KeyType keyType_;
   private final Blob keyDer_;   /**< PublicKeyInfo in DER */
 }
