@@ -168,7 +168,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
   
   /**
-   * Verify the signature on the data packet using the given public key.  If 
+   * Verify the RSA signature on the data packet using the given public key.  If 
    * there is no data.getDefaultWireEncoding(), this calls data.wireEncode() to 
    * set it.
    * TODO: Move this general verification code to a more central location.
@@ -237,6 +237,79 @@ public class SelfVerifyPolicyManager extends PolicyManager {
         ("SignatureException: " + exception.getMessage());
     }    
   }
+  
+  /**
+   * Verify the ECDSA signature on the data packet using the given public key.  If 
+   * there is no data.getDefaultWireEncoding(), this calls data.wireEncode() to 
+   * set it.
+   * TODO: Move this general verification code to a more central location.
+   * @param data The data packet with the signed portion and the signature to 
+   * verify.  The data packet must have a Sha256WithEcdsaSignature.
+   * @param publicKeyDer The DER-encoded public key used to verify the signature.
+   * @return true if the signature verifies, false if not.
+   * @throw SecurityException if data does not have a Sha256WithEcdsaSignature.
+   */
+  private static boolean
+  verifySha256WithEcdsaSignature(Data data, Blob publicKeyDer)
+  {
+    /*
+    if (!(data.getSignature() instanceof Sha256WithEcdsaSignature))
+      throw new SecurityException("signature is not Sha256WithEcdsaSignature.");
+    Sha256WithEcdsaSignature signature = 
+      (Sha256WithEcdsaSignature)data.getSignature();
+     */
+    if (!(data.getSignature() instanceof Sha256WithRsaSignature))
+      throw new SecurityException("signature is not Sha256WithRsaSignature.");
+    Sha256WithRsaSignature signature = 
+      (Sha256WithRsaSignature)data.getSignature();
+  
+    KeyFactory keyFactory = null;
+    try {
+      keyFactory = KeyFactory.getInstance("EC");
+    } 
+    catch (NoSuchAlgorithmException exception) {
+      // Don't expect this to happen.
+      throw new SecurityException
+        ("EC is not supported: " + exception.getMessage());
+    }
 
-  private IdentityStorage identityStorage_;
+    PublicKey publicKey = null;
+    try {
+      publicKey = keyFactory.generatePublic
+        (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
+    }
+    catch (InvalidKeySpecException exception) {
+      // Don't expect this to happen.
+      throw new SecurityException
+        ("X509EncodedKeySpec is not supported: " + exception.getMessage());
+    }
+
+    Signature ecSignature = null;
+    try {
+      ecSignature = Signature.getInstance("SHA256withECDSA");
+    } 
+    catch (NoSuchAlgorithmException e) {
+      // Don't expect this to happen.
+      throw new SecurityException("SHA256withECDSA algorithm is not supported");
+    }
+
+    try {
+      ecSignature.initVerify(publicKey);
+    }
+    catch (InvalidKeyException exception) {
+      throw new SecurityException
+        ("InvalidKeyException: " + exception.getMessage());
+    }
+    try {
+      // wireEncode returns the cached encoding if available.
+      ecSignature.update(data.wireEncode().signedBuf());
+      return ecSignature.verify(signature.getSignature().getImmutableArray());
+    }
+    catch (SignatureException exception) {
+      throw new SecurityException
+        ("SignatureException: " + exception.getMessage());
+    }    
+  }
+
+  private final IdentityStorage identityStorage_;
 }
