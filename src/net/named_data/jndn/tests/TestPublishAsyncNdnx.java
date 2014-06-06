@@ -221,7 +221,7 @@ public class TestPublishAsyncNdnx {
         ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
       identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
       privateKeyStorage.setKeyPairForKeyName
-        (keyName, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
+        (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
 
       Echo echo = new Echo(keyChain, certificateName);
       Name prefix = new Name("/testecho");

@@ -41,61 +41,64 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   /**
    * Set the public key for the keyName.
    * @param keyName The key name.
+   * @param keyType The KeyType, such as KeyType.RSA.
    * @param publicKeyDer The public key DER byte buffer.
+   * @throws SecurityException if can't decode the key DER.
    */
   public final void 
-  setPublicKeyForKeyName(Name keyName, ByteBuffer publicKeyDer)
+  setPublicKeyForKeyName
+    (Name keyName, KeyType keyType, ByteBuffer publicKeyDer) throws SecurityException
   {
     publicKeyStore_.put
-      (keyName.toUri(), PublicKey.fromDer(new Blob(publicKeyDer, true)));
+      (keyName.toUri(), PublicKey.fromDer(keyType, new Blob(publicKeyDer, true)));
   }
   
   /**
    * Set the private key for the keyName.
    * @param keyName The key name.
+   * @param keyType The KeyType, such as KeyType.RSA.
    * @param privateKeyDer The private key DER byte buffer.
+   * @throws SecurityException if can't decode the key DER.
    */
   public final void 
-  setPrivateKeyForKeyName(Name keyName, ByteBuffer privateKeyDer)
+  setPrivateKeyForKeyName
+    (Name keyName, KeyType keyType, ByteBuffer privateKeyDer) throws SecurityException
   {
-    KeyFactory keyFactory = null;
-    try {
-      keyFactory = KeyFactory.getInstance("RSA");
-    } 
-    catch (NoSuchAlgorithmException exception) {
-      // Don't expect this to happen.
-      throw new Error
-        ("KeyFactory: RSA is not supported: " + exception.getMessage());
-    }
-    
-    try {
-      privateKeyStore_.put
-        (keyName.toUri(),
-         keyFactory.generatePrivate
-           (new PKCS8EncodedKeySpec(privateKeyDer.array())));
-    }
-    catch (InvalidKeySpecException exception) {
-      // Don't expect this to happen.
-      throw new Error
-        ("KeyFactory: PKCS8EncodedKeySpec is not supported: " +
-         exception.getMessage());
-    }
+    privateKeyStore_.put
+      (keyName.toUri(), new PrivateKey(keyType, privateKeyDer));
   }
   
   /**
    * Set the public and private key for the keyName.
    * @param keyName The key name.
+   * @param keyType The KeyType, such as KeyType.RSA.
    * @param publicKeyDer The public key DER byte buffer.
    * @param privateKeyDer The private key DER byte buffer.
+   * @throws SecurityException if can't decode the key DER.
    */
   public final void 
   setKeyPairForKeyName
-    (Name keyName, ByteBuffer publicKeyDer, ByteBuffer privateKeyDer)
+    (Name keyName, KeyType keyType, ByteBuffer publicKeyDer, 
+     ByteBuffer privateKeyDer) throws SecurityException
   {
-    setPublicKeyForKeyName(keyName, publicKeyDer);
-    setPrivateKeyForKeyName(keyName, privateKeyDer);
+    setPublicKeyForKeyName(keyName, keyType, publicKeyDer);
+    setPrivateKeyForKeyName(keyName, keyType, privateKeyDer);
   }
-  
+
+  /**
+   * @deprecate Use setKeyPairForKeyName(keyName, KeyType.RSA, publicKeyDer, privateKeyDer).
+   * @param keyName The key name.
+   * @param publicKeyDer The public key DER byte buffer.
+   * @param privateKeyDer The private key DER byte buffer.
+   * @throws SecurityException if can't decode the key DER.
+   */
+  public final void 
+  setKeyPairForKeyName
+    (Name keyName, ByteBuffer publicKeyDer, ByteBuffer privateKeyDer) throws SecurityException
+  {
+    setKeyPairForKeyName(keyName, KeyType.RSA, publicKeyDer, privateKeyDer);
+  }
+    
   /**
    * Generate a pair of asymmetric keys.
    * @param keyName The name of the key pair.
@@ -150,16 +153,30 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
         ("MemoryPrivateKeyStorage: Cannot find private key " + keyName.toUri());
     
     Signature signature = null;
-    try {
-      signature = Signature.getInstance("SHA256withRSA");
-    } 
-    catch (NoSuchAlgorithmException e) {
-      // Don't expect this to happen.
-      throw new SecurityException("SHA256withRSA algorithm is not supported");
+    if (privateKey.getKeyType() == KeyType.RSA) {
+      try {
+        signature = Signature.getInstance("SHA256withRSA");
+      } 
+      catch (NoSuchAlgorithmException e) {
+        // Don't expect this to happen.
+        throw new SecurityException("SHA256withRSA algorithm is not supported");
+      }
     }
+    else if (privateKey.getKeyType() == KeyType.EC) {
+      try {
+        signature = Signature.getInstance("SHA256withECDSA");
+      } 
+      catch (NoSuchAlgorithmException e) {
+        // Don't expect this to happen.
+        throw new SecurityException("SHA256withECDSA algorithm is not supported");
+      }
+    }
+    else
+      // We don't expect this to happen.
+      throw new SecurityException("Unrecognized private key type");
     
     try {
-      signature.initSign(privateKey);
+      signature.initSign(privateKey.getPrivateKey());
     }
     catch (InvalidKeyException exception) {
       throw new SecurityException
@@ -245,10 +262,75 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       return false;    
   }
   
+  /**
+   * PrivateKey is a simple class to hold a java.security.PrivateKey along with
+   * a KeyType.
+   */
+  class PrivateKey {
+    public PrivateKey(KeyType keyType, ByteBuffer keyDer) throws SecurityException {
+      keyType_ = keyType;
+      
+      if (keyType == KeyType.RSA) {
+        KeyFactory keyFactory = null;
+        try {
+          keyFactory = KeyFactory.getInstance("RSA");
+        } 
+        catch (NoSuchAlgorithmException exception) {
+          // Don't expect this to happen.
+          throw new SecurityException
+            ("KeyFactory: RSA is not supported: " + exception.getMessage());
+        }
+
+        try {
+          privateKey_ =
+            keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keyDer.array()));
+        }
+        catch (InvalidKeySpecException exception) {
+          // Don't expect this to happen.
+          throw new SecurityException
+            ("KeyFactory: PKCS8EncodedKeySpec is not supported for RSA: " +
+             exception.getMessage());
+        }        
+      }
+      else if (keyType == KeyType.EC) {
+        KeyFactory keyFactory = null;
+        try {
+          keyFactory = KeyFactory.getInstance("EC");
+        } 
+        catch (NoSuchAlgorithmException exception) {
+          // Don't expect this to happen.
+          throw new SecurityException
+            ("KeyFactory: EC is not supported: " + exception.getMessage());
+        }
+
+        try {
+          privateKey_ =
+            keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keyDer.array()));
+        }
+        catch (InvalidKeySpecException exception) {
+          // Don't expect this to happen.
+          throw new SecurityException
+            ("KeyFactory: PKCS8EncodedKeySpec is not supported for EC: " +
+             exception.getMessage());
+        }        
+      }
+      else
+        throw new SecurityException
+          ("PrivateKey constructor: Unrecognized keyType");
+    }
+    
+    public KeyType getKeyType() { return keyType_; }
+    
+    public java.security.PrivateKey getPrivateKey() { return privateKey_; }
+
+    private KeyType keyType_;
+    private java.security.PrivateKey privateKey_;
+  }
+  
   private final HashMap publicKeyStore_ = 
     new HashMap(); /**< The map key is the keyName.toUri(). 
                       * The value is security.certificate.PublicKey. */  
   private final HashMap privateKeyStore_ = 
     new HashMap(); /**< The map key is the keyName.toUri(). 
-                      * The value is PrivateKey. */  
+                      * The value is MemoryPrivateKeyStorage.PrivateKey. */  
 }

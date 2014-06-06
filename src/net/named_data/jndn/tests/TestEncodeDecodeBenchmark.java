@@ -213,8 +213,14 @@ public class TestEncodeDecodeBenchmark {
     Name keyName = new Name("/testname/DSK-123");
     Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
       ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
-    privateKeyStorage.setKeyPairForKeyName
-      (keyName, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
+    try {
+      privateKeyStorage.setKeyPairForKeyName
+        (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
+    } 
+    catch (SecurityException exception) {
+      throw new Error
+        ("SecurityException in setKeyPairForKeyName: " + exception.getMessage());
+    }
 
     // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is 
     //   false.
