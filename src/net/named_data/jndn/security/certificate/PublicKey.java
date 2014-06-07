@@ -24,7 +24,6 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import net.named_data.jndn.encoding.OID;
 import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyType;
