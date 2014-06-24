@@ -5,5 +5,8 @@
 *.war
 *.ear
 
+# Javadoc output
+/doc
+
 # Emacs temp files
 *~
