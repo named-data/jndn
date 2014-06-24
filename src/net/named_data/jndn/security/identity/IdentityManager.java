@@ -305,7 +305,7 @@ public class IdentityManager {
 
   /**
    * Set the certificate as the default for its corresponding key.
-   * @param certificateName The certificate.
+   * @param certificate The certificate.
    */
   public final void
   setDefaultCertificateForKey
@@ -441,7 +441,6 @@ public class IdentityManager {
    * @param data The Data object to sign and update its signature.
    * @param certificateName The Name identifying the certificate which 
    * identifies the signing key.
-   * @param wireFormat The WireFormat for calling encodeData.
    */
   public final void 
   signByCertificate(Data data, Name certificateName) throws SecurityException
