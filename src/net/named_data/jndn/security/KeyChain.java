@@ -101,7 +101,6 @@ public class KeyChain {
   /**
    * Get the default identity.
    * @return The name of default identity.
-   * @throw SecurityException if the default identity is not set.
    * @throws SecurityException if the default identity is not set.
    */
   public final Name
@@ -113,9 +112,6 @@ public class KeyChain {
   /**
    * Get the default certificate name of the default identity.
    * @return The requested certificate name.
-   * @throw SecurityException if the default identity is not set or the default 
-   * key name for the identity is not set or the default certificate name for 
-   * the key name is not set.
    * @throws SecurityException if the default identity is not set or the default 
    * key name for the identity is not set or the default certificate name for 
    * the key name is not set.

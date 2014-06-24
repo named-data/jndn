@@ -176,7 +176,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * verify.  The data packet must have a Sha256WithRsaSignature.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
-   * @throw SecurityException if data does not have a Sha256WithRsaSignature.
+   * @throws SecurityException if data does not have a Sha256WithRsaSignature.
    */
   private static boolean
   verifySha256WithRsaSignature(Data data, Blob publicKeyDer)
@@ -247,7 +247,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * verify.  The data packet must have a Sha256WithEcdsaSignature.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
-   * @throw SecurityException if data does not have a Sha256WithEcdsaSignature.
+   * @throws SecurityException if data does not have a Sha256WithEcdsaSignature.
    */
   private static boolean
   verifySha256WithEcdsaSignature(Data data, Blob publicKeyDer)
