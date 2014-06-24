@@ -86,7 +86,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   }
 
   /**
-   * @deprecate Use setKeyPairForKeyName(keyName, KeyType.RSA, publicKeyDer, privateKeyDer).
+   * @deprecated Use setKeyPairForKeyName(keyName, KeyType.RSA, publicKeyDer, privateKeyDer).
    * @param keyName The key name.
    * @param publicKeyDer The public key DER byte buffer.
    * @param privateKeyDer The private key DER byte buffer.
