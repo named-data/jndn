@@ -400,7 +400,6 @@ public class KeyChain {
   /**
    * Sign the byte buffer using a certificate name and return a Signature object.
    * @param buffer The byte array to be signed.
-   * @param bufferLength the length of buffer.
    * @param certificateName The certificate name used to get the signing key and which will be put into KeyLocator.
    * @return The Signature.
    */
@@ -476,7 +475,6 @@ public class KeyChain {
   /**
    * Sign the byte buffer using an identity name and return a Signature object.
    * @param buffer The byte array to be signed.
-   * @param bufferLength the length of buffer.
    * @param identityName The identity name.
    * @return The Signature.
    */
