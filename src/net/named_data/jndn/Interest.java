@@ -77,6 +77,7 @@ public class Interest implements ChangeCountable {
     interestLifetimeMilliseconds_ = interest.interestLifetimeMilliseconds_;
     scope_ = interest.scope_;
     nonce_ = interest.getNonce();
+    setDefaultWireEncoding(interest.defaultWireEncoding_, null);
   }
 
   /**
@@ -101,19 +102,32 @@ public class Interest implements ChangeCountable {
     ANSWER_CONTENT_STORE | ANSWER_GENERATED;
 
   /**
-   * Encode this Interest for a particular wire format.
+   * Encode this Interest for a particular wire format. If wireFormat is the 
+   * default wire format, also set the defaultWireEncoding field to the encoded
+   * result.
    * @param wireFormat A WireFormat object used to encode this Interest.
    * @return The encoded buffer.
    */
   public final SignedBlob 
   wireEncode(WireFormat wireFormat) 
   {
+    if (!getDefaultWireEncoding().isNull() &&
+        getDefaultWireEncodingFormat() == wireFormat)
+      // We already have an encoding in the desired format.
+      return getDefaultWireEncoding();
+
     int[] signedPortionBeginOffset = new int[1];
     int[] signedPortionEndOffset = new int[1];
     Blob encoding = wireFormat.encodeInterest
       (this, signedPortionBeginOffset, signedPortionEndOffset);
-    return new SignedBlob
+    SignedBlob wireEncoding = new SignedBlob
       (encoding, signedPortionBeginOffset[0], signedPortionEndOffset[0]);
+
+    if (wireFormat == WireFormat.getDefaultWireFormat())
+      // This is the default wire encoding.
+      setDefaultWireEncoding(wireEncoding, WireFormat.getDefaultWireFormat());
+
+    return wireEncoding;
   }
 
   /**
@@ -137,7 +151,18 @@ public class Interest implements ChangeCountable {
   public final void 
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
-    wireFormat.decodeInterest(this, input);
+    int[] signedPortionBeginOffset = new int[1];
+    int[] signedPortionEndOffset = new int[1];
+    wireFormat.decodeInterest
+      (this, input, signedPortionBeginOffset, signedPortionEndOffset);
+
+    if (wireFormat == WireFormat.getDefaultWireFormat())
+      // This is the default wire encoding.
+      setDefaultWireEncoding
+        (new SignedBlob(input, true, signedPortionBeginOffset[0],
+         signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
+    else
+      setDefaultWireEncoding(new SignedBlob(), null);
   }
 
   /**
@@ -154,7 +179,9 @@ public class Interest implements ChangeCountable {
   }
 
   /**
-   * Decode the input using a particular wire format and update this Interest.
+   * Decode the input using a particular wire format and update this Interest. If
+   * wireFormat is the default wire format, also set the defaultWireEncoding
+   * field another pointer to the input Blob.
    * @param input The input blob to decode.
    * @param wireFormat A WireFormat object used to decode the input.
    * @throws EncodingException For invalid encoding.
@@ -162,7 +189,18 @@ public class Interest implements ChangeCountable {
   public final void 
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
-    wireDecode(input.buf(), wireFormat);
+    int[] signedPortionBeginOffset = new int[1];
+    int[] signedPortionEndOffset = new int[1];
+    wireFormat.decodeInterest
+      (this, input.buf(), signedPortionBeginOffset, signedPortionEndOffset);
+
+    if (wireFormat == WireFormat.getDefaultWireFormat())
+      // This is the default wire encoding.
+      setDefaultWireEncoding
+        (new SignedBlob(input, signedPortionBeginOffset[0],
+         signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
+    else
+      setDefaultWireEncoding(new SignedBlob(), null);
   }
 
   /**
@@ -174,7 +212,7 @@ public class Interest implements ChangeCountable {
   public final void 
   wireDecode(Blob input) throws EncodingException
   {
-    wireDecode(input.buf());
+    wireDecode(input, WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -430,7 +468,33 @@ public class Interest implements ChangeCountable {
 
     return true; 
   }
-  
+
+  /**
+   * Return a pointer to the defaultWireEncoding, which was encoded with
+   * getDefaultWireEncodingFormat().
+   * @return The default wire encoding. Its pointer may be null.
+   */
+  public final SignedBlob
+  getDefaultWireEncoding()
+  {
+    if (getDefaultWireEncodingChangeCount_ != getChangeCount()) {
+      // The values have changed, so the default wire encoding is invalidated.
+      defaultWireEncoding_ = new SignedBlob();
+      defaultWireEncodingFormat_ = null;
+      getDefaultWireEncodingChangeCount_ = getChangeCount();
+    }
+
+    return defaultWireEncoding_;
+  }
+
+  /**
+   * Get the WireFormat which is used by getDefaultWireEncoding().
+   * @return The WireFormat, which is only meaningful if the
+   * getDefaultWireEncoding() does not have a null pointer.
+   */
+  WireFormat
+  getDefaultWireEncodingFormat() { return defaultWireEncodingFormat_; }
+
   /**
    * Get the change count, which is incremented each time this object 
    * (or a child object) is changed.
@@ -451,6 +515,17 @@ public class Interest implements ChangeCountable {
     return changeCount_;
   }
 
+  private void
+  setDefaultWireEncoding
+    (SignedBlob defaultWireEncoding, WireFormat defaultWireEncodingFormat)
+  {
+    defaultWireEncoding_ = defaultWireEncoding;
+    defaultWireEncodingFormat_ = defaultWireEncodingFormat;
+    // Set getDefaultWireEncodingChangeCount_ so that the next call to
+    //   getDefaultWireEncoding() won't clear defaultWireEncoding_.
+    getDefaultWireEncodingChangeCount_ = getChangeCount();
+  }
+
   private final ChangeCounter name_ = new ChangeCounter(new Name());
   private int minSuffixComponents_ = -1;
   private int maxSuffixComponents_ = -1;  
@@ -467,5 +542,8 @@ public class Interest implements ChangeCountable {
   private double interestLifetimeMilliseconds_ = -1;
   private Blob nonce_ = new Blob();
   private long getNonceChangeCount_ = 0;
+  private SignedBlob defaultWireEncoding_ = new SignedBlob();
+  private WireFormat defaultWireEncodingFormat_;
+  private long getDefaultWireEncodingChangeCount_ = 0;
   private long changeCount_ = 0;
 }
