@@ -38,6 +38,7 @@ import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.identity.IdentityStorage;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.SignedBlob;
 
 /**
  * A SelfVerifyPolicyManager implements a PolicyManager to use the public key 
@@ -115,8 +116,9 @@ public class SelfVerifyPolicyManager extends PolicyManager {
 
     if (signature.getKeyLocator().getType() == KeyLocatorType.KEY) {
       // Use the public key DER directly.
+      // wireEncode returns the cached encoding if available.
       if (verifySha256WithRsaSignature
-          (data, signature.getKeyLocator().getKeyData()))
+          (signature, data.wireEncode(), signature.getKeyLocator().getKeyData()))
         onVerified.onVerified(data);
       else
         onVerifyFailed.onVerifyFailed(data); 
@@ -131,7 +133,8 @@ public class SelfVerifyPolicyManager extends PolicyManager {
         // Can't find the public key with the name.
         onVerifyFailed.onVerifyFailed(data);
 
-      if (verifySha256WithRsaSignature(data, publicKeyDer))
+      if (verifySha256WithRsaSignature
+          (signature, data.wireEncode(), publicKeyDer))
         onVerified.onVerified(data);
       else
         onVerifyFailed.onVerifyFailed(data); 
@@ -168,23 +171,18 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
   
   /**
-   * Verify the RSA signature on the data packet using the given public key.  If 
-   * there is no data.getDefaultWireEncoding(), this calls data.wireEncode() to 
-   * set it.
+   * Verify the RSA signature on the SignedBlob using the given public key.
    * TODO: Move this general verification code to a more central location.
-   * @param data The data packet with the signed portion and the signature to 
-   * verify.  The data packet must have a Sha256WithRsaSignature.
+   * @param signature The Sha256WithRsaSignature.
+   * @param signedBlob the SignedBlob with the signed portion to verify.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
    * @throws SecurityException if data does not have a Sha256WithRsaSignature.
    */
   private static boolean
-  verifySha256WithRsaSignature(Data data, Blob publicKeyDer)
+  verifySha256WithRsaSignature
+    (Sha256WithRsaSignature signature, SignedBlob signedBlob, Blob publicKeyDer)
   {
-    if (!(data.getSignature() instanceof Sha256WithRsaSignature))
-      throw new SecurityException("signature is not Sha256WithRsaSignature.");
-    Sha256WithRsaSignature signature = 
-      (Sha256WithRsaSignature)data.getSignature();
     if (signature.getDigestAlgorithm().size() != 0)
       // TODO: Allow a non-default digest algorithm.
       throw new SecurityException
@@ -229,7 +227,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
     }
     try {
       // wireEncode returns the cached encoding if available.
-      rsaSignature.update(data.wireEncode().signedBuf());
+      rsaSignature.update(signedBlob.signedBuf());
       return rsaSignature.verify(signature.getSignature().getImmutableArray());
     }
     catch (SignatureException exception) {
@@ -239,30 +237,21 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
   
   /**
-   * Verify the ECDSA signature on the data packet using the given public key.  If 
-   * there is no data.getDefaultWireEncoding(), this calls data.wireEncode() to 
-   * set it.
+   * Verify the ECDSA signature on the SignedBlob using the given public key.
    * TODO: Move this general verification code to a more central location.
-   * @param data The data packet with the signed portion and the signature to 
-   * verify.  The data packet must have a Sha256WithEcdsaSignature.
+   * @param signature The Sha256WithEcdsaSignature.
+   * @param signedBlob the SignedBlob with the signed portion to verify.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
    * @throws SecurityException if data does not have a Sha256WithEcdsaSignature.
    */
   private static boolean
-  verifySha256WithEcdsaSignature(Data data, Blob publicKeyDer)
+  verifySha256WithEcdsaSignature
+    (
+     //Sha256WithEcdsaSignature signature,
+     Sha256WithRsaSignature signature,
+     SignedBlob signedBlob, Blob publicKeyDer)
   {
-    /*
-    if (!(data.getSignature() instanceof Sha256WithEcdsaSignature))
-      throw new SecurityException("signature is not Sha256WithEcdsaSignature.");
-    Sha256WithEcdsaSignature signature = 
-      (Sha256WithEcdsaSignature)data.getSignature();
-     */
-    if (!(data.getSignature() instanceof Sha256WithRsaSignature))
-      throw new SecurityException("signature is not Sha256WithRsaSignature.");
-    Sha256WithRsaSignature signature = 
-      (Sha256WithRsaSignature)data.getSignature();
-  
     KeyFactory keyFactory = null;
     try {
       keyFactory = KeyFactory.getInstance("EC");
@@ -302,7 +291,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
     }
     try {
       // wireEncode returns the cached encoding if available.
-      ecSignature.update(data.wireEncode().signedBuf());
+      ecSignature.update(signedBlob.signedBuf());
       return ecSignature.verify(signature.getSignature().getImmutableArray());
     }
     catch (SignatureException exception) {
