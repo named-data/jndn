@@ -61,13 +61,24 @@ public class BinaryXmlWireFormat extends WireFormat {
    * Decode input as an interest in binary XML and set the fields of the interest object.
    * @param interest The Interest object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
    * @throws EncodingException For invalid encoding.
    */
   public void 
-  decodeInterest(Interest interest, ByteBuffer input) throws EncodingException
+  decodeInterest
+    (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
+     int[] signedPortionEndOffset) throws EncodingException
   {
     BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);  
-    decodeInterest(interest, decoder);
+    decodeInterest
+      (interest, signedPortionBeginOffset, signedPortionEndOffset, decoder);
   }
   
   /**
@@ -162,7 +173,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     else
       forwardingEntry.setAction("");
 
-    decodeName(forwardingEntry.getPrefix(), decoder);
+    decodeName(forwardingEntry.getPrefix(), new int[1], new int[1], decoder);
     decodeOptionalPublisherPublicKeyDigest
       (forwardingEntry.getPublisherPublicKeyDigest(), decoder);
     forwardingEntry.setFaceId
@@ -236,16 +247,41 @@ public class BinaryXmlWireFormat extends WireFormat {
     
     encoder.writeElementClose();
   }
-  
+
+  /**
+   * Decode the name as binary XML and set the fields in name.
+   * @param name The name object whose fields are set.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * If you are not decoding in order to verify, you can ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * If you are not decoding in order to verify, you can ignore this returned value.
+   * @param decoder The decoder with the input to decode.
+   * @throws EncodingException
+   */
   private static void
-  decodeName(Name name, BinaryXmlDecoder decoder) throws EncodingException
+  decodeName
+    (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset,
+     BinaryXmlDecoder decoder) throws EncodingException
   {
     decoder.readElementStartDTag(BinaryXml.DTag_Name);
     name.clear();
+
+    signedPortionBeginOffset[0] = decoder.getOffset();
+    // In case there are no components, set signedPortionEndOffset arbitrarily.
+    signedPortionEndOffset[0] = signedPortionBeginOffset[0];
+
     while (true) {
       if (!decoder.peekDTag(BinaryXml.DTag_Component))
         // No more components.
         break;
+
+      signedPortionEndOffset[0] = decoder.getOffset();
 
       name.append
         (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_Component), true));
@@ -290,11 +326,15 @@ public class BinaryXmlWireFormat extends WireFormat {
   }
 
   private static void
-  decodeInterest(Interest interest, BinaryXmlDecoder decoder) throws EncodingException
+  decodeInterest
+    (Interest interest, int[] signedPortionBeginOffset,
+     int[] signedPortionEndOffset, BinaryXmlDecoder decoder) throws EncodingException
   {
     decoder.readElementStartDTag(BinaryXml.DTag_Interest);
 
-    decodeName(interest.getName(), decoder);
+    decodeName
+      (interest.getName(), signedPortionBeginOffset,signedPortionEndOffset,
+       decoder);
     interest.setMinSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MinSuffixComponents));
     interest.setMaxSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MaxSuffixComponents));
     
@@ -352,7 +392,7 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     signedPortionBeginOffset[0] = decoder.getOffset();
 
-    decodeName(data.getName(), decoder);
+    decodeName(data.getName(), new int[1], new int[1], decoder);
     data.setMetaInfo(new MetaInfo());
     if (decoder.peekDTag(BinaryXml.DTag_SignedInfo))
       decodeSignedInfo((Sha256WithRsaSignature)data.getSignature(), data.getMetaInfo(), decoder);
@@ -594,7 +634,7 @@ public class BinaryXmlWireFormat extends WireFormat {
           keyLocator.setType(KeyLocatorType.KEYNAME);
 
           decoder.readElementStartDTag(BinaryXml.DTag_KeyName);
-          decodeName(keyLocator.getKeyName(), decoder);
+          decodeName(keyLocator.getKeyName(), new int[1], new int[1], decoder);
           decodeKeyNameData(keyLocator, decoder);
           decoder.readElementClose();
         }

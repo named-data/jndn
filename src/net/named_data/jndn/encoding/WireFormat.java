@@ -66,22 +66,54 @@ public class WireFormat {
   {
     return encodeInterest(interest, new int[1], new int[1]);
   }
-  
+
   /**
-   * Decode input as an interest and set the fields of the interest object.  
+   * Decode input as an interest and set the fields of the interest object.
    * Your derived class should override.
    * @param interest The Interest object whose fields are updated.
-   * @param input The input buffer to decode.  This reads from position() to 
+   * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
-   * @throws UnsupportedOperationException for unimplemented if the derived 
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * If you are not decoding in order to verify, you can call
+   * decodeInterest(Interest interest, ByteBuffer input)
+   * to ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * If you are not decoding in order to verify, you can call
+   * decodeInterest(Interest interest, ByteBuffer input)
+   * to ignore this returned value.
+   * @throws UnsupportedOperationException for unimplemented if the derived
    * class does not override.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
-  decodeInterest(Interest interest, ByteBuffer input) throws EncodingException
+  public void
+  decodeInterest
+    (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
+     int[] signedPortionEndOffset) throws EncodingException
   {
     throw new UnsupportedOperationException
       ("decodeInterest is not implemented");
+  }
+
+  /**
+   * Decode input as an interest and set the fields of the interest object.
+   * Your derived class should override.
+   * @param interest The Interest object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void
+  decodeInterest(Interest interest, ByteBuffer input) throws EncodingException
+  {
+    decodeInterest(interest, input, new int[1], new int[1]);
   }
 
   /**

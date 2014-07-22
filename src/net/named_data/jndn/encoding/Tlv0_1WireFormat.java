@@ -123,15 +123,27 @@ public class Tlv0_1WireFormat extends WireFormat {
    * @param interest The Interest object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to 
    * limit(), but does not change the position.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
    * @throws EncodingException For invalid encoding.
    */
   public void 
-  decodeInterest(Interest interest, ByteBuffer input) throws EncodingException
+  decodeInterest
+    (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
+     int[] signedPortionEndOffset) throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
 
     int endOffset = decoder.readNestedTlvsStart(Tlv.Interest);
-    decodeName(interest.getName(), decoder);
+    decodeName
+      (interest.getName(), signedPortionBeginOffset,signedPortionEndOffset,
+       decoder);
     if (decoder.peekType(Tlv.Selectors, endOffset))
       decodeSelectors(interest, decoder);
     // Require a Nonce, but don't force it to be 4 bytes.
@@ -219,7 +231,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     int endOffset = decoder.readNestedTlvsStart(Tlv.Data);
     signedPortionBeginOffset[0] = decoder.getOffset();
 
-    decodeName(data.getName(), decoder);
+    decodeName(data.getName(), new int[1], new int[1], decoder);
     decodeMetaInfo(data.getMetaInfo(), decoder);
     data.setContent(new Blob(decoder.readBlobTlv(Tlv.Content), true));
     decodeSignatureInfo(data, decoder);
@@ -286,14 +298,40 @@ public class Tlv0_1WireFormat extends WireFormat {
           encoder.getLength() - signedPortionEndOffsetFromBack;
   }
 
+
+  /**
+   * Decode the name as NDN-TLV and set the fields in name.
+   * @param name The name object whose fields are set.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * If you are not decoding in order to verify, you can ignore this returned value.
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * If you are not decoding in order to verify, you can ignore this returned value.
+   * @param decoder The decoder with the input to decode.
+   * @throws EncodingException
+   */
   private static void
-  decodeName(Name name, TlvDecoder decoder) throws EncodingException
+  decodeName
+    (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset,
+     TlvDecoder decoder) throws EncodingException
   {
     name.clear();
 
-    int endOffset = decoder.readNestedTlvsStart(Tlv.Name);      
-    while (decoder.getOffset() < endOffset)
-        name.append(new Blob(decoder.readBlobTlv(Tlv.NameComponent), true));
+    int endOffset = decoder.readNestedTlvsStart(Tlv.Name);
+
+    signedPortionBeginOffset[0] = decoder.getOffset();
+    // In case there are no components, set signedPortionEndOffset arbitrarily.
+    signedPortionEndOffset[0] = signedPortionBeginOffset[0];
+
+    while (decoder.getOffset() < endOffset) {
+      signedPortionEndOffset[0] = decoder.getOffset();
+      name.append(new Blob(decoder.readBlobTlv(Tlv.NameComponent), true));
+    }
 
     decoder.finishNestedTlvs(endOffset);
   }
@@ -452,7 +490,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     if (decoder.peekType(Tlv.Name, endOffset)) {
       // KeyLocator is a Name.
       keyLocator.setType(KeyLocatorType.KEYNAME);
-      decodeName(keyLocator.getKeyName(), decoder);
+      decodeName(keyLocator.getKeyName(), new int[1], new int[1], decoder);
     }
     else if (decoder.peekType(Tlv.KeyLocatorDigest, endOffset)) {
       // KeyLocator is a KeyLocatorDigest.
