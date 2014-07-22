@@ -109,38 +109,10 @@ public class SelfVerifyPolicyManager extends PolicyManager {
     (Data data, int stepCount, OnVerified onVerified, 
      OnVerifyFailed onVerifyFailed) 
   {
-    if (!(data.getSignature() instanceof Sha256WithRsaSignature))
-      throw new SecurityException("SelfVerifyPolicyManager: Signature is not Sha256WithRsaSignature.");
-    Sha256WithRsaSignature signature = 
-      (Sha256WithRsaSignature)data.getSignature();
-
-    if (signature.getKeyLocator().getType() == KeyLocatorType.KEY) {
-      // Use the public key DER directly.
-      // wireEncode returns the cached encoding if available.
-      if (verifySha256WithRsaSignature
-          (signature, data.wireEncode(), signature.getKeyLocator().getKeyData()))
-        onVerified.onVerified(data);
-      else
-        onVerifyFailed.onVerifyFailed(data); 
-    }
-    else if (signature.getKeyLocator().getType() == KeyLocatorType.KEYNAME && 
-             identityStorage_ != null) {
-      // Assume the key name is a certificate name.
-      Blob publicKeyDer = identityStorage_.getKey
-        (IdentityCertificate.certificateNameToPublicKeyName
-         (signature.getKeyLocator().getKeyName()));
-      if (publicKeyDer.isNull())
-        // Can't find the public key with the name.
-        onVerifyFailed.onVerifyFailed(data);
-
-      if (verifySha256WithRsaSignature
-          (signature, data.wireEncode(), publicKeyDer))
-        onVerified.onVerified(data);
-      else
-        onVerifyFailed.onVerifyFailed(data); 
-    }
+    // wireEncode returns the cached encoding if available.
+    if (verify(data.getSignature(), data.wireEncode()))
+      onVerified.onVerified(data);
     else
-      // Can't find a key to verify.
       onVerifyFailed.onVerifyFailed(data); 
 
     // No more steps, so return a null ValidationRequest.
@@ -169,7 +141,57 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   {
     return new Name();
   }
-  
+
+  /**
+   * Check the type of signatureInfo to get the KeyLocator. Use the public key
+   * DER in the KeyLocator (if available) or look in the IdentityStorage for the
+   * public key with the name in the KeyLocator (if available) and use it to
+   * verify the signedBlob. If the public key can't be found, return false.
+   * (This is a generalized method which can verify both a Data packet and an
+   * interest.)
+   * @param signatureInfo An object of a subclass of Signature, e.g.
+   * Sha256WithRsaSignature.
+   * @param signedBlob the SignedBlob with the signed portion to verify.
+   * @return True if the signature is verified, false if failed.
+   */
+  private boolean
+  verify(net.named_data.jndn.Signature signatureInfo, SignedBlob signedBlob)
+  {
+    if (!(signatureInfo instanceof Sha256WithRsaSignature))
+      throw new SecurityException("SelfVerifyPolicyManager: Signature is not Sha256WithRsaSignature.");
+    Sha256WithRsaSignature signature =
+      (Sha256WithRsaSignature)signatureInfo;
+
+    if (signature.getKeyLocator().getType() == KeyLocatorType.KEY) {
+      // Use the public key DER directly.
+      // wireEncode returns the cached encoding if available.
+      if (verifySha256WithRsaSignature
+          (signature, signedBlob, signature.getKeyLocator().getKeyData()))
+        return true;
+      else
+        return false;
+    }
+    else if (signature.getKeyLocator().getType() == KeyLocatorType.KEYNAME &&
+             identityStorage_ != null) {
+      // Assume the key name is a certificate name.
+      Blob publicKeyDer = identityStorage_.getKey
+        (IdentityCertificate.certificateNameToPublicKeyName
+         (signature.getKeyLocator().getKeyName()));
+      if (publicKeyDer.isNull())
+        // Can't find the public key with the name.
+        return false;
+
+      if (verifySha256WithRsaSignature
+          (signature, signedBlob, publicKeyDer))
+        return true;
+      else
+        return false;
+    }
+    else
+      // Can't find a key to verify.
+      return false;
+  }
+
   /**
    * Verify the RSA signature on the SignedBlob using the given public key.
    * TODO: Move this general verification code to a more central location.
