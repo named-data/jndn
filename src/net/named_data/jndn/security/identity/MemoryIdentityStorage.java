@@ -195,7 +195,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
         ("No corresponding Key record for certificate! " + keyName.toUri() + 
          " " + certificateName.toUri());
 
-    // Check if certificate has already existed!
+    // Check if certificate already exists.
     if (doesCertificateExist(certificateName))
       throw new SecurityException("Certificate has already been installed!");
 
