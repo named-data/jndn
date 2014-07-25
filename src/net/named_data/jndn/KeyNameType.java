@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,10 +20,10 @@
 package net.named_data.jndn;
 
 /**
- * A KeyNameType specifies the type of a key locator name in a KeyLocator 
+ * A KeyNameType specifies the type of a key locator name in a KeyLocator
  * object.
  */
 public enum KeyNameType {
-  NONE, PUBLISHER_PUBLIC_KEY_DIGEST, PUBLISHER_CERTIFICATE_DIGEST, 
+  NONE, PUBLISHER_PUBLIC_KEY_DIGEST, PUBLISHER_CERTIFICATE_DIGEST,
   PUBLISHER_ISSUER_KEY_DIGEST, PUBLISHER_ISSUER_CERTIFICATE_DIGEST
 }

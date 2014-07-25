@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,10 +25,10 @@ import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvStructureDecoder;
 
 /**
- * A ElementReader lets you call onReceivedData multiple times which 
- * uses a BinaryXmlStructureDecoder or TlvStructureDecoder to detect the end of 
- * a binary XML or NDN-TLV element and calls 
- * elementListener.onReceivedElement(element) with the element. This handles the 
+ * A ElementReader lets you call onReceivedData multiple times which
+ * uses a BinaryXmlStructureDecoder or TlvStructureDecoder to detect the end of
+ * a binary XML or NDN-TLV element and calls
+ * elementListener.onReceivedElement(element) with the element. This handles the
  * case where a single call to onReceivedData may contain multiple elements.
  */
 public class ElementReader {
@@ -43,24 +43,24 @@ public class ElementReader {
   }
 
   /**
-   * Continue to read data until the end of an element, then call 
-   * elementListener.onReceivedElement(element ). The buffer passed to 
-   * onReceivedElement is only valid during this call.  If you need the data 
+   * Continue to read data until the end of an element, then call
+   * elementListener.onReceivedElement(element ). The buffer passed to
+   * onReceivedElement is only valid during this call.  If you need the data
    * later, you must copy.
-   * @param data The input data containing bytes of the element to read.  
+   * @param data The input data containing bytes of the element to read.
    * This reads from position() to limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public void
   onReceivedData(ByteBuffer data) throws EncodingException
   {
     // We may repeatedly set data to a slice as we read elements.
     data = data.slice();
-    
+
     // Process multiple objects in the data.
     while(true) {
       if (!usePartialData_) {
-        // This is the beginning of an element. Check whether it is binaryXML or 
+        // This is the beginning of an element. Check whether it is binaryXML or
         //   TLV.
         if (data.remaining() <= 0)
           // Wait for more data.
@@ -70,14 +70,14 @@ public class ElementReader {
         //   conflict with the first byte of a binary XML packet, so we can
         //   just look at the first byte.
         int firstByte = (int)data.get(0) & 0xff;
-        if (firstByte == Tlv.Interest || firstByte == Tlv.Data || 
+        if (firstByte == Tlv.Interest || firstByte == Tlv.Data ||
             firstByte == 0x80)
           useTlv_ = true;
         else
           // Binary XML.
           useTlv_ = false;
       }
-      
+
       boolean gotElementEnd;
       int offset;
       if (useTlv_) {
@@ -92,7 +92,7 @@ public class ElementReader {
         gotElementEnd = binaryXmlStructureDecoder_.findElementEnd(data);
         offset = binaryXmlStructureDecoder_.getOffset();
       }
-      
+
       if (gotElementEnd) {
         // Got the remainder of an element.  Report to the caller.
         if (usePartialData_) {
@@ -131,11 +131,11 @@ public class ElementReader {
         partialData_.ensuredPut(data);
         return;
       }
-    }      
+    }
   }
-  
+
   private ElementListener elementListener_;
-  private BinaryXmlStructureDecoder binaryXmlStructureDecoder_ = 
+  private BinaryXmlStructureDecoder binaryXmlStructureDecoder_ =
     new BinaryXmlStructureDecoder();
   private TlvStructureDecoder tlvStructureDecoder_ = new TlvStructureDecoder();
   private boolean usePartialData_;

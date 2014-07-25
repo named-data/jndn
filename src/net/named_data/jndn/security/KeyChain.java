@@ -2,7 +2,7 @@
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -49,10 +49,10 @@ import net.named_data.jndn.util.SignedBlob;
 /**
  * KeyChain is the main class of the security library.
  *
- * The KeyChain class provides a set of interfaces to the security library such 
- * as identity management, policy configuration and packet signing and 
+ * The KeyChain class provides a set of interfaces to the security library such
+ * as identity management, policy configuration and packet signing and
  * verification.
- * @note This class is an experimental feature.  See the API docs for more 
+ * @note This class is an experimental feature.  See the API docs for more
  * detail at
  * http://named-data.net/doc/ndn-ccl-api/key-chain.html .
  */
@@ -70,7 +70,7 @@ public class KeyChain {
   }
 
   /**
-   * Create a new KeyChain with the given IdentityManager and a 
+   * Create a new KeyChain with the given IdentityManager and a
    * NoVerifyPolicyManager.
    * @param identityManager An object of a subclass of IdentityManager.
    */
@@ -81,7 +81,7 @@ public class KeyChain {
   }
 
   // TODO: KeyChain()
-  
+
   /*****************************************
    *          Identity Management          *
    *****************************************/
@@ -108,12 +108,12 @@ public class KeyChain {
   {
     return identityManager_.getDefaultIdentity();
   }
-    
+
   /**
    * Get the default certificate name of the default identity.
    * @return The requested certificate name.
-   * @throws SecurityException if the default identity is not set or the default 
-   * key name for the identity is not set or the default certificate name for 
+   * @throws SecurityException if the default identity is not set or the default
+   * key name for the identity is not set or the default certificate name for
    * the key name is not set.
    */
   public final Name
@@ -121,8 +121,8 @@ public class KeyChain {
   {
     return identityManager_.getDefaultCertificateName();
   }
-  
-  
+
+
   /**
    * Generate a pair of RSA keys for the specified identity.
    * @param identityName The name of the identity.
@@ -136,7 +136,7 @@ public class KeyChain {
   {
     return identityManager_.generateRSAKeyPair(identityName, isKsk, keySize);
   }
-  
+
   /**
    * Generate a pair of RSA keys for the specified identity and default keySize
    * 2048.
@@ -149,9 +149,9 @@ public class KeyChain {
   {
     return identityManager_.generateRSAKeyPair(identityName, isKsk);
   }
-  
+
   /**
-   * Generate a pair of RSA keys for the specified identity for a 
+   * Generate a pair of RSA keys for the specified identity for a
    * Data-Signing-Key and default keySize 2048.
    * @param identityName The name of the identity.
    * @return The generated key name.
@@ -165,7 +165,7 @@ public class KeyChain {
   /**
    * Set a key as the default key of an identity.
    * @param keyName The name of the key.
-   * @param identityName the name of the identity. If empty, the 
+   * @param identityName the name of the identity. If empty, the
    * identity name is inferred from the keyName.
    */
   public final void
@@ -185,7 +185,7 @@ public class KeyChain {
   }
 
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as 
+   * Generate a pair of RSA keys for the specified identity and set it as
    * default key for the identity.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -198,9 +198,9 @@ public class KeyChain {
   {
     return identityManager_.generateRSAKeyPairAsDefault(identityName, isKsk, keySize);
   }
-  
+
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as 
+   * Generate a pair of RSA keys for the specified identity and set it as
    * default key for the identity, using the default keySize 2048.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -211,10 +211,10 @@ public class KeyChain {
   {
     return identityManager_.generateRSAKeyPairAsDefault(identityName, isKsk);
   }
-  
+
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as 
-   * default key for the identity for a Data-Signing-Key and using the default 
+   * Generate a pair of RSA keys for the specified identity and set it as
+   * default key for the identity for a Data-Signing-Key and using the default
    * keySize 2048.
    * @param identityName The name of the identity.
    * @return The generated key name.
@@ -305,7 +305,7 @@ public class KeyChain {
    * Revoke a key.
    * @param keyName The name of the key that will be revoked.
    */
-  public final void 
+  public final void
   revokeKey(Name keyName)
   {
     //TODO: Implement
@@ -315,7 +315,7 @@ public class KeyChain {
    * Revoke a certificate.
    * @param certificateName The name of the certificate that will be revoked.
    */
-  public final void 
+  public final void
   revokeCertificate(Name certificateName)
   {
     //TODO: Implement
@@ -327,20 +327,20 @@ public class KeyChain {
    */
   public final IdentityManager
   getIdentityManager() { return identityManager_; }
-  
-    
+
+
   /*****************************************
    *              Sign/Verify              *
    *****************************************/
 
   /**
    * Wire encode the Data object, sign it and set its signature.
-   * @param data The Data object to be signed.  This updates its signature and 
+   * @param data The Data object to be signed.  This updates its signature and
    * key locator field and wireEncoding.
    * @param certificateName The certificate name of the key to use for signing.
    * @param wireFormat A WireFormat object used to encode the input.
    */
-  public void 
+  public void
   sign(Data data, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
     identityManager_.signByCertificate(data, certificateName, wireFormat);
@@ -349,17 +349,17 @@ public class KeyChain {
   /**
    * Wire encode the Data object, sign it and set its signature.
    * Use the default WireFormat.getDefaultWireFormat()
-   * @param data The Data object to be signed.  This updates its signature and 
+   * @param data The Data object to be signed.  This updates its signature and
    * key locator field and wireEncoding.
    * @param certificateName The certificate name of the key to use for signing.
    */
-  public void 
+  public void
   sign(Data data, Name certificateName) throws SecurityException
   {
     sign(data, certificateName, WireFormat.getDefaultWireFormat());
   }
 
-  public void 
+  public void
   sign(Interest interest, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
     // TODO: Handle signature algorithms other than Sha256WithRsa.
@@ -372,7 +372,7 @@ public class KeyChain {
       TlvEncoder encoder = new TlvEncoder(256);
       Tlv0_1WireFormat.encodeSignatureSha256WithRsa(signature, encoder);
 
-      interest.getName().append(new Blob(encoder.getOutput(), false));  
+      interest.getName().append(new Blob(encoder.getOutput(), false));
     }
 
     // Append an empty signature so that the "signedPortion" is correct.
@@ -391,12 +391,12 @@ public class KeyChain {
     }
   }
 
-  public void 
+  public void
   sign(Interest interest, Name certificateName) throws SecurityException
   {
     sign(interest, certificateName, WireFormat.getDefaultWireFormat());
   }
-  
+
   /**
    * Sign the byte buffer using a certificate name and return a Signature object.
    * @param buffer The byte array to be signed.
@@ -411,13 +411,13 @@ public class KeyChain {
 
   /**
    * Wire encode the Data object, sign it and set its signature.
-   * @param data The Data object to be signed.  This updates its signature and 
+   * @param data The Data object to be signed.  This updates its signature and
    * key locator field and wireEncoding.
-   * @param identityName The identity name for the key to use for signing.  
+   * @param identityName The identity name for the key to use for signing.
    * If empty, infer the signing identity from the data packet name.
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
-  public void 
+  public void
   signByIdentity
     (Data data, Name identityName, WireFormat wireFormat) throws SecurityException
   {
@@ -428,11 +428,11 @@ public class KeyChain {
       if (inferredIdentity.size() == 0)
         signingCertificateName = identityManager_.getDefaultCertificateName();
       else
-        signingCertificateName = 
-          identityManager_.getDefaultCertificateNameForIdentity(inferredIdentity);    
+        signingCertificateName =
+          identityManager_.getDefaultCertificateNameForIdentity(inferredIdentity);
     }
     else
-      signingCertificateName = 
+      signingCertificateName =
         identityManager_.getDefaultCertificateNameForIdentity(identityName);
 
     if (signingCertificateName.size() == 0)
@@ -442,18 +442,18 @@ public class KeyChain {
       throw new SecurityException
         ("Signing Cert name does not comply with signing policy");
 
-    identityManager_.signByCertificate(data, signingCertificateName, wireFormat);  
+    identityManager_.signByCertificate(data, signingCertificateName, wireFormat);
   }
 
   /**
    * Wire encode the Data object, sign it and set its signature.
-   * @param data The Data object to be signed.  This updates its signature and 
+   * @param data The Data object to be signed.  This updates its signature and
    * key locator field and wireEncoding.
    * Use the default WireFormat.getDefaultWireFormat().
-   * @param identityName The identity name for the key to use for signing.  
+   * @param identityName The identity name for the key to use for signing.
    * If empty, infer the signing identity from the data packet name.
    */
-  public void 
+  public void
   signByIdentity(Data data, Name identityName) throws SecurityException
   {
     signByIdentity(data, identityName, WireFormat.getDefaultWireFormat());
@@ -461,12 +461,12 @@ public class KeyChain {
 
   /**
    * Wire encode the Data object, sign it and set its signature.
-   * @param data The Data object to be signed.  This updates its signature and 
+   * @param data The Data object to be signed.  This updates its signature and
    * key locator field and wireEncoding.
    * Infer the signing identity from the data packet name.
    * Use the default WireFormat.getDefaultWireFormat().
    */
-  public void 
+  public void
   signByIdentity(Data data) throws SecurityException
   {
     signByIdentity(data, new Name(), WireFormat.getDefaultWireFormat());
@@ -481,7 +481,7 @@ public class KeyChain {
   public Signature
   signByIdentity(ByteBuffer buffer, Name identityName) throws SecurityException
   {
-    Name signingCertificateName = 
+    Name signingCertificateName =
       identityManager_.getDefaultCertificateNameForIdentity(identityName);
 
     if (signingCertificateName.size() == 0)
@@ -492,7 +492,7 @@ public class KeyChain {
 
   public void
   verifyData
-    (Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed, 
+    (Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed,
      int stepCount)
   {
     Logger.getLogger(this.getClass().getName()).log
@@ -506,7 +506,7 @@ public class KeyChain {
           (nextStep, nextStep.retry_, onVerifyFailed, data);
         try {
           face_.expressInterest(nextStep.interest_, callbacks, callbacks);
-        } 
+        }
         catch (IOException ex) {
           onVerifyFailed.onVerifyFailed(data);
         }
@@ -517,18 +517,18 @@ public class KeyChain {
     else
       onVerifyFailed.onVerifyFailed(data);
   }
-  
+
   /**
-   * Check the signature on the Data object and call either onVerify.onVerify or 
-   * onVerifyFailed.onVerifyFailed. 
-   * We use callback functions because verify may fetch information to check the 
+   * Check the signature on the Data object and call either onVerify.onVerify or
+   * onVerifyFailed.onVerifyFailed.
+   * We use callback functions because verify may fetch information to check the
    * signature.
-   * @param data The Data object with the signature to check. It is an error if 
-   * data does not have a wireEncoding. 
+   * @param data The Data object with the signature to check. It is an error if
+   * data does not have a wireEncoding.
    * To set the wireEncoding, you can call data.wireDecode.
-   * @param onVerified If the signature is verified, this calls 
+   * @param onVerified If the signature is verified, this calls
    * onVerified.onVerified(data).
-   * @param onVerifyFailed If the signature check fails, this calls 
+   * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed.onVerifyFailed(data).
    */
   public void
@@ -537,15 +537,15 @@ public class KeyChain {
     verifyData(data, onVerified, onVerifyFailed, 0);
   }
 
-  
-  
+
+
   /**
    * Set the Face which will be used to fetch required certificates.
    * @param face The Face object.
    */
   public void
   setFace(Face face) { face_ = face; }
-  
+
   /**
    * A VerifyCallbacks is used for callbacks from verifyData.
    */
@@ -562,23 +562,23 @@ public class KeyChain {
 
     public void onData(Interest interest, Data data)
     {
-      // Try to verify the certificate (data) according to the parameters in 
+      // Try to verify the certificate (data) according to the parameters in
       //   nextStep.
       verifyData
-        (data, nextStep_.onVerified_, nextStep_.onVerifyFailed_, 
+        (data, nextStep_.onVerified_, nextStep_.onVerifyFailed_,
          nextStep_.stepCount_);
     }
 
-    public void onTimeout(Interest interest) 
+    public void onTimeout(Interest interest)
     {
       if (retry_ > 0) {
-        // Issue the same expressInterest as in verifyData except decrement 
+        // Issue the same expressInterest as in verifyData except decrement
         //   retry.
         VerifyCallbacks callbacks = new VerifyCallbacks
           (nextStep_, retry_ - 1, onVerifyFailed_, data_);
         try {
           face_.expressInterest(interest, callbacks, callbacks);
-        } 
+        }
         catch (IOException ex) {
           onVerifyFailed_.onVerifyFailed(data_);
         }
@@ -592,7 +592,7 @@ public class KeyChain {
     private OnVerifyFailed onVerifyFailed_;
     private Data data_;
   }
-  
+
   private IdentityManager identityManager_;
   private PolicyManager policyManager_;
   private EncryptionManager encryptionManager_;

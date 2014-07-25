@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -24,13 +24,13 @@ import net.named_data.jndn.encoding.EncodingException;
 
 public class TlvStructureDecoder {
   /**
-   * Continue scanning input starting from offset_ to find the element end.  
-   * If the end of the element which started at offset 0 is found, this returns 
-   * true and getOffset() is the length of the element.  Otherwise, this returns 
+   * Continue scanning input starting from offset_ to find the element end.
+   * If the end of the element which started at offset 0 is found, this returns
+   * true and getOffset() is the length of the element.  Otherwise, this returns
    * false which means you should read more into input and call again.
-   * @param input  The input buffer.  This reads starting from index 0 (not 
+   * @param input  The input buffer.  This reads starting from index 0 (not
    * index.position()) to input.limit(). This does not update its position().
-   * You have to pass in input each time because the buffer could be 
+   * You have to pass in input each time because the buffer could be
    * reallocated.
    * @return true if found the element end, false if not.
    */
@@ -84,7 +84,7 @@ public class TlvStructureDecoder {
         int firstOctet = (int)input.get(offset_) & 0xff;
         offset_ += 1;
         if (firstOctet < 253) {
-          // The value is simple, so we can skip straight to reading 
+          // The value is simple, so we can skip straight to reading
           //  the value bytes.
           nBytesToRead_ = firstOctet;
           if (nBytesToRead_ == 0) {
@@ -96,7 +96,7 @@ public class TlvStructureDecoder {
           state_ = TlvStructureDecoder.READ_VALUE_BYTES;
         }
         else {
-          // We need to read the bytes in the extended encoding of 
+          // We need to read the bytes in the extended encoding of
           //  the length.
           if (firstOctet == 253)
             nBytesToRead_ = 2;
@@ -126,9 +126,9 @@ public class TlvStructureDecoder {
 
           int nNeededBytes = nBytesToRead_ - headerBuffer_.position();
           if (nNeededBytes > nRemainingBytes) {
-            // We can't get all of the header bytes from this input. 
+            // We can't get all of the header bytes from this input.
             // Save in headerBuffer.
-            if (headerBuffer_.position() + nRemainingBytes > 
+            if (headerBuffer_.position() + nRemainingBytes >
                 headerBuffer_.limit())
               // We don't expect this to happen.
               throw new Error
@@ -141,7 +141,7 @@ public class TlvStructureDecoder {
             return false;
           }
 
-          // Copy the remaining bytes into headerBuffer, read the 
+          // Copy the remaining bytes into headerBuffer, read the
           //   length and set nBytesToRead.
           if (headerBuffer_.position() + nNeededBytes > headerBuffer_.limit())
             // We don't expect this to happen.
@@ -188,21 +188,21 @@ public class TlvStructureDecoder {
         throw new Error("findElementEnd: unrecognized state");
     }
   }
-  
+
   /**
    * Get the current offset into the input buffer.
    * @return The offset.
    */
   public final int
-  getOffset() { return offset_; }   
-  
+  getOffset() { return offset_; }
+
   /**
    * Set the offset into the input, used for the next read.
    * @param offset The new offset.
    */
   public final void
   seek(int offset) { offset_ = offset; }
-  
+
   private static int READ_TYPE =         0;
   private static int READ_TYPE_BYTES =   1;
   private static int READ_LENGTH =       2;
@@ -213,7 +213,7 @@ public class TlvStructureDecoder {
   private int offset_ = 0;
   private int state_ = READ_TYPE;
   private boolean useHeaderBuffer_ = false;
-  // 8 bytes is enough to hold the extended bytes in the length encoding 
+  // 8 bytes is enough to hold the extended bytes in the length encoding
   // where it is an 8-byte number.
   private ByteBuffer headerBuffer_ = ByteBuffer.allocate(8);
   private int nBytesToRead_ = 0;

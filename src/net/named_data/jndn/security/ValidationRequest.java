@@ -2,7 +2,7 @@
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -31,7 +31,7 @@ public class ValidationRequest {
     retry_ = retry;
     stepCount_ = stepCount;
   }
-    
+
   public final Interest interest_;             // An interest packet to fetch the requested data.
   public final OnVerified onVerified_;         // A callback function if the requested certificate has been validated.
   public final OnVerifyFailed onVerifyFailed_; // A callback function if the requested certificate cannot be validated.

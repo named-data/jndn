@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,12 +28,12 @@ public enum ContentType {
   DATA(0),
   LINK(1),
   KEY (2),
-  // ContentType ENCR, GONE and NACK are not supported in NDN-TLV encoding and 
+  // ContentType ENCR, GONE and NACK are not supported in NDN-TLV encoding and
   //   are deprecated.
   ENCR(3),
   GONE(4),
   NACK(5);
-  
+
   ContentType (int type)
   {
     type_ = type;

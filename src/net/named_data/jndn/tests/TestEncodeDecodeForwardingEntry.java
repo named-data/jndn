@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -29,18 +29,18 @@ import net.named_data.jndn.util.Blob;
 
 public class TestEncodeDecodeForwardingEntry {
   // Convert the int array to a ByteBuffer.
-  private static ByteBuffer 
-  toBuffer(int[] array) 
+  private static ByteBuffer
+  toBuffer(int[] array)
   {
     ByteBuffer result = ByteBuffer.allocate(array.length);
     for (int i = 0; i < array.length; ++i)
       result.put((byte)(array[i] & 0xff));
-    
+
     result.flip();
     return result;
   }
 
-  private static final ByteBuffer BinaryXmlInterest = toBuffer(new int[] {  
+  private static final ByteBuffer BinaryXmlInterest = toBuffer(new int[] {
 0x01, 0xd2, 0xf2, 0xfa, 0xa5, 0x6e, 0x64, 0x6e, 0x78, 0x00, 0xfa, 0x02, 0x85, 0xe0, 0xa0, 0x1e, 0x09, 0x39, 0x68,
 0xf9, 0x74, 0x0c, 0xe7, 0xf4, 0x36, 0x1b, 0xab, 0xf5, 0xbb, 0x05, 0xa4, 0xe5, 0x5a, 0xac, 0xa5, 0xe5, 0x8f, 0x73,
 0xed, 0xde, 0xb8, 0xe0, 0x13, 0xaa, 0x8f, 0x00, 0xfa, 0xcd, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, 0x72, 0x65, 0x67,
@@ -83,16 +83,16 @@ public class TestEncodeDecodeForwardingEntry {
 1
   });
 
-  private static void 
-  dumpForwardingEntry(ForwardingEntry forwardingEntry) 
+  private static void
+  dumpForwardingEntry(ForwardingEntry forwardingEntry)
   {
     System.out.println("action: " + forwardingEntry.getAction());
     System.out.println("prefix: " + forwardingEntry.getPrefix().toUri());
     System.out.println("publisherPublicKeyDigest: " +
-      (forwardingEntry.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ? 
+      (forwardingEntry.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0 ?
        forwardingEntry.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().toHex() : "<none>"));
-    System.out.println("faceId: " + 
-      (forwardingEntry.getFaceId() >= 0 ? 
+    System.out.println("faceId: " +
+      (forwardingEntry.getFaceId() >= 0 ?
        "" + forwardingEntry.getFaceId() : "<none>"));
 
     System.out.print("forwardingFlags:");
@@ -118,24 +118,24 @@ public class TestEncodeDecodeForwardingEntry {
       (forwardingEntry.getFreshnessPeriod() >= 0 ?
        "" + forwardingEntry.getFreshnessPeriod() : "<none>"));
   }
-  
+
   /**
-   * Show the interest name and scope, and expect the name to have 4 components 
-   * where the last component is a data packet whose content is a forwarding 
+   * Show the interest name and scope, and expect the name to have 4 components
+   * where the last component is a data packet whose content is a forwarding
    * entry.
    * @param interest The interest with the data packet component.
    */
-  private static void 
+  private static void
   dumpInterestWithForwardingEntry(Interest interest) throws EncodingException
   {
     if (interest.getName().size() != 4) {
       System.out.println
-        ("Error: expected the interest name to have 4 components.  Got: " + 
+        ("Error: expected the interest name to have 4 components.  Got: " +
          interest.getName().toUri());
       return;
     }
 
-    System.out.println("scope: " + 
+    System.out.println("scope: " +
       (interest.getScope() >= 0 ? "" + interest.getScope() : "<none>"));
     System.out.println("name[0]: " + interest.getName().get(0).toEscapedString());
     System.out.println("name[1]: " + interest.getName().get(1).getValue().toHex());
@@ -150,14 +150,14 @@ public class TestEncodeDecodeForwardingEntry {
     forwardingEntry.wireDecode(data.getContent(), BinaryXmlWireFormat.get());
     dumpForwardingEntry(forwardingEntry);
   }
-  
-  
-  public static void 
-  main(String[] args) 
+
+
+  public static void
+  main(String[] args)
   {
     try {
       Interest interest = new Interest();
-      // Note, until the registration protocol is defined for the new TLV 
+      // Note, until the registration protocol is defined for the new TLV
       //   forwarder, we use the old BinaryXml format.
       interest.wireDecode(BinaryXmlInterest, BinaryXmlWireFormat.get());
       System.out.println("Interest:");
@@ -172,7 +172,7 @@ public class TestEncodeDecodeForwardingEntry {
       System.out.println();
       System.out.println("Re-decoded Interest:");
       dumpInterestWithForwardingEntry(reDecodedInterest);
-    } 
+    }
     catch (EncodingException e) {
       System.out.println(e.getMessage());
     }

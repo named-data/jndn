@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -30,10 +30,10 @@ import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.util.Blob;
 
 /**
- * MemoryIdentityStorage extends IdentityStorage and implements its methods to 
- * store identity, public key and certificate objects in memory. The application 
- * must get the objects through its own means and add the objects to the 
- * MemoryIdentityStorage object. To use permanent file-based storage, see 
+ * MemoryIdentityStorage extends IdentityStorage and implements its methods to
+ * store identity, public key and certificate objects in memory. The application
+ * must get the objects through its own means and add the objects to the
+ * MemoryIdentityStorage object. To use permanent file-based storage, see
  * BasicIdentityStorage.
  */
 public class MemoryIdentityStorage extends IdentityStorage {
@@ -42,14 +42,14 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * @param identityName The identity name.
    * @return True if the identity exists, otherwise false.
    */
-  public boolean 
+  public boolean
   doesIdentityExist(Name identityName)
   {
     return identityStore_.contains(identityName.toUri());
   }
 
   /**
-   * Add a new identity. An exception will be thrown if the identity already 
+   * Add a new identity. An exception will be thrown if the identity already
    * exists.
    * @param identityName The identity name to be added.
    * @throws SecurityException if the identityName is already added.
@@ -63,7 +63,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
 
     identityStore_.add(identityUri);
   }
-  
+
   /**
    * Revoke the identity.
    * @return True if the identity was revoked, false if not.
@@ -80,7 +80,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * @param keyName The name of the key.
    * @return true if the key exists, otherwise false.
    */
-  public boolean 
+  public boolean
   doesKeyExist(Name keyName)
   {
     return keyStore_.containsKey(keyName);
@@ -93,7 +93,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * @param publicKeyDer A blob of the public key DER to be added.
    * @throws SecurityException if a key with the keyName already exists.
    */
-  public void 
+  public void
   addKey(Name keyName, KeyType keyType, Blob publicKeyDer) throws SecurityException
   {
     Name identityName = keyName.getSubName(0, keyName.size() - 1);
@@ -141,11 +141,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Activate a key.  If a key is marked as inactive, its private part will not 
+   * Activate a key.  If a key is marked as inactive, its private part will not
    * be used in packet signing.
    * @param keyName The name of the key.
    */
-  public void 
+  public void
   activateKey(Name keyName)
   {
     throw new UnsupportedOperationException
@@ -153,11 +153,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Deactivate a key. If a key is marked as inactive, its private part will not 
+   * Deactivate a key. If a key is marked as inactive, its private part will not
    * be used in packet signing.
    * @param keyName The name of the key.
    */
-  public void 
+  public void
   deactivateKey(Name keyName)
   {
     throw new UnsupportedOperationException
@@ -177,11 +177,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
 
   /**
    * Add a certificate to the identity storage.
-   * @param certificate The certificate to be added.  This makes a copy of the 
+   * @param certificate The certificate to be added.  This makes a copy of the
    * certificate.
    * @throws SecurityException if the certificate is already installed.
    */
-  public void 
+  public void
   addCertificate(IdentityCertificate certificate) throws SecurityException
   {
     throw new UnsupportedOperationException
@@ -192,16 +192,16 @@ public class MemoryIdentityStorage extends IdentityStorage {
 
     if (!doesKeyExist(keyName))
       throw new SecurityException
-        ("No corresponding Key record for certificate! " + keyName.toUri() + 
+        ("No corresponding Key record for certificate! " + keyName.toUri() +
          " " + certificateName.toUri());
 
     // Check if certificate already exists.
     if (doesCertificateExist(certificateName))
       throw new SecurityException("Certificate has already been installed!");
 
-    // Check if the public key of certificate is the same as the key record. 
+    // Check if the public key of certificate is the same as the key record.
     Blob keyBlob = getKey(keyName);
-    if (keyBlob.isNull() || 
+    if (keyBlob.isNull() ||
         !keyBlob.equals(certificate.getPublicKeyInfo().getKeyDer()))
       throw new SecurityException("Certificate does not match the public key!");
 
@@ -213,7 +213,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   /**
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
-   * @param allowAny If false, only a valid certificate will be 
+   * @param allowAny If false, only a valid certificate will be
    * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
@@ -228,7 +228,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
     Data data = new Data();
     try {
       data.wireDecode(certificateDer);
-    } 
+    }
     catch (EncodingException ex) {
       // Don't expect this to happen. Silently return null.
       return new Data();
@@ -241,16 +241,16 @@ public class MemoryIdentityStorage extends IdentityStorage {
    *****************************************/
 
   /**
-   * Get the default identity. 
+   * Get the default identity.
    * @return The name of default identity.
    * @throws SecurityException if the default identity is not set.
    */
-  public Name 
+  public Name
   getDefaultIdentity() throws SecurityException
   {
     if (defaultIdentity_.length() == 0)
       throw new SecurityException("MemoryIdentityStorage.getDefaultIdentity: The default identity is not defined");
-  
+
     return new Name(defaultIdentity_);
   }
 
@@ -260,7 +260,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * @return The default key name.
    * @throws SecurityException if the default key name for the identity is not set.
    */
-  public Name 
+  public Name
   getDefaultKeyNameForIdentity(Name identityName) throws SecurityException
   {
     throw new UnsupportedOperationException
@@ -271,10 +271,10 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * Get the default certificate name for the specified key.
    * @param keyName The key name.
    * @return The default certificate name.
-   * @throws SecurityException if the default certificate name for the key name 
+   * @throws SecurityException if the default certificate name for the key name
    * is not set.
    */
-  public Name 
+  public Name
   getDefaultCertificateNameForKey(Name keyName) throws SecurityException
   {
     throw new UnsupportedOperationException
@@ -282,11 +282,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Set the default identity.  If the identityName does not exist, then clear 
+   * Set the default identity.  If the identityName does not exist, then clear
    * the default identity so that getDefaultIdentity() throws an exception.
    * @param identityName The default identity name.
    */
-  public void 
+  public void
   setDefaultIdentity(Name identityName)
   {
     String identityUri = identityName.toUri();
@@ -302,7 +302,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * @param keyName The key name.
    * @param identityNameCheck The identity name to check the keyName.
    */
-  public void 
+  public void
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
   {
     throw new UnsupportedOperationException
@@ -314,12 +314,12 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * @param keyName The key name.
    * @param certificateName The certificate name.
    */
-  public void 
+  public void
   setDefaultCertificateNameForKey(Name keyName, Name certificateName)
   {
     throw new UnsupportedOperationException
       ("MemoryIdentityStorage::setDefaultCertificateNameForKey not implemented");
-  }  
+  }
 
   private static class KeyRecord {
     public KeyRecord(KeyType keyType, Blob keyDer)
@@ -327,21 +327,21 @@ public class MemoryIdentityStorage extends IdentityStorage {
       keyType_ = keyType;
       keyDer_ = keyDer;
     }
-    
+
     KeyType getKeyType() { return keyType_; }
-    
+
     Blob getKeyDer() { return keyDer_; }
-    
+
     private KeyType keyType_;
     private Blob keyDer_;
   };
-  
-  private final ArrayList identityStore_ = 
+
+  private final ArrayList identityStore_ =
     new ArrayList(); /**< A list of String name URI. */
-  private String defaultIdentity_ = 
+  private String defaultIdentity_ =
     ""; /**< The default identity in identityStore_, or "" if not defined. */
-  private final HashMap keyStore_ = 
+  private final HashMap keyStore_ =
     new HashMap(); /**< The map key is the keyName.toUri(). The value is a KeyRecord. */
-  private final HashMap certificateStore_ = 
+  private final HashMap certificateStore_ =
     new HashMap(); /**< The map key is the certificateName.toUri(). The value is the certificate Blob. */
 }

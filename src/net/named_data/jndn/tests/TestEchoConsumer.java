@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -31,7 +31,7 @@ import net.named_data.jndn.OnTimeout;
 
 class Counter1 implements OnData, OnTimeout {
   public void
-  onData(Interest interest, Data data) 
+  onData(Interest interest, Data data)
   {
     ++callbackCount_;
     System.out.println
@@ -41,10 +41,10 @@ class Counter1 implements OnData, OnTimeout {
       System.out.print((char)content.get(i));
     System.out.println("");
   }
-  
+
   public int callbackCount_ = 0;
 
-  public void onTimeout(Interest interest) 
+  public void onTimeout(Interest interest)
   {
     ++callbackCount_;
     System.out.println("Time out for interest " + interest.getName().toUri());
@@ -52,28 +52,28 @@ class Counter1 implements OnData, OnTimeout {
 }
 
 public class TestEchoConsumer {
-  public static void 
-  main(String[] args) 
+  public static void
+  main(String[] args)
   {
     try {
       Face face = new Face("localhost");
-      
+
       Counter1 counter = new Counter1();
 
       System.out.println("Enter a word to echo:");
       BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
       String word = reader.readLine();
-      
+
       Name name = new Name("/testecho");
       name.append(word);
       System.out.println("Express name " + name.toUri());
-      face.expressInterest(name, counter, counter); 
+      face.expressInterest(name, counter, counter);
 
       // The main event loop.
       while (counter.callbackCount_ < 1) {
         face.processEvents();
 
-        // We need to sleep for a few milliseconds so we don't use 100% of 
+        // We need to sleep for a few milliseconds so we don't use 100% of
         //   the CPU.
         Thread.sleep(5);
       }

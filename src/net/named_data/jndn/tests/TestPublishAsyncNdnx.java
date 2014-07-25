@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -39,18 +39,18 @@ import net.named_data.jndn.util.Blob;
 
 public class TestPublishAsyncNdnx {
   // Convert the int array to a ByteBuffer.
-  private static ByteBuffer 
-  toBuffer(int[] array) 
+  private static ByteBuffer
+  toBuffer(int[] array)
   {
     ByteBuffer result = ByteBuffer.allocate(array.length);
     for (int i = 0; i < array.length; ++i)
       result.put((byte)(array[i] & 0xff));
-    
+
     result.flip();
     return result;
   }
-  
-  private static final ByteBuffer DEFAULT_RSA_PUBLIC_KEY_DER = toBuffer(new int[] {  
+
+  private static final ByteBuffer DEFAULT_RSA_PUBLIC_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
     0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0f, 0x00, 0x30, 0x82, 0x01, 0x0a, 0x02, 0x82, 0x01, 0x01,
     0x00, 0xb8, 0x09, 0xa7, 0x59, 0x82, 0x84, 0xec, 0x4f, 0x06, 0xfa, 0x1c, 0xb2, 0xe1, 0x38, 0x93,
@@ -73,7 +73,7 @@ public class TestPublishAsyncNdnx {
   });
 
   // Java uses an unencrypted PKCS #8 PrivateKeyInfo, not a PKCS #1 RSAPrivateKey.
-  private static final ByteBuffer DEFAULT_RSA_PRIVATE_KEY_DER = toBuffer(new int[] {  
+  private static final ByteBuffer DEFAULT_RSA_PRIVATE_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x04, 0xbf, 0x02, 0x01, 0x00, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7,
     0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x04, 0x82, 0x04, 0xa9, 0x30, 0x82, 0x04, 0xa5, 0x02, 0x01,
     0x00, 0x02, 0x82, 0x01, 0x01, 0x00, 0xb8, 0x09, 0xa7, 0x59, 0x82, 0x84, 0xec, 0x4f, 0x06, 0xfa,
@@ -155,13 +155,13 @@ public class TestPublishAsyncNdnx {
 
   private static class Echo implements OnInterest, OnRegisterFailed {
     public Echo(KeyChain keyChain, Name certificateName)
-    { 
-      keyChain_ = keyChain;      
+    {
+      keyChain_ = keyChain;
       certificateName_ = certificateName;
     }
-    
-    public void 
-    onInterest(Name prefix, Interest interest, Transport transport, long registeredPrefixId) 
+
+    public void
+    onInterest(Name prefix, Interest interest, Transport transport, long registeredPrefixId)
     {
       ++responseCount_;
 
@@ -171,7 +171,7 @@ public class TestPublishAsyncNdnx {
       data.setContent(new Blob(content));
       // setTimestampMilliseconds is needed for BinaryXml compatibility.
       data.getMetaInfo().setTimestampMilliseconds(System.currentTimeMillis());
-      
+
       try {
         keyChain_.sign(data, certificateName_);      }
       catch (SecurityException exception) {
@@ -189,21 +189,21 @@ public class TestPublishAsyncNdnx {
       }
     }
 
-    public void 
-    onRegisterFailed(Name prefix) 
+    public void
+    onRegisterFailed(Name prefix)
     {
       ++responseCount_;
       System.out.println("Register failed for prefix " + prefix.toUri());
     }
-    
+
     KeyChain keyChain_;
     Name certificateName_;
     int responseCount_ = 0;
   }
-  
 
-  public static void 
-  main(String[] args) 
+
+  public static void
+  main(String[] args)
   {
     try {
       Face face = new Face("localhost");
@@ -211,7 +211,7 @@ public class TestPublishAsyncNdnx {
       MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
       MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
       KeyChain keyChain = new KeyChain
-        (new IdentityManager(identityStorage, privateKeyStorage), 
+        (new IdentityManager(identityStorage, privateKeyStorage),
          new SelfVerifyPolicyManager(identityStorage));
       keyChain.setFace(face);
 
@@ -228,12 +228,12 @@ public class TestPublishAsyncNdnx {
       System.out.println("Register prefix  " + prefix.toUri());
       face.registerPrefix(prefix, echo, echo);
 
-      // The main event loop.  
+      // The main event loop.
       // Wait to receive one interest for the prefix.
       while (echo.responseCount_ < 1) {
         face.processEvents();
 
-        // We need to sleep for a few milliseconds so we don't use 100% of 
+        // We need to sleep for a few milliseconds so we don't use 100% of
         //   the CPU.
         Thread.sleep(5);
       }

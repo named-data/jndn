@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,17 +38,17 @@ public class BinaryXmlWireFormat extends WireFormat {
   /**
    * Encode interest in binary XML and return the encoding.
    * @param interest The Interest object to encode.
-   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
    * beginning of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
-   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
    * of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
    * @return A Blob containing the encoding.
-   */  
-  public Blob 
+   */
+  public Blob
   encodeInterest(Interest interest, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
     BinaryXmlEncoder encoder = new BinaryXmlEncoder();
@@ -71,16 +71,16 @@ public class BinaryXmlWireFormat extends WireFormat {
    * assumed to be a signature for a signed interest).
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public void
   decodeInterest
     (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
      int[] signedPortionEndOffset) throws EncodingException
   {
-    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);  
+    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);
     decodeInterest
       (interest, signedPortionBeginOffset, signedPortionEndOffset, decoder);
   }
-  
+
   /**
    * Encode data and return the encoding.
    * @param data The Data object to encode.
@@ -92,7 +92,7 @@ public class BinaryXmlWireFormat extends WireFormat {
    * If you are not encoding in order to sign, you can call encodeData(data) to ignore this returned value.
    * @return A Blob containing the encoding.
    */
-  public Blob 
+  public Blob
   encodeData(Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
     BinaryXmlEncoder encoder = new BinaryXmlEncoder(1500);
@@ -105,30 +105,30 @@ public class BinaryXmlWireFormat extends WireFormat {
    * @param data The Data object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
    * @param signedPortionBeginOffset Return the offset in the input buffer of the beginning of the signed portion by
-   * setting signedPortionBeginOffset[0].  If you are not decoding in order to verify, you can call 
+   * setting signedPortionBeginOffset[0].  If you are not decoding in order to verify, you can call
    * decodeData(data, input) to ignore this returned value.
    * @param signedPortionEndOffset Return the offset in the input buffer of the end of the signed portion by
-   * setting signedPortionEndOffset[0]. If you are not decoding in order to verify, you can call 
+   * setting signedPortionEndOffset[0]. If you are not decoding in order to verify, you can call
    * decodeData(data, input) to ignore this returned value.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public void
   decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset) throws EncodingException
   {
-    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);  
+    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);
     decodeData(data, input, signedPortionBeginOffset, signedPortionEndOffset, decoder);
   }
 
   /**
-   * Encode forwardingEntry in binary XML and return the encoding. 
+   * Encode forwardingEntry in binary XML and return the encoding.
    * @param forwardingEntry The ForwardingEntry object to encode.
    * @return A Blob containing the encoding.
    */
-  public Blob 
+  public Blob
   encodeForwardingEntry(ForwardingEntry forwardingEntry)
   {
     BinaryXmlEncoder encoder = new BinaryXmlEncoder();
-    
+
     encoder.writeElementStartDTag(BinaryXml.DTag_ForwardingEntry);
 
     encoder.writeOptionalUDataDTagElement
@@ -140,30 +140,30 @@ public class BinaryXmlWireFormat extends WireFormat {
     encoder.writeOptionalUnsignedDecimalIntDTagElement
       (BinaryXml.DTag_FaceID, forwardingEntry.getFaceId());
     encoder.writeUnsignedDecimalIntDTagElement
-      (BinaryXml.DTag_ForwardingFlags, 
+      (BinaryXml.DTag_ForwardingFlags,
        forwardingEntry.getForwardingFlags().getForwardingEntryFlags());
     if (forwardingEntry.getFreshnessPeriod() >= 0.0)
       // Convert from milliseconds to seconds.
       encoder.writeOptionalUnsignedDecimalIntDTagElement
-        (BinaryXml.DTag_FreshnessSeconds, 
+        (BinaryXml.DTag_FreshnessSeconds,
          (int)Math.round(forwardingEntry.getFreshnessPeriod() / 1000.0));
 
     encoder.writeElementClose();
     return new Blob(encoder.getOutput(), false);
   }
-  
+
   /**
-   * Decode input as a forwarding entry in binary XML and set the fields of the 
-   * forwardingEntry object. 
+   * Decode input as a forwarding entry in binary XML and set the fields of the
+   * forwardingEntry object.
    * @param forwardingEntry The ForwardingEntry object whose fields are updated.
    * @param input ByteBuffer input.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public void
   decodeForwardingEntry
     (ForwardingEntry forwardingEntry, ByteBuffer input) throws EncodingException
   {
-    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);  
+    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);
     decoder.readElementStartDTag(BinaryXml.DTag_ForwardingEntry);
 
     ByteBuffer action = decoder.readOptionalUDataDTagElement(BinaryXml.DTag_Action);
@@ -195,11 +195,11 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     decoder.readElementClose();
   }
-  
+
   /**
-   * Get a singleton instance of a BinaryXmlWireFormat.  Assuming that the 
-   * default wire format was set with 
-   * WireFormat.setDefaultWireFormat(BinaryXmlWireFormat.get()), you can check 
+   * Get a singleton instance of a BinaryXmlWireFormat.  Assuming that the
+   * default wire format was set with
+   * WireFormat.setDefaultWireFormat(BinaryXmlWireFormat.get()), you can check
    * if this is the default wire encoding with
    * if (WireFormat.getDefaultWireFormat() == BinaryXmlWireFormat.get()).
    * @return The singleton instance.
@@ -213,11 +213,11 @@ public class BinaryXmlWireFormat extends WireFormat {
   /**
    * Encode the name to the encoder.
    * @param name The name to encode.
-   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
    * beginning of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
-   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
    * of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
@@ -225,7 +225,7 @@ public class BinaryXmlWireFormat extends WireFormat {
    */
   private static void
   encodeName
-    (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, 
+    (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset,
      BinaryXmlEncoder encoder)
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_Name);
@@ -240,11 +240,11 @@ public class BinaryXmlWireFormat extends WireFormat {
         if (i == name.size() - 1)
           // We will begin the final component.
           signedPortionEndOffset[0] = encoder.getOffset();
-        
+
         encoder.writeBlobDTagElement(BinaryXml.DTag_Component, name.get(i).getValue());
       }
     }
-    
+
     encoder.writeElementClose();
   }
 
@@ -292,7 +292,7 @@ public class BinaryXmlWireFormat extends WireFormat {
 
   private static void
   encodeInterest
-    (Interest interest, int[] signedPortionBeginOffset, 
+    (Interest interest, int[] signedPortionBeginOffset,
      int[] signedPortionEndOffset, BinaryXmlEncoder encoder)
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_Interest);
@@ -301,18 +301,18 @@ public class BinaryXmlWireFormat extends WireFormat {
       (interest.getName(), signedPortionBeginOffset, signedPortionEndOffset, encoder);
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MinSuffixComponents, interest.getMinSuffixComponents());
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_MaxSuffixComponents, interest.getMaxSuffixComponents());
-    
-    if (interest.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST && 
+
+    if (interest.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST &&
         interest.getKeyLocator().getKeyData().size() > 0)
       // There is a KEY_LOCATOR_DIGEST. Use this instead of the publisherPublicKeyDigest.
       encoder.writeBlobDTagElement
-        (BinaryXml.DTag_PublisherPublicKeyDigest, 
+        (BinaryXml.DTag_PublisherPublicKeyDigest,
          interest.getKeyLocator().getKeyData());
     else
       // This will skip encoding if there is no publisherPublicKeyDigest.
       encodePublisherPublicKeyDigest
         (interest.getPublisherPublicKeyDigest(), encoder);
-    
+
     // This will skip encoding if there is no exclude.
     encodeExclude(interest.getExclude(), encoder);
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_ChildSelector, interest.getChildSelector());
@@ -337,12 +337,12 @@ public class BinaryXmlWireFormat extends WireFormat {
        decoder);
     interest.setMinSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MinSuffixComponents));
     interest.setMaxSuffixComponents(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_MaxSuffixComponents));
-    
+
     // Initially clear the keyLocator.
     interest.getKeyLocator().clear();
     decodeOptionalPublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest(), decoder);
     if (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
-      // We keep the deprecated publisherPublicKeyDigest for backwards 
+      // We keep the deprecated publisherPublicKeyDigest for backwards
       //   compatibility.  Also set the key locator.
       interest.getKeyLocator().setType(KeyLocatorType.KEY_LOCATOR_DIGEST);
       interest.getKeyLocator().setKeyData
@@ -353,7 +353,7 @@ public class BinaryXmlWireFormat extends WireFormat {
       decodeExclude(interest.getExclude(), decoder);
     else
       interest.getExclude().clear();
-    
+
     interest.setChildSelector(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_ChildSelector));
     interest.setAnswerOriginKind(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_AnswerOriginKind));
     interest.setScope(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_Scope));
@@ -362,13 +362,13 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     decoder.readElementClose();
   }
-      
-  private static void 
+
+  private static void
   encodeData(Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, BinaryXmlEncoder encoder)
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_ContentObject);
     encodeSignature((Sha256WithRsaSignature)data.getSignature(), encoder);
-    
+
     signedPortionBeginOffset[0] = encoder.getOffset();
 
     encodeName(data.getName(), new int[1], new int[1], encoder);
@@ -381,7 +381,7 @@ public class BinaryXmlWireFormat extends WireFormat {
   }
 
   private static void
-  decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, 
+  decodeData(Data data, ByteBuffer input, int[] signedPortionBeginOffset, int[] signedPortionEndOffset,
               BinaryXmlDecoder decoder) throws EncodingException
   {
     decoder.readElementStartDTag(BinaryXml.DTag_ContentObject);
@@ -403,16 +403,16 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     decoder.readElementClose();
   }
-  
+
   /**
    * Encode the PublisherPublicKeyDigest using Binary XML.  If publisherPublicKeyDigest.getPublisherPublicKeyDigest().size()
-   * is 0, then do nothing. 
+   * is 0, then do nothing.
    * @param publisherPublicKeyDigest The PublisherPublicKeyDigest to encode.
    * @param encoder The BinaryXmlEncoder used to encode.
    */
   private static void
   encodePublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest, BinaryXmlEncoder encoder)
-  {  
+  {
     if (publisherPublicKeyDigest.getPublisherPublicKeyDigest().size() <= 0)
       return;
 
@@ -449,8 +449,8 @@ public class BinaryXmlWireFormat extends WireFormat {
     else
       publisherPublicKeyDigest.clear();
   }
-  
-  private static void 
+
+  private static void
   encodeExclude(Exclude exclude, BinaryXmlEncoder encoder)
   {
     if (exclude.size() <= 0)
@@ -488,7 +488,7 @@ public class BinaryXmlWireFormat extends WireFormat {
         // Read the Any element.
         decoder.readElementStartDTag(BinaryXml.DTag_Any);
         decoder.readElementClose();
-        
+
         exclude.appendAny();
       }
       else if (decoder.peekDTag(BinaryXml.DTag_Bloom)) {
@@ -503,19 +503,19 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     decoder.readElementClose();
   }
-  
+
   private static void
   encodeSignature(Sha256WithRsaSignature signature, BinaryXmlEncoder encoder)
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_Signature);
-    
+
     // TODO: Check if digestAlgorithm is the same as the default, and skip it, otherwise encode it as UDATA.
     encoder.writeOptionalBlobDTagElement(BinaryXml.DTag_Witness, signature.getWitness());
     // Require a signature.
     encoder.writeBlobDTagElement(BinaryXml.DTag_SignatureBits, signature.getSignature());
     encoder.writeElementClose();
-  }  
-  
+  }
+
   private static void
   decodeSignature(Sha256WithRsaSignature signature, BinaryXmlDecoder decoder) throws EncodingException
   {
@@ -528,7 +528,7 @@ public class BinaryXmlWireFormat extends WireFormat {
   }
 
   /**
-   * Encode the KeyLocator using Binary XML.  If keyLocator.getType() == KeyLocatorType.NONE, then do nothing. 
+   * Encode the KeyLocator using Binary XML.  If keyLocator.getType() == KeyLocatorType.NONE, then do nothing.
    * @param keyLocator The KeyLocator to encode.
    * @param encoder The BinaryXmlEncoder used to encode.
    */
@@ -575,8 +575,8 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     encoder.writeElementClose();
   }
-  
-  private static void 
+
+  private static void
   decodeKeyNameData(KeyLocator keyLocator, BinaryXmlDecoder decoder) throws EncodingException
   {
     if (decoder.peekDTag(BinaryXml.DTag_PublisherPublicKeyDigest)) {
@@ -607,7 +607,7 @@ public class BinaryXmlWireFormat extends WireFormat {
       }
     }
   }
-  
+
   /**
    * Expect the next element to be a Binary XML KeyLocator and decode into keyLocator.
    * @param keyLocator The KeyLocator to update.
@@ -616,7 +616,7 @@ public class BinaryXmlWireFormat extends WireFormat {
    */
   private static void
   decodeKeyLocator(KeyLocator keyLocator, BinaryXmlDecoder decoder) throws EncodingException
-  {  
+  {
     keyLocator.clear();
     decoder.readElementStartDTag(BinaryXml.DTag_KeyLocator);
 
@@ -645,7 +645,7 @@ public class BinaryXmlWireFormat extends WireFormat {
 
     decoder.readElementClose();
   }
-  
+
   /**
    * Peek the next element and if it is a Binary XML KeyLocator then decode into the keyLocator.
    * Otherwise, call keyLocator.clear().
@@ -661,7 +661,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     else
       keyLocator.clear();
   }
-  
+
   // Put these in a Blob so we can use ByteBuffer equals.
   private static final Blob DATA_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x0C, (byte)0x04, (byte)0xC0 }), false);
   private static final Blob ENCR_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x10, (byte)0xD0, (byte)0x91 }), false);
@@ -669,25 +669,25 @@ public class BinaryXmlWireFormat extends WireFormat {
   private static final Blob KEY_BYTES =  new Blob(ByteBuffer.wrap(new byte[] { (byte)0x28, (byte)0x46, (byte)0x3F }), false);
   private static final Blob LINK_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x2C, (byte)0x83, (byte)0x4A }), false);
   private static final Blob NACK_BYTES = new Blob(ByteBuffer.wrap(new byte[] { (byte)0x34, (byte)0x00, (byte)0x8A }), false);
-  
+
   private static void
   encodeSignedInfo(Sha256WithRsaSignature signature, MetaInfo metaInfo, BinaryXmlEncoder encoder)
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_SignedInfo);
-    
+
     if (signature.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0)
       // We have a publisherPublicKeyDigest, so use it.
       encodePublisherPublicKeyDigest(signature.getPublisherPublicKeyDigest(), encoder);
     else {
-      if (signature.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST && 
+      if (signature.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST &&
           signature.getKeyLocator().getKeyData().size() > 0)
         // We have a TLV-style KEY_LOCATOR_DIGEST, so encode as the
         //   publisherPublicKeyDigest.
         encoder.writeBlobDTagElement
-            (BinaryXml.DTag_PublisherPublicKeyDigest, 
+            (BinaryXml.DTag_PublisherPublicKeyDigest,
              signature.getKeyLocator().getKeyData());
     }
-    
+
     encoder.writeOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_Timestamp, metaInfo.getTimestampMilliseconds());
     if (!(metaInfo.getType() == ContentType.DATA || metaInfo.getType() == ContentType.BLOB)) {
       // Not the default of DATA, so we need to encode the type.
@@ -744,7 +744,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     metaInfo.setFinalBlockID(new Name.Component(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_FinalBlockID), true)));
     decodeOptionalKeyLocator(signature.getKeyLocator(), decoder);
     decoder.readElementClose();
-  }  
+  }
 
   private static BinaryXmlWireFormat instance_ = new BinaryXmlWireFormat();
 }

@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -49,10 +49,10 @@ import net.named_data.jndn.util.SignedBlob;
  */
 public class Node implements ElementListener {
   /**
-   * Create a new Node for communication with an NDN hub with the given 
+   * Create a new Node for communication with an NDN hub with the given
    * Transport object and connectionInfo.
    * @param transport A Transport object used for communication.
-   * @param connectionInfo A Transport.ConnectionInfo to be used to connect to 
+   * @param connectionInfo A Transport.ConnectionInfo to be used to connect to
    * the transport.
    */
   public Node(Transport transport, Transport.ConnectionInfo connectionInfo)
@@ -62,23 +62,23 @@ public class Node implements ElementListener {
     ndndIdFetcherInterest_ = new Interest
       (new Name("/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY"), 4000.0);
   }
-  
+
   /**
-   * Send the Interest through the transport, read the entire response and call 
+   * Send the Interest through the transport, read the entire response and call
    * onData(interest, data).
    * @param interest The Interest to send.  This copies the Interest.
-   * @param onData  This calls onData.onData when a matching data packet is 
+   * @param onData  This calls onData.onData when a matching data packet is
    * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.  
+   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.
    * If onTimeout is null, this does not use it.
    * @param wireFormat A WireFormat object used to encode the message.
-   * @return The pending interest ID which can be used with 
+   * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
   public final long
   expressInterest
-    (Interest interest, OnData onData, OnTimeout onTimeout, 
+    (Interest interest, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
   {
     // TODO: Properly check if we are already connected to the expected host.
@@ -89,15 +89,15 @@ public class Node implements ElementListener {
     pendingInterestTable_.add(new PendingInterest
       (pendingInterestId, new Interest(interest), onData, onTimeout));
 
-    Blob encoding = interest.wireEncode(wireFormat);  
+    Blob encoding = interest.wireEncode(wireFormat);
     transport_.send(encoding.buf());
 
     return pendingInterestId;
   }
-    
+
   /**
-   * Remove the pending interest entry with the pendingInterestId from the 
-   * pending interest table. This does not affect another pending interest with 
+   * Remove the pending interest entry with the pendingInterestId from the
+   * pending interest table. This does not affect another pending interest with
    * a different pendingInterestId, even if it has the same interest name.
    * If there is no entry with the pendingInterestId, do nothing.
    * @param pendingInterestId The ID returned from expressInterest.
@@ -113,26 +113,26 @@ public class Node implements ElementListener {
         pendingInterestTable_.remove(i);
     }
   }
-  
+
   /**
-   * Register prefix with the connected NDN hub and call onInterest when a 
+   * Register prefix with the connected NDN hub and call onInterest when a
    * matching interest is received.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest) when 
+   * @param onInterest This calls onInterest.onInterest(prefix, interest) when
    * a matching interest is received.
-   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix) 
-   * if failed to retrieve the connected hub’s ID or failed to register the 
+   * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix)
+   * if failed to retrieve the connected hub’s ID or failed to register the
    * prefix.
-   * @param flags The flags for finer control of which interests are forwarded 
+   * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.
-   * @return The registered prefix ID which can be used with 
+   * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
    */
-  public final long 
+  public final long
   registerPrefix
-    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
      ForwardingFlags flags, WireFormat wireFormat) throws IOException
   {
     // Get the registeredPrefixId now so we can return it to the caller.
@@ -142,23 +142,23 @@ public class Node implements ElementListener {
       // First fetch the ndndId of the connected hub.
       NdndIdFetcher fetcher = new NdndIdFetcher
         (new NdndIdFetcher.Info
-          (this, registeredPrefixId, prefix, onInterest, onRegisterFailed, 
+          (this, registeredPrefixId, prefix, onInterest, onRegisterFailed,
            flags, wireFormat));
-      // We send the interest using the given wire format so that the hub 
+      // We send the interest using the given wire format so that the hub
       //   receives (and sends) in the application's desired wire format.
       expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat);
     }
     else
       registerPrefixHelper
-        (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed, 
+        (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed,
          flags, wireFormat);
 
     return registeredPrefixId;
   }
-  
+
   /**
-   * Remove the registered prefix entry with the registeredPrefixId from the 
-   * registered prefix table. This does not affect another registered prefix with 
+   * Remove the registered prefix entry with the registeredPrefixId from the
+   * registered prefix table. This does not affect another registered prefix with
    * a different registeredPrefixId, even if it has the same prefix name.
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
@@ -176,31 +176,31 @@ public class Node implements ElementListener {
   }
 
   /**
-   * Process any packets to receive and call callbacks such as onData, 
-   * onInterest or onTimeout. This returns immediately if there is no data to 
-   * receive. This blocks while calling the callbacks. You should repeatedly 
-   * call this from an event loop, with calls to sleep as needed so that the 
-   * loop doesn’t use 100% of the CPU. Since processEvents modifies the pending 
-   * interest table, your application should make sure that it calls 
-   * processEvents in the same thread as expressInterest (which also modifies 
+   * Process any packets to receive and call callbacks such as onData,
+   * onInterest or onTimeout. This returns immediately if there is no data to
+   * receive. This blocks while calling the callbacks. You should repeatedly
+   * call this from an event loop, with calls to sleep as needed so that the
+   * loop doesn’t use 100% of the CPU. Since processEvents modifies the pending
+   * interest table, your application should make sure that it calls
+   * processEvents in the same thread as expressInterest (which also modifies
    * the pending interest table).
-   * This may throw an exception for reading data or in the callback for 
-   * processing the data. If you call this from an main event loop, you may want 
+   * This may throw an exception for reading data or in the callback for
+   * processing the data. If you call this from an main event loop, you may want
    * to catch and log/disregard all exceptions.
    */
-  public final void 
+  public final void
   processEvents() throws IOException, EncodingException
   {
     transport_.processEvents();
 
-    // Check for PIT entry timeouts. Go backwards through the list so we can 
+    // Check for PIT entry timeouts. Go backwards through the list so we can
     //   remove entries.
     double nowMilliseconds = Common.getNowMilliseconds();
     for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
       if (((PendingInterest)pendingInterestTable_.get(i)).isTimedOut
             (nowMilliseconds)) {
         // Save the PendingInterest and remove it from the PIT.  Then call the callback.
-        PendingInterest pendingInterest = 
+        PendingInterest pendingInterest =
           (PendingInterest)pendingInterestTable_.get(i);
         pendingInterestTable_.remove(i);
         pendingInterest.callTimeout();
@@ -210,13 +210,13 @@ public class Node implements ElementListener {
       }
     }
   }
-  
+
   public final Transport
   getTransport() { return transport_; }
-  
+
   public final Transport.ConnectionInfo
   getConnectionInfo() { return connectionInfo_; }
-  
+
   public final void onReceivedElement(ByteBuffer element) throws EncodingException
   {
     // First, decode as Interest or Data.
@@ -226,7 +226,7 @@ public class Node implements ElementListener {
     //   conflict with the first byte of a binary XML packet, so we can
     //   just look at the first byte.
     if (element.get(0) == Tlv.Interest || element.get(0) == Tlv.Data) {
-      TlvDecoder decoder = new TlvDecoder(element);  
+      TlvDecoder decoder = new TlvDecoder(element);
       if (decoder.peekType(Tlv.Interest, element.remaining())) {
         interest = new Interest();
         interest.wireDecode(element, TlvWireFormat.get());
@@ -265,8 +265,8 @@ public class Node implements ElementListener {
       }
     }
   }
-  
-  public final void 
+
+  public final void
   shutdown()
   {
     try {
@@ -274,64 +274,64 @@ public class Node implements ElementListener {
     }
     catch (IOException e) {}
   }
-  
+
   private static class PendingInterest {
     public PendingInterest
-      (long pendingInterestId, Interest interest, OnData onData, 
-       OnTimeout onTimeout) 
+      (long pendingInterestId, Interest interest, OnData onData,
+       OnTimeout onTimeout)
     {
       pendingInterestId_ = pendingInterestId;
       interest_ = interest;
       onData_ = onData;
       onTimeout_ = onTimeout;
-      
+
       // Set up timeoutTime_.
       if (interest_.getInterestLifetimeMilliseconds() >= 0.0)
-        timeoutTimeMilliseconds_ = Common.getNowMilliseconds() + 
+        timeoutTimeMilliseconds_ = Common.getNowMilliseconds() +
           interest_.getInterestLifetimeMilliseconds();
       else
         // No timeout.
-        timeoutTimeMilliseconds_ = -1.0;      
+        timeoutTimeMilliseconds_ = -1.0;
     }
 
     /**
      * Get the next unique pending interest ID.
      * @return The next ID.
      */
-    public static long 
-    getNextPendingInterestId() { return ++lastPendingInterestId_; }  
-      
+    public static long
+    getNextPendingInterestId() { return ++lastPendingInterestId_; }
+
     /**
      * Get the pendingInterestId given to the constructor.
      * @return The pendingInterestId.
      */
     public long
     getPendingInterestId() { return pendingInterestId_; }
-    
+
     public Interest
     getInterest() { return interest_; }
-    
+
     public OnData
     getOnData() { return onData_; }
-    
+
     /**
      * Check if this interest is timed out.
-     * @param nowMilliseconds The current time in milliseconds from 
+     * @param nowMilliseconds The current time in milliseconds from
      * Common.getNowMilliseconds.
      * @return True if this interest timed out, otherwise false.
      */
-    public boolean 
+    public boolean
     isTimedOut(double nowMilliseconds)
     {
-      return timeoutTimeMilliseconds_ >= 0.0 && 
+      return timeoutTimeMilliseconds_ >= 0.0 &&
              nowMilliseconds >= timeoutTimeMilliseconds_;
     }
-    
+
     /**
-     * Call onTimeout_ (if defined). This ignores exceptions from the 
+     * Call onTimeout_ (if defined). This ignores exceptions from the
      * onTimeout_.
      */
-    public void 
+    public void
     callTimeout()
     {
       if (onTimeout_ != null) {
@@ -342,14 +342,14 @@ public class Node implements ElementListener {
         catch (Throwable e) { }
       }
     }
-        
-    private Interest interest_;  
+
+    private Interest interest_;
     private static long lastPendingInterestId_; /**< A class variable used to get the next unique ID. */
     private long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
     private OnData onData_;
     private OnTimeout onTimeout_;
-    private double timeoutTimeMilliseconds_; /**< The time when the interest 
-     * times out in milliseconds according to Common.getNowMilliseconds, or -1 
+    private double timeoutTimeMilliseconds_; /**< The time when the interest
+     * times out in milliseconds according to Common.getNowMilliseconds, or -1
      * for no timeout. */
   }
 
@@ -366,19 +366,19 @@ public class Node implements ElementListener {
      * Get the next unique entry ID.
      * @return The next ID.
      */
-    public static long 
+    public static long
     getNextRegisteredPrefixId() { return ++lastRegisteredPrefixId_; }
-    
+
     /**
      * Get the registeredPrefixId given to the constructor.
      * @return The registeredPrefixId.
      */
-    public long 
+    public long
     getRegisteredPrefixId() { return registeredPrefixId_; }
-    
+
     public Name
     getPrefix() { return prefix_; }
-    
+
     public OnInterest
     getOnInterest() { return onInterest_; }
 
@@ -387,25 +387,25 @@ public class Node implements ElementListener {
     private Name prefix_;
     private OnInterest onInterest_;
   }
-  
+
   private static class NdndIdFetcher implements OnData, OnTimeout
   {
     public NdndIdFetcher(Info info)
     {
-      info_ = info;  
+      info_ = info;
     }
 
     /**
      * We received the ndnd ID.
      * @param interest
-     * @param ndndIdData 
+     * @param ndndIdData
      */
-    public void 
-    onData(Interest interest, Data ndndIdData) 
+    public void
+    onData(Interest interest, Data ndndIdData)
     {
-      // Assume that the content is a DER encoded public key of the ndnd.  
+      // Assume that the content is a DER encoded public key of the ndnd.
       // Do a quick check that the first byte is for DER encoding.
-      if (ndndIdData.getContent().size() < 1 || 
+      if (ndndIdData.getContent().size() < 1 ||
           ndndIdData.getContent().buf().get(0) != 0x30) {
         info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
         return;
@@ -415,20 +415,20 @@ public class Node implements ElementListener {
       byte[] digest = Common.digestSha256(ndndIdData.getContent().buf());
 
       // Set the ndndId_ and continue.
-      // TODO: If there are multiple connected hubs, the NDN ID is really stored 
+      // TODO: If there are multiple connected hubs, the NDN ID is really stored
       //   per connected hub.
       info_.node_.ndndId_ = new Blob(digest);
       info_.node_.registerPrefixHelper
-        (info_.registeredPrefixId_, info_.prefix_, info_.onInterest_, 
+        (info_.registeredPrefixId_, info_.prefix_, info_.onInterest_,
          info_.onRegisterFailed_, info_.flags_, info_.wireFormat_);
-    }    
+    }
 
     /**
      * We timed out fetching the ndnd ID.
-     * @param timedOutInterest 
+     * @param timedOutInterest
      */
-    public void 
-    onTimeout(Interest timedOutInterest) 
+    public void
+    onTimeout(Interest timedOutInterest)
     {
       info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
     }
@@ -436,10 +436,10 @@ public class Node implements ElementListener {
     public static class Info {
       /**
        * Create a new NdndIdFetcher.Info.
-       * 
+       *
        * @param node
-       * @param registeredPrefixId The 
-       * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got 
+       * @param registeredPrefixId The
+       * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got
        * so it could return it to the caller.
        * @param prefix This copies the Name.
        * @param onInterest
@@ -448,8 +448,8 @@ public class Node implements ElementListener {
        * @param wireFormat
        */
       public Info
-        (Node node, long registeredPrefixId, Name prefix, OnInterest onInterest, 
-         OnRegisterFailed onRegisterFailed, ForwardingFlags flags, 
+        (Node node, long registeredPrefixId, Name prefix, OnInterest onInterest,
+         OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
          WireFormat wireFormat)
       {
         node_ = node;
@@ -460,7 +460,7 @@ public class Node implements ElementListener {
         flags_ = flags;
         wireFormat_ = wireFormat;
       }
-      
+
       public Node node_;
       public long registeredPrefixId_;
       public Name prefix_;
@@ -469,10 +469,10 @@ public class Node implements ElementListener {
       public ForwardingFlags flags_;
       public WireFormat wireFormat_;
     };
-    
+
     private Info info_;
   }
-  
+
   private static class RegisterResponse implements OnData, OnTimeout {
     public RegisterResponse(Info info)
     {
@@ -482,10 +482,10 @@ public class Node implements ElementListener {
     /**
      * We received the response.
      * @param interest
-     * @param responseData 
+     * @param responseData
      */
-    public void 
-    onData(Interest interest, Data responseData) 
+    public void
+    onData(Interest interest, Data responseData)
     {
       Name expectedName = new Name("/ndnx/.../selfreg");
       // Got a response. Do a quick check of expected name components.
@@ -501,41 +501,41 @@ public class Node implements ElementListener {
 
     /**
      * We timed out waiting for the response.
-     * @param timedOutInterest 
+     * @param timedOutInterest
      */
-    public void 
-    onTimeout(Interest timedOutInterest) 
+    public void
+    onTimeout(Interest timedOutInterest)
     {
       info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
     }
-    
+
     public static class Info {
       public Info(Name prefix, OnRegisterFailed onRegisterFailed)
-      {      
+      {
         prefix_ = prefix;
         onRegisterFailed_ = onRegisterFailed;
       }
-      
+
       public final Name prefix_;
       public final OnRegisterFailed onRegisterFailed_;
     }
-    
+
     private final Info info_;
   }
 
   // Convert the int array to a ByteBuffer.
-  private static ByteBuffer 
-  toBuffer(int[] array) 
+  private static ByteBuffer
+  toBuffer(int[] array)
   {
     ByteBuffer result = ByteBuffer.allocate(array.length);
     for (int i = 0; i < array.length; ++i)
       result.put((byte)(array[i] & 0xff));
-    
+
     result.flip();
     return result;
   }
 
-  private static final ByteBuffer SELFREG_PUBLIC_KEY_DER = toBuffer(new int[] {  
+  private static final ByteBuffer SELFREG_PUBLIC_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
     0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0f, 0x00, 0x30, 0x82, 0x01, 0x0a, 0x02, 0x82, 0x01, 0x01,
     0x00, 0xb8, 0x09, 0xa7, 0x59, 0x82, 0x84, 0xec, 0x4f, 0x06, 0xfa, 0x1c, 0xb2, 0xe1, 0x38, 0x93,
@@ -558,7 +558,7 @@ public class Node implements ElementListener {
   });
 
   // Java uses an unencrypted PKCS #8 PrivateKeyInfo, not a PKCS #1 RSAPrivateKey.
-  private static final ByteBuffer SELFREG_PRIVATE_KEY_DER = toBuffer(new int[] {  
+  private static final ByteBuffer SELFREG_PRIVATE_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x04, 0xbf, 0x02, 0x01, 0x00, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7,
     0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x04, 0x82, 0x04, 0xa9, 0x30, 0x82, 0x04, 0xa5, 0x02, 0x01,
     0x00, 0x02, 0x82, 0x01, 0x01, 0x00, 0xb8, 0x09, 0xa7, 0x59, 0x82, 0x84, 0xec, 0x4f, 0x06, 0xfa,
@@ -637,11 +637,11 @@ public class Node implements ElementListener {
     0x74, 0xfb, 0xd1, 0xa6, 0x10, 0x20, 0x6c, 0x6e, 0xbe, 0x44, 0x3f, 0xb9, 0xfe, 0xbc, 0x8d, 0xda,
     0xcb, 0xea, 0x8f
   });
-  
+
   /**
-   * Set the KeyLocator using the full SELFREG_PUBLIC_KEY_DER, sign the data 
+   * Set the KeyLocator using the full SELFREG_PUBLIC_KEY_DER, sign the data
    * packet using SELFREG_PRIVATE_KEY_DER and set the signature.
-   * This is a temporary function, because we expect in the future that 
+   * This is a temporary function, because we expect in the future that
    * registerPrefix will not require a signature on the packet.
    * @param data The Data packet to sign.
    * @param wireFormat The WireFormat for encoding the Data packet.
@@ -659,12 +659,12 @@ public class Node implements ElementListener {
       (new Blob(Common.digestSha256(SELFREG_PUBLIC_KEY_DER)));
     signature.getKeyLocator().setType(KeyLocatorType.KEY);
     signature.getKeyLocator().setKeyData(new Blob(SELFREG_PUBLIC_KEY_DER, false));
-    
+
     // Set the private key.
     KeyFactory keyFactory = null;
     try {
       keyFactory = KeyFactory.getInstance("RSA");
-    } 
+    }
     catch (NoSuchAlgorithmException exception) {
       // Don't expect this to happen.
       throw new Error
@@ -687,7 +687,7 @@ public class Node implements ElementListener {
     java.security.Signature securitySignature = null;
     try {
       securitySignature = java.security.Signature.getInstance("SHA256withRSA");
-    } 
+    }
     catch (NoSuchAlgorithmException e) {
       // Don't expect this to happen.
       throw new Error("SHA256withRSA algorithm is not supported");
@@ -706,17 +706,17 @@ public class Node implements ElementListener {
       throw new Error("SignatureException: " + exception.getMessage());
     }
   }
-  
+
   /**
-   * Find all entries from pendingInterestTable_ where the name conforms to the 
+   * Find all entries from pendingInterestTable_ where the name conforms to the
    * entry's interest selectors, remove the entries from the table and add to
    * the entries list.
-   * @param name The name to find the interest for (from the incoming data 
+   * @param name The name to find the interest for (from the incoming data
    * packet).
    * @param entries Add matching entries from pendingInterestTable_.  The caller
    * should pass in an empty ArrayList.
    */
-  private void 
+  private void
   extractEntriesForExpressedInterest(Name name, ArrayList entries)
   {
     // Go backwards through the list so we can remove entries.
@@ -728,11 +728,11 @@ public class Node implements ElementListener {
       }
     }
   }
-  
+
   /**
-   * Find the first entry from the registeredPrefixTable_ where the entry prefix 
+   * Find the first entry from the registeredPrefixTable_ where the entry prefix
    * is the longest that matches name.
-   * @param name The name to find the RegisteredPrefix for (from the incoming 
+   * @param name The name to find the RegisteredPrefix for (from the incoming
    * interest packet).
    * @return The entry, or null if not found.
    */
@@ -742,11 +742,11 @@ public class Node implements ElementListener {
     int iResult = -1;
 
     for (int i = 0; i < registeredPrefixTable_.size(); ++i) {
-      RegisteredPrefix registeredPrefix = 
+      RegisteredPrefix registeredPrefix =
         (RegisteredPrefix)registeredPrefixTable_.get(i);
       if (registeredPrefix.getPrefix().match(name)) {
-        if (iResult < 0 || 
-            registeredPrefix.getPrefix().size() > 
+        if (iResult < 0 ||
+            registeredPrefix.getPrefix().size() >
             ((RegisteredPrefix)registeredPrefixTable_.get(iResult)).getPrefix().size())
           // Update to the longer match.
           iResult = i;
@@ -758,7 +758,7 @@ public class Node implements ElementListener {
     else
       return null;
   }
-  
+
   /**
    * Do the work of registerPrefix once we know we are connected with an ndndId_.
    * @param registeredPrefixId The RegisteredPrefix.getNextRegisteredPrefixId()
@@ -767,17 +767,17 @@ public class Node implements ElementListener {
    * @param onInterest
    * @param onRegisterFailed
    * @param flags
-   * @param wireFormat 
+   * @param wireFormat
    */
   private void
   registerPrefixHelper
-    (long registeredPrefixId, Name prefix, OnInterest onInterest, 
-     OnRegisterFailed onRegisterFailed, ForwardingFlags flags, 
+    (long registeredPrefixId, Name prefix, OnInterest onInterest,
+     OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
      WireFormat wireFormat)
   {
     // Create a ForwardingEntry.
-    // Note: ndnd ignores any freshness that is larger than 3600 seconds and 
-    //   sets 300 seconds instead.  To register "forever", (=2000000000 sec), 
+    // Note: ndnd ignores any freshness that is larger than 3600 seconds and
+    //   sets 300 seconds instead.  To register "forever", (=2000000000 sec),
     //   the freshness period must be omitted.
     ForwardingEntry forwardingEntry = new ForwardingEntry();
     forwardingEntry.setAction("selfreg");
@@ -791,7 +791,7 @@ public class Node implements ElementListener {
     data.setContent(content);
     // Use the deprecated setTimestampMilliseconds because ndnd requires it.
     data.getMetaInfo().setTimestampMilliseconds(Common.getNowMilliseconds());
-    // For now, self sign with an arbirary key.  In the future, we may not 
+    // For now, self sign with an arbirary key.  In the future, we may not
     //   require a signature to register.
     // Always encode as BinaryXml since the internals of ndnd expect it.
     selfregSign(data, BinaryXmlWireFormat.get());
@@ -813,13 +813,13 @@ public class Node implements ElementListener {
       (new RegisterResponse.Info(prefix, onRegisterFailed));
     try {
       expressInterest(interest, response, response, wireFormat);
-    } 
+    }
     catch (IOException ex) {
       // Can't send the interest. Call onRegisterFailed.
       onRegisterFailed.onRegisterFailed(prefix);
     }
   }
-  
+
   private Transport transport_;
   private Transport.ConnectionInfo connectionInfo_;
   private ArrayList pendingInterestTable_ = new ArrayList();  // PendingInterest

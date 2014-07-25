@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,7 +21,7 @@ package net.named_data.jndn;
 import net.named_data.jndn.util.ChangeCountable;
 
 /**
- * A Signature is an abstract base class providing methods to work with the 
+ * A Signature is an abstract base class providing methods to work with the
  * signature information in a Data packet.
  * You must create an object of a subclass, for example Sha256WithRsaSignature.
  */
@@ -30,12 +30,12 @@ public abstract class Signature implements ChangeCountable {
    * Return a new Signature which is a deep copy of this signature.
    * This is abstract, the subclass must implement it.
    * @return A new Sha256WithRsaSignature.
-   * @throws CloneNotSupportedException 
+   * @throws CloneNotSupportedException
    */
   public abstract Object clone() throws CloneNotSupportedException;
-  
+
   /**
-   * Get the change count, which is incremented each time this object 
+   * Get the change count, which is incremented each time this object
    * (or a child object) is changed.
    * @return The change count.
    */

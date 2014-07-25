@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -33,7 +33,7 @@ public class BinaryXmlStructureDecoder {
    * @return True if found the element end, false to read more input.
    * @throws EncodingException For invalid encoding.
    */
-  public boolean 
+  public boolean
   findElementEnd(ByteBuffer input) throws EncodingException
   {
     if (gotElementEnd_)
@@ -147,7 +147,7 @@ public class BinaryXmlStructureDecoder {
    * @param offset The new offset.
    */
   public void
-  seek(int offset) 
+  seek(int offset)
   {
     offset_ = offset;
   }
@@ -158,19 +158,19 @@ public class BinaryXmlStructureDecoder {
    */
   public int
   getOffset() { return offset_; }
-  
+
   /**
    * Set the state to READ_HEADER_OR_CLOSE and set up to start reading the header.
    */
   private void
-  startHeader() 
+  startHeader()
   {
     headerLength_ = 0;
     headerBuffer_.position(0);
     useHeaderBuffer_ = false;
-    state_ = READ_HEADER_OR_CLOSE;    
+    state_ = READ_HEADER_OR_CLOSE;
   }
-  
+
   private static final int READ_HEADER_OR_CLOSE = 0;
   private static final int READ_BYTES = 1;
 

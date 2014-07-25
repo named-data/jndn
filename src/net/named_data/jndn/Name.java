@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -36,78 +36,78 @@ public class Name implements ChangeCountable {
     /**
      * Create a new Name.Component with a zero-length value.
      */
-    public 
-    Component() 
+    public
+    Component()
     {
       value_ = new Blob(ByteBuffer.allocate(0), false);
     }
-    
+
     /**
      * Create a new Name.Component, using the existing the Blob value.
-     * @param value The component value.  value may not be null, but 
+     * @param value The component value.  value may not be null, but
      * value.buf() may be null.
      */
-    public 
+    public
     Component(Blob value)
     {
       if (value == null)
         throw new NullPointerException("Component: Blob value may not be null");
       value_ = value;
     }
-    
+
     /**
-     * Create a new Name.Component, taking another pointer to the component's 
+     * Create a new Name.Component, taking another pointer to the component's
      * read-only value.
      * @param component The component to copy.
      */
-    public 
+    public
     Component(Component component)
     {
       value_ = component.value_;
     }
-    
+
     /**
      * Create a new Name.Component, copying the given value.
      * @param value The value byte array.
      */
-    public 
+    public
     Component(byte[] value)
     {
       value_ = new Blob(value);
     }
-    
+
     /**
      * Create a new Name.Component, converting the value to UTF8 bytes.
      * Note, this does not escape %XX values.  If you need to escape, use
      * Name.fromEscapedString.
      * @param value The string to convert to UTF8.
      */
-    public 
+    public
     Component(String value)
     {
       value_ = new Blob(value);
     }
-    
+
     /**
      * Get the component value.
      * @return The component value.
      */
-    public final Blob 
+    public final Blob
     getValue() { return value_; }
-    
+
     /**
-     * Write this component value to result, escaping characters according to 
+     * Write this component value to result, escaping characters according to
      * the NDN URI Scheme. This also adds "..." to a value with zero or more ".".
      * @param result The StringBuffer to write to.
      */
-    public final void 
+    public final void
     toEscapedString(StringBuffer result)
     {
       Name.toEscapedString(value_.buf(), result);
     }
-    
+
     /**
-     * Convert this component value by escaping characters according to the 
+     * Convert this component value by escaping characters according to the
      * NDN URI Scheme. This also adds "..." to a value with zero or more ".".
      * @return The escaped string.
      */
@@ -116,19 +116,19 @@ public class Name implements ChangeCountable {
     {
       return Name.toEscapedString(value_.buf());
     }
-    
+
     /**
-     * Interpret this name component as a network-ordered number and return an 
+     * Interpret this name component as a network-ordered number and return an
      * integer.
      * @return The integer number.
      */
-    public final long 
-    toNumber() 
+    public final long
+    toNumber()
     {
       ByteBuffer buffer = value_.buf();
       if (buffer == null)
         return 0;
-      
+
       long result = 0;
       for (int i = buffer.position(); i < buffer.limit(); ++i) {
         result *= 256;
@@ -137,13 +137,13 @@ public class Name implements ChangeCountable {
 
       return result;
     }
-    
+
     /**
-     * Interpret this name component as a network-ordered number with a marker 
+     * Interpret this name component as a network-ordered number with a marker
      * and return an integer.
      * @param marker The required first byte of the component.
      * @return The integer number.
-     * @throws EncodingException If the first byte of the component does not 
+     * @throws EncodingException If the first byte of the component does not
      * equal the marker.
      */
     public final long
@@ -162,13 +162,13 @@ public class Name implements ChangeCountable {
 
       return result;
     }
-    
+
     /**
-     * Interpret this name component as a segment number according to NDN name 
-     * conventions (a network-ordered number where the first byte is the marker 
+     * Interpret this name component as a segment number according to NDN name
+     * conventions (a network-ordered number where the first byte is the marker
      * 0x00).
      * @return The integer segment number.
-     * @throws EncodingException If the first byte of the component is not the 
+     * @throws EncodingException If the first byte of the component is not the
      * expected marker.
      */
     public final long
@@ -176,14 +176,14 @@ public class Name implements ChangeCountable {
     {
       return toNumberWithMarker((byte)0x00);
     }
-    
+
     /**
-     * Interpret this name component as a version number according to NDN name 
-     * conventions (a network-ordered number where the first byte is the marker 
+     * Interpret this name component as a version number according to NDN name
+     * conventions (a network-ordered number where the first byte is the marker
      * 0xFD).  Note that this returns the exact number from the component
      * without converting it to a time representation.
      * @return The integer version number.
-     * @throws EncodingException If the first byte of the component is not the 
+     * @throws EncodingException If the first byte of the component is not the
      * expected marker.
      */
     public final long
@@ -191,20 +191,20 @@ public class Name implements ChangeCountable {
     {
       return toNumberWithMarker((byte)0xFD);
     }
-    
+
     /**
-     * Create a component whose value is the network-ordered encoding of the 
+     * Create a component whose value is the network-ordered encoding of the
      * number.
      * Note: if the number is zero or negative, the result is empty.
      * @param number The number to be encoded.
      * @return The component value.
-     */ 
+     */
     public static Component
     fromNumber(long number)
     {
       if (number < 0)
         number = 0;
-      
+
       // First encode in little endian.
       ByteBuffer buffer = ByteBuffer.allocate(8);
       while (number != 0) {
@@ -215,14 +215,14 @@ public class Name implements ChangeCountable {
       // Make it big endian.
       buffer.flip();
       reverse(buffer, buffer.position(), buffer.limit());
-      
+
       return new Component(new Blob(buffer, false));
     }
-        
+
     /**
-     * Create a component whose value is the marker appended with the 
+     * Create a component whose value is the marker appended with the
      * network-ordered encoding of the number.
-     * Note: if the number is zero or negative, no bytes are used for the number 
+     * Note: if the number is zero or negative, no bytes are used for the number
      * - the result will have only the marker.
      * @param number The number to be encoded.
      * @param marker The marker to use as the first byte of the component.
@@ -233,7 +233,7 @@ public class Name implements ChangeCountable {
     {
       if (number < 0)
         number = 0;
-      
+
       ByteBuffer buffer = ByteBuffer.allocate(9);
       buffer.put(marker);
 
@@ -246,10 +246,10 @@ public class Name implements ChangeCountable {
       // Make it big endian.
       buffer.flip();
       reverse(buffer, buffer.position() + 1, buffer.limit());
-      
+
       return new Component(new Blob(buffer, false));
     }
-    
+
     /**
      * Check if this is the same component as other.
      * @param other The other Component to compare with.
@@ -259,22 +259,22 @@ public class Name implements ChangeCountable {
     equals(Component other) { return value_.equals(other.value_); }
 
     public boolean
-    equals(Object other) 
+    equals(Object other)
     {
       if (!(other instanceof Component))
         return false;
-      
-      return equals((Component)other); 
+
+      return equals((Component)other);
     }
 
     /**
      * Compare this to the other Component using NDN canonical ordering.
      * @param other The other Component to compare with.
-     * @return 0 If they compare equal, -1 if this comes before other in the 
-     * canonical ordering, or 1 if this comes after other in the canonical 
+     * @return 0 If they compare equal, -1 if this comes before other in the
+     * canonical ordering, or 1 if this comes after other in the canonical
      * ordering.
      */
-    public final int 
+    public final int
     compare(Component other)
     {
       if (value_.size() < other.value_.size())
@@ -282,16 +282,16 @@ public class Name implements ChangeCountable {
       if (value_.size() > other.value_.size())
         return 1;
 
-      // The components are equal length. Just do a byte compare. 
+      // The components are equal length. Just do a byte compare.
       return value_.buf().compareTo(other.value_.buf());
     }
-    
+
     /**
-     * Reverse the bytes in buffer starting at position, up to but not including 
+     * Reverse the bytes in buffer starting at position, up to but not including
      * limit.
      * @param buffer
      * @param position
-     * @param limit 
+     * @param limit
      */
     private static void reverse(ByteBuffer buffer, int position, int limit)
     {
@@ -310,31 +310,31 @@ public class Name implements ChangeCountable {
 
     private final Blob value_;
   }
-  
+
   /**
    * Create a new Name with no components.
    */
-  public 
+  public
   Name()
   {
-    components_ = new ArrayList();          
+    components_ = new ArrayList();
   }
-  
+
   /**
    * Create a new Name with the components in the given name.
    * @param name The name with components to copy from.
    */
-  public 
+  public
   Name(Name name)
   {
     components_ = new ArrayList(name.components_);
   }
-  
+
   /**
    * Create a new Name, copying the components.
    * @param components The components to copy.
    */
-  public 
+  public
   Name(ArrayList components)
   {
     // Don't need to deep-copy Component elements because they are read-only.
@@ -345,7 +345,7 @@ public class Name implements ChangeCountable {
    * Create a new Name, copying the components.
    * @param components The components to copy.
    */
-  public 
+  public
   Name(Component[] components)
   {
     components_ = new ArrayList();
@@ -354,41 +354,41 @@ public class Name implements ChangeCountable {
   }
 
   /**
-   * Parse the uri according to the NDN URI Scheme and create the name with the 
+   * Parse the uri according to the NDN URI Scheme and create the name with the
    * components.
-   * @param uri The URI string. 
+   * @param uri The URI string.
    */
-  public 
+  public
   Name(String uri)
   {
     components_ = new ArrayList();
     set(uri);
   }
-  
+
   /**
    * Get the number of components.
    * @return The number of components.
    */
-  public final int 
+  public final int
   size() { return components_.size(); }
-  
+
   /**
    * Get the component at the given index.
-   * @param i The index of the component, starting from 0. However, if i is 
+   * @param i The index of the component, starting from 0. However, if i is
    * negative, return the component at size() - (-i).
    * @return The name component at the index.
    */
-  public final Component 
-  get(int i) 
+  public final Component
+  get(int i)
   {
     if (i >= 0)
-      return (Component)components_.get(i); 
+      return (Component)components_.get(i);
     else
-      return (Component)components_.get(components_.size() - (-i)); 
+      return (Component)components_.get(components_.size() - (-i));
   }
-  
-  public final void 
-  set(String uri) 
+
+  public final void
+  set(String uri)
   {
     clear();
 
@@ -437,53 +437,53 @@ public class Name implements ChangeCountable {
       iComponentStart = iComponentEnd + 1;
     }
   }
-  
+
   /**
    * Clear all the components.
    */
-  public final void 
-  clear() 
-  { 
+  public final void
+  clear()
+  {
     components_.clear();
     ++changeCount_;
   }
-  
+
   /**
    * Append a new component, copying from value.
    * @param value The component value.
    * @return This name so that you can chain calls to append.
    */
-  public final Name 
+  public final Name
   append(byte[] value)
   {
     return append(new Component(value));
   }
-  
+
   /**
    * Append a new component, using the existing Blob value.
    * @param value The component value.
    * @return This name so that you can chain calls to append.
    */
-  public final Name 
+  public final Name
   append(Blob value)
   {
     return append(new Component(value));
   }
-  
+
   /**
    * Append the component to this name.
    * @param component The component to append.
    * @return This name so that you can chain calls to append.
    */
-  public final Name 
+  public final Name
   append(Component component)
   {
     components_.add(component);
     ++changeCount_;
     return this;
   }
-  
-  public final Name 
+
+  public final Name
   append(Name name)
   {
     if (name == this)
@@ -492,7 +492,7 @@ public class Name implements ChangeCountable {
 
     for (int i = 0; i < name.components_.size(); ++i)
       append(name.get(i));
-  
+
     return this;
   }
 
@@ -500,12 +500,12 @@ public class Name implements ChangeCountable {
    * Convert the value to UTF8 bytes and append a Name.Component.
    * Note, this does not escape %XX values.  If you need to escape, use
    * Name.fromEscapedString.  Also, if the string has "/", this does not split
-   * into separate components.  If you need that then use 
+   * into separate components.  If you need that then use
    * append(new Name(value)).
    * @param value The string to convert to UTF8.
    * @return This name so that you can chain calls to append.
    */
-  public final Name 
+  public final Name
   append(String value)
   {
     return append(new Component(value));
@@ -528,12 +528,12 @@ public class Name implements ChangeCountable {
 
     return result;
   }
-  
+
   /**
-   * Get a new name, constructed as a subset of components starting at 
+   * Get a new name, constructed as a subset of components starting at
    * iStartComponent until the end of the name.
    * @param iStartComponent The index if the first component to get.
-   * @return A new name. 
+   * @return A new name.
    */
   public final Name
   getSubName(int iStartComponent)
@@ -545,13 +545,13 @@ public class Name implements ChangeCountable {
 
     return result;
   }
-  
+
   /**
    * Return a new Name with the first nComponents components of this Name.
-   * @param nComponents The number of prefix components.  If nComponents is -N 
-   * then return the prefix up to name.size() - N. For example getPrefix(-1) 
+   * @param nComponents The number of prefix components.  If nComponents is -N
+   * then return the prefix up to name.size() - N. For example getPrefix(-1)
    * returns the name without the final component.
-   * @return A new Name. 
+   * @return A new Name.
    */
   public final Name
   getPrefix(int nComponents)
@@ -561,12 +561,12 @@ public class Name implements ChangeCountable {
     else
       return getSubName(0, nComponents);
   }
-  
+
   /**
    * Encode this name as a URI according to the NDN URI Scheme.
    * @return The URI string.
    */
-  public final String 
+  public final String
   toUri()
   {
     if (components_.isEmpty())
@@ -580,7 +580,7 @@ public class Name implements ChangeCountable {
 
     return result.toString();
   }
-  
+
   /**
    * Append a component with the encoded segment number.
    * @param segment The segment number.
@@ -591,10 +591,10 @@ public class Name implements ChangeCountable {
   {
     return append(Component.fromNumberWithMarker(segment, (byte)0x00));
   }
-  
+
   /**
    * Append a component with the encoded version number.
-   * Note that this encodes the exact value of version without converting from a 
+   * Note that this encodes the exact value of version without converting from a
    * time representation.
    * @param version The version number.
    * @return This name so that you can chain calls to append.
@@ -604,20 +604,20 @@ public class Name implements ChangeCountable {
   {
     return append(Component.fromNumberWithMarker(version, (byte)0xFD));
   }
-  
+
   /**
-   * Check if this name has the same component count and components as the given 
+   * Check if this name has the same component count and components as the given
    * name.
    * @param object The Name to check.
-   * @return true if the object is a Name and the names are equal, otherwise 
+   * @return true if the object is a Name and the names are equal, otherwise
    * false.
    */
-  public boolean 
+  public boolean
   equals(Object object)
   {
     if (!(object instanceof Name))
       return false;
-    
+
     Name name = (Name)object;
     if (components_.size() != name.components_.size())
       return false;
@@ -629,15 +629,15 @@ public class Name implements ChangeCountable {
 
     return true;
   }
-  
+
   /**
-   * Check if the N components of this name are the same as the first N 
+   * Check if the N components of this name are the same as the first N
    * components of the given name.
    * @param name The Name to check.
-   * @return true if this matches the given name, otherwise false.  This always 
+   * @return true if this matches the given name, otherwise false.  This always
    * returns true if this name is empty.
    */
-  public final boolean  
+  public final boolean
   match(Name name)
   {
     // This name is longer than the name we are checking it against.
@@ -654,22 +654,22 @@ public class Name implements ChangeCountable {
   }
 
   /**
-   * Compare this to the other Name using NDN canonical ordering.  If the first 
-   * components of each name are not equal, this returns -1 if the first comes 
-   * before the second using the NDN canonical ordering for name components, or 
-   * 1 if it comes after. If they are equal, this compares the second components 
-   * of each name, etc.  If both names are the same up to the size of the 
-   * shorter name, this returns -1 if the first name is shorter than the second 
-   * or 1 if it is longer.  For example, sorted gives: 
-   * /a/b/d /a/b/cc /c /c/a /bb .  This is intuitive because all names with the 
-   * prefix /a are next to each other.  But it may be also be counter-intuitive 
-   * because /c comes before /bb according to NDN canonical ordering since it is 
-   * shorter.  
+   * Compare this to the other Name using NDN canonical ordering.  If the first
+   * components of each name are not equal, this returns -1 if the first comes
+   * before the second using the NDN canonical ordering for name components, or
+   * 1 if it comes after. If they are equal, this compares the second components
+   * of each name, etc.  If both names are the same up to the size of the
+   * shorter name, this returns -1 if the first name is shorter than the second
+   * or 1 if it is longer.  For example, sorted gives:
+   * /a/b/d /a/b/cc /c /c/a /bb .  This is intuitive because all names with the
+   * prefix /a are next to each other.  But it may be also be counter-intuitive
+   * because /c comes before /bb according to NDN canonical ordering since it is
+   * shorter.
    * @param other The other Name to compare with.
-   * @return 0 If they compare equal, -1 if *this comes before other in the 
-   * canonical ordering, or 1 if *this comes after other in the canonical 
+   * @return 0 If they compare equal, -1 if *this comes before other in the
+   * canonical ordering, or 1 if *this comes after other in the canonical
    * ordering.
-   * 
+   *
    * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
    */
   public final int
@@ -686,7 +686,7 @@ public class Name implements ChangeCountable {
       return comparison;
     }
 
-    // The components up to min(this.size(), other.size()) are equal, so the 
+    // The components up to min(this.size(), other.size()) are equal, so the
     //   shorter name is less.
     if (size() < other.size())
       return -1;
@@ -695,31 +695,31 @@ public class Name implements ChangeCountable {
     else
       return 0;
   }
-  
+
   /**
    * Get the change count, which is incremented each time this object is changed.
    * @return The change count.
    */
-  public final long 
+  public final long
   getChangeCount() { return changeCount_; }
-  
+
   /**
-   * Make a Blob value by decoding the escapedString between beginOffset and 
-   * endOffset according to the NDN URI Scheme. If the escaped string is 
-   * "", "." or ".." then return a Blob with a null pointer, which means the 
+   * Make a Blob value by decoding the escapedString between beginOffset and
+   * endOffset according to the NDN URI Scheme. If the escaped string is
+   * "", "." or ".." then return a Blob with a null pointer, which means the
    * component should be skipped in a URI name.
    * @param escapedString The escaped string
-   * @param beginOffset The offset in escapedString of the beginning of the 
+   * @param beginOffset The offset in escapedString of the beginning of the
    * portion to decode.
-   * @param endOffset The offset in escapedString of the end of the portion to 
+   * @param endOffset The offset in escapedString of the end of the portion to
    * decode.
-   * @return The Blob value. If the escapedString is not a valid escaped 
+   * @return The Blob value. If the escapedString is not a valid escaped
    * component, then the Blob has a null pointer.
    */
   public static Blob
   fromEscapedString(String escapedString, int beginOffset, int endOffset)
   {
-    String trimmedString = 
+    String trimmedString =
       escapedString.substring(beginOffset, endOffset).trim();
     ByteBuffer value = unescape(trimmedString);
 
@@ -731,9 +731,9 @@ public class Name implements ChangeCountable {
         break;
       }
     }
-    
+
     if (!gotNonDot) {
-      // Special case for component of only periods.  
+      // Special case for component of only periods.
       if (value.remaining() <= 2)
         // Zero, one or two periods is illegal.  Ignore this component.
         return new Blob();
@@ -748,25 +748,25 @@ public class Name implements ChangeCountable {
   }
 
   /**
-   * Make a Blob value by decoding the escapedString according to the NDN URI 
+   * Make a Blob value by decoding the escapedString according to the NDN URI
    * Scheme.
-   * If the escaped string is "", "." or ".." then return a Blob with a null 
+   * If the escaped string is "", "." or ".." then return a Blob with a null
    * pointer, which means the component should be skipped in a URI name.
    * @param escapedString The escaped string.
-   * @return The Blob value. If the escapedString is not a valid escaped 
+   * @return The Blob value. If the escapedString is not a valid escaped
    * component, then the Blob has a null pointer.
    */
-  public static Blob 
+  public static Blob
   fromEscapedString(String escapedString)
   {
     return fromEscapedString(escapedString, 0, escapedString.length());
   }
 
   /**
-   * Write the value to result, escaping characters according to the NDN URI 
+   * Write the value to result, escaping characters according to the NDN URI
    * Scheme.
    * This also adds "..." to a value with zero or more ".".
-   * @param value The ByteBuffer with the value.  This reads from position() to 
+   * @param value The ByteBuffer with the value.  This reads from position() to
    * limit().
    * @param result The StringBuffer to write to.
    */
@@ -791,7 +791,7 @@ public class Name implements ChangeCountable {
         int x = ((int)value.get(i) & 0xff);
         // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
         if (x >= 0x30 && x <= 0x39 || x >= 0x41 && x <= 0x5a ||
-          x >= 0x61 && x <= 0x7a || x == 0x2b || x == 0x2d || 
+          x >= 0x61 && x <= 0x7a || x == 0x2b || x == 0x2d ||
           x == 0x2e || x == 0x5f)
           result.append((char)x);
         else {
@@ -801,13 +801,13 @@ public class Name implements ChangeCountable {
           result.append(Integer.toHexString(x).toUpperCase());
         }
       }
-    }  
+    }
   }
 
   /**
    * Convert the value by escaping characters according to the NDN URI Scheme.
    * This also adds "..." to a value with zero or more ".".
-   * @param value The ByteBuffer with the value.  This reads from position() to 
+   * @param value The ByteBuffer with the value.  This reads from position() to
    * limit().
    * @return The escaped string.
    */
@@ -818,13 +818,13 @@ public class Name implements ChangeCountable {
     toEscapedString(value, result);
     return result.toString();
   }
-  
+
   /**
    * Convert the hex character to an integer from 0 to 15.
    * @param c The hex character.
    * @return The hex value, or -1 if not a hex character.
    */
-  private static int 
+  private static int
   fromHexChar(char c)
   {
     if (c >= '0' && c <= '9')
@@ -842,7 +842,7 @@ public class Name implements ChangeCountable {
    * @param str The escaped string.
    * @return The unescaped string as a ByteBuffer with position and limit set.
    */
-  private static ByteBuffer 
+  private static ByteBuffer
   unescape(String str)
   {
     // We know the result will be shorter than the input str.
@@ -871,7 +871,7 @@ public class Name implements ChangeCountable {
     result.flip();
     return result;
   }
-  
+
   private final ArrayList components_;
   private long changeCount_ = 0;
 }

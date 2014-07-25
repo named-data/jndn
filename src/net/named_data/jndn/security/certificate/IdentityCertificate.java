@@ -2,7 +2,7 @@
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,7 +28,7 @@ public class IdentityCertificate extends Certificate {
   public IdentityCertificate() {}
   public IdentityCertificate(Data data) {}
 
-  public Name 
+  public Name
   getPublicKeyName() { return publicKeyName_; }
 
   /**
@@ -46,7 +46,7 @@ public class IdentityCertificate extends Certificate {
         break;
     }
 
-    Name tmpName = certificateName.getSubName(0, i);    
+    Name tmpName = certificateName.getSubName(0, i);
     String keyString = "KEY";
     for (i = 0; i < tmpName.size(); i++) {
       if (tmpName.get(i).toEscapedString().equals(keyString))

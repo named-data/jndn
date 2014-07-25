@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -51,17 +51,17 @@ public class TestEncodeDecodeBenchmark {
   }
 
   // Convert the int array to a ByteBuffer.
-  private static ByteBuffer 
-  toBuffer(int[] array) 
+  private static ByteBuffer
+  toBuffer(int[] array)
   {
     ByteBuffer result = ByteBuffer.allocate(array.length);
     for (int i = 0; i < array.length; ++i)
       result.put((byte)(array[i] & 0xff));
-    
+
     result.flip();
     return result;
   }
-  
+
   private static final ByteBuffer DEFAULT_RSA_PUBLIC_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
     0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0f, 0x00, 0x30, 0x82, 0x01, 0x0a, 0x02, 0x82, 0x01, 0x01,
@@ -85,7 +85,7 @@ public class TestEncodeDecodeBenchmark {
   });
 
   // Java uses an unencrypted PKCS #8 PrivateKeyInfo, not a PKCS #1 RSAPrivateKey.
-  private static final ByteBuffer DEFAULT_RSA_PRIVATE_KEY_DER = toBuffer(new int[] {  
+  private static final ByteBuffer DEFAULT_RSA_PRIVATE_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x04, 0xbf, 0x02, 0x01, 0x00, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7,
     0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x04, 0x82, 0x04, 0xa9, 0x30, 0x82, 0x04, 0xa5, 0x02, 0x01,
     0x00, 0x02, 0x82, 0x01, 0x01, 0x00, 0xb8, 0x09, 0xa7, 0x59, 0x82, 0x84, 0xec, 0x4f, 0x06, 0xfa,
@@ -164,7 +164,7 @@ public class TestEncodeDecodeBenchmark {
     0x74, 0xfb, 0xd1, 0xa6, 0x10, 0x20, 0x6c, 0x6e, 0xbe, 0x44, 0x3f, 0xb9, 0xfe, 0xbc, 0x8d, 0xda,
     0xcb, 0xea, 0x8f
   });
-    
+
   private static final ByteBuffer DEFAULT_EC_PUBLIC_KEY_DER = toBuffer(new int[] {
     0x30, 0x4e, 0x30, 0x10, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x05, 0x2b,
     0x81, 0x04, 0x00, 0x21, 0x03, 0x3a, 0x00, 0x04, 0xf7, 0xec, 0x9c, 0x3a, 0xb5, 0xd2, 0x1b, 0x36,
@@ -172,7 +172,7 @@ public class TestEncodeDecodeBenchmark {
     0x22, 0xfd, 0xe6, 0x96, 0x38, 0x0a, 0xd2, 0x00, 0x2b, 0x2e, 0x98, 0xb9, 0xa1, 0xca, 0xf5, 0xd7,
     0x6a, 0xa7, 0xb4, 0x41, 0xad, 0x98, 0xa0, 0xda, 0xf8, 0x87, 0x78, 0xb6, 0x04, 0x4b, 0xcf, 0xb9
   });
-    
+
   // Java uses an unencrypted PKCS #8 PrivateKeyInfo.
   private static final ByteBuffer DEFAULT_EC_PRIVATE_KEY_DER = toBuffer(new int[] {
     0x30, 0x78, 0x02, 0x01, 0x00, 0x30, 0x10, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
@@ -188,10 +188,10 @@ public class TestEncodeDecodeBenchmark {
   /**
    * Loop to encode a data packet nIterations times.
    * @param nIterations The number of iterations.
-   * @param useComplex If true, use a large name, large content and all fields.  
+   * @param useComplex If true, use a large name, large content and all fields.
    * If false, use a small name, small content
    * and only required fields.
-   * @param useCrypto If true, sign the data packet.  If false, use a blank 
+   * @param useCrypto If true, sign the data packet.  If false, use a blank
    * signature.
    * @param keyType KeyType.RSA or EC, used if useCrypto is true.
    * @param encoding Set encoding[0] to the wire encoding.
@@ -199,7 +199,7 @@ public class TestEncodeDecodeBenchmark {
    */
   private static double
   benchmarkEncodeDataSeconds
-    (int nIterations, boolean useComplex, boolean useCrypto, KeyType keyType, 
+    (int nIterations, boolean useComplex, boolean useCrypto, KeyType keyType,
      Blob[] encoding)
   {
     Name name;
@@ -207,7 +207,7 @@ public class TestEncodeDecodeBenchmark {
     if (useComplex) {
       // Use a large name and content.
       name = new Name
-        ("/ndn/ucla.edu/apps/lwndn-test/numbers.txt/%FD%05%05%E8%0C%CE%1D/%00"); 
+        ("/ndn/ucla.edu/apps/lwndn-test/numbers.txt/%FD%05%05%E8%0C%CE%1D/%00");
 
       StringBuffer contentStream = new StringBuffer();
       int count = 1;
@@ -221,14 +221,14 @@ public class TestEncodeDecodeBenchmark {
       name = new Name("/test");
       content = new Blob("abc");
     }
-    Name.Component finalBlockId = 
+    Name.Component finalBlockId =
       new Name.Component(new Blob(new byte[] { (byte)0 }));
 
     // Initialize the KeyChain storage in case useCrypto is true.
     MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
     MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
     KeyChain keyChain = new KeyChain
-      (new IdentityManager(identityStorage, privateKeyStorage), 
+      (new IdentityManager(identityStorage, privateKeyStorage),
        new SelfVerifyPolicyManager(identityStorage));
     Name keyName = new Name("/testname/DSK-123");
     Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
@@ -236,13 +236,13 @@ public class TestEncodeDecodeBenchmark {
     try {
       privateKeyStorage.setKeyPairForKeyName
         (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
-    } 
+    }
     catch (SecurityException exception) {
       throw new Error
         ("SecurityException in setKeyPairForKeyName: " + exception.getMessage());
     }
 
-    // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is 
+    // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is
     //   false.
     Blob publisherPublicKeyDigest = new Blob(new byte[32]);
     Blob signatureBits = new Blob(new byte[256]);
@@ -269,13 +269,13 @@ public class TestEncodeDecodeBenchmark {
         }
       }
       else {
-        // Imitate IdentityManager.signByCertificate to set up the signature 
+        // Imitate IdentityManager.signByCertificate to set up the signature
         //   fields, but don't sign.
-        KeyLocator keyLocator = new KeyLocator();    
+        KeyLocator keyLocator = new KeyLocator();
         keyLocator.setType(KeyLocatorType.KEYNAME);
         keyLocator.setKeyName(certificateName);
         keyLocator.setKeyNameType(KeyNameType.NONE);
-        Sha256WithRsaSignature sha256Signature = 
+        Sha256WithRsaSignature sha256Signature =
           (Sha256WithRsaSignature)data.getSignature();
         sha256Signature.setKeyLocator(keyLocator);
         sha256Signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
@@ -287,15 +287,15 @@ public class TestEncodeDecodeBenchmark {
     }
     double finish = getNowSeconds();
 
-    return finish - start;    
+    return finish - start;
   }
-    
+
   private static class VerifyCallbacks implements OnVerified, OnVerifyFailed {
-    public void onVerified(Data data) 
+    public void onVerified(Data data)
     {
     }
 
-    public void onVerifyFailed(Data data) 
+    public void onVerifyFailed(Data data)
     {
       // Don't expect this to happen.
       System.out.println("signature verification FAILED");
@@ -309,16 +309,16 @@ public class TestEncodeDecodeBenchmark {
    * @param keyType KeyType.RSA or EC, used if useCrypto is true.
    * @param encoding The wire encoding to decode.
    * @return The number of seconds for all iterations.
-   * @throws EncodingException 
+   * @throws EncodingException
    */
-  private static double 
+  private static double
   benchmarkDecodeDataSeconds
     (int nIterations, boolean useCrypto, KeyType keyType, Blob encoding) throws EncodingException
   {
     // Initialize the KeyChain storage in case useCrypto is true.
     MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
     KeyChain keyChain = new KeyChain
-      (new IdentityManager(identityStorage, new MemoryPrivateKeyStorage()), 
+      (new IdentityManager(identityStorage, new MemoryPrivateKeyStorage()),
        new SelfVerifyPolicyManager(identityStorage));
     Name keyName = new Name("/testname/DSK-123");
     Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
@@ -328,14 +328,14 @@ public class TestEncodeDecodeBenchmark {
     }
     catch (SecurityException exception) {
       throw new Error("SecurityException: " + exception.getMessage());
-    }    
+    }
     VerifyCallbacks callbacks = new VerifyCallbacks();
 
     double start = getNowSeconds();
     for (int i = 0; i < nIterations; ++i) {
       Data data = new Data();
       data.wireDecode(encoding.buf());
-      
+
       if (useCrypto)
         keyChain.verifyData(data, callbacks, callbacks);
     }
@@ -343,12 +343,12 @@ public class TestEncodeDecodeBenchmark {
 
     return finish - start;
   }
-  
+
   /**
-   * Call benchmarkEncodeDataSeconds and benchmarkDecodeDataSeconds with 
+   * Call benchmarkEncodeDataSeconds and benchmarkDecodeDataSeconds with
    * appropriate nInterations.  Print the results to System.out.
    * @param useComplex See benchmarkEncodeDataSeconds.
-   * @param useCrypto See benchmarkEncodeDataSeconds and 
+   * @param useCrypto See benchmarkEncodeDataSeconds and
    * benchmarkDecodeDataSeconds.
    * @param keyType KeyType.RSA or EC, used if useCrypto is true.
    */
@@ -356,18 +356,18 @@ public class TestEncodeDecodeBenchmark {
   benchmarkEncodeDecodeData
     (boolean useComplex, boolean useCrypto, KeyType keyType) throws EncodingException
   {
-    String format = 
-      (WireFormat.getDefaultWireFormat() == BinaryXmlWireFormat.get() ? 
+    String format =
+      (WireFormat.getDefaultWireFormat() == BinaryXmlWireFormat.get() ?
        "ndnb" : "TLV ");
     Blob[] encoding = new Blob[1];
     {
       int nIterations = useCrypto ? 2000 : 5000000;
       double duration = benchmarkEncodeDataSeconds
         (nIterations, useComplex, useCrypto, keyType, encoding);
-      System.out.println("Encode " + (useComplex ? "complex " : "simple  ") + 
-        format + " data: Crypto? " + 
+      System.out.println("Encode " + (useComplex ? "complex " : "simple  ") +
+        format + " data: Crypto? " +
         (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "no ") +
-        ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
+        ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));
     }
     {
       // Use an extra long duration for decoding until we understand why it gets
@@ -375,15 +375,15 @@ public class TestEncodeDecodeBenchmark {
       int nIterations = useCrypto ? 500000 : 40000000;
       double duration = benchmarkDecodeDataSeconds
         (nIterations, useCrypto, keyType, encoding[0]);
-      System.out.println("Decode " + (useComplex ? "complex " : "simple  ") + 
-        format + " data: Crypto? " + 
-        (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "no ") + 
-        ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));  
+      System.out.println("Decode " + (useComplex ? "complex " : "simple  ") +
+        format + " data: Crypto? " +
+        (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "no ") +
+        ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));
     }
   }
 
-  public static void 
-  main(String[] args) 
+  public static void
+  main(String[] args)
   {
     Logger.getLogger("").setLevel(Level.OFF);
     try {

@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,13 +20,13 @@
 package net.named_data.jndn;
 
 /**
- * A class implements OnData if it has onData, used to pass a callback to 
+ * A class implements OnData if it has onData, used to pass a callback to
  * Face.expressInterest.
  */
 public interface OnData {
   /**
    * When a matching data packet is received, onData is called.
-   * @param interest The interest given to Face.expressInterest. NOTE: You must 
+   * @param interest The interest given to Face.expressInterest. NOTE: You must
    * not change the interest object - if you need to change it then make a copy.
    * @param data The received Data object.
    */
