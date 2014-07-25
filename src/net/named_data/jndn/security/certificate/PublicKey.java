@@ -2,7 +2,7 @@
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -68,7 +68,7 @@ public class PublicKey {
       KeyFactory keyFactory = null;
       try {
         keyFactory = KeyFactory.getInstance("RSA");
-      } 
+      }
       catch (NoSuchAlgorithmException exception) {
         // Don't expect this to happen.
         throw new SecurityException
@@ -89,7 +89,7 @@ public class PublicKey {
       KeyFactory keyFactory = null;
       try {
         keyFactory = KeyFactory.getInstance("EC");
-      } 
+      }
       catch (NoSuchAlgorithmException exception) {
         // Don't expect this to happen.
         throw new SecurityException
@@ -108,13 +108,13 @@ public class PublicKey {
     }
     else
       throw new SecurityException("PublicKey::fromDer: Unrecognized keyType");
-  
+
     return new PublicKey(keyType, keyDer);
   }
 
-  public KeyType 
+  public KeyType
   getKeyType() { return keyType_; }
-  
+
   /*
    * Get the digest of the public key.
    * @param digestAlgorithm The digest algorithm.
@@ -132,12 +132,12 @@ public class PublicKey {
   /*
    * Get the digest of the public key using DigestAlgorithm.SHA256.
    */
-  public final Blob 
+  public final Blob
   getDigest()
   {
     try {
       return getDigest(DigestAlgorithm.SHA256);
-    } 
+    }
     catch (UnrecognizedDigestAlgorithmException ex) {
       // We don't expect this exception.
       throw new Error("UnrecognizedDigestAlgorithmException " + ex.getMessage());
@@ -147,9 +147,9 @@ public class PublicKey {
   /*
    * Get the raw bytes of the public key in DER format.
    */
-  public final Blob 
+  public final Blob
   getKeyDer() { return keyDer_; }
-    
+
   private final KeyType keyType_;
   private final Blob keyDer_;   /**< PublicKeyInfo in DER */
 }

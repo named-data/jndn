@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -29,12 +29,12 @@ import java.security.NoSuchAlgorithmException;
 public class Common {
   /**
    * Get the current time in milliseconds.
-   * @return  The current time in milliseconds since 1/1/1970, including 
+   * @return  The current time in milliseconds since 1/1/1970, including
    * fractions of a millisecond.
    */
   public static double
   getNowMilliseconds() { return (double)System.currentTimeMillis(); }
-  
+
   /**
    * Compute the sha-256 digest of data.
    * @param data The input byte buffer. This does not change the position.

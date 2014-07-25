@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -31,7 +31,7 @@ public class BinaryXmlEncoder {
    * Create a new BinaryXmlEncoder to use a DynamicByteBuffer with the initialCapacity.  When done, you should call getOutput().
    * @param initialCapacity The initial capacity of buffer().
    */
-  public 
+  public
   BinaryXmlEncoder(int initialCapacity)
   {
     output_ = new DynamicByteBuffer(initialCapacity);
@@ -40,7 +40,7 @@ public class BinaryXmlEncoder {
   /**
    * Create a new BinaryXmlEncoder with a default DynamicByteBuffer for the output buffer.  When done, you shoul call getOutput().
    */
-  public 
+  public
   BinaryXmlEncoder()
   {
     output_ = new DynamicByteBuffer(16);
@@ -55,7 +55,7 @@ public class BinaryXmlEncoder {
   {
     return output_.position();
   }
-  
+
   /**
    * Return a slice of the output buffer up to the current position.
    * @return A ByteBuffer which shares the same underlying buffer with the output buffer.
@@ -65,7 +65,7 @@ public class BinaryXmlEncoder {
   {
     return output_.flippedBuffer();
   }
-  
+
   public static final int ENCODING_LIMIT_1_BYTE = ((1 << BinaryXml.TT_VALUE_BITS) - 1);
   public static final int ENCODING_LIMIT_2_BYTES = ((1 << (BinaryXml.TT_VALUE_BITS + BinaryXml.REGULAR_VALUE_BITS)) - 1);
   public static final int ENCODING_LIMIT_3_BYTES = ((1 << (BinaryXml.TT_VALUE_BITS + 2 * BinaryXml.REGULAR_VALUE_BITS)) - 1);
@@ -74,47 +74,47 @@ public class BinaryXmlEncoder {
    * Write an element start header using DTAG with the tag to the output buffer.
    * @param tag The DTAG tag.
    */
-  public final void 
+  public final void
   writeElementStartDTag(int tag)
   {
     encodeTypeAndValue(BinaryXml.DTAG, tag);
   }
-  
+
   /**
    * Write an element close to the output buffer.
    */
-  public final void 
+  public final void
   writeElementClose()
   {
     output_.ensuredPut((byte)BinaryXml.CLOSE);
   }
-  
+
   /**
    * Write a BLOB header, then the bytes of the blob value to the output buffer.
    * @param value A Blob with the buffer for the value.
    */
-  public final void 
+  public final void
   writeBlob(Blob value)
   {
     encodeTypeAndValue(BinaryXml.BLOB, value.size());
     if (value.size() > 0)
       writeBuffer(value.buf());
   }
-  
+
   /**
    * Write an element start header using DTAG with the tag to the output buffer, then the blob, then an element close.
    * (If you want to just write the blob, use writeBlob.)
    * @param tag The DTAG tag.
    * @param value A Blob with the buffer for the value.
    */
-  public final void 
+  public final void
   writeBlobDTagElement(int tag, Blob value)
   {
     writeElementStartDTag(tag);
     writeBlob(value);
     writeElementClose();
   }
-  
+
   /**
    * If value.buf() is null or value.size() is 0 then do nothing, otherwise call writeBlobDTagElement.
    * @param tag The DTAG tag.
@@ -126,7 +126,7 @@ public class BinaryXmlEncoder {
     if (value.buf() != null && value.size() > 0)
       writeBlobDTagElement(tag, value);
   }
-  
+
   /**
    * Write a UDATA header, then the bytes of the UDATA value to the output buffer.
    * @param value A Blob with the buffer for the value.
@@ -163,7 +163,7 @@ public class BinaryXmlEncoder {
     if (value.buf() != null && value.size() > 0)
       writeUDataDTagElement(tag, value);
   }
-  
+
   /**
    * Write a UDATA header, then the value as an unsigned decimal integer.
    * @param value The unsigned integer.
@@ -178,7 +178,7 @@ public class BinaryXmlEncoder {
   }
 
   /**
-   * Write an element start header using DTAG with the tag to the output buffer, then the value as an unsigned decimal integer, 
+   * Write an element start header using DTAG with the tag to the output buffer, then the value as an unsigned decimal integer,
    * then an element close.
    * (If you want to just write the integer, use writeUnsignedDecimalInt.)
    * @param tag The DTAG tag.
@@ -191,7 +191,7 @@ public class BinaryXmlEncoder {
     writeUnsignedDecimalInt(value);
     writeElementClose();
   }
-  
+
   /**
    * If value is negative then do nothing, otherwise call writeUnsignedDecimalIntDTagElement.
    * @param tag The DTAG tag.
@@ -219,7 +219,7 @@ public class BinaryXmlEncoder {
 
     reverseBufferAndInsertHeader(startPosition, BinaryXml.BLOB);
   }
-  
+
   /**
    * Write an element start header using DTAG with the tag to the output buffer, then the absolute value of milliseconds
    * as a big endian BLOB converted to 4096 ticks per second, then an element close.
@@ -234,7 +234,7 @@ public class BinaryXmlEncoder {
     writeAbsDoubleBigEndianBlob((milliseconds / 1000.0) * 4096.0);
     writeElementClose();
   }
-  
+
   /**
    * If milliseconds is negative then do nothing, otherwise call writeTimeMillisecondsDTagElement.
    * @param tag The DTAG tag.
@@ -246,13 +246,13 @@ public class BinaryXmlEncoder {
     if (milliseconds >= 0)
       writeTimeMillisecondsDTagElement(tag, milliseconds);
   }
-  
+
   /**
    * Encode a header with the type and value and write it to the output buffer.
    * @param type The the header type.
    * @param value The header value.
    */
-  private void 
+  private void
   encodeTypeAndValue(int type, int value)
   {
     if (type > BinaryXml.UDATA)
@@ -265,7 +265,7 @@ public class BinaryXmlEncoder {
 
     // Bottom 4 bits of the value go in the last byte with the tag.
     output_.buffer().put
-      (output_.position() + nEncodingBytes - 1, 
+      (output_.position() + nEncodingBytes - 1,
        (byte)((BinaryXml.TT_MASK & type | ((BinaryXml.TT_VALUE_MASK & value) << BinaryXml.TT_BITS)) |
               BinaryXml.TT_FINAL)); // set top bit for last byte
     value >>= BinaryXml.TT_VALUE_BITS;
@@ -290,28 +290,28 @@ public class BinaryXmlEncoder {
    * This does not write a header.
    * @param buffer The ByteBuffer to write.
    */
-  private void 
+  private void
   writeBuffer(ByteBuffer buffer)
   {
     output_.ensuredPut(buffer, buffer.position(), buffer.limit());
   }
-  
+
   /**
    * Return the number of bytes to encode a header of value x.
    */
-  private static int 
-  getNHeaderEncodingBytes(int x) 
+  private static int
+  getNHeaderEncodingBytes(int x)
   {
     // Do a quick check for pre-compiled results.
-    if (x <= ENCODING_LIMIT_1_BYTE) 
+    if (x <= ENCODING_LIMIT_1_BYTE)
       return 1;
-    if (x <= ENCODING_LIMIT_2_BYTES) 
+    if (x <= ENCODING_LIMIT_2_BYTES)
       return 2;
-    if (x <= ENCODING_LIMIT_3_BYTES) 
+    if (x <= ENCODING_LIMIT_3_BYTES)
       return 3;
-  
+
     int nBytes = 1;
-  
+
     // Last byte gives you TT_VALUE_BITS.
     // Remainder each gives you REGULAR_VALUE_BITS.
     x >>= BinaryXml.TT_VALUE_BITS;
@@ -319,19 +319,19 @@ public class BinaryXmlEncoder {
       ++nBytes;
       x >>= BinaryXml.REGULAR_VALUE_BITS;
     }
-  
+
     return nBytes;
   }
 
   /**
    * Reverse length bytes in the buffer starting at startPosition.
    */
-  private static void 
-  reverse(ByteBuffer buffer, int startPosition, int length) 
+  private static void
+  reverse(ByteBuffer buffer, int startPosition, int length)
   {
     if (length == 0)
       return;
-  
+
     int left = startPosition;
     int right = startPosition + length - 1;
     while (left < right) {
@@ -339,7 +339,7 @@ public class BinaryXmlEncoder {
       byte temp = buffer.get(left);
       buffer.put(left, buffer.get(right));
       buffer.put(right, temp);
-    
+
       ++left;
       --right;
     }
@@ -351,24 +351,24 @@ public class BinaryXmlEncoder {
    * We encode in reverse order because this is the natural way to encode the digits, and the caller can reverse as needed.
    * @param x The unsigned integer to write.
    */
-  private void 
-  encodeReversedUnsignedDecimalInt(int x) 
+  private void
+  encodeReversedUnsignedDecimalInt(int x)
   {
     if (x < 0)
       // Don't expect this to happen.
       x = 0;
-    
+
     while (true) {
       output_.ensuredPut((byte)(x % 10 + '0'));
       x /= 10;
-    
+
       if (x == 0)
         break;
     }
   }
-  
+
   /**
-   * Reverse the buffer in output_buffer() from startPosition to the current position, then shift it right by the amount 
+   * Reverse the buffer in output_buffer() from startPosition to the current position, then shift it right by the amount
    * needed to prefix a header with type, then encode the header at startPosition.
    * We reverse and shift in the same function to avoid unnecessary copying if we first reverse then shift.
    * @param startPosition The position in output_buffer() of the start of the buffer to shift right.
@@ -400,6 +400,6 @@ public class BinaryXmlEncoder {
     encodeTypeAndValue(type, nBufferBytes);
     output_.position(startPosition + nHeaderBytes + nBufferBytes);
   }
-  
+
   private final DynamicByteBuffer output_;
 }

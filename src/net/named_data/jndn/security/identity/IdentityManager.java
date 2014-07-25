@@ -2,7 +2,7 @@
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -39,12 +39,12 @@ import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
- * An IdentityManager is the interface of operations related to identity, keys, 
+ * An IdentityManager is the interface of operations related to identity, keys,
  * and certificates.
  */
 public class IdentityManager {
   /**
-   * Create a new IdentityManager to use the given identity and private key 
+   * Create a new IdentityManager to use the given identity and private key
    * storage.
    * @param identityStorage An object of a subclass of IdentityStorage.
    * @param privateKeyStorage An object of a subclass of PrivateKeyStorage.
@@ -55,9 +55,9 @@ public class IdentityManager {
     identityStorage_ = identityStorage;
     privateKeyStorage_ = privateKeyStorage;
   }
-    
+
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this 
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
    * identity and a self-signed certificate of the KSK.
    * @param identityName The name of the identity.
    * @return The key name of the auto-generated KSK of the identity.
@@ -77,7 +77,7 @@ public class IdentityManager {
 
       Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Create self-signed certificate");
-      IdentityCertificate selfCert = selfSign(keyName); 
+      IdentityCertificate selfCert = selfSign(keyName);
 
       Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Add self-signed certificate as default");
@@ -89,7 +89,7 @@ public class IdentityManager {
     else
       throw new SecurityException("Identity has already been created!");
   }
-  
+
   /**
    * Get the default identity.
    * @return The name of default identity.
@@ -100,7 +100,7 @@ public class IdentityManager {
   {
     return identityStorage_.getDefaultIdentity();
   }
-  
+
   /**
    * Generate a pair of RSA keys for the specified identity.
    * @param identityName The name of the identity.
@@ -116,7 +116,7 @@ public class IdentityManager {
 
     return keyName;
   }
-  
+
   /**
    * Generate a pair of RSA keys for the specified identity and default keySize
    * 2048.
@@ -129,9 +129,9 @@ public class IdentityManager {
   {
     return generateRSAKeyPair(identityName, isKsk, 2048);
   }
-  
+
   /**
-   * Generate a pair of RSA keys for the specified identity for a 
+   * Generate a pair of RSA keys for the specified identity for a
    * Data-Signing-Key and default keySize 2048.
    * @param identityName The name of the identity.
    * @return The generated key name.
@@ -145,7 +145,7 @@ public class IdentityManager {
   /**
    * Set a key as the default key of an identity.
    * @param keyName The name of the key.
-   * @param identityName the name of the identity. If empty, the 
+   * @param identityName the name of the identity. If empty, the
    * identity name is inferred from the keyName.
    */
   public final void
@@ -166,7 +166,7 @@ public class IdentityManager {
 
   /**
    * Get the default key for an identity.
-   * @param identityName the name of the identity. If empty, the identity name 
+   * @param identityName the name of the identity. If empty, the identity name
    * is inferred from the keyName.
    * @return The default key name.
    * @throws SecurityException if the default key name for the identity is not set.
@@ -187,9 +187,9 @@ public class IdentityManager {
   {
     return getDefaultKeyNameForIdentity(new Name());
   }
-  
+
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as 
+   * Generate a pair of RSA keys for the specified identity and set it as
    * default key for the identity.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -206,9 +206,9 @@ public class IdentityManager {
 
     return keyName;
   }
-  
+
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as 
+   * Generate a pair of RSA keys for the specified identity and set it as
    * default key for the identity, using the default keySize 2048.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -219,10 +219,10 @@ public class IdentityManager {
   {
     return generateRSAKeyPairAsDefault(identityName, isKsk, 2048);
   }
-  
+
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as 
-   * default key for the identity for a Data-Signing-Key and using the default 
+   * Generate a pair of RSA keys for the specified identity and set it as
+   * default key for the identity for a Data-Signing-Key and using the default
    * keySize 2048.
    * @param identityName The name of the identity.
    * @return The generated key name.
@@ -250,15 +250,15 @@ public class IdentityManager {
    * Create an identity certificate for a public key managed by this IdentityManager.
    * @param certificatePrefix The name of public key to be signed.
    * @param signerCertificateName The name of signing certificate.
-   * @param notBefore The notBefore value in the validity field of the 
+   * @param notBefore The notBefore value in the validity field of the
    * generated certificate as milliseconds since 1970.
-   * @param notAfter The notAfter value in validity field of the generated 
+   * @param notAfter The notAfter value in validity field of the generated
    * certificate as milliseconds since 1970.
    * @return The name of generated identity certificate.
    */
   public final Name
   createIdentityCertificate
-    (Name certificatePrefix, Name signerCertificateName, double notBefore, 
+    (Name certificatePrefix, Name signerCertificateName, double notBefore,
      double notAfter) throws SecurityException
   {
     Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
@@ -285,16 +285,16 @@ public class IdentityManager {
    */
   public final IdentityCertificate
   createIdentityCertificate
-    (Name certificatePrefix, PublicKey publickey, Name signerCertificateName, 
+    (Name certificatePrefix, PublicKey publickey, Name signerCertificateName,
      double notBefore, double notAfter)
   {
     throw new UnsupportedOperationException
       ("IdentityManager::createIdentityCertificate not implemented");
   }
-    
+
   /**
    * Add a certificate into the public key identity storage.
-   * @param certificate The certificate to to added.  This makes a copy of the 
+   * @param certificate The certificate to to added.  This makes a copy of the
    * certificate.
    */
   public final void
@@ -321,9 +321,9 @@ public class IdentityManager {
   }
 
   /**
-   * Add a certificate into the public key identity storage and set the 
+   * Add a certificate into the public key identity storage and set the
    * certificate as the default for its corresponding identity.
-   * @param certificate The certificate to be added.  This makes a copy of the 
+   * @param certificate The certificate to be added.  This makes a copy of the
    * certificate.
    */
   public final void
@@ -339,9 +339,9 @@ public class IdentityManager {
   }
 
   /**
-   * Add a certificate into the public key identity storage and set the 
+   * Add a certificate into the public key identity storage and set the
    * certificate as the default of its corresponding key.
-   * @param certificate The certificate to be added.  This makes a copy of the 
+   * @param certificate The certificate to be added.  This makes a copy of the
    * certificate.
    */
   public final void
@@ -363,7 +363,7 @@ public class IdentityManager {
     return new IdentityCertificate
       (identityStorage_.getCertificate(certificateName, false));
   }
-    
+
   /**
    * Get a certificate even if the certificate is not valid anymore.
    * @param certificateName The name of the requested certificate.
@@ -375,13 +375,13 @@ public class IdentityManager {
     return new IdentityCertificate
       (identityStorage_.getCertificate(certificateName, true));
   }
-    
+
   /**
-   * Get the default certificate name for the specified identity, which will be 
+   * Get the default certificate name for the specified identity, which will be
    * used when signing is performed based on identity.
    * @param identityName The name of the specified identity.
    * @return The requested certificate name.
-   * @throws SecurityException if the default key name for the identity is not 
+   * @throws SecurityException if the default key name for the identity is not
    * set or the default certificate name for the key name is not set.
    */
   public final Name
@@ -389,13 +389,13 @@ public class IdentityManager {
   {
     return identityStorage_.getDefaultCertificateNameForIdentity(identityName);
   }
-    
+
   /**
-   * Get the default certificate name of the default identity, which will be 
+   * Get the default certificate name of the default identity, which will be
    * used when signing is based on identity and the identity is not specified.
    * @return The requested certificate name.
-   * @throws SecurityException if the default identity is not set or the default 
-   * key name for the identity is not set or the default certificate name for 
+   * @throws SecurityException if the default identity is not set or the default
+   * key name for the identity is not set or the default certificate name for
    * the key name is not set.
    */
   public final Name
@@ -404,7 +404,7 @@ public class IdentityManager {
     return identityStorage_.getDefaultCertificateNameForIdentity
       (getDefaultIdentity());
   }
-        
+
   /**
    * Sign the byte array data based on the certificate name.
    * @param buffer The byte buffer to be signed.
@@ -423,7 +423,7 @@ public class IdentityManager {
     //For temporary usage, we support RSA + SHA256 only, but will support more.
     Sha256WithRsaSignature sha256Sig = new Sha256WithRsaSignature();
 
-    KeyLocator keyLocator = new KeyLocator();    
+    KeyLocator keyLocator = new KeyLocator();
     keyLocator.setType(KeyLocatorType.KEYNAME);
     keyLocator.setKeyName(certificateName);
 
@@ -439,10 +439,10 @@ public class IdentityManager {
    * Sign data packet based on the certificate name.
    * Use the default WireFormat.getDefaultWireFormat().
    * @param data The Data object to sign and update its signature.
-   * @param certificateName The Name identifying the certificate which 
+   * @param certificateName The Name identifying the certificate which
    * identifies the signing key.
    */
-  public final void 
+  public final void
   signByCertificate(Data data, Name certificateName) throws SecurityException
   {
     signByCertificate(data, certificateName, WireFormat.getDefaultWireFormat());
@@ -451,11 +451,11 @@ public class IdentityManager {
   /**
    * Sign data packet based on the certificate name.
    * @param data The Data object to sign and update its signature.
-   * @param certificateName The Name identifying the certificate which 
+   * @param certificateName The Name identifying the certificate which
    * identifies the signing key.
    * @param wireFormat The WireFormat for calling encodeData.
    */
-  public final void 
+  public final void
   signByCertificate
     (Data data, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
@@ -507,11 +507,11 @@ public class IdentityManager {
    */
   private Name
   generateKeyPair
-    (Name identityName, boolean isKsk, KeyType keyType, 
+    (Name identityName, boolean isKsk, KeyType keyType,
      int keySize) throws SecurityException
   {
     Logger.getLogger(this.getClass().getName()).log
-        (Level.INFO, "Get new key ID");    
+        (Level.INFO, "Get new key ID");
     Name keyName = identityStorage_.getNewKeyName(identityName, isKsk);
 
     Logger.getLogger(this.getClass().getName()).log

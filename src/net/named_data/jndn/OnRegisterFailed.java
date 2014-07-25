@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,12 +20,12 @@
 package net.named_data.jndn;
 
 /**
- * A class implements OnRegisterFailed if it has onRegisterFailed, used to pass 
+ * A class implements OnRegisterFailed if it has onRegisterFailed, used to pass
  * a callback to Face.registerPrefix.
  */
 public interface OnRegisterFailed {
   /**
-   * If failed to retrieve the connected hub's ID or failed to register the 
+   * If failed to retrieve the connected hub's ID or failed to register the
    * prefix, onRegisterFailed is called.
    * @param prefix The prefix given to registerPrefix.
    */

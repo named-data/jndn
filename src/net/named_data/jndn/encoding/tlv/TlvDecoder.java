@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,19 +28,19 @@ import net.named_data.jndn.encoding.EncodingException;
 public class TlvDecoder {
   /**
    * Create a new TlvDecoder to decode the input.
-   * @param input The input ByteBuffer whose position and limit are set to the 
-   * desired bytes to decode. This calls input.duplicate(), but does not copy 
-   * the underlying buffer whose contents must remain valid during the life of 
+   * @param input The input ByteBuffer whose position and limit are set to the
+   * desired bytes to decode. This calls input.duplicate(), but does not copy
+   * the underlying buffer whose contents must remain valid during the life of
    * this object.
    */
-  public 
+  public
   TlvDecoder(ByteBuffer input)
   {
-    input_ = input.duplicate();        
+    input_ = input.duplicate();
   }
-  
+
   /**
-   * Decode a VAR-NUMBER in NDN-TLV and return it. Update the input buffer 
+   * Decode a VAR-NUMBER in NDN-TLV and return it. Update the input buffer
    * position.
    * @return The decoded VAR-NUMBER as a Java 32-bit int.
    * @throws EncodingException if the VAR-NUMBER is 64-bit.
@@ -54,11 +54,11 @@ public class TlvDecoder {
     else
       return readExtendedVarNumber(firstOctet);
   }
-    
+
   /**
-   * Do the work of readVarNumber, given the firstOctet which is >= 253. Update 
+   * Do the work of readVarNumber, given the firstOctet which is >= 253. Update
    * the input buffer position.
-   * @param firstOctet The first octet which is >= 253, used to decode the 
+   * @param firstOctet The first octet which is >= 253, used to decode the
    * remaining bytes.
    * @return The decoded VAR-NUMBER as a Java 32-bit int.
    * @throws EncodingException if the VAR-NUMBER is 64-bit.
@@ -79,15 +79,15 @@ public class TlvDecoder {
       throw new EncodingException
         ("Decoding a 64-bit VAR-NUMBER is not supported");
   }
-  
+
   /**
-   * Decode the type and length from this's input starting at the input buffer 
-   * position, expecting the type to be expectedType and return the length. 
-   * Update the input buffer position. Also make sure the decoded length does 
+   * Decode the type and length from this's input starting at the input buffer
+   * position, expecting the type to be expectedType and return the length.
+   * Update the input buffer position. Also make sure the decoded length does
    * not exceed the number of bytes remaining in the input.
    * @param expectedType The expected type as a 32-bit Java int.
    * @return The length of the TLV as a 32-bit Java int.
-   * @throws EncodingException if did not get the expected TLV type, or the TLV 
+   * @throws EncodingException if did not get the expected TLV type, or the TLV
    * length exceeds the buffer length, or the type is encoded as a 64-bit value,
    * or the length is encoded as a 64-bit value.
    */
@@ -104,34 +104,34 @@ public class TlvDecoder {
 
     return length;
   }
-  
+
   /**
-   * Decode the type and length from the input starting at the input buffer 
-   * position, expecting the type to be expectedType. Update the input buffer 
-   * position. Also make sure the decoded length does not exceed the number of 
-   * bytes remaining in the input. Return the input buffer position (offset) of 
-   * the end of this parent TLV, which is used in decoding optional nested TLVs. 
+   * Decode the type and length from the input starting at the input buffer
+   * position, expecting the type to be expectedType. Update the input buffer
+   * position. Also make sure the decoded length does not exceed the number of
+   * bytes remaining in the input. Return the input buffer position (offset) of
+   * the end of this parent TLV, which is used in decoding optional nested TLVs.
    * After reading all nested TLVs, you should call finishNestedTlvs.
    * @param expectedType The expected type as a 32-bit Java int.
    * @return The input buffer position (offset) of the end of the parent TLV.
-   * @throws EncodingException if did not get the expected TLV type, or the TLV 
+   * @throws EncodingException if did not get the expected TLV type, or the TLV
    * length exceeds the buffer length, or the type is encoded as a 64-bit value,
-   * or the length is encoded as a 64-bit value.  
+   * or the length is encoded as a 64-bit value.
    */
   public final int
   readNestedTlvsStart(int expectedType) throws EncodingException
   {
     return readTypeAndLength(expectedType) + input_.position();
   }
-  
+
   /**
-   * Call this after reading all nested TLVs to skip any remaining unrecognized 
-   * TLVs and to check if the input buffer position after the final nested TLV 
-   * matches the endOffset returned by readNestedTlvsStart. Update the input 
-   * buffer position as needed if skipping TLVs. 
-   * @param endOffset The offset of the end of the parent TLV, returned 
+   * Call this after reading all nested TLVs to skip any remaining unrecognized
+   * TLVs and to check if the input buffer position after the final nested TLV
+   * matches the endOffset returned by readNestedTlvsStart. Update the input
+   * buffer position as needed if skipping TLVs.
+   * @param endOffset The offset of the end of the parent TLV, returned
    * by readNestedTlvsStart.
-   * @throws EncodingException if the TLV length does not equal the total length 
+   * @throws EncodingException if the TLV length does not equal the total length
    * of the nested TLVs.
    */
   public final void
@@ -159,17 +159,17 @@ public class TlvDecoder {
       throw new EncodingException
         ("TLV length does not equal the total length of the nested TLVs");
   }
-  
+
   /**
-   * Decode the type from the input starting at the input buffer position, and 
-   * if it is the expectedType, then return true, else false.  However, if the 
-   * input buffer position is greater than or equal to endOffset, then return 
-   * false and don't try to read the type. Do not update the input buffer 
+   * Decode the type from the input starting at the input buffer position, and
+   * if it is the expectedType, then return true, else false.  However, if the
+   * input buffer position is greater than or equal to endOffset, then return
+   * false and don't try to read the type. Do not update the input buffer
    * position.
    * @param expectedType The expected type as a 32-bit Java int.
-   * @param endOffset The offset of the end of the parent TLV, returned 
+   * @param endOffset The offset of the end of the parent TLV, returned
    * by readNestedTlvsStart.
-   * @return true if the type of the next TLV is the expectedType, otherwise 
+   * @return true if the type of the next TLV is the expectedType, otherwise
    * false.
    */
   public final boolean
@@ -187,13 +187,13 @@ public class TlvDecoder {
       return type == expectedType;
     }
   }
-  
+
   /**
    * Decode a non-negative integer in NDN-TLV and return it. Update the input
    * buffer position by length.
    * @param length The number of bytes in the encoded integer.
    * @return The integer as a Java 64-bit long.
-   * @throws EncodingException if length is an invalid length for a TLV 
+   * @throws EncodingException if length is an invalid length for a TLV
    * non-negative integer.
    */
   public final long
@@ -221,14 +221,14 @@ public class TlvDecoder {
     else
       throw new EncodingException("Invalid length for a TLV nonNegativeInteger");
   }
-  
+
   /**
    * Decode the type and length from the input starting at the input buffer
-   * position, expecting the type to be expectedType. Then decode a non-negative 
+   * position, expecting the type to be expectedType. Then decode a non-negative
    * integer in NDN-TLV and return it. Update the input buffer position.
    * @param expectedType The expected type as a 32-bit Java int.
    * @return The integer as a Java 64-bit long.
-   * @throws EncodingException if did not get the expected TLV type or can't 
+   * @throws EncodingException if did not get the expected TLV type or can't
    * decode the value.
    */
   public final long
@@ -239,14 +239,14 @@ public class TlvDecoder {
   }
 
   /**
-   * Peek at the next TLV, and if it has the expectedType then call 
-   * readNonNegativeIntegerTlv and return the integer.  Otherwise, return -1.  
-   * However, if the input buffer position is greater than or equal to 
+   * Peek at the next TLV, and if it has the expectedType then call
+   * readNonNegativeIntegerTlv and return the integer.  Otherwise, return -1.
+   * However, if the input buffer position is greater than or equal to
    * endOffset, then return -1 and don't try to read the type.
    * @param expectedType The expected type as a 32-bit Java int.
-   * @param endOffset The offset of the end of the parent TLV, returned 
+   * @param endOffset The offset of the end of the parent TLV, returned
    * by readNestedTlvsStart.
-   * @return The integer as a Java 64-bit long or -1 if the next TLV doesn't 
+   * @return The integer as a Java 64-bit long or -1 if the next TLV doesn't
    * have the expected type.
    */
   public final long
@@ -265,7 +265,7 @@ public class TlvDecoder {
    * of the bytes in the value. Update the input buffer position.
    * @param expectedType The expected type as a 32-bit Java int.
    * @return The bytes in the value as a slice on the input buffer.  This is
-   * not a copy of the bytes in the input buffer. If you need a copy, then you 
+   * not a copy of the bytes in the input buffer. If you need a copy, then you
    * must make a copy of the return value.
    * @throws EncodingException if did not get the expected TLV type.
    */
@@ -283,18 +283,18 @@ public class TlvDecoder {
     input_.position(input_.position() + length);
     return result;
   }
-    
+
   /**
-   * Peek at the next TLV, and if it has the expectedType then call readBlobTlv 
-   * and return the value.  Otherwise, return null. However, if the input buffer 
-   * position is greater than or equal to endOffset, then return null and don't 
+   * Peek at the next TLV, and if it has the expectedType then call readBlobTlv
+   * and return the value.  Otherwise, return null. However, if the input buffer
+   * position is greater than or equal to endOffset, then return null and don't
    * try to read the type.
    * @param expectedType The expected type as a 32-bit Java int.
-   * @param endOffset The offset of the end of the parent TLV, returned 
+   * @param endOffset The offset of the end of the parent TLV, returned
    * by readNestedTlvsStart.
-   * @return The bytes in the value as a slice on the input buffer or null if 
-   * the next TLV doesn't have the expected type. This is not a copy of the 
-   * bytes in the input buffer. If you need a copy, then you must make a copy of 
+   * @return The bytes in the value as a slice on the input buffer or null if
+   * the next TLV doesn't have the expected type. This is not a copy of the
+   * bytes in the input buffer. If you need a copy, then you must make a copy of
    * the return value.
    */
   public final ByteBuffer
@@ -305,16 +305,16 @@ public class TlvDecoder {
     else
       return null;
   }
-  
+
   /**
-   * Peek at the next TLV, and if it has the expectedType then read a type and 
+   * Peek at the next TLV, and if it has the expectedType then read a type and
    * value, ignoring the value, and return true. Otherwise, return false.
-   * However, if the input buffer position is greater than or equal to 
+   * However, if the input buffer position is greater than or equal to
    * endOffset, then return false and don't try to read the type and value.
    * @param expectedType The expected type as a 32-bit Java int.
-   * @param endOffset The offset of the end of the parent TLV, returned 
+   * @param endOffset The offset of the end of the parent TLV, returned
    * by readNestedTlvsStart.
-   * @return true, or else false if the next TLV doesn't have the 
+   * @return true, or else false if the next TLV doesn't have the
    * expected type.
    */
   public final boolean
@@ -329,7 +329,7 @@ public class TlvDecoder {
     else
       return false;
   }
-  
+
   /**
    * Get the input buffer position (offset), used for the next read.
    * @return The input buffer position (offset).
@@ -339,7 +339,7 @@ public class TlvDecoder {
   {
     return input_.position();
   }
-  
+
   /**
    * Set the offset into the input, used for the next read.
    * @param offset The new offset.
@@ -349,6 +349,6 @@ public class TlvDecoder {
   {
     input_.position(offset);
   }
-  
+
   private final ByteBuffer input_;
 }

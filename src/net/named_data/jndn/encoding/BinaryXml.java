@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,13 +20,13 @@
 package net.named_data.jndn.encoding;
 
 public class BinaryXml {
-  public static final int EXT = 0x00;   
-  public static final int TAG = 0x01; 
-  public static final int DTAG = 0x02; 
-  public static final int ATTR = 0x03; 
-  public static final int DATTR = 0x04; 
-  public static final int BLOB = 0x05; 
-  public static final int UDATA = 0x06; 
+  public static final int EXT = 0x00;
+  public static final int TAG = 0x01;
+  public static final int DTAG = 0x02;
+  public static final int ATTR = 0x03;
+  public static final int DATTR = 0x04;
+  public static final int BLOB = 0x05;
+  public static final int UDATA = 0x06;
   public static final int CLOSE = 0x0;
 
   public static final int TT_BITS = 3;

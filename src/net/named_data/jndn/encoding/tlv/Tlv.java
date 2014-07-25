@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,7 +20,7 @@
 package net.named_data.jndn.encoding.tlv;
 
 /**
- * The Tlv class defines type codes for the NDN-TLV wire format. 
+ * The Tlv class defines type codes for the NDN-TLV wire format.
  */
 public class Tlv {
     public static final int Interest =         5;

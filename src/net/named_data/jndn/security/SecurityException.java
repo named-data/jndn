@@ -2,7 +2,7 @@
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -24,7 +24,7 @@ package net.named_data.jndn.security;
  * SecurityException extends Exception for errors related to NDN security.
  */
 public class SecurityException extends Exception {
-  public SecurityException(String message) 
+  public SecurityException(String message)
   {
     super(message);
   }

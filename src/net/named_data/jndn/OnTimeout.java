@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,12 +20,12 @@
 package net.named_data.jndn;
 
 /**
- * A class implements OnTimeout if it has onTimeout, used to pass a callback to 
+ * A class implements OnTimeout if it has onTimeout, used to pass a callback to
  * Face.expressInterest.
  */
 public interface OnTimeout {
   /**
-   * If the interest times out according to the interest lifetime, onTimeout is 
+   * If the interest times out according to the interest lifetime, onTimeout is
    * called.
    * @param interest The interest given to expressInterest.
    */

@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -23,12 +23,12 @@ package net.named_data.jndn;
  * A KeyLocatorType specifies the key locator type in a KeyLocator object.
  */
 public enum KeyLocatorType {
-  NONE(0), 
+  NONE(0),
   KEYNAME(1),
   KEY_LOCATOR_DIGEST(2),
-  KEY(3), 
+  KEY(3),
   CERTIFICATE(4);
-  
+
   KeyLocatorType (int type)
   {
     type_ = type;

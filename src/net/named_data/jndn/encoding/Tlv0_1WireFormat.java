@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -36,24 +36,24 @@ import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.util.Blob;
 
 /**
- * A Tlv0_1WireFormat implements the WireFormat interface for encoding and 
+ * A Tlv0_1WireFormat implements the WireFormat interface for encoding and
  * decoding with the NDN-TLV wire format, version 0.1.
  */
 public class Tlv0_1WireFormat extends WireFormat {
   /**
    * Encode interest using NDN-TLV and return the encoding.
    * @param interest The Interest object to encode.
-   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
    * beginning of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
-   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
    * of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
    * @return A Blob containing the encoding.
-   */  
-  public Blob 
+   */
+  public Blob
   encodeInterest
     (Interest interest, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
@@ -77,7 +77,7 @@ public class Tlv0_1WireFormat extends WireFormat {
       ByteBuffer nonce = ByteBuffer.allocate(4);
       // Copy existing nonce bytes.
       nonce.put(interest.getNonce().buf());
- 
+
       // Generate random bytes for remaining bytes in the nonce.
       for (int i = 0; i < 4 - interest.getNonce().size(); ++i)
         nonce.put((byte)random_.nextInt());
@@ -101,27 +101,27 @@ public class Tlv0_1WireFormat extends WireFormat {
     int[] tempSignedPortionBeginOffset = new int[1];
     int[] tempSignedPortionEndOffset = new int[1];
     encodeName
-      (interest.getName(), tempSignedPortionBeginOffset, 
+      (interest.getName(), tempSignedPortionBeginOffset,
        tempSignedPortionEndOffset, encoder);
-    int signedPortionBeginOffsetFromBack = 
+    int signedPortionBeginOffsetFromBack =
       encoder.getLength() - tempSignedPortionBeginOffset[0];
-    int signedPortionEndOffsetFromBack = 
+    int signedPortionEndOffsetFromBack =
       encoder.getLength() - tempSignedPortionEndOffset[0];
 
     encoder.writeTypeAndLength(Tlv.Interest, encoder.getLength() - saveLength);
-    signedPortionBeginOffset[0] = 
+    signedPortionBeginOffset[0] =
       encoder.getLength() - signedPortionBeginOffsetFromBack;
-    signedPortionEndOffset[0] = 
+    signedPortionEndOffset[0] =
       encoder.getLength() - signedPortionEndOffsetFromBack;
 
     return new Blob(encoder.getOutput(), false);
   }
-  
+
   /**
-   * Decode input as an interest in  NDN-TLV and set the fields of the interest 
+   * Decode input as an interest in  NDN-TLV and set the fields of the interest
    * object.
    * @param interest The Interest object whose fields are updated.
-   * @param input The input buffer to decode.  This reads from position() to 
+   * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
    * @param signedPortionBeginOffset Return the offset in the encoding of the
    * beginning of the signed portion. The signed portion starts from the first
@@ -133,7 +133,7 @@ public class Tlv0_1WireFormat extends WireFormat {
    * assumed to be a signature for a signed interest).
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public void
   decodeInterest
     (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
      int[] signedPortionEndOffset) throws EncodingException
@@ -162,17 +162,17 @@ public class Tlv0_1WireFormat extends WireFormat {
   /**
    * Encode data in NDN-TLV and return the encoding.
    * @param data The Data object to encode.
-   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
    * beginning of the signed portion by setting signedPortionBeginOffset[0].
-   * If you are not encoding in order to sign, you can call encodeData(data) to 
+   * If you are not encoding in order to sign, you can call encodeData(data) to
    * ignore this returned value.
-   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
    * of the signed portion by setting signedPortionEndOffset[0].
-   * If you are not encoding in order to sign, you can call encodeData(data) to 
+   * If you are not encoding in order to sign, you can call encodeData(data) to
    * ignore this returned value.
    * @return A Blob containing the encoding.
    */
-  public Blob 
+  public Blob
   encodeData
     (Data data, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
@@ -180,10 +180,10 @@ public class Tlv0_1WireFormat extends WireFormat {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
-    // TODO: The library needs to handle other signature types than 
+    // TODO: The library needs to handle other signature types than
     //   SignatureSha256WithRsa.
     encoder.writeBlobTlv
-      (Tlv.SignatureValue, 
+      (Tlv.SignatureValue,
        ((Sha256WithRsaSignature)data.getSignature()).getSignature().buf());
     int signedPortionEndOffsetFromBack = encoder.getLength();
 
@@ -197,36 +197,36 @@ public class Tlv0_1WireFormat extends WireFormat {
     int signedPortionBeginOffsetFromBack = encoder.getLength();
 
     encoder.writeTypeAndLength(Tlv.Data, encoder.getLength() - saveLength);
-    
-    signedPortionBeginOffset[0] = 
+
+    signedPortionBeginOffset[0] =
       encoder.getLength() - signedPortionBeginOffsetFromBack;
-    signedPortionEndOffset[0] = 
+    signedPortionEndOffset[0] =
       encoder.getLength() - signedPortionEndOffsetFromBack;
-    return new Blob(encoder.getOutput(), false);  
+    return new Blob(encoder.getOutput(), false);
   }
 
   /**
-   * Decode input as a data packet in NDN-TLV and set the fields in the data 
+   * Decode input as a data packet in NDN-TLV and set the fields in the data
    * object.
    * @param data The Data object whose fields are updated.
-   * @param input The input buffer to decode.  This reads from position() to 
+   * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
-   * @param signedPortionBeginOffset Return the offset in the input buffer of 
-   * the beginning of the signed portion by setting signedPortionBeginOffset[0].  
-   * If you are not decoding in order to verify, you can call 
+   * @param signedPortionBeginOffset Return the offset in the input buffer of
+   * the beginning of the signed portion by setting signedPortionBeginOffset[0].
+   * If you are not decoding in order to verify, you can call
    * decodeData(data, input) to ignore this returned value.
-   * @param signedPortionEndOffset Return the offset in the input buffer of the 
-   * end of the signed portion by setting signedPortionEndOffset[0]. If you are 
-   * not decoding in order to verify, you can call decodeData(data, input) to 
+   * @param signedPortionEndOffset Return the offset in the input buffer of the
+   * end of the signed portion by setting signedPortionEndOffset[0]. If you are
+   * not decoding in order to verify, you can call decodeData(data, input) to
    * ignore this returned value.
    * @throws EncodingException For invalid encoding.
    */
-  public void 
+  public void
   decodeData
-    (Data data, ByteBuffer input, int[] signedPortionBeginOffset, 
+    (Data data, ByteBuffer input, int[] signedPortionBeginOffset,
      int[] signedPortionEndOffset) throws EncodingException
   {
-    TlvDecoder decoder = new TlvDecoder(input);  
+    TlvDecoder decoder = new TlvDecoder(input);
 
     int endOffset = decoder.readNestedTlvsStart(Tlv.Data);
     signedPortionBeginOffset[0] = decoder.getOffset();
@@ -237,16 +237,16 @@ public class Tlv0_1WireFormat extends WireFormat {
     decodeSignatureInfo(data, decoder);
 
     signedPortionEndOffset[0] = decoder.getOffset();
-    // TODO: The library needs to handle other signature types than 
+    // TODO: The library needs to handle other signature types than
     //   SignatureSha256WithRsa.
     ((Sha256WithRsaSignature)data.getSignature()).setSignature
       (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
 
     decoder.finishNestedTlvs(endOffset);
   }
-  
+
   /**
-   * Get a singleton instance of a Tlv1_0a2WireFormat.  To always use the 
+   * Get a singleton instance of a Tlv1_0a2WireFormat.  To always use the
    * preferred version NDN-TLV, you should use TlvWireFormat.get().
    * @return The singleton instance.
    */
@@ -255,15 +255,15 @@ public class Tlv0_1WireFormat extends WireFormat {
   {
     return instance_;
   }
-  
+
   /**
    * Encode the name to the encoder.
    * @param name The name to encode.
-   * @param signedPortionBeginOffset Return the offset in the encoding of the 
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
    * beginning of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
-   * @param signedPortionEndOffset Return the offset in the encoding of the end 
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
    * of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
@@ -271,7 +271,7 @@ public class Tlv0_1WireFormat extends WireFormat {
    */
   private static void
   encodeName
-    (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset, 
+    (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset,
      TlvEncoder encoder)
   {
     int saveLength = encoder.getLength();
@@ -290,11 +290,11 @@ public class Tlv0_1WireFormat extends WireFormat {
     signedPortionBeginOffset[0] =
       encoder.getLength() - signedPortionBeginOffsetFromBack;
     if (name.size() == 0)
-        // There is no "final component", so set signedPortionEndOffset 
+        // There is no "final component", so set signedPortionEndOffset
         //   arbitrarily.
         signedPortionEndOffset[0] = signedPortionBeginOffset[0];
     else
-        signedPortionEndOffset[0] = 
+        signedPortionEndOffset[0] =
           encoder.getLength() - signedPortionEndOffsetFromBack;
   }
 
@@ -335,9 +335,9 @@ public class Tlv0_1WireFormat extends WireFormat {
 
     decoder.finishNestedTlvs(endOffset);
   }
-  
+
   /**
-   * Encode the interest selectors.  If no selectors are written, do not output 
+   * Encode the interest selectors.  If no selectors are written, do not output
    * a  Selectors TLV.
    */
   private static void
@@ -357,13 +357,13 @@ public class Tlv0_1WireFormat extends WireFormat {
       encodeKeyLocator
         (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), encoder);
     else {
-      // There is no keyLocator. If there is a publisherPublicKeyDigest, then 
-      //   encode as KEY_LOCATOR_DIGEST. (When we remove the deprecated 
+      // There is no keyLocator. If there is a publisherPublicKeyDigest, then
+      //   encode as KEY_LOCATOR_DIGEST. (When we remove the deprecated
       //   publisherPublicKeyDigest, we don't need this.)
       if (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
         int savePublisherPublicKeyDigestLength = encoder.getLength();
         encoder.writeBlobTlv
-          (Tlv.KeyLocatorDigest, 
+          (Tlv.KeyLocatorDigest,
            interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().buf());
         encoder.writeTypeAndLength
           (Tlv.KeyLocator, encoder.getLength() - savePublisherPublicKeyDigestLength);
@@ -415,7 +415,7 @@ public class Tlv0_1WireFormat extends WireFormat {
 
     decoder.finishNestedTlvs(endOffset);
   }
-  
+
   private static void
   encodeExclude(Exclude exclude, TlvEncoder encoder)
   {
@@ -474,7 +474,7 @@ public class Tlv0_1WireFormat extends WireFormat {
 
     encoder.writeTypeAndLength(type, encoder.getLength() - saveLength);
   }
-  
+
   private static void
   decodeKeyLocator
     (int expectedType, KeyLocator keyLocator, TlvDecoder decoder) throws EncodingException
@@ -504,7 +504,7 @@ public class Tlv0_1WireFormat extends WireFormat {
 
     decoder.finishNestedTlvs(endOffset);
   }
-  
+
   public static void
   encodeSignatureSha256WithRsa
     (Sha256WithRsaSignature signature, TlvEncoder encoder)
@@ -526,13 +526,13 @@ public class Tlv0_1WireFormat extends WireFormat {
     int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
 
     int signatureType = (int)decoder.readNonNegativeIntegerTlv(Tlv.SignatureType);
-    // TODO: The library needs to handle other signature types than 
+    // TODO: The library needs to handle other signature types than
     //     SignatureSha256WithRsa.
     if (signatureType == Tlv.SignatureType_SignatureSha256WithRsa) {
         data.setSignature(new Sha256WithRsaSignature());
         // Modify data's signature object because if we create an object
         //   and set it, then data will have to copy all the fields.
-        Sha256WithRsaSignature signatureInfo = 
+        Sha256WithRsaSignature signatureInfo =
           (Sha256WithRsaSignature)data.getSignature();
         decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
     }
@@ -560,12 +560,12 @@ public class Tlv0_1WireFormat extends WireFormat {
 
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.FreshnessPeriod, metaInfo.getFreshnessPeriod());
-    if (!(metaInfo.getType() == ContentType.BLOB || 
+    if (!(metaInfo.getType() == ContentType.BLOB ||
           metaInfo.getType() == ContentType.DATA)) {
       // Not the default, so we need to encode the type.
       if (metaInfo.getType() == ContentType.LINK ||
           metaInfo.getType() == ContentType.KEY)
-        // The ContentType enum is set up with the correct integer for 
+        // The ContentType enum is set up with the correct integer for
         // each NDN-TLV ContentType.
         encoder.writeNonNegativeIntegerTlv
           (Tlv.ContentType, metaInfo.getType().getNumericType());
@@ -579,9 +579,9 @@ public class Tlv0_1WireFormat extends WireFormat {
   private static void
   decodeMetaInfo(MetaInfo metaInfo, TlvDecoder decoder) throws EncodingException
   {
-    int endOffset = decoder.readNestedTlvsStart(Tlv.MetaInfo);  
+    int endOffset = decoder.readNestedTlvsStart(Tlv.MetaInfo);
 
-    // The ContentType enum is set up with the correct integer for each 
+    // The ContentType enum is set up with the correct integer for each
     // NDN-TLV ContentType.  If readOptionalNonNegativeIntegerTlv returns
     // None, then setType will convert it to BLOB.
     int type = (int)decoder.readOptionalNonNegativeIntegerTlv
@@ -593,7 +593,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     else
       // Default to BLOB.
       metaInfo.setType(ContentType.BLOB);
-    
+
     metaInfo.setFreshnessPeriod
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.FreshnessPeriod, endOffset));
     if (decoder.peekType(Tlv.FinalBlockId, endOffset)) {

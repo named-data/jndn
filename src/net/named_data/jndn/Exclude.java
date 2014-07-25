@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -29,9 +29,9 @@ public class Exclude implements ChangeCountable {
   public enum Type {
     COMPONENT, ANY
   }
-  
+
   /**
-   * An Exclude.Entry holds an Exclude.Type, and if it is a COMPONENT, it holds 
+   * An Exclude.Entry holds an Exclude.Type, and if it is a COMPONENT, it holds
    * the component value.
    */
   public static class Entry {
@@ -39,7 +39,7 @@ public class Exclude implements ChangeCountable {
      * Create an Exclude.Entry of type ANY
      */
     public Entry()
-    {    
+    {
       type_ = Type.ANY;
       component_ = null;
     }
@@ -48,7 +48,7 @@ public class Exclude implements ChangeCountable {
      * Create an Exclude.Entry of type COMPONENT.
      * @param component The component value.
      */
-    public Entry(Name.Component component) 
+    public Entry(Name.Component component)
     {
       type_ = Type.COMPONENT;
       component_ = component;
@@ -58,30 +58,30 @@ public class Exclude implements ChangeCountable {
      * Get the type of this entry.
      * @return The Exclude.Type.
      */
-    public final Exclude.Type 
+    public final Exclude.Type
     getType() { return type_; }
 
     /**
      * Get the component value for this entry (if it is of type COMPONENT).
-     * @return The component value, or null if this entry is not of type 
+     * @return The component value, or null if this entry is not of type
      * COMPONENT.
      */
-    public final Name.Component 
+    public final Name.Component
     getComponent() { return component_; }
 
     private final Exclude.Type type_;
-    private final Name.Component component_; /**< only used if type_ is 
+    private final Name.Component component_; /**< only used if type_ is
                                                   Exclude.Type.COMPONENT */
   }
-  
+
   /**
    * Create a new Exclude with no entries.
    */
-  public Exclude() 
+  public Exclude()
   {
     entries_ = new ArrayList();
   }
-  
+
   /**
    * Create a new Exclude as a copy of the given exclude.
    * @param exclude The Exclude to copy.
@@ -91,14 +91,14 @@ public class Exclude implements ChangeCountable {
     // Each entry is read-only, so do a shallow copy.
     entries_ = new ArrayList(exclude.entries_);
   }
-  
+
   /**
    * Get the number of entries.
    * @return The number of entries.
    */
-  public final int 
+  public final int
   size() { return entries_.size(); }
-  
+
   /**
    * Get the entry at the given index.
    * @param i The index of the entry, starting from 0.
@@ -106,47 +106,47 @@ public class Exclude implements ChangeCountable {
    */
   public final Exclude.Entry
   get(int i) { return (Exclude.Entry)entries_.get(i); }
-  
+
   /**
    * Append a new entry of type Exclude.Type.ANY.
    * @return This Exclude so that you can chain calls to append.
    */
   public final Exclude
   appendAny()
-  {    
+  {
     entries_.add(new Entry());
     ++changeCount_;
     return this;
   }
-  
+
   /**
-   * Append a new entry of type Exclude.Type.COMPONENT, taking another pointer 
+   * Append a new entry of type Exclude.Type.COMPONENT, taking another pointer
    * to the Name.Component.
    * @param component The component value for the entry.
    * @return This Exclude so that you can chain calls to append.
    */
   public final Exclude
-  appendComponent(Name.Component component) 
+  appendComponent(Name.Component component)
   {
     entries_.add(new Entry(component));
     ++changeCount_;
     return this;
   }
-  
+
   /**
    * Clear all the entries.
    */
-  public final void 
-  clear() 
+  public final void
+  clear()
   {
     entries_.clear();
     ++changeCount_;
   }
-  
+
   /**
    * Check if the component matches any of the exclude criteria.
    * @param component The name component to check.
-   * @return True if the component matches any of the exclude criteria, 
+   * @return True if the component matches any of the exclude criteria,
    * otherwise false.
    */
   public boolean
@@ -202,13 +202,13 @@ public class Exclude implements ChangeCountable {
 
     return false;
   }
-  
+
   /**
-   * Encode this Exclude with elements separated by "," and Exclude.Type.ANY 
+   * Encode this Exclude with elements separated by "," and Exclude.Type.ANY
    * shown as "*".
    * @return the URI string
    */
-  public final String 
+  public final String
   toUri()
   {
     if (entries_.isEmpty())
@@ -225,17 +225,17 @@ public class Exclude implements ChangeCountable {
         Name.toEscapedString(get(i).getComponent().getValue().buf(), result);
     }
 
-    return result.toString();      
+    return result.toString();
   }
 
   /**
-   * Get the change count, which is incremented each time this object is 
+   * Get the change count, which is incremented each time this object is
    * changed.
    * @return The change count.
    */
-  public final long 
+  public final long
   getChangeCount() { return changeCount_; }
-  
+
   private final ArrayList entries_;
   private long changeCount_ = 0;
 }

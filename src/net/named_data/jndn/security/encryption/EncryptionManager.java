@@ -2,7 +2,7 @@
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -27,17 +27,17 @@ import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.util.Blob;
 
 public abstract class EncryptionManager {
-  public abstract void 
+  public abstract void
   createSymmetricKey
     (Name keyName, KeyType keyType, Name signkeyName, boolean isSymmetric);
 
-  public void 
+  public void
   createSymmetricKey(Name keyName, KeyType keyType, Name signkeyName)
   {
     createSymmetricKey(keyName, keyType, signkeyName, true);
   }
 
-  public void 
+  public void
   createSymmetricKey(Name keyName, KeyType keyType)
   {
     createSymmetricKey(keyName, keyType, new Name(), true);
@@ -45,7 +45,7 @@ public abstract class EncryptionManager {
 
   public abstract Blob
   encrypt
-    (Name keyName, ByteBuffer data, boolean useSymmetric, 
+    (Name keyName, ByteBuffer data, boolean useSymmetric,
      EncryptMode encryptMode);
 
   public Blob
@@ -62,7 +62,7 @@ public abstract class EncryptionManager {
 
   public abstract Blob
   decrypt
-    (Name keyName, ByteBuffer data, boolean useSymmetric, 
+    (Name keyName, ByteBuffer data, boolean useSymmetric,
      EncryptMode encryptMode);
 
   public Blob

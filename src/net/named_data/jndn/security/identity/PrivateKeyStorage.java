@@ -2,7 +2,7 @@
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -37,7 +37,7 @@ public abstract class PrivateKeyStorage {
    * @param keySize The size of the key pair.
    * @throws SecurityException
    */
-  public abstract void 
+  public abstract void
   generateKeyPair
     (Name keyName, KeyType keyType, int keySize) throws SecurityException;
 
@@ -47,7 +47,7 @@ public abstract class PrivateKeyStorage {
    * @param keyType The type of the key pair, e.g. KeyType.RSA.
    * @throws SecurityException
    */
-  public final void 
+  public final void
   generateKeyPair(Name keyName, KeyType keyType) throws SecurityException
   {
     generateKeyPair(keyName, keyType, 2048);
@@ -58,7 +58,7 @@ public abstract class PrivateKeyStorage {
    * @param keyName The name of the key pair.
    * @throws SecurityException
    */
-  public final void 
+  public final void
   generateKeyPair(Name keyName) throws SecurityException
   {
     generateKeyPair(keyName, KeyType.RSA, 2048);
@@ -72,29 +72,29 @@ public abstract class PrivateKeyStorage {
    */
   public abstract PublicKey
   getPublicKey(Name keyName) throws SecurityException;
-  
+
   /**
-   * Fetch the private key for keyName and sign the data, returning a signature 
+   * Fetch the private key for keyName and sign the data, returning a signature
    * Blob.
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
    * @return The signature, or a null pointer if signing fails.
    * @throws SecurityException
-   */  
-  public abstract Blob 
+   */
+  public abstract Blob
   sign(ByteBuffer data, Name keyName, DigestAlgorithm digestAlgorithm)
       throws SecurityException;
 
   /**
-   * Fetch the private key for keyName and sign the data using 
+   * Fetch the private key for keyName and sign the data using
    * DigestAlgorithm.SHA256, returning a signature Blob.
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
    * @return The signature, or a null pointer if signing fails.
    * @throws SecurityException
-   */  
-  public final Blob 
+   */
+  public final Blob
   sign(ByteBuffer data, Name keyName) throws SecurityException
   {
     return sign(data, keyName, DigestAlgorithm.SHA256);
@@ -103,26 +103,26 @@ public abstract class PrivateKeyStorage {
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
-   * @param data The byte buffer to be decrypted, from its position to its 
+   * @param data The byte buffer to be decrypted, from its position to its
    * limit.
-   * @param isSymmetric If true symmetric encryption is used, otherwise 
+   * @param isSymmetric If true symmetric encryption is used, otherwise
    * asymmetric encryption is used.
    * @return The decrypted data.
    * @throws SecurityException
    */
-  public abstract Blob 
-  decrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
+  public abstract Blob
+  decrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
          throws SecurityException;
 
   /**
    * Decrypt data using asymmetric encryption.
    * @param keyName The name of the decrypting key.
-   * @param data The byte buffer to be decrypted, from its position to its 
+   * @param data The byte buffer to be decrypted, from its position to its
    * limit.
    * @return The decrypted data.
    * @throws SecurityException
    */
-  public final Blob 
+  public final Blob
   decrypt(Name keyName, ByteBuffer data) throws SecurityException
   {
     return decrypt(keyName, data, false);
@@ -131,21 +131,21 @@ public abstract class PrivateKeyStorage {
   /**
    * Encrypt data.
    * @param keyName The name of the encrypting key.
-   * @param data The byte buffer to be encrypted, from its position to its 
+   * @param data The byte buffer to be encrypted, from its position to its
    * limit.
-   * @param isSymmetric If true symmetric encryption is used, otherwise 
+   * @param isSymmetric If true symmetric encryption is used, otherwise
    * asymmetric encryption is used.
    * @return The encrypted data.
    * @throws SecurityException
    */
   public abstract Blob
-  encrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
+  encrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
           throws SecurityException;
 
   /**
    * Encrypt data using asymmetric encryption.
    * @param keyName The name of the encrypting key.
-   * @param data The byte buffer to be encrypted, from its position to its 
+   * @param data The byte buffer to be encrypted, from its position to its
    * limit.
    * @return The encrypted data.
    * @throws SecurityException
@@ -163,8 +163,8 @@ public abstract class PrivateKeyStorage {
    * @param keySize The size of the key.
    * @throws SecurityException
    */
-  public abstract void 
-  generateKey(Name keyName, KeyType keyType, int keySize) 
+  public abstract void
+  generateKey(Name keyName, KeyType keyType, int keySize)
              throws SecurityException;
 
   /**
@@ -173,7 +173,7 @@ public abstract class PrivateKeyStorage {
    * @param keyType The type of the key, e.g. KeyType.AES.
    * @throws SecurityException
    */
-  public final void 
+  public final void
   generateKey(Name keyName, KeyType keyType) throws SecurityException
   {
     generateKey(keyName, keyType, 256);
@@ -184,19 +184,19 @@ public abstract class PrivateKeyStorage {
    * @param keyName The name of the key.
    * @throws SecurityException
    */
-  public final void 
+  public final void
   generateKey(Name keyName) throws SecurityException
   {
     generateKey(keyName, KeyType.AES, 256);
   }
-  
+
   /**
    * Check if a particular key exists.
    * @param keyName The name of the key.
-   * @param keyClass The class of the key, e.g. KeyClass.PUBLIC, 
+   * @param keyClass The class of the key, e.g. KeyClass.PUBLIC,
    * KeyClass.PRIVATE, or KeyClass.SYMMETRIC.
    * @return True if the key exists, otherwise false.
    */
   public abstract boolean
-  doesKeyExist(Name keyName, KeyClass keyClass);  
+  doesKeyExist(Name keyName, KeyClass keyClass);
 }

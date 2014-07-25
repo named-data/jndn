@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -45,14 +45,14 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param publicKeyDer The public key DER byte buffer.
    * @throws SecurityException if can't decode the key DER.
    */
-  public final void 
+  public final void
   setPublicKeyForKeyName
     (Name keyName, KeyType keyType, ByteBuffer publicKeyDer) throws SecurityException
   {
     publicKeyStore_.put
       (keyName.toUri(), PublicKey.fromDer(keyType, new Blob(publicKeyDer, true)));
   }
-  
+
   /**
    * Set the private key for the keyName.
    * @param keyName The key name.
@@ -60,14 +60,14 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param privateKeyDer The private key DER byte buffer.
    * @throws SecurityException if can't decode the key DER.
    */
-  public final void 
+  public final void
   setPrivateKeyForKeyName
     (Name keyName, KeyType keyType, ByteBuffer privateKeyDer) throws SecurityException
   {
     privateKeyStore_.put
       (keyName.toUri(), new PrivateKey(keyType, privateKeyDer));
   }
-  
+
   /**
    * Set the public and private key for the keyName.
    * @param keyName The key name.
@@ -76,9 +76,9 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param privateKeyDer The private key DER byte buffer.
    * @throws SecurityException if can't decode the key DER.
    */
-  public final void 
+  public final void
   setKeyPairForKeyName
-    (Name keyName, KeyType keyType, ByteBuffer publicKeyDer, 
+    (Name keyName, KeyType keyType, ByteBuffer publicKeyDer,
      ByteBuffer privateKeyDer) throws SecurityException
   {
     setPublicKeyForKeyName(keyName, keyType, publicKeyDer);
@@ -92,13 +92,13 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param privateKeyDer The private key DER byte buffer.
    * @throws SecurityException if can't decode the key DER.
    */
-  public final void 
+  public final void
   setKeyPairForKeyName
     (Name keyName, ByteBuffer publicKeyDer, ByteBuffer privateKeyDer) throws SecurityException
   {
     setKeyPairForKeyName(keyName, KeyType.RSA, publicKeyDer, privateKeyDer);
   }
-    
+
   /**
    * Generate a pair of asymmetric keys.
    * @param keyName The name of the key pair.
@@ -106,7 +106,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param keySize The size of the key pair.
    * @throws SecurityException
    */
-  public void 
+  public void
   generateKeyPair
     (Name keyName, KeyType keyType, int keySize) throws SecurityException
   {
@@ -127,9 +127,9 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     if (publicKey == null)
       throw new SecurityException
         ("MemoryPrivateKeyStorage: Cannot find public key " + keyName.toUri());
-    return publicKey;    
+    return publicKey;
   }
-  
+
   /**
    * Fetch the private key for keyName and sign the data, returning a signature
    * Blob.
@@ -138,25 +138,25 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param digestAlgorithm the digest algorithm.
    * @return The signature, or Blob with a null pointer if signing fails.
    * @throws SecurityException
-   */  
-  public Blob 
-  sign(ByteBuffer data, Name keyName, DigestAlgorithm digestAlgorithm) 
+   */
+  public Blob
+  sign(ByteBuffer data, Name keyName, DigestAlgorithm digestAlgorithm)
        throws SecurityException
   {
     if (digestAlgorithm != DigestAlgorithm.SHA256)
       return new Blob();
-    
+
     // Find the private key and sign.
     PrivateKey privateKey = (PrivateKey)privateKeyStore_.get(keyName.toUri());
     if (privateKey == null)
       throw new SecurityException
         ("MemoryPrivateKeyStorage: Cannot find private key " + keyName.toUri());
-    
+
     Signature signature = null;
     if (privateKey.getKeyType() == KeyType.RSA) {
       try {
         signature = Signature.getInstance("SHA256withRSA");
-      } 
+      }
       catch (NoSuchAlgorithmException e) {
         // Don't expect this to happen.
         throw new SecurityException("SHA256withRSA algorithm is not supported");
@@ -165,7 +165,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     else if (privateKey.getKeyType() == KeyType.EC) {
       try {
         signature = Signature.getInstance("SHA256withECDSA");
-      } 
+      }
       catch (NoSuchAlgorithmException e) {
         // Don't expect this to happen.
         throw new SecurityException("SHA256withECDSA algorithm is not supported");
@@ -174,7 +174,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     else
       // We don't expect this to happen.
       throw new SecurityException("Unrecognized private key type");
-    
+
     try {
       signature.initSign(privateKey.getPrivateKey());
     }
@@ -195,15 +195,15 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
-   * @param data The byte buffer to be decrypted, from its position to its 
+   * @param data The byte buffer to be decrypted, from its position to its
    * limit.
-   * @param isSymmetric If true symmetric encryption is used, otherwise 
+   * @param isSymmetric If true symmetric encryption is used, otherwise
    * asymmetric encryption is used.
    * @return The decrypted data.
    * @throws SecurityException
    */
-  public Blob 
-  decrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
+  public Blob
+  decrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
           throws SecurityException
   {
     throw new UnsupportedOperationException
@@ -213,15 +213,15 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   /**
    * Encrypt data.
    * @param keyName The name of the encrypting key.
-   * @param data The byte buffer to be encrypted, from its position to its 
+   * @param data The byte buffer to be encrypted, from its position to its
    * limit.
-   * @param isSymmetric If true symmetric encryption is used, otherwise 
+   * @param isSymmetric If true symmetric encryption is used, otherwise
    * asymmetric encryption is used.
    * @return The encrypted data.
    * @throws SecurityException
    */
   public Blob
-  encrypt(Name keyName, ByteBuffer data, boolean isSymmetric) 
+  encrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
          throws SecurityException
   {
     throw new UnsupportedOperationException
@@ -235,14 +235,14 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param keySize The size of the key.
    * @throws SecurityException
    */
-  public void 
-  generateKey(Name keyName, KeyType keyType, int keySize) 
+  public void
+  generateKey(Name keyName, KeyType keyType, int keySize)
              throws SecurityException
   {
     throw new UnsupportedOperationException
       ("MemoryPrivateKeyStorage.generateKey is not implemented");
   }
-  
+
   /**
    * Check if a particular key exists.
    * @param keyName The name of the key.
@@ -259,9 +259,9 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       return privateKeyStore_.containsKey(keyName.toUri());
     else
       // KeyClass.SYMMETRIC not implemented yet.
-      return false;    
+      return false;
   }
-  
+
   /**
    * PrivateKey is a simple class to hold a java.security.PrivateKey along with
    * a KeyType.
@@ -269,12 +269,12 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   class PrivateKey {
     public PrivateKey(KeyType keyType, ByteBuffer keyDer) throws SecurityException {
       keyType_ = keyType;
-      
+
       if (keyType == KeyType.RSA) {
         KeyFactory keyFactory = null;
         try {
           keyFactory = KeyFactory.getInstance("RSA");
-        } 
+        }
         catch (NoSuchAlgorithmException exception) {
           // Don't expect this to happen.
           throw new SecurityException
@@ -290,13 +290,13 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
           throw new SecurityException
             ("KeyFactory: PKCS8EncodedKeySpec is not supported for RSA: " +
              exception.getMessage());
-        }        
+        }
       }
       else if (keyType == KeyType.EC) {
         KeyFactory keyFactory = null;
         try {
           keyFactory = KeyFactory.getInstance("EC");
-        } 
+        }
         catch (NoSuchAlgorithmException exception) {
           // Don't expect this to happen.
           throw new SecurityException
@@ -312,25 +312,25 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
           throw new SecurityException
             ("KeyFactory: PKCS8EncodedKeySpec is not supported for EC: " +
              exception.getMessage());
-        }        
+        }
       }
       else
         throw new SecurityException
           ("PrivateKey constructor: Unrecognized keyType");
     }
-    
+
     public KeyType getKeyType() { return keyType_; }
-    
+
     public java.security.PrivateKey getPrivateKey() { return privateKey_; }
 
     private KeyType keyType_;
     private java.security.PrivateKey privateKey_;
   }
-  
-  private final HashMap publicKeyStore_ = 
-    new HashMap(); /**< The map key is the keyName.toUri(). 
-                      * The value is security.certificate.PublicKey. */  
-  private final HashMap privateKeyStore_ = 
-    new HashMap(); /**< The map key is the keyName.toUri(). 
-                      * The value is MemoryPrivateKeyStorage.PrivateKey. */  
+
+  private final HashMap publicKeyStore_ =
+    new HashMap(); /**< The map key is the keyName.toUri().
+                      * The value is security.certificate.PublicKey. */
+  private final HashMap privateKeyStore_ =
+    new HashMap(); /**< The map key is the keyName.toUri().
+                      * The value is MemoryPrivateKeyStorage.PrivateKey. */
 }

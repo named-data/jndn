@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -32,14 +32,14 @@ public class ForwardingEntry {
 
   public final String
   getAction() { return action_; }
-  
+
   public final Name
   getPrefix() { return prefix_; }
-  
+
   public final PublisherPublicKeyDigest
   getPublisherPublicKeyDigest() { return publisherPublicKeyDigest_; }
-  
-  public final int 
+
+  public final int
   getFaceId() { return faceId_; }
 
   public final ForwardingFlags
@@ -48,29 +48,29 @@ public class ForwardingEntry {
   public final double
   getFreshnessPeriod() { return freshnessPeriod_; }
 
-  public final void 
+  public final void
   setAction(String action) { action_ = action == null ? "" : action; }
 
-  public final void 
-  setPrefix(Name prefix) 
-  { 
-    prefix_ = prefix == null ? new Name() : new Name(prefix); 
+  public final void
+  setPrefix(Name prefix)
+  {
+    prefix_ = prefix == null ? new Name() : new Name(prefix);
   }
-  
-  public final void 
+
+  public final void
   setFaceId(int faceId) { faceId_ = faceId; }
-      
-  public final void 
-  setForwardingFlags(ForwardingFlags forwardingFlags) 
-  { 
-    forwardingFlags_ = forwardingFlags == null ? 
-      new ForwardingFlags() : new ForwardingFlags(forwardingFlags); 
+
+  public final void
+  setForwardingFlags(ForwardingFlags forwardingFlags)
+  {
+    forwardingFlags_ = forwardingFlags == null ?
+      new ForwardingFlags() : new ForwardingFlags(forwardingFlags);
   }
-      
-  public final void 
-  setFreshnessPeriod(double freshnessPeriod) 
-  { 
-    freshnessPeriod_ = freshnessPeriod; 
+
+  public final void
+  setFreshnessPeriod(double freshnessPeriod)
+  {
+    freshnessPeriod_ = freshnessPeriod;
   }
 
   /**
@@ -78,44 +78,44 @@ public class ForwardingEntry {
    * @param wireFormat A WireFormat object used to encode this ForwardingEntry.
    * @return The encoded buffer.
    */
-  public final Blob 
-  wireEncode(WireFormat wireFormat) 
+  public final Blob
+  wireEncode(WireFormat wireFormat)
   {
     return wireFormat.encodeForwardingEntry(this);
   }
 
   /**
-   * Encode this ForwardingEntry for the default wire format 
+   * Encode this ForwardingEntry for the default wire format
    * WireFormat.getDefaultWireFormat().
    * @return The encoded buffer.
    */
-  public final Blob 
-  wireEncode() 
+  public final Blob
+  wireEncode()
   {
     return wireEncode(WireFormat.getDefaultWireFormat());
   }
 
   /**
    * Decode the input using a particular wire format and update this ForwardingEntry.
-   * @param input The input buffer to decode.  This reads from position() to 
+   * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
    * @param wireFormat A WireFormat object used to decode the input.
    * @throws EncodingException For invalid encoding.
    */
-  public final void 
+  public final void
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
     wireFormat.decodeForwardingEntry(this, input);
   }
 
   /**
-   * Decode the input using the default wire format 
+   * Decode the input using the default wire format
    * WireFormat.getDefaultWireFormat() and update this ForwardingEntry.
-   * @param input The input buffer to decode.  This reads from position() to 
+   * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.
    */
-  public final void 
+  public final void
   wireDecode(ByteBuffer input) throws EncodingException
   {
     wireDecode(input, WireFormat.getDefaultWireFormat());
@@ -127,19 +127,19 @@ public class ForwardingEntry {
    * @param wireFormat A WireFormat object used to decode the input.
    * @throws EncodingException For invalid encoding.
    */
-  public final void 
+  public final void
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
     wireDecode(input.buf(), wireFormat);
   }
 
   /**
-   * Decode the input using the default wire format 
+   * Decode the input using the default wire format
    * WireFormat.getDefaultWireFormat() and update this ForwardingEntry.
    * @param input The input blob to decode.
    * @throws EncodingException For invalid encoding.
    */
-  public final void 
+  public final void
   wireDecode(Blob input) throws EncodingException
   {
     wireDecode(input.buf());
