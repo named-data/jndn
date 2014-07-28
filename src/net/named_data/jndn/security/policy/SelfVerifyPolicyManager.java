@@ -52,7 +52,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * Create a new SelfVerifyPolicyManager which will look up the public key in
    * the given identityStorage.
    * @param identityStorage The IdentityStorage for looking up the
-   * public key.  This points to an object must which remain valid during the
+   * public key.  This points to an object which must remain valid during the
    * life of this SelfVerifyPolicyManager.
    */
   public SelfVerifyPolicyManager(IdentityStorage identityStorage)
