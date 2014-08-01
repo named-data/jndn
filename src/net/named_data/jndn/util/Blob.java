@@ -213,9 +213,11 @@ public class Blob {
   public boolean equals(Blob other)
   {
     if (buffer_ == null)
-      return ((Blob)other).buffer_ == null;
+      return other.buffer_ == null;
+    else if (other.isNull())
+      return false;
     else
-      return buffer_.equals(((Blob)other).buffer_);
+      return buffer_.equals(other.buffer_);
   }
 
   public boolean equals(Object other)
