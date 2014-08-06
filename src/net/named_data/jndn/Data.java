@@ -28,7 +28,7 @@ import net.named_data.jndn.util.ChangeCountable;
 import net.named_data.jndn.util.SignedBlob;
 
 
-public class Data implements ChangeCountable {
+public class Data implements ChangeCountable, SignatureHolder {
   /**
    * Create a new Data object with default values and where the signature is a
    * blank Sha256WithRsaSignature.
