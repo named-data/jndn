@@ -64,4 +64,22 @@ public class Tlv {
 
   public static final int SignatureType_DigestSha256 = 0;
   public static final int SignatureType_SignatureSha256WithRsa = 1;
+
+  public static final int ContentType_Default = 0;
+  public static final int ContentType_Link = 1;
+  public static final int ContentType_Key = 2;
+
+  public static final int NfdCommand_ControlResponse = 101;
+  public static final int NfdCommand_StatusCode =      102;
+  public static final int NfdCommand_StatusText =      103;
+
+  public static final int ControlParameters_ControlParameters =   104;
+  public static final int ControlParameters_FaceId =              105;
+  public static final int ControlParameters_Uri =                 114;
+  public static final int ControlParameters_LocalControlFeature = 110;
+  public static final int ControlParameters_Origin =              111;
+  public static final int ControlParameters_Cost =                106;
+  public static final int ControlParameters_Flags =               108;
+  public static final int ControlParameters_Strategy =            107;
+  public static final int ControlParameters_ExpirationPeriod =    109;
 }

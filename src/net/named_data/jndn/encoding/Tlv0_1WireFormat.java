@@ -22,8 +22,10 @@ package net.named_data.jndn.encoding;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import net.named_data.jndn.ContentType;
+import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Exclude;
+import net.named_data.jndn.ForwardingFlags;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
@@ -243,6 +245,49 @@ public class Tlv0_1WireFormat extends WireFormat {
       (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
 
     decoder.finishNestedTlvs(endOffset);
+  }
+
+  /**
+   * Encode controlParameters and return the encoding.
+   * @param controlParameters The ControlParameters object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeControlParameters(ControlParameters controlParameters)
+  {
+    TlvEncoder encoder = new TlvEncoder(1500);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    encoder.writeOptionalNonNegativeIntegerTlvFromDouble
+      (Tlv.ControlParameters_ExpirationPeriod,
+       controlParameters.getExpirationPeriod());
+
+    // TODO: Encode Strategy.
+
+    int flags = controlParameters.getForwardingFlags().getNfdForwardingFlags();
+    if (flags != new ForwardingFlags().getNfdForwardingFlags())
+        // The flags are not the default value.
+        encoder.writeNonNegativeIntegerTlv(Tlv.ControlParameters_Flags, flags);
+
+    encoder.writeOptionalNonNegativeIntegerTlv
+      (Tlv.ControlParameters_Cost, controlParameters.getCost());
+    encoder.writeOptionalNonNegativeIntegerTlv
+      (Tlv.ControlParameters_Origin, controlParameters.getOrigin());
+    encoder.writeOptionalNonNegativeIntegerTlv
+      (Tlv.ControlParameters_LocalControlFeature,
+       controlParameters.getLocalControlFeature());
+
+    // TODO: Encode Uri.
+
+    encoder.writeOptionalNonNegativeIntegerTlv
+      (Tlv.FaceID, controlParameters.getFaceId());
+    encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
+
+    encoder.writeTypeAndLength
+      (Tlv.ControlParameters_ControlParameters, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
   }
 
   /**
