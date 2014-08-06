@@ -629,7 +629,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     decoder.finishNestedTlvs(endOffset);
   }
 
-  public static void
+  private static void
   encodeSignatureSha256WithRsa
     (Sha256WithRsaSignature signature, TlvEncoder encoder)
   {

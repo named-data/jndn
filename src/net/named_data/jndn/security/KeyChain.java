@@ -33,10 +33,7 @@ import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
-import net.named_data.jndn.encoding.Tlv0_1WireFormat;
 import net.named_data.jndn.encoding.WireFormat;
-import net.named_data.jndn.encoding.tlv.Tlv;
-import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.security.certificate.Certificate;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.encryption.EncryptionManager;
@@ -368,12 +365,7 @@ public class KeyChain {
     signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
 
     // Append the encoded SignatureInfo.
-    { // TODO: Move this into a WireFormat abstraction.
-      TlvEncoder encoder = new TlvEncoder(256);
-      Tlv0_1WireFormat.encodeSignatureSha256WithRsa(signature, encoder);
-
-      interest.getName().append(new Blob(encoder.getOutput(), false));
-    }
+    interest.getName().append(wireFormat.encodeSignatureInfo(signature));
 
     // Append an empty signature so that the "signedPortion" is correct.
     interest.getName().append(new Name.Component());
@@ -383,12 +375,8 @@ public class KeyChain {
       (encoding.signedBuf(), certificateName);
 
     // Remove the empty signature and append the real one.
-    { // TODO: Move this into a WireFormat abstraction.
-      TlvEncoder encoder = new TlvEncoder(256);
-      encoder.writeBlobTlv(Tlv.SignatureValue, signedSignature.getSignature().buf());
-      interest.setName(interest.getName().getPrefix(-1).append
-        (new Blob(encoder.getOutput(), false)));
-    }
+    interest.setName(interest.getName().getPrefix(-1).append
+      (wireFormat.encodeSignatureValue(signedSignature)));
   }
 
   public void
