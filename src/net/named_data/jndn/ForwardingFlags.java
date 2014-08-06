@@ -171,21 +171,21 @@ public class ForwardingFlags {
     int result = 0;
 
     if (active_)
-      result |= ACTIVE;
+      result |= ForwardingEntryFlags_ACTIVE;
     if (childInherit_)
-      result |= CHILD_INHERIT;
+      result |= ForwardingEntryFlags_CHILD_INHERIT;
     if (advertise_)
-      result |= ADVERTISE;
+      result |= ForwardingEntryFlags_ADVERTISE;
     if (last_)
-      result |= LAST;
+      result |= ForwardingEntryFlags_LAST;
     if (capture_)
-      result |= CAPTURE;
+      result |= ForwardingEntryFlags_CAPTURE;
     if (local_)
-      result |= LOCAL;
+      result |= ForwardingEntryFlags_LOCAL;
     if (tap_)
-      result |= TAP;
+      result |= ForwardingEntryFlags_TAP;
     if (captureOk_)
-      result |= CAPTURE_OK;
+      result |= ForwardingEntryFlags_CAPTURE_OK;
 
     return result;
   }
@@ -198,24 +198,57 @@ public class ForwardingFlags {
   public final void
   setForwardingEntryFlags(int forwardingEntryFlags)
   {
-    active_ = (forwardingEntryFlags & ACTIVE) != 0;
-    childInherit_ = (forwardingEntryFlags & CHILD_INHERIT) != 0;
-    advertise_ = (forwardingEntryFlags & ADVERTISE) != 0;
-    last_ = (forwardingEntryFlags & LAST) != 0;
-    capture_ = (forwardingEntryFlags & CAPTURE) != 0;
-    local_ = (forwardingEntryFlags & LOCAL) != 0;
-    tap_ = (forwardingEntryFlags & TAP) != 0;
-    captureOk_ = (forwardingEntryFlags & CAPTURE_OK) != 0;
+    active_ = (forwardingEntryFlags & ForwardingEntryFlags_ACTIVE) != 0;
+    childInherit_ = (forwardingEntryFlags & ForwardingEntryFlags_CHILD_INHERIT) != 0;
+    advertise_ = (forwardingEntryFlags & ForwardingEntryFlags_ADVERTISE) != 0;
+    last_ = (forwardingEntryFlags & ForwardingEntryFlags_LAST) != 0;
+    capture_ = (forwardingEntryFlags & ForwardingEntryFlags_CAPTURE) != 0;
+    local_ = (forwardingEntryFlags & ForwardingEntryFlags_LOCAL) != 0;
+    tap_ = (forwardingEntryFlags & ForwardingEntryFlags_TAP) != 0;
+    captureOk_ = (forwardingEntryFlags & ForwardingEntryFlags_CAPTURE_OK) != 0;
   }
 
-  private static final int ACTIVE         = 1;
-  private static final int CHILD_INHERIT  = 2;
-  private static final int ADVERTISE      = 4;
-  private static final int LAST           = 8;
-  private static final int CAPTURE       = 16;
-  private static final int LOCAL         = 32;
-  private static final int TAP           = 64;
-  private static final int CAPTURE_OK   = 128;
+  /**
+   * Get an integer with the bits set according to the NFD forwarding flags as
+   * used in the ControlParameters of the command interest.
+   * @return An integer with the bits set.
+   */
+  public final int
+  getNfdForwardingFlags()
+  {
+    int result = 0;
+
+    if (childInherit_)
+      result |= NfdForwardingFlags_CHILD_INHERIT;
+    if (capture_)
+      result |= NfdForwardingFlags_CAPTURE;
+
+    return result;
+  }
+
+  /**
+   * Set the flags according to the NFD forwarding flags as used in the
+   * ControlParameters of the command interest.
+   * @param nfdForwardingFlags An integer with the bits set.
+   */
+  public final void
+  setNfdForwardingFlags(int nfdForwardingFlags)
+  {
+    childInherit_ = (nfdForwardingFlags & NfdForwardingFlags_CHILD_INHERIT) != 0;
+    capture_ = (nfdForwardingFlags & NfdForwardingFlags_CAPTURE) != 0;
+  }
+
+  private static final int ForwardingEntryFlags_ACTIVE         = 1;
+  private static final int ForwardingEntryFlags_CHILD_INHERIT  = 2;
+  private static final int ForwardingEntryFlags_ADVERTISE      = 4;
+  private static final int ForwardingEntryFlags_LAST           = 8;
+  private static final int ForwardingEntryFlags_CAPTURE       = 16;
+  private static final int ForwardingEntryFlags_LOCAL         = 32;
+  private static final int ForwardingEntryFlags_TAP           = 64;
+  private static final int ForwardingEntryFlags_CAPTURE_OK   = 128;
+
+  private static final int NfdForwardingFlags_CHILD_INHERIT  = 1;
+  private static final int NfdForwardingFlags_CAPTURE  =       2;
 
   private boolean active_ = true;
   private boolean childInherit_ = true;
