@@ -32,6 +32,8 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.MetaInfo;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
+import net.named_data.jndn.Signature;
+import net.named_data.jndn.SignatureHolder;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
@@ -248,14 +250,14 @@ public class Tlv0_1WireFormat extends WireFormat {
   }
 
   /**
-   * Encode controlParameters and return the encoding.
+   * Encode controlParameters in NDN-TLV and return the encoding.
    * @param controlParameters The ControlParameters object to encode.
    * @return A Blob containing the encoding.
    */
   public Blob
   encodeControlParameters(ControlParameters controlParameters)
   {
-    TlvEncoder encoder = new TlvEncoder(1500);
+    TlvEncoder encoder = new TlvEncoder(256);
     int saveLength = encoder.getLength();
 
     // Encode backwards.
@@ -286,6 +288,83 @@ public class Tlv0_1WireFormat extends WireFormat {
 
     encoder.writeTypeAndLength
       (Tlv.ControlParameters_ControlParameters, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Encode signature as a SignatureInfo in NDN-TLV and return the encoding.
+   * @param signature An object of a subclass of Signature to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeSignatureInfo(Signature signature)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+    encodeSignatureSha256WithRsa((Sha256WithRsaSignature)signature, encoder);
+
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  private static class SimpleSignatureHolder implements SignatureHolder {
+    public SignatureHolder setSignature(Signature signature)
+    {
+      signature_ = signature;
+      return this;
+    }
+
+    public Signature getSignature()
+    {
+      return signature_;
+    }
+
+    private Signature signature_;
+  }
+
+  /**
+   * Decode signatureInfo as an NDN-TLV signature info and signatureValue as the
+   * related NDN-TLV SignatureValue, and return a new object which is a subclass
+   * of Signature.
+   * @param signatureInfo The signature info input buffer to decode. This reads
+   * from position() to limit(), but does not change the position.
+   * @param signatureValue The signature value input buffer to decode. This reads
+   * from position() to limit(), but does not change the position.
+   * @return A new object which is a subclass of Signature.
+   * @throws EncodingException For invalid encoding.
+   */
+  public Signature
+  decodeSignatureInfoAndValue
+    (ByteBuffer signatureInfo, ByteBuffer signatureValue) throws EncodingException
+  {
+    // Use a SignatureHolder to imitate a Data object for _decodeSignatureInfo.
+    SimpleSignatureHolder signatureHolder = new SimpleSignatureHolder();
+    TlvDecoder decoder = new TlvDecoder(signatureInfo);
+    decodeSignatureInfo(signatureHolder, decoder);
+
+    decoder = new TlvDecoder(signatureValue);
+    // TODO: The library needs to handle other signature types than
+    //   SignatureSha256WithRsa.
+    ((Sha256WithRsaSignature)signatureHolder.getSignature()).setSignature
+      (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
+
+    return signatureHolder.getSignature();
+  }
+
+  /**
+   * Encode the signatureValue in the Signature object as a SignatureValue (the
+   * signature bits) in NDN-TLV and return the encoding.
+   * @param signature An object of a subclass of Signature with the signature
+   * value to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeSignatureValue(Signature signature)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+    // TODO: This assumes it is a Sha256WithRsaSignature.
+    encoder.writeBlobTlv
+      (Tlv.SignatureValue,
+       ((Sha256WithRsaSignature)signature).getSignature().buf());
 
     return new Blob(encoder.getOutput(), false);
   }
@@ -566,7 +645,8 @@ public class Tlv0_1WireFormat extends WireFormat {
   };
 
   private static void
-  decodeSignatureInfo(Data data, TlvDecoder decoder) throws EncodingException
+  decodeSignatureInfo
+    (SignatureHolder signatureHolder, TlvDecoder decoder) throws EncodingException
   {
     int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
 
@@ -574,11 +654,11 @@ public class Tlv0_1WireFormat extends WireFormat {
     // TODO: The library needs to handle other signature types than
     //     SignatureSha256WithRsa.
     if (signatureType == Tlv.SignatureType_SignatureSha256WithRsa) {
-        data.setSignature(new Sha256WithRsaSignature());
+        signatureHolder.setSignature(new Sha256WithRsaSignature());
         // Modify data's signature object because if we create an object
         //   and set it, then data will have to copy all the fields.
         Sha256WithRsaSignature signatureInfo =
-          (Sha256WithRsaSignature)data.getSignature();
+          (Sha256WithRsaSignature)signatureHolder.getSignature();
         decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
     }
     else

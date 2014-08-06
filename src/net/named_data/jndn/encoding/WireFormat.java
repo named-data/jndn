@@ -24,6 +24,7 @@ import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.ForwardingEntry;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.Signature;
 import net.named_data.jndn.util.Blob;
 
 public class WireFormat {
@@ -259,6 +260,59 @@ public class WireFormat {
   {
     throw new UnsupportedOperationException
       ("decodeControlParameters is not implemented");
+  }
+
+  /**
+   * Encode signature as a SignatureInfo and return the encoding.
+   * Your derived class should override.
+   * @param signature An object of a subclass of Signature to encode.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public Blob
+  encodeSignatureInfo(Signature signature)
+  {
+    throw new UnsupportedOperationException
+      ("encodeSignatureInfo is not implemented");
+  }
+
+  /**
+   * Decode signatureInfo as a signature info and signatureValue as the related
+   * SignatureValue, and return a new object which is a subclass of Signature.
+   * Your derived class should override.
+   * @param signatureInfo The signature info input buffer to decode. This reads 
+   * from position() to limit(), but does not change the position.
+   * @param signatureValue The signature value input buffer to decode. This reads 
+   * from position() to limit(), but does not change the position.
+   * @return A new object which is a subclass of Signature.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   * @throws EncodingException For invalid encoding.
+   */
+  public Signature
+  decodeSignatureInfoAndValue
+    (ByteBuffer signatureInfo, ByteBuffer signatureValue) throws EncodingException
+  {
+    throw new UnsupportedOperationException
+      ("decodeSignatureInfoAndValue is not implemented");
+  }
+
+  /**
+   * Encode the signatureValue in the Signature object as a SignatureValue (the
+   * signature bits) and return the encoding.
+   * Your derived class should override.
+   * @param signature An object of a subclass of Signature with the signature
+   * value to encode.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public Blob
+  encodeSignatureValue(Signature signature)
+  {
+    throw new UnsupportedOperationException
+      ("encodeSignatureValue is not implemented");
   }
 
   /**
