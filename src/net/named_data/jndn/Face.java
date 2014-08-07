@@ -405,7 +405,7 @@ public class Face {
    * This makes a copy of the Name. You can get the default certificate name
    * with keyChain.getDefaultCertificateName() .
    */
-  void
+  public final void
   setCommandSigningInfo(KeyChain keyChain, Name certificateName)
   {
     commandKeyChain_ = keyChain;
@@ -418,7 +418,7 @@ public class Face {
    * @param certificateName The certificate name for signing interest.
    * This makes a copy of the Name.
    */
-  void
+  public final void
   setCommandCertificateName(Name certificateName)
   {
     commandCertificateName_ = new Name(certificateName);
@@ -436,7 +436,7 @@ public class Face {
    * @note This method is an experimental feature. See the API docs for more detail at
    * http://named-data.net/doc/ndn-ccl-api/face.html#face-makecommandinterest-method .
    */
-  void
+  public final void
   makeCommandInterest(Interest interest, WireFormat wireFormat) throws SecurityException
   {
     node_.makeCommandInterest
@@ -465,7 +465,11 @@ public class Face {
 
   /**
    * Register prefix with the connected NDN hub and call onInterest when a
-   * matching interest is received.
+   * matching interest is received. If you have not called setCommandSigningInfo,
+   * this assumes you are connecting to NDNx. If you have called
+   * setCommandSigningInfo, this first sends an NFD registration request, and if
+   * that times out then this sends an NDNx registration request. If you need to
+   * register a prefix with NFD, you must first call setCommandSigningInfo.
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest When an interest is received which matches the name
    * prefix, this calls
@@ -480,14 +484,17 @@ public class Face {
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
    */
   public final long
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
-     ForwardingFlags flags, WireFormat wireFormat) throws IOException
+     ForwardingFlags flags, WireFormat wireFormat) throws IOException, SecurityException
   {
     return node_.registerPrefix
-      (prefix, onInterest, onRegisterFailed, flags, wireFormat);
+      (prefix, onInterest, onRegisterFailed, flags, wireFormat, commandKeyChain_,
+     commandCertificateName_);
   }
 
   /**
@@ -511,7 +518,7 @@ public class Face {
   public final long
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
-     ForwardingFlags flags) throws IOException
+     ForwardingFlags flags) throws IOException, SecurityException
   {
     return registerPrefix
       (prefix, onInterest, onRegisterFailed, flags,
@@ -534,11 +541,13 @@ public class Face {
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
    */
   public final long
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
-     WireFormat wireFormat) throws IOException
+     WireFormat wireFormat) throws IOException, SecurityException
   {
     return registerPrefix
       (prefix, onInterest, onRegisterFailed, new ForwardingFlags(), wireFormat);
@@ -560,11 +569,13 @@ public class Face {
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
    */
   public final long
   registerPrefix
     (Name prefix, OnInterest onInterest,
-     OnRegisterFailed onRegisterFailed) throws IOException
+     OnRegisterFailed onRegisterFailed) throws IOException, SecurityException
   {
     return registerPrefix
       (prefix, onInterest, onRegisterFailed, new ForwardingFlags(),
