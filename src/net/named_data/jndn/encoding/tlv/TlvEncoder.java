@@ -110,24 +110,21 @@ public class TlvEncoder {
   }
 
   /**
-   * Write the type, then the length of the encoded value then encode value as a
-   * non-negative integer and write it to the output just before getLength()
-   * from  the back. Advance getLength().
-   * @param type The type of the TLV. This is a Java 32-bit int, so this does
-   * not support encoding a 64-bit type code.
+   * Encode value as a non-negative integer and write it to the output just
+   * before getLength() from  the back. Advance getLength(). This does not write
+   * a type or length for the value.
    * @param value The non-negative integer to encode. This is a Java 64-bit
    * long, so encoding of 64-bit values is supported (actually 63-bit because
    * a Java long is signed).
    * @throws Error if the value is negative.
    */
   public final void
-  writeNonNegativeIntegerTlv(int type, long value)
+  writeNonNegativeInteger(long value)
   {
     if (value < 0)
       throw new Error("TLV integer value may not be negative");
 
     // Write backwards.
-    int saveNBytes = output_.remaining();
     if (value < 253L) {
       int position = output_.setRemainingFromBack(output_.remaining() + 1);
       output_.buffer().put(position, (byte)(value & 0xff));
@@ -155,7 +152,25 @@ public class TlvEncoder {
       output_.buffer().put(position + 6, (byte)((value >> 8) & 0xff));
       output_.buffer().put(position + 7, (byte)(value & 0xff));
     }
+  }
 
+  /**
+   * Write the type, then the length of the encoded value then encode value as a
+   * non-negative integer and write it to the output just before getLength()
+   * from  the back. Advance getLength().
+   * @param type The type of the TLV. This is a Java 32-bit int, so this does
+   * not support encoding a 64-bit type code.
+   * @param value The non-negative integer to encode. This is a Java 64-bit
+   * long, so encoding of 64-bit values is supported (actually 63-bit because
+   * a Java long is signed).
+   * @throws Error if the value is negative.
+   */
+  public final void
+  writeNonNegativeIntegerTlv(int type, long value)
+  {
+    // Write backwards.
+    int saveNBytes = output_.remaining();
+    writeNonNegativeInteger(value);
     writeTypeAndLength(type, output_.remaining() - saveNBytes);
   }
 
