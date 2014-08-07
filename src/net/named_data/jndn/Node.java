@@ -152,30 +152,47 @@ public class Node implements ElementListener {
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
+   * @param commandKeyChain The KeyChain object for signing interests.  If null,
+   * assume we are connected to a legacy NDNx forwarder.
+   * @param commandCertificateName The certificate name for signing interests.
    * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
    */
   public final long
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
-     ForwardingFlags flags, WireFormat wireFormat) throws IOException
+     ForwardingFlags flags, WireFormat wireFormat, KeyChain commandKeyChain,
+     Name commandCertificateName) throws IOException, SecurityException
   {
     // Get the registeredPrefixId now so we can return it to the caller.
     long registeredPrefixId = RegisteredPrefix.getNextRegisteredPrefixId();
 
-    if (ndndId_.size() == 0) {
-      // First fetch the ndndId of the connected hub.
-      NdndIdFetcher fetcher = new NdndIdFetcher
-        (new NdndIdFetcher.Info
-          (this, registeredPrefixId, prefix, onInterest, onRegisterFailed,
-           flags, wireFormat));
-      // We send the interest using the given wire format so that the hub
-      //   receives (and sends) in the application's desired wire format.
-      expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat);
+    // If we have an _ndndId, we know we already connected to NDNx.
+    if (ndndId_.size() != 0 || commandKeyChain == null) {
+      // Assume we are connected to a legacy NDNx server.
+
+      if (ndndId_.size() == 0) {
+        // First fetch the ndndId of the connected hub.
+        NdndIdFetcher fetcher = new NdndIdFetcher
+          (new NdndIdFetcher.Info
+            (this, registeredPrefixId, prefix, onInterest, onRegisterFailed,
+             flags, wireFormat));
+        // We send the interest using the given wire format so that the hub
+        //   receives (and sends) in the application's desired wire format.
+        expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat);
+      }
+      else
+        registerPrefixHelper
+          (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed,
+           flags, wireFormat);
     }
     else
-      registerPrefixHelper
-        (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed,
-         flags, wireFormat);
+      // The application set the KeyChain for signing NFD interests.
+      nfdRegisterPrefix
+        (registeredPrefixId, new Name(prefix), onInterest,
+         onRegisterFailed, flags, commandKeyChain, commandCertificateName,
+         wireFormat);
 
     return registeredPrefixId;
   }
@@ -457,7 +474,7 @@ public class Node implements ElementListener {
       info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
     }
 
-    public static class Info {
+    private static class Info {
       /**
        * Create a new NdndIdFetcher.Info.
        *
@@ -511,16 +528,39 @@ public class Node implements ElementListener {
     public void
     onData(Interest interest, Data responseData)
     {
-      Name expectedName = new Name("/ndnx/.../selfreg");
-      // Got a response. Do a quick check of expected name components.
-      if (responseData.getName().size() < 4 ||
-          !responseData.getName().get(0).equals(expectedName.get(0)) ||
-          !responseData.getName().get(2).equals(expectedName.get(2))) {
-        info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
-        return;
-      }
+      if (info_.isNfdCommand_) {
+        // Decode responseData.getContent() and check for a success code.
+        // TODO: Move this into the TLV code.
+        TlvDecoder decoder = new TlvDecoder(responseData.getContent().buf());
+        long statusCode;
+        try {
+          decoder.readNestedTlvsStart(Tlv.NfdCommand_ControlResponse);
+          statusCode = decoder.readNonNegativeIntegerTlv
+               (Tlv.NfdCommand_StatusCode);
+        }
+        catch (EncodingException exception) {
+          info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+          return;
+        }
 
-      // Otherwise, silently succeed.
+        // Status code 200 is "OK".
+        if (statusCode != 200)
+          info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+
+        // Otherwise, silently succeed.
+      }
+      else {
+        Name expectedName = new Name("/ndnx/.../selfreg");
+        // Got a response. Do a quick check of expected name components.
+        if (responseData.getName().size() < 4 ||
+            !responseData.getName().get(0).equals(expectedName.get(0)) ||
+            !responseData.getName().get(2).equals(expectedName.get(2))) {
+          info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+          return;
+        }
+
+        // Otherwise, silently succeed.
+      }
     }
 
     /**
@@ -530,18 +570,65 @@ public class Node implements ElementListener {
     public void
     onTimeout(Interest timedOutInterest)
     {
-      info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+      if (info_.isNfdCommand_) {
+        // The application set the commandKeyChain, but we may be connected to NDNx.
+        if (info_.node_.ndndId_.size() == 0) {
+          // First fetch the ndndId of the connected hub.
+          // Pass 0 for registeredPrefixId since the entry was already added to
+          //   registeredPrefixTable_ on the first try.
+          NdndIdFetcher fetcher = new NdndIdFetcher
+            (new NdndIdFetcher.Info
+              (info_.node_, 0, info_.prefix_, info_.onInterest_,
+               info_.onRegisterFailed_, info_.flags_, info_.wireFormat_));
+          // We send the interest using the given wire format so that the hub
+          // receives (and sends) in the application's desired wire format.
+          try {
+            info_.node_.expressInterest
+              (info_.node_.ndndIdFetcherInterest_, fetcher, fetcher,
+               info_.wireFormat_);
+          }
+          catch (IOException exception) {
+            // We don't expect this to happen since we already sent data
+            //   through the transport.
+            info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+          }
+        }
+        else
+          // Pass 0 for registeredPrefixId since the entry was already added to
+          //   registeredPrefixTable_ on the first try.
+          info_.node_.registerPrefixHelper
+            (0, new Name(info_.prefix_), info_.onInterest_, info_.onRegisterFailed_,
+             info_.flags_, info_.wireFormat_);
+      }
+      else
+        // An NDNx command was sent because there is no commandKeyChain, so we
+        //   can't try an NFD command. Or it was sent from this callback after
+        //   trying an NFD command. Fail.
+        info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
     }
 
     public static class Info {
-      public Info(Name prefix, OnRegisterFailed onRegisterFailed)
+      public Info
+        (Node node, Name prefix, OnInterest onInterest,
+         OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
+         WireFormat wireFormat, boolean isNfdCommand)
       {
+        node_ = node;
         prefix_ = prefix;
+        onInterest_ = onInterest;
         onRegisterFailed_ = onRegisterFailed;
+        flags_ = flags;
+        wireFormat_ = wireFormat;
+        isNfdCommand_ = isNfdCommand;
       }
 
+      public final Node node_;
       public final Name prefix_;
+      public final OnInterest onInterest_;
       public final OnRegisterFailed onRegisterFailed_;
+      public final ForwardingFlags flags_;
+      public final WireFormat wireFormat_;
+      public final boolean isNfdCommand_;
     }
 
     private final Info info_;
@@ -786,7 +873,9 @@ public class Node implements ElementListener {
   /**
    * Do the work of registerPrefix once we know we are connected with an ndndId_.
    * @param registeredPrefixId The RegisteredPrefix.getNextRegisteredPrefixId()
-   * which registerPrefix got so it could return it to the caller.
+   * which registerPrefix got so it could return it to the caller. If this
+   * is 0, then don't add to registeredPrefixTable_ (assuming it has already
+   * been done).
    * @param prefix
    * @param onInterest
    * @param onRegisterFailed
@@ -829,14 +918,75 @@ public class Node implements ElementListener {
     interest.setInterestLifetimeMilliseconds(4000.0);
     interest.setScope(1);
 
-    // Save the onInterest callback and send the registration interest.
-    registeredPrefixTable_.add
-      (new RegisteredPrefix(registeredPrefixId, prefix, onInterest));
+    if (registeredPrefixId != 0)
+      // Save the onInterest callback and send the registration interest.
+      registeredPrefixTable_.add
+        (new RegisteredPrefix(registeredPrefixId, prefix, onInterest));
 
     RegisterResponse response = new RegisterResponse
-      (new RegisterResponse.Info(prefix, onRegisterFailed));
+      (new RegisterResponse.Info
+       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, false));
     try {
       expressInterest(interest, response, response, wireFormat);
+    }
+    catch (IOException ex) {
+      // Can't send the interest. Call onRegisterFailed.
+      onRegisterFailed.onRegisterFailed(prefix);
+    }
+  }
+
+  /**
+   * Do the work of registerPrefix to register with NFD.
+   * @param registeredPrefixId The RegisteredPrefix.getNextRegisteredPrefixId()
+   * which registerPrefix got so it could return it to the caller. If this
+   * is 0, then don't add to registeredPrefixTable_ (assuming it has already
+   * been done).
+   * @param prefix
+   * @param onInterest
+   * @param onRegisterFailed
+   * @param flags
+   * @param commandKeyChain
+   * @param commandCertificateName
+   * @param wireFormat
+   * @throws SecurityException If cannot find the private key for the
+   * certificateName.
+   */
+  private void
+  nfdRegisterPrefix
+    (long registeredPrefixId, Name prefix, OnInterest onInterest, 
+     OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
+     KeyChain commandKeyChain, Name commandCertificateName,
+     WireFormat wireFormat) throws SecurityException
+  {
+    if (commandKeyChain == null)
+      throw new Error
+        ("registerPrefix: The command KeyChain has not been set. You must call setCommandSigningInfo.");
+    if (commandCertificateName.size() == 0)
+      throw new Error
+        ("registerPrefix: The command certificate name has not been set. You must call setCommandSigningInfo.");
+
+    ControlParameters controlParameters = new ControlParameters();
+    controlParameters.setName(prefix);
+
+    Interest commandInterest = new Interest(new Name("/localhost/nfd/rib/register"));
+    // NFD only accepts TlvWireFormat packets.
+    commandInterest.getName().append(controlParameters.wireEncode(TlvWireFormat.get()));
+    makeCommandInterest
+      (commandInterest, commandKeyChain, commandCertificateName,
+       TlvWireFormat.get());
+    // The interest is answered by the local host, so set a short timeout.
+    commandInterest.setInterestLifetimeMilliseconds(2000.0);
+
+    if (registeredPrefixId != 0)
+      // Save the onInterest callback and send the registration interest.
+      registeredPrefixTable_.add
+        (new RegisteredPrefix(registeredPrefixId, prefix, onInterest));
+
+    RegisterResponse response = new RegisterResponse
+      (new RegisterResponse.Info
+       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, true));
+    try {
+      expressInterest(commandInterest, response, response, wireFormat);
     }
     catch (IOException ex) {
       // Can't send the interest. Call onRegisterFailed.
