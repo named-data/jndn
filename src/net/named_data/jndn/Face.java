@@ -22,6 +22,8 @@ package net.named_data.jndn;
 import java.io.IOException;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.transport.TcpTransport;
 import net.named_data.jndn.transport.Transport;
 
@@ -393,6 +395,75 @@ public class Face {
   }
 
   /**
+   * Set the KeyChain and certificate name used to sign command interests
+   * (e.g. for registerPrefix).
+   * @param keyChain The KeyChain object for signing interests, which
+   * must remain valid for the life of this Face. You must create the KeyChain
+   * object and pass it in. You can create a default KeyChain for your
+   * system with the default KeyChain constructor.
+   * @param certificateName The certificate name for signing interests.
+   * This makes a copy of the Name. You can get the default certificate name
+   * with keyChain.getDefaultCertificateName() .
+   */
+  void
+  setCommandSigningInfo(KeyChain keyChain, Name certificateName)
+  {
+    commandKeyChain_ = keyChain;
+    commandCertificateName_ = new Name(certificateName);
+  }
+
+  /**
+   * Set the certificate name used to sign command interest (e.g. for
+   * registerPrefix), using the KeyChain that was set with setCommandSigningInfo.
+   * @param certificateName The certificate name for signing interest.
+   * This makes a copy of the Name.
+   */
+  void
+  setCommandCertificateName(Name certificateName)
+  {
+    commandCertificateName_ = new Name(certificateName);
+  }
+
+  /**
+   * Append a timestamp component and a random value component to interest's
+   * name. Then use the keyChain and certificateName from setCommandSigningInfo
+   * to sign the interest. If the interest lifetime is not set, this sets it.
+   * @param interest The interest whose name is appended with components.
+   * @param wireFormat A WireFormat object used to encode the SignatureInfo and
+   * to encode the interest name for signing.
+   * @throws SecurityException If cannot find the private key for the
+   * certificateName.
+   * @note This method is an experimental feature. See the API docs for more detail at
+   * http://named-data.net/doc/ndn-ccl-api/face.html#face-makecommandinterest-method .
+   */
+  void
+  makeCommandInterest(Interest interest, WireFormat wireFormat) throws SecurityException
+  {
+    node_.makeCommandInterest
+      (interest, commandKeyChain_, commandCertificateName_, wireFormat);
+  }
+
+  /**
+   * Append a timestamp component and a random value component to interest's
+   * name. Then use the keyChain and certificateName from setCommandSigningInfo
+   * to sign the interest. If the interest lifetime is not set, this sets it.
+   * Use the default WireFormat to encode the SignatureInfo and to encode the
+   * interest name for signing.
+   * @param interest The interest whose name is appended with components.
+   * @throws SecurityException If cannot find the private key for the
+   * certificateName.
+   * @note This method is an experimental feature. See the API docs for more detail at
+   * http://named-data.net/doc/ndn-ccl-api/face.html#face-makecommandinterest-method .
+   */
+  void
+  makeCommandInterest(Interest interest) throws SecurityException
+  {
+    node_.makeCommandInterest
+      (interest, commandKeyChain_, commandCertificateName_,
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
    * Register prefix with the connected NDN hub and call onInterest when a
    * matching interest is received.
    * @param prefix A Name for the prefix to register. This copies the Name.
@@ -543,4 +614,6 @@ public class Face {
   }
 
   private Node node_;
+  KeyChain commandKeyChain_ = null;
+  Name commandCertificateName_ = new Name();
 }

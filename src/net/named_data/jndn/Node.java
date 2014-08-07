@@ -39,8 +39,11 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.transport.Transport;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.CommandInterestGenerator;
 import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
 
@@ -112,6 +115,27 @@ public class Node implements ElementListener {
            () == pendingInterestId)
         pendingInterestTable_.remove(i);
     }
+  }
+
+  /**
+   * Append a timestamp component and a random value component to interest's
+   * name. Then use the keyChain and certificateName to sign the interest. If
+   * the interest lifetime is not set, this sets it.
+   * @param interest The interest whose name is append with components.
+   * @param keyChain The KeyChain object for signing interests.
+   * @param certificateName The certificate name for signing interests.
+   * @param wireFormat A WireFormat object used to encode the SignatureInfo and
+   * to encode interest name for signing.
+   * @throws SecurityException If cannot find the private key for the
+   * certificateName.
+   */
+  void
+  makeCommandInterest
+    (Interest interest, KeyChain keyChain, Name certificateName,
+     WireFormat wireFormat) throws SecurityException
+  {
+    commandInterestGenerator_.generate
+      (interest, keyChain, certificateName, wireFormat);
   }
 
   /**
@@ -827,4 +851,6 @@ public class Node implements ElementListener {
   private Interest ndndIdFetcherInterest_;
   private Blob ndndId_ = new Blob();
   private static final SecureRandom random_ = new SecureRandom();
+  private CommandInterestGenerator commandInterestGenerator_ =
+    new CommandInterestGenerator();
 }
