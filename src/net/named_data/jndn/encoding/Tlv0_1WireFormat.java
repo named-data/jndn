@@ -477,7 +477,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     if (interest.getExclude().size() > 0)
       encodeExclude(interest.getExclude(), encoder);
 
-    if (interest.getKeyLocator().getType() != null)
+    if (interest.getKeyLocator().getType() != KeyLocatorType.NONE)
       encodeKeyLocator
         (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), encoder);
     else {
