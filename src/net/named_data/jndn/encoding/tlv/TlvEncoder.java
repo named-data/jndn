@@ -125,7 +125,7 @@ public class TlvEncoder {
       throw new Error("TLV integer value may not be negative");
 
     // Write backwards.
-    if (value < 253L) {
+    if (value <= 0xffL) {
       int position = output_.setRemainingFromBack(output_.remaining() + 1);
       output_.buffer().put(position, (byte)(value & 0xff));
     }
