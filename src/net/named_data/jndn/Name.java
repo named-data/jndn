@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCountable;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
 
 /**
  * A Name holds an array of Name.Component and represents an NDN name.
@@ -193,9 +194,8 @@ public class Name implements ChangeCountable {
     }
 
     /**
-     * Create a component whose value is the network-ordered encoding of the
+     * Create a component whose value is the nonNegativeInteger encoding of the
      * number.
-     * Note: if the number is zero or negative, the result is empty.
      * @param number The number to be encoded.
      * @return The component value.
      */
@@ -205,25 +205,14 @@ public class Name implements ChangeCountable {
       if (number < 0)
         number = 0;
 
-      // First encode in little endian.
-      ByteBuffer buffer = ByteBuffer.allocate(8);
-      while (number != 0) {
-        buffer.put((byte)(number & 0xff));
-        number >>= 8;
-      }
-
-      // Make it big endian.
-      buffer.flip();
-      reverse(buffer, buffer.position(), buffer.limit());
-
-      return new Component(new Blob(buffer, false));
+      TlvEncoder encoder = new TlvEncoder(8);
+      encoder.writeNonNegativeInteger(number);
+      return new Component(new Blob(encoder.getOutput(), false));
     }
 
     /**
      * Create a component whose value is the marker appended with the
-     * network-ordered encoding of the number.
-     * Note: if the number is zero or negative, no bytes are used for the number
-     * - the result will have only the marker.
+     * nonNegativeInteger encoding of the number.
      * @param number The number to be encoded.
      * @param marker The marker to use as the first byte of the component.
      * @return The component value.
@@ -234,20 +223,11 @@ public class Name implements ChangeCountable {
       if (number < 0)
         number = 0;
 
-      ByteBuffer buffer = ByteBuffer.allocate(9);
-      buffer.put(marker);
-
-      // First encode in little endian.
-      while (number != 0) {
-        buffer.put((byte)(number & 0xff));
-        number >>= 8;
-      }
-
-      // Make it big endian.
-      buffer.flip();
-      reverse(buffer, buffer.position() + 1, buffer.limit());
-
-      return new Component(new Blob(buffer, false));
+      TlvEncoder encoder = new TlvEncoder(9);
+      // Encode backwards.
+      encoder.writeNonNegativeInteger(number);
+      encoder.writeNonNegativeInteger((long)marker);
+      return new Component(new Blob(encoder.getOutput(), false));
     }
 
     /**
