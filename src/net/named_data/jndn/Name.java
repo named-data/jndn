@@ -179,6 +179,20 @@ public class Name implements ChangeCountable {
     }
 
     /**
+     * Interpret this name component as a segment byte offset according to NDN
+     * naming conventions for segment "Byte offset" (marker 0xFB).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @return The integer segment byte offset.
+     * @throws EncodingException If the first byte of the component is not the
+     * expected marker.
+     */
+    public final long
+    toSegmentOffset() throws EncodingException
+    {
+      return toNumberWithMarker((byte)0xFB);
+    }
+
+    /**
      * Interpret this name component as a version number  according to NDN naming
      * conventions for "Versioning" (marker 0xFD). Note that this returns
      * the exact number from the component without converting it to a time
@@ -191,6 +205,35 @@ public class Name implements ChangeCountable {
     toVersion() throws EncodingException
     {
       return toNumberWithMarker((byte)0xFD);
+    }
+
+    /**
+     * Interpret this name component as a timestamp  according to NDN naming
+     * conventions for "Timestamp" (marker 0xFC).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @return The number of microseconds since the UNIX epoch (Thursday,
+     * 1 January 1970) not counting leap seconds.
+     * @throws EncodingException If the first byte of the component is not the
+     * expected marker.
+     */
+    public final long
+    toTimestamp() throws EncodingException
+    {
+      return toNumberWithMarker((byte)0xFC);
+    }
+
+    /**
+     * Interpret this name component as a sequence number according to NDN naming
+     * conventions for "Sequencing" (marker 0xFE).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @return The integer sequence number.
+     * @throws EncodingException If the first byte of the component is not the
+     * expected marker.
+     */
+    public final long
+    toSequenceNumber() throws EncodingException
+    {
+      return toNumberWithMarker((byte)0xFE);
     }
 
     /**
@@ -575,6 +618,19 @@ public class Name implements ChangeCountable {
   }
 
   /**
+   * Append a component with the encoded segment byte offset according to NDN
+   * naming conventions for segment "Byte offset" (marker 0xFB).
+   * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @param segmentOffset The segment byte offset.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  appendSegmentOffset(long segmentOffset)
+  {
+    return append(Component.fromNumberWithMarker(segmentOffset, (byte)0xFB));
+  }
+
+  /**
    * Append a component with the encoded version number according to NDN
    * naming conventions for "Versioning" (marker 0xFD).
    * http://named-data.net/doc/tech-memos/naming-conventions.pdf
@@ -587,6 +643,33 @@ public class Name implements ChangeCountable {
   appendVersion(long version)
   {
     return append(Component.fromNumberWithMarker(version, (byte)0xFD));
+  }
+
+  /**
+   * Append a component with the encoded timestamp according to NDN naming
+   * conventions for "Timestamp" (marker 0xFC).
+   * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @param timestamp The number of microseconds since the UNIX epoch (Thursday,
+   * 1 January 1970) not counting leap seconds.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  appendTimestamp(long timestamp)
+  {
+    return append(Component.fromNumberWithMarker(timestamp, (byte)0xFC));
+  }
+
+  /**
+   * Append a component with the encoded sequence number according to NDN naming
+   * conventions for "Sequencing" (marker 0xFE).
+   * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @param sequenceNumber The sequence number.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  appendSequenceNumber(long sequenceNumber)
+  {
+    return append(Component.fromNumberWithMarker(sequenceNumber, (byte)0xFE));
   }
 
   /**
