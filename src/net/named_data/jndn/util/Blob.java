@@ -228,5 +228,18 @@ public class Blob {
     return equals((Blob)other);
   }
 
+  /**
+   * Decode the byte array as UTF8 and return the Unicode string.
+   * @return A unicode string, or "" if the buffer is null.
+   */
+  public final String
+  toString()
+  {
+    if (buffer_ == null)
+      return "";
+    else
+      return new String(buffer_.array());
+  }
+
   private final ByteBuffer buffer_;
 }
