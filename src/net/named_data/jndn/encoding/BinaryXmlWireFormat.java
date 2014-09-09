@@ -707,7 +707,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     }
 
     encoder.writeOptionalUnsignedDecimalIntDTagElement(BinaryXml.DTag_FreshnessSeconds, metaInfo.getFreshnessSeconds());
-    encoder.writeOptionalBlobDTagElement(BinaryXml.DTag_FinalBlockID, metaInfo.getFinalBlockID().getValue());
+    encoder.writeOptionalBlobDTagElement(BinaryXml.DTag_FinalBlockID, metaInfo.getFinalBlockId().getValue());
     // This will skip encoding if there is no key locator.
     encodeKeyLocator(signature.getKeyLocator(), encoder);
     encoder.writeElementClose();
@@ -741,7 +741,7 @@ public class BinaryXmlWireFormat extends WireFormat {
     }
 
     metaInfo.setFreshnessSeconds(decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_FreshnessSeconds));
-    metaInfo.setFinalBlockID(new Name.Component(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_FinalBlockID), true)));
+    metaInfo.setFinalBlockId(new Name.Component(new Blob(decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_FinalBlockID), true)));
     decodeOptionalKeyLocator(signature.getKeyLocator(), decoder);
     decoder.readElementClose();
   }

@@ -674,7 +674,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
-    ByteBuffer finalBlockIdBuf = metaInfo.getFinalBlockID().getValue().buf();
+    ByteBuffer finalBlockIdBuf = metaInfo.getFinalBlockId().getValue().buf();
     if (finalBlockIdBuf != null && finalBlockIdBuf.remaining() > 0) {
       // FinalBlockId has an inner NameComponent.
       int finalBlockIdSaveLength = encoder.getLength();
@@ -723,13 +723,13 @@ public class Tlv0_1WireFormat extends WireFormat {
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.FreshnessPeriod, endOffset));
     if (decoder.peekType(Tlv.FinalBlockId, endOffset)) {
       int finalBlockIdEndOffset = decoder.readNestedTlvsStart(Tlv.FinalBlockId);
-      metaInfo.setFinalBlockID
+      metaInfo.setFinalBlockId
         (new Name.Component
          (new Blob(decoder.readBlobTlv(Tlv.NameComponent), true)));
       decoder.finishNestedTlvs(finalBlockIdEndOffset);
     }
     else
-      metaInfo.setFinalBlockID(null);
+      metaInfo.setFinalBlockId(null);
 
     decoder.finishNestedTlvs(endOffset);
   };

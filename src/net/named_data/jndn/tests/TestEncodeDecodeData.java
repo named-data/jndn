@@ -262,8 +262,8 @@ public class TestEncodeDecodeData {
       (data.getMetaInfo().getFreshnessPeriod() >= 0 ?
         "" + data.getMetaInfo().getFreshnessPeriod() : "<none>"));
     System.out.println("metaInfo.finalBlockID: " +
-      (data.getMetaInfo().getFinalBlockID().getValue().size() > 0 ?
-       data.getMetaInfo().getFinalBlockID().getValue().toHex() : "<none>"));
+      (data.getMetaInfo().getFinalBlockId().getValue().size() > 0 ?
+       data.getMetaInfo().getFinalBlockId().getValue().toHex() : "<none>"));
 
     if (data.getSignature() instanceof Sha256WithRsaSignature) {
       Sha256WithRsaSignature signature =
@@ -332,7 +332,7 @@ public class TestEncodeDecodeData {
       Data freshData = new Data(new Name("/ndn/abc"));
       freshData.setContent(new Blob("SUCCESS!"));
       freshData.getMetaInfo().setFreshnessPeriod(5000);
-      freshData.getMetaInfo().setFinalBlockID(new Name("/%00%09").get(0));
+      freshData.getMetaInfo().setFinalBlockId(new Name("/%00%09").get(0));
 
       MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
       MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
