@@ -63,7 +63,13 @@ public class MetaInfo implements ChangeCountable {
   }
 
   public final Name.Component
-  getFinalBlockID() { return finalBlockID_; }
+  getFinalBlockId() { return finalBlockID_; }
+
+  /**
+   * @deprecated Use getFinalBlockId.
+   */
+  public final Name.Component
+  getFinalBlockID() { return getFinalBlockId(); }
 
   /**
    * @deprecated Use the application-specific content to store a timestamp.
@@ -100,10 +106,19 @@ public class MetaInfo implements ChangeCountable {
   }
 
   public final void
-  setFinalBlockID(Name.Component finalBlockID)
+  setFinalBlockId(Name.Component finalBlockID)
   {
     finalBlockID_ = (finalBlockID == null ? new Name.Component() : finalBlockID);
     ++changeCount_;
+  }
+
+  /**
+   * @deprecated Use setFinalBlockId.
+   */
+  public final void
+  setFinalBlockID(Name.Component finalBlockID)
+  {
+    setFinalBlockId(finalBlockID);
   }
 
   /**
