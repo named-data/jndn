@@ -261,7 +261,7 @@ public class TestEncodeDecodeData {
     System.out.println("metaInfo.freshnessPeriod (milliseconds): " +
       (data.getMetaInfo().getFreshnessPeriod() >= 0 ?
         "" + data.getMetaInfo().getFreshnessPeriod() : "<none>"));
-    System.out.println("metaInfo.finalBlockID: " +
+    System.out.println("metaInfo.finalBlockId: " +
       (data.getMetaInfo().getFinalBlockId().getValue().size() > 0 ?
        data.getMetaInfo().getFinalBlockId().getValue().toHex() : "<none>"));
 

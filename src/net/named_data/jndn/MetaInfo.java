@@ -38,7 +38,7 @@ public class MetaInfo implements ChangeCountable {
     type_ = metaInfo.type_;
     freshnessPeriod_ = metaInfo.freshnessPeriod_;
     // Name.Component is read-only, so we don't need a deep copy.
-    finalBlockID_ = metaInfo.finalBlockID_;
+    finalBlockId_ = metaInfo.finalBlockId_;
   }
 
   /**
@@ -63,7 +63,7 @@ public class MetaInfo implements ChangeCountable {
   }
 
   public final Name.Component
-  getFinalBlockId() { return finalBlockID_; }
+  getFinalBlockId() { return finalBlockId_; }
 
   /**
    * @deprecated Use getFinalBlockId.
@@ -106,9 +106,9 @@ public class MetaInfo implements ChangeCountable {
   }
 
   public final void
-  setFinalBlockId(Name.Component finalBlockID)
+  setFinalBlockId(Name.Component finalBlockId)
   {
-    finalBlockID_ = (finalBlockID == null ? new Name.Component() : finalBlockID);
+    finalBlockId_ = (finalBlockId == null ? new Name.Component() : finalBlockId);
     ++changeCount_;
   }
 
@@ -116,9 +116,9 @@ public class MetaInfo implements ChangeCountable {
    * @deprecated Use setFinalBlockId.
    */
   public final void
-  setFinalBlockID(Name.Component finalBlockID)
+  setFinalBlockID(Name.Component finalBlockId)
   {
-    setFinalBlockId(finalBlockID);
+    setFinalBlockId(finalBlockId);
   }
 
   /**
@@ -131,6 +131,6 @@ public class MetaInfo implements ChangeCountable {
   private double timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
   private ContentType type_ = ContentType.BLOB; /**< default is ContentType.BLOB. */
   private double freshnessPeriod_; /**< -1 for none */
-  private Name.Component finalBlockID_ = new Name.Component(); /**< size 0 for none */
+  private Name.Component finalBlockId_ = new Name.Component(); /**< size 0 for none */
   private long changeCount_ = 0;
 }
