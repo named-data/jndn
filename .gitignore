@@ -10,3 +10,6 @@
 
 # Emacs temp files
 *~
+
+# Keep the contrib jars
+!contrib/*.jar
