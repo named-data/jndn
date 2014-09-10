@@ -88,7 +88,7 @@ public class MemoryContentCache implements OnInterest {
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
-  public void
+  public final void
   registerPrefix
     (Name prefix, OnRegisterFailed onRegisterFailed, OnInterest onDataNotFound,
      ForwardingFlags flags, WireFormat wireFormat) throws IOException, SecurityException
@@ -115,7 +115,7 @@ public class MemoryContentCache implements OnInterest {
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
-  public void
+  public final void
   registerPrefix
     (Name prefix, OnRegisterFailed onRegisterFailed, OnInterest onDataNotFound,
      ForwardingFlags flags) throws IOException, SecurityException
@@ -141,7 +141,7 @@ public class MemoryContentCache implements OnInterest {
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
-  public void
+  public final void
   registerPrefix
     (Name prefix, OnRegisterFailed onRegisterFailed, OnInterest onDataNotFound)
     throws IOException, SecurityException
@@ -164,7 +164,7 @@ public class MemoryContentCache implements OnInterest {
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
-  public void
+  public final void
   registerPrefix(Name prefix, OnRegisterFailed onRegisterFailed)
     throws IOException, SecurityException
   {
@@ -183,7 +183,7 @@ public class MemoryContentCache implements OnInterest {
    * @param data The Data packet object to put in the cache. This copies the
    * fields from the object.
    */
-  public void
+  public final void
   add(Data data)
   {
     doCleanup();
@@ -209,7 +209,7 @@ public class MemoryContentCache implements OnInterest {
       noStaleTimeCache_.add(new Content(data));
   }
 
-  public void
+  public final void
   onInterest(Name prefix, Interest interest, Transport transport,
     long registeredPrefixId)
   {
@@ -304,10 +304,10 @@ public class MemoryContentCache implements OnInterest {
       dataEncoding_ = data.wireEncode();
     }
 
-    public Name
+    public final Name
     getName() { return name_; }
 
-    public Blob
+    public final Blob
     getDataEncoding() { return dataEncoding_; }
 
     private final Name name_;
@@ -341,13 +341,13 @@ public class MemoryContentCache implements OnInterest {
      * Common.getNowMilliseconds().
      * @return True if this content is stale, otherwise false.
      */
-    public boolean
+    public final boolean
     isStale(double nowMilliseconds)
     {
       return staleTimeMilliseconds_ <= nowMilliseconds;
     }
 
-    public double
+    public final double
     getStaleTimeMilliseconds() { return staleTimeMilliseconds_; }
 
     private final double staleTimeMilliseconds_; /**< The time when the content
