@@ -128,9 +128,9 @@ public class MetaInfo implements ChangeCountable {
   public final long
   getChangeCount() { return changeCount_; }
 
-  private double timestampMilliseconds_; /**< milliseconds since 1/1/1970. -1 for none */
+  private double timestampMilliseconds_ = -1; /**< milliseconds since 1/1/1970. -1 for none */
   private ContentType type_ = ContentType.BLOB; /**< default is ContentType.BLOB. */
-  private double freshnessPeriod_; /**< -1 for none */
+  private double freshnessPeriod_ = -1; /**< -1 for none */
   private Name.Component finalBlockId_ = new Name.Component(); /**< size 0 for none */
   private long changeCount_ = 0;
 }
