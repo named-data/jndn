@@ -337,7 +337,7 @@ public class KeyChain {
    * @param certificateName The certificate name of the key to use for signing.
    * @param wireFormat A WireFormat object used to encode the input.
    */
-  public void
+  public final void
   sign(Data data, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
     identityManager_.signByCertificate(data, certificateName, wireFormat);
@@ -350,13 +350,13 @@ public class KeyChain {
    * key locator field and wireEncoding.
    * @param certificateName The certificate name of the key to use for signing.
    */
-  public void
+  public final void
   sign(Data data, Name certificateName) throws SecurityException
   {
     sign(data, certificateName, WireFormat.getDefaultWireFormat());
   }
 
-  public void
+  public final void
   sign(Interest interest, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
     // TODO: Handle signature algorithms other than Sha256WithRsa.
@@ -379,7 +379,7 @@ public class KeyChain {
       (wireFormat.encodeSignatureValue(signedSignature)));
   }
 
-  public void
+  public final void
   sign(Interest interest, Name certificateName) throws SecurityException
   {
     sign(interest, certificateName, WireFormat.getDefaultWireFormat());
@@ -405,7 +405,7 @@ public class KeyChain {
    * If empty, infer the signing identity from the data packet name.
    * @param wireFormat A WireFormat object used to encode the input. If omitted, use WireFormat getDefaultWireFormat().
    */
-  public void
+  public final void
   signByIdentity
     (Data data, Name identityName, WireFormat wireFormat) throws SecurityException
   {
@@ -441,7 +441,7 @@ public class KeyChain {
    * @param identityName The identity name for the key to use for signing.
    * If empty, infer the signing identity from the data packet name.
    */
-  public void
+  public final void
   signByIdentity(Data data, Name identityName) throws SecurityException
   {
     signByIdentity(data, identityName, WireFormat.getDefaultWireFormat());
@@ -454,7 +454,7 @@ public class KeyChain {
    * Infer the signing identity from the data packet name.
    * Use the default WireFormat.getDefaultWireFormat().
    */
-  public void
+  public final void
   signByIdentity(Data data) throws SecurityException
   {
     signByIdentity(data, new Name(), WireFormat.getDefaultWireFormat());
@@ -478,7 +478,7 @@ public class KeyChain {
     return identityManager_.signByCertificate(buffer, signingCertificateName);
   }
 
-  public void
+  public final void
   verifyData
     (Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed,
      int stepCount)
@@ -519,13 +519,13 @@ public class KeyChain {
    * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed.onVerifyFailed(data).
    */
-  public void
+  public final void
   verifyData(Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed)
   {
     verifyData(data, onVerified, onVerifyFailed, 0);
   }
 
-  public void
+  public final void
   verifyInterest
     (Interest interest, OnVerifiedInterest onVerified,
      OnVerifyInterestFailed onVerifyFailed, int stepCount)
@@ -568,7 +568,7 @@ public class KeyChain {
    * @param onVerifyFailed If the signature check fails, this calls 
    * onVerifyFailed.onVerifyInterestFailed(interest).
    */
-  public void
+  public final void
   verifyInterest
     (Interest interest, OnVerifiedInterest onVerified,
      OnVerifyInterestFailed onVerifyFailed)
@@ -580,7 +580,7 @@ public class KeyChain {
    * Set the Face which will be used to fetch required certificates.
    * @param face The Face object.
    */
-  public void
+  public final void
   setFace(Face face) { face_ = face; }
 
   /**
@@ -597,7 +597,7 @@ public class KeyChain {
       data_ = data;
     }
 
-    public void onData(Interest interest, Data data)
+    public final void onData(Interest interest, Data data)
     {
       // Try to verify the certificate (data) according to the parameters in
       //   nextStep.
@@ -606,7 +606,7 @@ public class KeyChain {
          nextStep_.stepCount_);
     }
 
-    public void onTimeout(Interest interest)
+    public final void onTimeout(Interest interest)
     {
       if (retry_ > 0) {
         // Issue the same expressInterest as in verifyData except decrement
