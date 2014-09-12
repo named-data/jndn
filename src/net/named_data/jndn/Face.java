@@ -455,7 +455,7 @@ public class Face {
    * @note This method is an experimental feature. See the API docs for more detail at
    * http://named-data.net/doc/ndn-ccl-api/face.html#face-makecommandinterest-method .
    */
-  void
+  public final void
   makeCommandInterest(Interest interest) throws SecurityException
   {
     node_.makeCommandInterest
