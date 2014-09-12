@@ -525,7 +525,56 @@ public class KeyChain {
     verifyData(data, onVerified, onVerifyFailed, 0);
   }
 
+  public void
+  verifyInterest
+    (Interest interest, OnVerifiedInterest onVerified,
+     OnVerifyInterestFailed onVerifyFailed, int stepCount)
+  {
+    Logger.getLogger(this.getClass().getName()).log
+      (Level.INFO, "Enter Verify");
 
+    if (policyManager_.requireVerify(interest)) {
+      ValidationRequest nextStep = policyManager_.checkVerificationPolicy
+        (interest, stepCount, onVerified, onVerifyFailed);
+      if (nextStep != null) {
+        /*
+        VerifyCallbacks callbacks = new VerifyCallbacks
+          (nextStep, nextStep.retry_, onVerifyFailed, interest);
+        try {
+          face_.expressInterest(nextStep.interest_, callbacks, callbacks);
+        }
+        catch (IOException ex) {
+          onVerifyFailed.onVerifyInterestFailed(interest);
+        }
+        */
+        throw new Error
+          ("verifyInterest: ValidationRequest not implemented yet");
+      }
+    }
+    else if (policyManager_.skipVerifyAndTrust(interest))
+      onVerified.onVerifiedInterest(interest);
+    else
+      onVerifyFailed.onVerifyInterestFailed(interest);
+  }
+
+  /**
+   * Check the signature on the signed interest and call either
+   * onVerify.onVerifiedInterest or onVerifyFailed.onVerifyInterestFailed. We
+   * use callback functions because verify may fetch information to check the
+   * signature.
+   * @param interest The interest with the signature to check.
+   * @param onVerified If the signature is verified, this calls 
+   * onVerified.onVerifiedInterest(interest).
+   * @param onVerifyFailed If the signature check fails, this calls 
+   * onVerifyFailed.onVerifyInterestFailed(interest).
+   */
+  public void
+  verifyInterest
+    (Interest interest, OnVerifiedInterest onVerified,
+     OnVerifyInterestFailed onVerifyFailed)
+  {
+    verifyInterest(interest, onVerified, onVerifyFailed, 0);
+  }
 
   /**
    * Set the Face which will be used to fetch required certificates.
