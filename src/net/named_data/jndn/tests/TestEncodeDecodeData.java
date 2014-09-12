@@ -290,7 +290,7 @@ public class TestEncodeDecodeData {
   private static class VerifyCallbacks implements OnVerified, OnVerifyFailed {
     public VerifyCallbacks(String prefix) { prefix_ = prefix; }
 
-    private String prefix_;
+    private final String prefix_;
 
     public void onVerified(Data data)
     {
