@@ -21,9 +21,13 @@
 package net.named_data.jndn.security.policy;
 
 import net.named_data.jndn.Data;
+import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.OnVerified;
+import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.ValidationRequest;
 
 /**
@@ -43,12 +47,30 @@ public abstract class PolicyManager {
   skipVerifyAndTrust(Data data);
 
   /**
+   * Check if the received signed interest can escape from verification and be
+   * trusted as valid.
+   * @param interest The received interest.
+   * @return true if the interest does not need to be verified to be trusted as
+   * valid, otherwise false.
+   */
+  public abstract boolean
+  skipVerifyAndTrust(Interest interest);
+
+  /**
    * Check if this PolicyManager has a verification rule for the received data.
    * @param data The received data packet.
    * @return true if the data must be verified, otherwise false.
    */
   public abstract boolean
   requireVerify(Data data);
+
+  /**
+   * Check if this PolicyManager has a verification rule for the received interest.
+   * @param interest The received interest.
+   * @return true if the interest must be verified, otherwise false.
+   */
+  public abstract boolean
+  requireVerify(Interest interest);
 
   /**
    * Check whether the received data packet complies with the verification
@@ -67,6 +89,34 @@ public abstract class PolicyManager {
   checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified,
      OnVerifyFailed onVerifyFailed);
+
+  /**
+   * Check whether the received signed interest complies with the verification
+   * policy, and get the indication of the next verification step.
+   * @param interest The interest with the signature to check.
+   * @param stepCount The number of verification steps that have been done, used
+   * to track the verification progress.
+   * @param onVerified If the signature is verified, this calls
+   * onVerified.onVerifiedInterest(interest).
+   * @param onVerifyFailed If the signature check fails, this calls
+   * onVerifyFailed.onVerifyInterestFailed(interest).
+   * @return the indication of next verification step, null if there is no
+   * further step.
+   */
+  public abstract ValidationRequest
+  checkVerificationPolicy
+    (Interest interest, int stepCount, OnVerifiedInterest onVerified,
+     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat);
+
+  public ValidationRequest
+  checkVerificationPolicy
+    (Interest interest, int stepCount, OnVerifiedInterest onVerified,
+     OnVerifyInterestFailed onVerifyFailed)
+  {
+    return checkVerificationPolicy
+      (interest, stepCount, onVerified, onVerifyFailed,
+       WireFormat.getDefaultWireFormat());
+  }
 
   /**
    * Check if the signing certificate name and data name satisfy the signing

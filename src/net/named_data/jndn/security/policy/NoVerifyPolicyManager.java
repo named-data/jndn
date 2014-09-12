@@ -21,9 +21,13 @@
 package net.named_data.jndn.security.policy;
 
 import net.named_data.jndn.Data;
+import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.OnVerified;
+import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.ValidationRequest;
 
 /**
@@ -41,11 +45,31 @@ public class NoVerifyPolicyManager extends PolicyManager {
   }
 
   /**
+   * Override to always skip verification and trust as valid.
+   * @param interest The received interest.
+   * @return true.
+   */
+  public boolean skipVerifyAndTrust(Interest interest)
+  {
+    return true;
+  }
+
+  /**
    * Override to return false for no verification rule for the received data.
    * @param data The received data packet.
    * @return false.
    */
   public boolean requireVerify(Data data)
+  {
+    return false;
+  }
+
+  /**
+   * Override to return false for no verification rule for the received interest.
+   * @param interest The received interest.
+   * @return false.
+   */
+  public boolean requireVerify(Interest interest)
   {
     return false;
   }
@@ -64,6 +88,24 @@ public class NoVerifyPolicyManager extends PolicyManager {
     (Data data, int stepCount, OnVerified onVerified, OnVerifyFailed onVerifyFailed)
   {
     onVerified.onVerified(data);
+    return null;
+  }
+
+  /**
+   * Override to call onVerified.onVerifiedInterest(interest) and to indicate no
+   * further verification step.
+   * @param interest The interest with the signature (to ignore).
+   * @param stepCount The number of verification steps that have been done, used
+   * to track the verification progress.
+   * @param onVerified This does override to call onVerified.onVerifiedInterest(interest).
+   * @param onVerifyFailed Override to ignore this.
+   * @return null for no further step.
+   */
+  public ValidationRequest checkVerificationPolicy
+    (Interest interest, int stepCount, OnVerifiedInterest onVerified,
+     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat)
+  {
+    onVerified.onVerifiedInterest(interest);
     return null;
   }
 

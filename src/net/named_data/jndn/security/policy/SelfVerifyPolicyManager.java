@@ -28,12 +28,19 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.OnVerified;
+import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.identity.IdentityStorage;
@@ -83,11 +90,31 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   /**
+   * Never skip verification.
+   * @param interest The received interest.
+   * @return false.
+   */
+  public boolean skipVerifyAndTrust(Interest interest)
+  {
+    return false;
+  }
+
+  /**
    * Always return true to use the self-verification rule for the received data.
    * @param data The received data packet.
    * @return true.
    */
   public boolean requireVerify(Data data)
+  {
+    return true;
+  }
+
+  /**
+   * Always return true to use the self-verification rule for the received interest.
+   * @param interest The received interest.
+   * @return true.
+   */
+  public boolean requireVerify(Interest interest)
   {
     return true;
   }
@@ -114,6 +141,51 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       onVerified.onVerified(data);
     else
       onVerifyFailed.onVerifyFailed(data);
+
+    // No more steps, so return a null ValidationRequest.
+    return null;
+  }
+
+  /**
+   * Use wireFormat.decodeSignatureInfoAndValue to decode the last two name
+   * components of the signed interest. Use the public key DER in the signed
+   * interest SignatureInfo's KeyLocator (if available) or look in the
+   * IdentityStorage for the public key with the name in the KeyLocator
+   * (if available) and use it to verify the interest. If the public key can't
+   * be found, call onVerifyFailed.
+   * @param interest The interest with the signature to check.
+   * @param stepCount The number of verification steps that have been done, used
+   * to track the verification progress. (stepCount is ignored.)
+   * @param onVerified If the signature is verified, this calls
+   * onVerified.onVerifiedInterest(interest).
+   * @param onVerifyFailed If the signature check fails or can't find the public
+   * key, this calls onVerifyFailed.onVerifyInterestFailed(interest).
+   * @return null for no further step for looking up a certificate chain.
+   */
+  public ValidationRequest
+  checkVerificationPolicy
+    (Interest interest, int stepCount, OnVerifiedInterest onVerified,
+     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat)
+  {
+    // Decode the last two name components of the signed interest
+    net.named_data.jndn.Signature signature;
+    try {
+      signature = wireFormat.decodeSignatureInfoAndValue
+        (interest.getName().get(-2).getValue().buf(),
+         interest.getName().get(-1).getValue().buf());
+    }
+    catch (EncodingException ex) {
+      Logger.getLogger(SelfVerifyPolicyManager.class.getName()).log
+        (Level.INFO, "Cannot decode the signed interest SignatureInfo and value", ex);
+      onVerifyFailed.onVerifyInterestFailed(interest);
+      return null;
+    }
+
+    // wireEncode returns the cached encoding if available.
+    if (verify(signature, interest.wireEncode(wireFormat)))
+      onVerified.onVerifiedInterest(interest);
+    else
+      onVerifyFailed.onVerifyInterestFailed(interest);
 
     // No more steps, so return a null ValidationRequest.
     return null;
