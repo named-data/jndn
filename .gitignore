@@ -3,6 +3,9 @@
 /build
 /dist
 
+# JUnit output
+/TEST*.xml
+
 # Javadoc output
 /doc
 
