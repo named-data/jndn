@@ -29,11 +29,11 @@ import net.named_data.jndn.encoding.tlv.TlvEncoder;
 /**
  * A Name holds an array of Name.Component and represents an NDN name.
  */
-public class Name implements ChangeCountable {
+public class Name implements ChangeCountable, Comparable {
   /**
    * A Name.Component holds a read-only name component value.
    */
-  public static class Component {
+  public static class Component implements Comparable {
     /**
      * Create a new Name.Component with a zero-length value.
      */
@@ -307,6 +307,12 @@ public class Name implements ChangeCountable {
 
       // The components are equal length. Just do a byte compare.
       return value_.buf().compareTo(other.value_.buf());
+    }
+
+    public final int
+    compareTo(Object o)
+    {
+      return this.compare((Component)o);
     }
 
     /**
@@ -761,6 +767,12 @@ public class Name implements ChangeCountable {
       return 1;
     else
       return 0;
+  }
+
+  public final int
+  compareTo(Object o)
+  {
+    return this.compare((Name)o);
   }
 
   /**
