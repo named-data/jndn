@@ -1,0 +1,73 @@
+<!-- based on http://ant.apache.org/manual/using.html -->
+<project name="jNDN" default="dist" basedir=".">
+    <description>
+        jNDN build file
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="tests-src" location="tests/src"/>
+  <property name="tests-build" location="tests/build"/>
+  <property name="dist"  location="dist"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+    <mkdir dir="${tests-build}"/>
+  </target>
+
+  <path id="classpath.lib">
+    <pathelement location="${build}" />
+  </path>
+
+  <path id="classpath.test">
+    <pathelement location="./contrib/hamcrest-core-1.3.jar"/>
+    <pathelement location="./contrib/junit-4.11.jar"/>
+    <pathelement location="${tests-build}" />
+  </path>
+
+  <target name="compile" depends="init" description="compile the library source" >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+      <classpath refid="classpath.test"/>
+    </javac>
+  </target>
+
+  <target name="compile-tests" depends="compile" description="compile the tests source" >
+    <!-- Compile the java code from ${tests-src} into ${tests-build} -->
+    <javac srcdir="${tests-src}" destdir="${tests-build}" includeantruntime="false">
+      <classpath refid="classpath.lib" />
+      <classpath refid="classpath.test"/>
+    </javac>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/lib"/>
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/lib/jndn-${DSTAMP}.jar" basedir="${build}"/>
+  </target>
+
+  <target name="test" depends="compile-tests" description="run the JUnit tests">
+    <junit fork="no" haltonfailure="no">
+      <formatter type="plain" usefile="false" />
+      <formatter type="xml" />
+      <classpath refid="classpath.lib" />
+      <classpath refid="classpath.test" />
+
+      <batchtest>
+        <fileset dir="${tests-build}" includes="**/unit_tests/Test*" />
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+</project>
