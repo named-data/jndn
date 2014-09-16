@@ -1,15 +1,10 @@
+# Compiled files
 *.class
-
-# Package Files #
-*.jar
-*.war
-*.ear
+/build
+/dist
 
 # Javadoc output
 /doc
 
 # Emacs temp files
 *~
-
-# Keep the contrib jars
-!contrib/*.jar
