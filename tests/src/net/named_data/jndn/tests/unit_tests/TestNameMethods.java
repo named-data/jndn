@@ -23,6 +23,7 @@ package net.named_data.jndn.tests.unit_tests;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 
 import org.junit.Test;
@@ -44,7 +45,16 @@ public class TestNameMethods {
   testUriConstructor()
   {
     Name name = new Name(expectedURI);
-    assertEquals("Constructed name has " + name.size() + " components instead of 3", name.size(), 3);
+    assertEquals("Constructed name has " + name.size() + " components instead of 3", name.size() + 1, 3);
     assertEquals("URI is incorrect", name.toUri(), expectedURI);
+  }
+
+  @Test
+  public void
+  testCopyConstructor()
+  {
+    Name name = new Name(expectedURI);
+    Name name2 = new Name(name);
+    assertTrue("Name from copy constructor does not match original", name.equals(name2));
   }
 }
