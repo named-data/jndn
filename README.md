@@ -1,17 +1,17 @@
 ------------------------------------------------------
-jndn:  A Named Data Networking client library for Java
+jNDN:  A Named Data Networking client library for Java
 ------------------------------------------------------
 
-jndn is a new implementation of a Named Data Networking client library written in Java.
+jNDN is a new implementation of a Named Data Networking client library written in Java.
 It is wire format compatible with the new NDN-TLV encoding, with NDNx and PARC's CCNx.
 
-NDN-CPP conforms to the NDN Common Client Libraries API and your application should
+jNDN conforms to the NDN Common Client Libraries API and your application should
 follow this public API:
 http://named-data.net/doc/ndn-ccl-api/ .
 
 See the file [INSTALL.md](https://github.com/named-data/jndn/blob/master/INSTALL.md) for build and install instructions.
 
-Please submit any bugs or issues to the NDN-CPP issue tracker:
+Please submit any bugs or issues to the jNDN issue tracker:
 http://redmine.named-data.net/projects/jndn/issues
 
 ---
