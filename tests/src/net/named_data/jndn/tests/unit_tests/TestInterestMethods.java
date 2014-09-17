@@ -130,7 +130,7 @@ public class TestInterestMethods {
   {
     ArrayList result = new ArrayList();
     for (int i = 0; i < strings.size(); ++i) {
-      if (!((String)strings.get(i)).substring(0, prefix.length()).equals(prefix))
+      if (!((String)strings.get(i)).startsWith(prefix))
         result.add(strings.get(i));
     }
 
