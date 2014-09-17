@@ -66,8 +66,8 @@
   </target>
 
   <target name="clean" description="clean up" >
-    <!-- Delete the ${build} and ${dist} directory trees -->
     <delete dir="${build}"/>
+    <delete dir="${tests-build}"/>
     <delete dir="${dist}"/>
   </target>
 </project>
