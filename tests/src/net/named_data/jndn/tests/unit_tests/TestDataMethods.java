@@ -23,8 +23,6 @@ package net.named_data.jndn.tests.unit_tests;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.KeyLocatorType;
