@@ -192,7 +192,8 @@ public class TestInterestMethods {
   {
     // see if the dump format is the same as we expect
     ArrayList decodedDump = dumpInterest(referenceInterest);
-    assertArrayEquals("Initial dump does not have expected format", initialDump.toArray(), decodedDump.toArray());
+    assertArrayEquals("Initial dump does not have expected format",
+                      initialDump.toArray(), decodedDump.toArray());
   }
 
   @Test
@@ -203,13 +204,13 @@ public class TestInterestMethods {
     Blob encoding = referenceInterest.wireEncode();
     Interest reDecodedInterest = new Interest();
     try {
-      //reDecodedInterest.wireDecode(encoding);
-      reDecodedInterest.wireDecode(new Blob());
+      reDecodedInterest.wireDecode(encoding);
     } catch (EncodingException ex) {
       fail("Can't decode reDecodedInterest");
     }
     ArrayList redecodedDump = dumpInterest(reDecodedInterest);
-    assertArrayEquals("Re-decoded interest does not match original", initialDump.toArray(), redecodedDump.toArray());
+    assertArrayEquals("Re-decoded interest does not match original",
+                      initialDump.toArray(), redecodedDump.toArray());
   }
 
   @Test
@@ -218,7 +219,8 @@ public class TestInterestMethods {
   {
     Interest freshInterest = createFreshInterest();
     ArrayList freshDump = dumpInterest(freshInterest);
-    assertTrue("Fresh interest does not match original", interestDumpsEqual(initialDump, freshDump));
+    assertTrue("Fresh interest does not match original",
+               interestDumpsEqual(initialDump, freshDump));
 
     Interest reDecodedFreshInterest = new Interest();
     try {
@@ -228,6 +230,39 @@ public class TestInterestMethods {
     }
     ArrayList reDecodedFreshDump = dumpInterest(reDecodedFreshInterest);
 
-    assertTrue("Redecoded fresh interest does not match original", interestDumpsEqual(freshDump, reDecodedFreshDump));
+    assertTrue("Redecoded fresh interest does not match original",
+               interestDumpsEqual(freshDump, reDecodedFreshDump));
+  }
+
+  @Test
+  public void
+  testCopyConstructor()
+  {
+    Interest interest = new Interest(referenceInterest);
+    assertTrue("Interest constructed as deep copy does not match original",
+               interestDumpsEqual(dumpInterest(interest), dumpInterest(referenceInterest)));
+  }
+
+  @Test
+  public void
+  testEmptyNonce()
+  {
+    // make sure a freshly created interest has no nonce
+    Interest freshInterest = createFreshInterest();
+    assertTrue("Freshly created interest should not have a nonce",
+               freshInterest.getNonce().isNull());
+  }
+
+  @Test
+  public void
+  testSetRemovesNonce()
+  {
+    // Ensure that changing a value on an interest clears the nonce.
+    assertFalse(referenceInterest.getNonce().isNull());
+    Interest interest = new Interest(referenceInterest);
+    // Change a child object.
+    interest.getExclude().clear();
+    assertTrue("Interest should not have a nonce after changing fields",
+               interest.getNonce().isNull());
   }
 }
