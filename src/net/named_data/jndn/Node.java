@@ -92,9 +92,12 @@ public class Node implements ElementListener {
     pendingInterestTable_.add(new PendingInterest
       (pendingInterestId, new Interest(interest), onData, onTimeout));
 
-    Blob encoding = interest.wireEncode(wireFormat);
-    transport_.send(encoding.buf());
-
+    // Special case: For timeoutPrefix_ we don't actually send the interest.
+    if (!timeoutPrefix_.match(interest.getName())) {
+      Blob encoding = interest.wireEncode(wireFormat);
+      transport_.send(encoding.buf());
+    }
+    
     return pendingInterestId;
   }
 
@@ -994,13 +997,14 @@ public class Node implements ElementListener {
     }
   }
 
-  private Transport transport_;
-  private Transport.ConnectionInfo connectionInfo_;
-  private ArrayList pendingInterestTable_ = new ArrayList();  // PendingInterest
-  private ArrayList registeredPrefixTable_ = new ArrayList(); // RegisteredPrefix
-  private Interest ndndIdFetcherInterest_;
+  private final Transport transport_;
+  private final Transport.ConnectionInfo connectionInfo_;
+  private final ArrayList pendingInterestTable_ = new ArrayList();  // PendingInterest
+  private final ArrayList registeredPrefixTable_ = new ArrayList(); // RegisteredPrefix
+  private final Interest ndndIdFetcherInterest_;
   private Blob ndndId_ = new Blob();
   private static final SecureRandom random_ = new SecureRandom();
-  private CommandInterestGenerator commandInterestGenerator_ =
+  private final CommandInterestGenerator commandInterestGenerator_ =
     new CommandInterestGenerator();
+  private final Name timeoutPrefix_ = new Name("/local/timeout");
 }
