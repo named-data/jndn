@@ -148,10 +148,10 @@ public class Name implements ChangeCountable, Comparable {
      * equal the marker.
      */
     public final long
-    toNumberWithMarker(byte marker) throws EncodingException
+    toNumberWithMarker(int marker) throws EncodingException
     {
       ByteBuffer buffer = value_.buf();
-      if (buffer == null || buffer.remaining() <= 0 || buffer.get(0) != marker)
+      if (buffer == null || buffer.remaining() <= 0 || buffer.get(0) != (byte)marker)
         throw new EncodingException
           ("Name component does not begin with the expected marker.");
 
@@ -175,7 +175,7 @@ public class Name implements ChangeCountable, Comparable {
     public final long
     toSegment() throws EncodingException
     {
-      return toNumberWithMarker((byte)0x00);
+      return toNumberWithMarker(0x00);
     }
 
     /**
@@ -189,7 +189,7 @@ public class Name implements ChangeCountable, Comparable {
     public final long
     toSegmentOffset() throws EncodingException
     {
-      return toNumberWithMarker((byte)0xFB);
+      return toNumberWithMarker(0xFB);
     }
 
     /**
@@ -204,7 +204,7 @@ public class Name implements ChangeCountable, Comparable {
     public final long
     toVersion() throws EncodingException
     {
-      return toNumberWithMarker((byte)0xFD);
+      return toNumberWithMarker(0xFD);
     }
 
     /**
@@ -219,7 +219,7 @@ public class Name implements ChangeCountable, Comparable {
     public final long
     toTimestamp() throws EncodingException
     {
-      return toNumberWithMarker((byte)0xFC);
+      return toNumberWithMarker(0xFC);
     }
 
     /**
@@ -233,7 +233,7 @@ public class Name implements ChangeCountable, Comparable {
     public final long
     toSequenceNumber() throws EncodingException
     {
-      return toNumberWithMarker((byte)0xFE);
+      return toNumberWithMarker(0xFE);
     }
 
     /**
@@ -261,7 +261,7 @@ public class Name implements ChangeCountable, Comparable {
      * @return The component value.
      */
     public static Component
-    fromNumberWithMarker(long number, byte marker)
+    fromNumberWithMarker(long number, int marker)
     {
       if (number < 0)
         number = 0;
@@ -620,7 +620,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendSegment(long segment)
   {
-    return append(Component.fromNumberWithMarker(segment, (byte)0x00));
+    return append(Component.fromNumberWithMarker(segment, 0x00));
   }
 
   /**
@@ -633,7 +633,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendSegmentOffset(long segmentOffset)
   {
-    return append(Component.fromNumberWithMarker(segmentOffset, (byte)0xFB));
+    return append(Component.fromNumberWithMarker(segmentOffset, 0xFB));
   }
 
   /**
@@ -648,7 +648,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendVersion(long version)
   {
-    return append(Component.fromNumberWithMarker(version, (byte)0xFD));
+    return append(Component.fromNumberWithMarker(version, 0xFD));
   }
 
   /**
@@ -662,7 +662,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendTimestamp(long timestamp)
   {
-    return append(Component.fromNumberWithMarker(timestamp, (byte)0xFC));
+    return append(Component.fromNumberWithMarker(timestamp, 0xFC));
   }
 
   /**
@@ -675,7 +675,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendSequenceNumber(long sequenceNumber)
   {
-    return append(Component.fromNumberWithMarker(sequenceNumber, (byte)0xFE));
+    return append(Component.fromNumberWithMarker(sequenceNumber, 0xFE));
   }
 
   /**

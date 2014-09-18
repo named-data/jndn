@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.1 (2014-09-16)
+Interim changes since jNDN v0.1 (2014-09-18)
 --------------------------------------------
 
 Changes
@@ -7,6 +7,7 @@ Changes
 * Moved tests from src/net/named_data/jndn/tests to tests/src/net/named_data/jndn/tests.
 * Added JUnit tests to tests/src/net/named_data/jndn/tests/unit_tests.
 * In MetaInfo, added get/setFinalBlockId (replaces the deprecated get/setFinalBlockID).
+* In Name.Component toNumberWithMarker and fromNumberWithMarker, pass the marker as int, not byte.
 
 Deprecated
 * In MetaInfo, deprecated get/setFinalBlockID. Use get/setFinalBlockId.
