@@ -19,7 +19,10 @@
 
 package net.named_data.jndn.util;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A Blob holds a pointer to an immutable ByteBuffer.  We use an immutable
@@ -107,13 +110,19 @@ public class Blob {
   }
 
   /**
-   * Create a new Blob from the UTF8 encoding of the Unicode string.
-   * @param value The Unicode string which is encoded as UTF8.
+   * Create a new Blob from the UTF-8 encoding of the Unicode string.
+   * @param value The Unicode string which is encoded as UTF-8.
    */
   public
   Blob(String value)
   {
-    byte[] utf8 = value.getBytes();
+    byte[] utf8;
+    try {
+      utf8 = value.getBytes("UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+      // We don't expect this to happen.
+      throw new Error("UTF-8 encoder not supported: " + ex.getMessage());
+    }
     buffer_ = ByteBuffer.allocate(utf8.length);
     buffer_.put(utf8);
     buffer_.flip();
@@ -237,8 +246,14 @@ public class Blob {
   {
     if (buffer_ == null)
       return "";
-    else
-      return new String(buffer_.array());
+    else {
+      try {
+        return new String(buffer_.array(), "UTF-8");
+      } catch (UnsupportedEncodingException ex) {
+        // We don't expect this to happen.
+        throw new Error("UTF-8 decoder not supported: " + ex.getMessage());
+      }
+    }
   }
 
   private final ByteBuffer buffer_;
