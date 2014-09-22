@@ -31,6 +31,12 @@ To install Apache Ant, in a terminal enter:
 
     sudo apt-get install ant
 
+## Windows
+jNDN is tested on Windows 7 64-bit.
+
+To install Apache Ant, download the binary zip and set up environment variables
+according to the instructions at http://ant.apache.org/manual/install.html .
+
 Build
 =====
 
@@ -47,6 +53,10 @@ To run the unit tests, in a terminal enter:
 To run a sample test file such as TestEncodeDecodeData (see the list below), in a terminal enter:
 
     java -cp tests/build:dist/lib/jndn.jar net.named_data.jndn.tests.TestEncodeDecodeData
+
+(On Windows, in a command prompt enter the following.)
+
+    java -cp tests\build;dist\lib\jndn.jar net.named_data.jndn.tests.TestEncodeDecodeData
 
 To make documentation and put into doc, in a terminal enter:
   
