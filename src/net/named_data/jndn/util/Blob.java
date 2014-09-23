@@ -21,8 +21,6 @@ package net.named_data.jndn.util;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A Blob holds a pointer to an immutable ByteBuffer.  We use an immutable
