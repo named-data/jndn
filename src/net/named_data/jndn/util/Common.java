@@ -57,4 +57,24 @@ public class Common {
     data.position(savePosition);
     return sha256.digest();
   }
+
+  /**
+   * Return a hex string of the contents of buffer.
+   * @param buffer The buffer.
+   * @return A string of hex bytes.
+   */
+  public static String
+  toHex(byte[] buffer)
+  {
+    StringBuffer output = new StringBuffer(buffer.length * 2);
+    for (int i = 0; i < buffer.length; ++i) {
+      String hex = Integer.toHexString((int)buffer[i] & 0xff);
+      if (hex.length() <= 1)
+        // Append the leading zero.
+        output.append("0");
+      output.append(hex);
+    }
+
+    return output.toString();
+  }
 }
