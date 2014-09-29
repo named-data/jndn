@@ -1,0 +1,19 @@
+// Compile this file using:
+// protoc --java_out=. chatbuf-proto.proto
+
+package net.named_data.jndn.tests;
+
+message ChatMessage {
+  required string to = 1;
+  required string from = 2;
+  enum ChatMessageType {
+    CHAT = 0;
+    HELLO = 1;
+    LEAVE = 2;
+    JOIN  = 3;
+    OTHER = 4;
+  }
+  required ChatMessageType type = 3 [default = CHAT];
+  optional string data = 4;
+  required int32 timestamp = 5;
+}
