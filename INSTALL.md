@@ -6,6 +6,7 @@ Prerequisites
 
 * Required: Java JDK version >= 1.7
 * Required: Apache Ant (for building jndn.jar and running unit tests)
+* Optional: Protobuf (for the ProtobufTlv converter and ChronoSync)
 
 Following are the detailed steps for each platform to install the prerequisites.
 
