@@ -31,6 +31,9 @@
   <target name="compile" depends="init" description="compile the library source" >
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+      <!-- For now, exclude files which depend on com.google.protobuf -->
+      <exclude name="net/named_data/jndn/sync/**"/>
+      <exclude name="net/named_data/jndn/encoding/ProtobufTlv.java"/>
       <classpath refid="classpath.lib"/>
     </javac>
   </target>
@@ -38,6 +41,11 @@
   <target name="compile-tests" depends="compile" description="compile the tests source" >
     <!-- Compile the java code from ${tests-src} into ${tests-build} -->
     <javac srcdir="${tests-src}" destdir="${tests-build}" includeantruntime="false">
+      <!-- For now, exclude files which depend on com.google.protobuf -->
+      <exclude name="net/named_data/jndn/tests/TestChronoChat.java"/>
+      <exclude name="net/named_data/jndn/tests/ChatbufProto.java"/>
+      <exclude name="net/named_data/jndn/tests/TestEncodeDecodeFibEntry.java"/>
+      <exclude name="net/named_data/jndn/tests/FibEntryProto.java"/>
       <classpath refid="classpath.lib" />
       <classpath refid="classpath.test"/>
     </javac>
