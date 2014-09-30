@@ -9,10 +9,10 @@
   <property name="tests-src" location="tests/src"/>
   <property name="tests-build" location="tests/build"/>
   <property name="dist"  location="dist"/>
-  <condition property="protobuf.unavailable">
-    <not> <available classname="com.google.protobuf.Message"/> </not>
+  <condition property="protobuf.available">
+    <available classname="com.google.protobuf.Message"/>
   </condition>
-  <echo message="protobuf.unavailable ${protobuf.unavailable}"/>
+  <echo message="protobuf.available=${protobuf.available}"/>
 
   <target name="init">
     <!-- Create the time stamp -->
@@ -35,8 +35,8 @@
   <target name="compile" depends="init" description="compile the library source" >
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}" includeantruntime="true">
-      <exclude name="net/named_data/jndn/sync/**"                   if="${protobuf.unavailable}"/>
-      <exclude name="net/named_data/jndn/encoding/ProtobufTlv.java" if="${protobuf.unavailable}"/>
+      <exclude name="net/named_data/jndn/sync/**"                   unless="${protobuf.available}"/>
+      <exclude name="net/named_data/jndn/encoding/ProtobufTlv.java" unless="${protobuf.available}"/>
       <classpath refid="classpath.lib"/>
     </javac>
   </target>
@@ -44,10 +44,10 @@
   <target name="compile-tests" depends="compile" description="compile the tests source" >
     <!-- Compile the java code from ${tests-src} into ${tests-build} -->
     <javac srcdir="${tests-src}" destdir="${tests-build}" includeantruntime="true">
-      <exclude name="net/named_data/jndn/tests/TestChronoChat.java"           if="${protobuf.unavailable}"/>
-      <exclude name="net/named_data/jndn/tests/ChatbufProto.java"             if="${protobuf.unavailable}"/>
-      <exclude name="net/named_data/jndn/tests/TestEncodeDecodeFibEntry.java" if="${protobuf.unavailable}"/>
-      <exclude name="net/named_data/jndn/tests/FibEntryProto.java"            if="${protobuf.unavailable}"/>
+      <exclude name="net/named_data/jndn/tests/TestChronoChat.java"           unless="${protobuf.available}"/>
+      <exclude name="net/named_data/jndn/tests/ChatbufProto.java"             unless="${protobuf.available}"/>
+      <exclude name="net/named_data/jndn/tests/TestEncodeDecodeFibEntry.java" unless="${protobuf.available}"/>
+      <exclude name="net/named_data/jndn/tests/FibEntryProto.java"            unless="${protobuf.available}"/>
       <classpath refid="classpath.lib" />
       <classpath refid="classpath.test"/>
     </javac>
