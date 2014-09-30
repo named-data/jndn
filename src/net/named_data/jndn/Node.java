@@ -30,6 +30,8 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.encoding.BinaryXml;
 import net.named_data.jndn.encoding.BinaryXmlDecoder;
 import net.named_data.jndn.encoding.BinaryXmlWireFormat;
@@ -451,6 +453,8 @@ public class Node implements ElementListener {
       // Do a quick check that the first byte is for DER encoding.
       if (ndndIdData.getContent().size() < 1 ||
           ndndIdData.getContent().buf().get(0) != 0x30) {
+        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+          "Register prefix failed: The content returned when fetching the NDNx ID does not appear to be a public key");
         info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
         return;
       }
@@ -474,6 +478,8 @@ public class Node implements ElementListener {
     public void
     onTimeout(Interest timedOutInterest)
     {
+      Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        "Register prefix failed: Timeout fetching the NDNx ID");
       info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
     }
 
@@ -541,16 +547,22 @@ public class Node implements ElementListener {
           statusCode = decoder.readNonNegativeIntegerTlv
                (Tlv.NfdCommand_StatusCode);
         }
-        catch (EncodingException exception) {
+        catch (EncodingException ex) {
+          Logger.getLogger(Node.class.getName()).log(Level.INFO,
+            "Register prefix failed: Error decoding the NFD response: {0}", ex);
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
           return;
         }
 
         // Status code 200 is "OK".
-        if (statusCode != 200)
+        if (statusCode != 200) {
+          Logger.getLogger(Node.class.getName()).log(Level.INFO,
+            "Register prefix failed: Expected NFD status code 200, got: {0}", statusCode);
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+        }
 
-        // Otherwise, silently succeed.
+        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+          "Register prefix succeeded with the NFD forwarder");
       }
       else {
         Name expectedName = new Name("/ndnx/.../selfreg");
@@ -558,11 +570,15 @@ public class Node implements ElementListener {
         if (responseData.getName().size() < 4 ||
             !responseData.getName().get(0).equals(expectedName.get(0)) ||
             !responseData.getName().get(2).equals(expectedName.get(2))) {
+          Logger.getLogger(Node.class.getName()).log(Level.INFO,
+            "Register prefix failed: Unexpected name in NDNx response: {0}",
+            responseData.getName().toUri());
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
           return;
         }
 
-        // Otherwise, silently succeed.
+        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+          "Register prefix succeeded with the NDNx forwarder");
       }
     }
 
@@ -574,6 +590,8 @@ public class Node implements ElementListener {
     onTimeout(Interest timedOutInterest)
     {
       if (info_.isNfdCommand_) {
+        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+          "Timeout for NFD register prefix command. Attempting an NDNx command...");
         // The application set the commandKeyChain, but we may be connected to NDNx.
         if (info_.node_.ndndId_.size() == 0) {
           // First fetch the ndndId of the connected hub.
@@ -590,9 +608,11 @@ public class Node implements ElementListener {
               (info_.node_.ndndIdFetcherInterest_, fetcher, fetcher,
                info_.wireFormat_);
           }
-          catch (IOException exception) {
+          catch (IOException ex) {
             // We don't expect this to happen since we already sent data
             //   through the transport.
+            Logger.getLogger(Node.class.getName()).log(Level.INFO,
+              "Register prefix failed: Error sending the register prefix interest to the forwarder: {0}", ex);
             info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
           }
         }
@@ -603,11 +623,15 @@ public class Node implements ElementListener {
             (0, new Name(info_.prefix_), info_.onInterest_, info_.onRegisterFailed_,
              info_.flags_, info_.wireFormat_);
       }
-      else
+      else {
         // An NDNx command was sent because there is no commandKeyChain, so we
         //   can't try an NFD command. Or it was sent from this callback after
         //   trying an NFD command. Fail.
+
+        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+          "Register prefix failed: Timeout waiting for the response from the register prefix interest");
         info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+      }
     }
 
     public static class Info {
@@ -779,21 +803,21 @@ public class Node implements ElementListener {
     try {
       keyFactory = KeyFactory.getInstance("RSA");
     }
-    catch (NoSuchAlgorithmException exception) {
+    catch (NoSuchAlgorithmException ex) {
       // Don't expect this to happen.
       throw new Error
-        ("KeyFactory: RSA is not supported: " + exception.getMessage());
+        ("KeyFactory: RSA is not supported: " + ex.getMessage());
     }
     PrivateKey privateKey;
     try {
       privateKey = keyFactory.generatePrivate
         (new PKCS8EncodedKeySpec(SELFREG_PRIVATE_KEY_DER.array()));
     }
-    catch (InvalidKeySpecException exception) {
+    catch (InvalidKeySpecException ex) {
       // Don't expect this to happen.
       throw new Error
         ("KeyFactory: PKCS8EncodedKeySpec is not supported: " +
-         exception.getMessage());
+         ex.getMessage());
     }
 
     // Sign the fields.
@@ -809,15 +833,15 @@ public class Node implements ElementListener {
     try {
       securitySignature.initSign(privateKey);
     }
-    catch (InvalidKeyException exception) {
-      throw new Error("InvalidKeyException: " + exception.getMessage());
+    catch (InvalidKeyException ex) {
+      throw new Error("InvalidKeyException: " + ex.getMessage());
     }
     try {
       securitySignature.update(encoding.signedBuf());
       signature.setSignature(new Blob(securitySignature.sign()));
     }
-    catch (SignatureException exception) {
-      throw new Error("SignatureException: " + exception.getMessage());
+    catch (SignatureException ex) {
+      throw new Error("SignatureException: " + ex.getMessage());
     }
   }
 
@@ -934,6 +958,8 @@ public class Node implements ElementListener {
     }
     catch (IOException ex) {
       // Can't send the interest. Call onRegisterFailed.
+      Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        "Register prefix failed: Error sending the register prefix interest to the forwarder: {0}", ex);
       onRegisterFailed.onRegisterFailed(prefix);
     }
   }
@@ -993,6 +1019,8 @@ public class Node implements ElementListener {
     }
     catch (IOException ex) {
       // Can't send the interest. Call onRegisterFailed.
+      Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        "Register prefix failed: Error sending the register prefix interest to the forwarder: {0}", ex);
       onRegisterFailed.onRegisterFailed(prefix);
     }
   }
