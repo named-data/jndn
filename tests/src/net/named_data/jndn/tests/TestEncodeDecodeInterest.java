@@ -262,6 +262,8 @@ public class TestEncodeDecodeInterest {
       System.out.println("Interest:");
       dumpInterest(interest);
 
+      // Set the name again to clear the cached encoding so we encode again.
+      interest.setName(interest.getName());
       Blob encoding = interest.wireEncode();
       System.out.println("");
       System.out.println("Re-encoded interest " + encoding.toHex());
