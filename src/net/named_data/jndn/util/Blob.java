@@ -217,7 +217,7 @@ public class Blob {
     return output.toString();
   }
 
-  public boolean equals(Blob other)
+  public final boolean equals(Blob other)
   {
     if (buffer_ == null)
       return other.buffer_ == null;
