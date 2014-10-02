@@ -542,13 +542,18 @@ public class Name implements ChangeCountable, Comparable {
 
   /**
    * Get a new name, constructed as a subset of components.
-   * @param iStartComponent The index if the first component to get.
+   * @param iStartComponent The index if the first component to get. If
+   * iStartComponent is -N then return return components starting from
+   * name.size() - N.
    * @param nComponents The number of components starting at iStartComponent.
    * @return A new name.
    */
   public final Name
   getSubName(int iStartComponent, int nComponents)
   {
+    if (iStartComponent < 0)
+      iStartComponent = components_.size() - (-iStartComponent);
+
     Name result = new Name();
 
     int iEnd = iStartComponent + nComponents;
@@ -561,12 +566,17 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Get a new name, constructed as a subset of components starting at
    * iStartComponent until the end of the name.
-   * @param iStartComponent The index if the first component to get.
+   * @param iStartComponent The index if the first component to get. If
+   * iStartComponent is -N then return return components starting from
+   * name.size() - N.
    * @return A new name.
    */
   public final Name
   getSubName(int iStartComponent)
   {
+    if (iStartComponent < 0)
+      iStartComponent = components_.size() - (-iStartComponent);
+
     Name result = new Name();
 
     for (int i = iStartComponent; i < components_.size(); ++i)
