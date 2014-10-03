@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.1 (2014-09-29)
+Interim changes since jNDN v0.1 (2014-10-03)
 --------------------------------------------
 
 Changes
@@ -6,6 +6,7 @@ Changes
 * Added MemoryContentCache.
 * Added ProtobufTlv.
 * Added ChronoSync2013 and TestChronoChat.
+* Added UdpTransport.
 * Moved tests from src/net/named_data/jndn/tests to tests/src/net/named_data/jndn/tests.
 * Added JUnit tests to tests/src/net/named_data/jndn/tests/unit_tests.
 * In MetaInfo, added get/setFinalBlockId (replaces the deprecated get/setFinalBlockID).
