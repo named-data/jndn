@@ -650,7 +650,8 @@ public class TestChronoChat {
       identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
       privateKeyStorage.setKeyPairForKeyName
         (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
-
+      face.setCommandSigningInfo(keyChain, certificateName);
+      
       Chat chat = new Chat
         (screenName, chatRoom, new Name(hubPrefix), face, keyChain, certificateName);
 
