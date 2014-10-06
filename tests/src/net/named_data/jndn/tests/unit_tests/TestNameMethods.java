@@ -72,17 +72,6 @@ public class TestNameMethods {
 
   @Test
   public void
-  testPrefix()
-  {
-    Name name = new Name(expectedURI);
-    Name name2 = name.getPrefix(2);
-    assertEquals("Name prefix has " + name2.size() + " components instead of 2", name2.size(), 2);
-    for (int i = 0; i < 2; ++i)
-      assertTrue(name.get(i).getValue().equals(name2.get(i).getValue()));
-  }
-
-  @Test
-  public void
   testAppend()
   {
     // could possibly split this into different tests
@@ -102,11 +91,25 @@ public class TestNameMethods {
 
   @Test
   public void
+  testPrefix()
+  {
+    Name name = new Name("/edu/cmu/andrew/user/3498478");
+    Name prefix1 = name.getPrefix(2);
+    assertEquals("Name prefix has " + prefix1.size() + " components instead of 2", prefix1.size(), 2);
+    for (int i = 0; i < 2; ++i)
+      assertTrue(name.get(i).getValue().equals(prefix1.get(i).getValue()));
+
+    Name prefix2 = name.getPrefix(100);
+    assertEquals("Prefix with more components than original should stop at end of original name", prefix2, name);
+  }
+
+  @Test
+  public void
   testSubName()
   {
     Name name = new Name("/edu/cmu/andrew/user/3498478");
     Name subName1 = name.getSubName(0);
-    assertTrue("Subname from first component does not match original name", subName1.equals(name));
+    assertEquals("Subname from first component does not match original name", subName1, name);
     Name subName2 = name.getSubName(3);
     assertEquals("/user/3498478", subName2.toUri());
 
@@ -114,11 +117,17 @@ public class TestNameMethods {
     assertEquals("/cmu/andrew/user", subName3.toUri());
 
     Name subName4 = name.getSubName(0, 100);
-    assertTrue("Subname with more components than original should stop at end of original name", name.equals(subName4));
+    assertEquals("Subname with more components than original should stop at end of original name", name, subName4);
 
-    Name subName5 = name.getSubName(7,9);
-    assertTrue("Subname beginning after end of name should be empty", new Name().equals(subName5));
-  }
+    Name subName5 = name.getSubName(7, 2);
+    assertEquals("Subname beginning after end of name should be empty", new Name(), subName5);
+
+    Name subName6 = name.getSubName(-1, 7);
+    assertEquals("Negative subname with more components than original should stop at end of original name", subName6, new Name("/3498478"));
+
+    Name subName7 = name.getSubName(-5, 5);
+    assertEquals("Subname from (-length) should match original name", subName7, name);
+}
 
   @Test
   public void
