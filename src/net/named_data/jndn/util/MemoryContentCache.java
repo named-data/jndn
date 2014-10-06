@@ -95,8 +95,26 @@ public class MemoryContentCache implements OnInterest {
   {
     if (onDataNotFound != null)
       onDataNotFoundForPrefix_.put(prefix.toUri(), onDataNotFound);
-    face_.registerPrefix
+    long registeredPrefixId = face_.registerPrefix
       (prefix, this, onRegisterFailed, flags, wireFormat);
+    registeredPrefixIdList_.add(registeredPrefixId);
+  }
+
+  /**
+   * Call Face.removeRegisteredPrefix for all the prefixes given to the
+   * registerPrefix method on this MemoryContentCache object so that it will not
+   * receive interests any more. You can call this if you want to "shut down"
+   * this MemoryContentCache while your application is still running.
+   */
+  public final void
+  unregisterAll()
+  {
+    for (int i = 0; i < registeredPrefixIdList_.size(); ++i)
+      face_.removeRegisteredPrefix((long)registeredPrefixIdList_.get(i));
+    registeredPrefixIdList_.clear();
+
+    // Also clear each onDataNotFoundForPrefix given to registerPrefix.
+    onDataNotFoundForPrefix_.clear();
   }
 
   /**
@@ -382,7 +400,9 @@ public class MemoryContentCache implements OnInterest {
   private final HashMap onDataNotFoundForPrefix_ =
     new HashMap(); /**< The map key is the prefix.toUri().
                       * The value is the OnInterest callback. */
-  private final ArrayList noStaleTimeCache_ = new ArrayList(); // Content
-  private final ArrayList staleTimeCache_ = new ArrayList(); // StaleTimeContent
+  // Use a non-template ArrayList so it works with older Java compilers.
+  private final ArrayList registeredPrefixIdList_ = new ArrayList(); // of long
+  private final ArrayList noStaleTimeCache_ = new ArrayList(); // of Content
+  private final ArrayList staleTimeCache_ = new ArrayList(); // of StaleTimeContent
   private final Name.Component emptyComponent_ = new Name.Component();
 }
