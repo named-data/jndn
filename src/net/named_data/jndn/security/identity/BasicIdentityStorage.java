@@ -144,10 +144,30 @@ public class BasicIdentityStorage extends IdentityStorage {
    * @return true if the key exists, otherwise false.
    */
   public final boolean
-  doesKeyExist(Name keyName)
+  doesKeyExist(Name keyName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.doesKeyExist is not implemented");
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getSubName(0, keyName.size() - 1);
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("SELECT count(*) FROM Key WHERE identity_name=? AND key_identifier=?");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+
+      try {
+        ResultSet result = statement.executeQuery();
+
+        if (result.next())
+          return result.getInt(1) > 0;
+        else
+          return false;
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -170,10 +190,33 @@ public class BasicIdentityStorage extends IdentityStorage {
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
   public final Blob
-  getKey(Name keyName)
+  getKey(Name keyName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.getKey is not implemented");
+    if (!doesKeyExist(keyName))
+      return new Blob();
+
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getSubName(0, keyName.size() - 1);
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("SELECT public_key FROM Key WHERE identity_name=? AND key_identifier=?");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+
+      try {
+        ResultSet result = statement.executeQuery();
+
+        if (result.next())
+          return new Blob(result.getBytes("public_key"));
+        else
+          return new Blob();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
