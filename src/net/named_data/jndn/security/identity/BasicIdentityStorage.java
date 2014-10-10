@@ -98,7 +98,7 @@ public class BasicIdentityStorage extends IdentityStorage {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new SecurityException("BasicIdentityStorageSQLite error: " + exception);
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
   }
 
@@ -279,7 +279,7 @@ public class BasicIdentityStorage extends IdentityStorage {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new SecurityException("BasicIdentityStorageSQLite error: " + exception);
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
   }
 
@@ -309,7 +309,7 @@ public class BasicIdentityStorage extends IdentityStorage {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new SecurityException("BasicIdentityStorageSQLite error: " + exception);
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
   }
 
@@ -344,7 +344,7 @@ public class BasicIdentityStorage extends IdentityStorage {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new SecurityException("BasicIdentityStorageSQLite error: " + exception);
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
   }
 
