@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
@@ -251,7 +250,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @return True if the key exists, otherwise false.
    */
   public boolean
-  doesKeyExist(Name keyName, KeyClass keyClass)
+  doesKeyExist(Name keyName, KeyClass keyClass) throws SecurityException
   {
     if (keyClass == KeyClass.PUBLIC)
       return publicKeyStore_.containsKey(keyName.toUri());

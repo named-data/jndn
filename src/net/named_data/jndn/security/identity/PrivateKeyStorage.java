@@ -198,5 +198,5 @@ public abstract class PrivateKeyStorage {
    * @return True if the key exists, otherwise false.
    */
   public abstract boolean
-  doesKeyExist(Name keyName, KeyClass keyClass);
+  doesKeyExist(Name keyName, KeyClass keyClass) throws SecurityException;
 }

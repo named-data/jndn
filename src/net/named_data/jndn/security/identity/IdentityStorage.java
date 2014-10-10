@@ -40,7 +40,7 @@ public abstract class IdentityStorage {
    * @return True if the identity exists, otherwise false.
    */
   public abstract boolean
-  doesIdentityExist(Name identityName);
+  doesIdentityExist(Name identityName) throws SecurityException;
 
   /**
    * Add a new identity. An exception will be thrown if the identity already
@@ -56,7 +56,7 @@ public abstract class IdentityStorage {
    * @return True if the identity was revoked, false if not.
    */
   public abstract boolean
-  revokeIdentity();
+  revokeIdentity() throws SecurityException;
 
   /**
    * Generate a name for a new key belonging to the identity.
@@ -91,7 +91,7 @@ public abstract class IdentityStorage {
    * @return true if the key exists, otherwise false.
    */
   public abstract boolean
-  doesKeyExist(Name keyName);
+  doesKeyExist(Name keyName) throws SecurityException;
 
   /**
    * Add a public key to the identity storage.
@@ -109,7 +109,7 @@ public abstract class IdentityStorage {
    * @return The DER Blob.  If not found, return a Blob with a null pointer.
    */
   public abstract Blob
-  getKey(Name keyName);
+  getKey(Name keyName) throws SecurityException;
 
   /**
    * Get the KeyType of the public key with the given keyName.
@@ -126,7 +126,7 @@ public abstract class IdentityStorage {
    * @param keyName The name of the key.
    */
   public abstract void
-  activateKey(Name keyName);
+  activateKey(Name keyName) throws SecurityException;
 
   /**
    * Deactivate a key. If a key is marked as inactive, its private part will not
@@ -134,7 +134,7 @@ public abstract class IdentityStorage {
    * @param keyName The name of the key.
    */
   public abstract void
-  deactivateKey(Name keyName);
+  deactivateKey(Name keyName) throws SecurityException;
 
   /**
    * Check if the specified certificate already exists.
@@ -142,7 +142,7 @@ public abstract class IdentityStorage {
    * @return True if the certificate exists, otherwise false.
    */
   public abstract boolean
-  doesCertificateExist(Name certificateName);
+  doesCertificateExist(Name certificateName) throws SecurityException;
 
   /**
    * Add a certificate to the identity storage.
@@ -161,7 +161,7 @@ public abstract class IdentityStorage {
    * @return The requested certificate. If not found, return null.
    */
   public abstract Data
-  getCertificate(Name certificateName, boolean allowAny);
+  getCertificate(Name certificateName, boolean allowAny) throws SecurityException;
 
   /**
    * Get a certificate from the identity storage, requiring only a valid
@@ -170,7 +170,7 @@ public abstract class IdentityStorage {
    * @return The requested certificate. If not found, return null.
    */
   Data
-  getCertificate(Name certificateName)
+  getCertificate(Name certificateName) throws SecurityException
   {
     return getCertificate(certificateName, false);
   }
@@ -226,7 +226,7 @@ public abstract class IdentityStorage {
    * @param identityName The default identity name.
    */
   public abstract void
-  setDefaultIdentity(Name identityName);
+  setDefaultIdentity(Name identityName) throws SecurityException;
 
   /**
    * Set the default key name for the specified identity.
@@ -234,14 +234,14 @@ public abstract class IdentityStorage {
    * @param identityNameCheck The identity name to check the keyName.
    */
   public abstract void
-  setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck);
+  setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck) throws SecurityException;
 
   /**
    * Set the default key name for the specified identity.
    * @param keyName The key name.
    */
   void
-  setDefaultKeyNameForIdentity(Name keyName)
+  setDefaultKeyNameForIdentity(Name keyName) throws SecurityException
   {
     setDefaultKeyNameForIdentity(keyName, new Name());
   }
@@ -252,5 +252,5 @@ public abstract class IdentityStorage {
    * @param certificateName The certificate name.
    */
   public abstract void
-  setDefaultCertificateNameForKey(Name keyName, Name certificateName);
+  setDefaultCertificateNameForKey(Name keyName, Name certificateName) throws SecurityException;
 }

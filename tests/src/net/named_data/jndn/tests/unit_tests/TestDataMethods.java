@@ -83,6 +83,7 @@ class CredentialStorage {
   public void
   verifyData
     (Data data, OnVerified verifiedCallback, OnVerifyFailed failedCallback)
+    throws SecurityException
   {
     keyChain_.verifyData(data, verifiedCallback, failedCallback);
   }
@@ -438,7 +439,7 @@ public class TestDataMethods {
 
   @Test
   public void
-  testVerify()
+  testVerify() throws SecurityException
   {
     VerifyCounter counter = new VerifyCounter();
 

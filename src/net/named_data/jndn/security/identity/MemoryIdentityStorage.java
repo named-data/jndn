@@ -81,7 +81,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * @return true if the key exists, otherwise false.
    */
   public boolean
-  doesKeyExist(Name keyName)
+  doesKeyExist(Name keyName) throws SecurityException
   {
     return keyStore_.containsKey(keyName);
   }

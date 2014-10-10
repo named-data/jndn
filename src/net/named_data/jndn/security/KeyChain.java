@@ -166,7 +166,7 @@ public class KeyChain {
    * identity name is inferred from the keyName.
    */
   public final void
-  setDefaultKeyForIdentity(Name keyName, Name identityName)
+  setDefaultKeyForIdentity(Name keyName, Name identityName) throws SecurityException
   {
     identityManager_.setDefaultKeyForIdentity(keyName, identityName);
   }
@@ -176,7 +176,7 @@ public class KeyChain {
    * @param keyName The name of the key.
    */
   public final void
-  setDefaultKeyForIdentity(Name keyName)
+  setDefaultKeyForIdentity(Name keyName) throws SecurityException
   {
     identityManager_.setDefaultKeyForIdentity(keyName);
   }
@@ -260,7 +260,7 @@ public class KeyChain {
    * @return The requested certificate which is valid.
    */
   public final Certificate
-  getCertificate(Name certificateName)
+  getCertificate(Name certificateName) throws SecurityException
   {
     return identityManager_.getCertificate(certificateName);
   }
@@ -271,7 +271,7 @@ public class KeyChain {
    * @return The requested certificate.
    */
   public final Certificate
-  getAnyCertificate(Name certificateName)
+  getAnyCertificate(Name certificateName) throws SecurityException
   {
     return identityManager_.getAnyCertificate(certificateName);
   }
@@ -282,7 +282,7 @@ public class KeyChain {
    * @return The requested certificate which is valid.
    */
   public final IdentityCertificate
-  getIdentityCertificate(Name certificateName)
+  getIdentityCertificate(Name certificateName) throws SecurityException
   {
     return identityManager_.getCertificate(certificateName);
   }
@@ -293,7 +293,7 @@ public class KeyChain {
    * @return The requested certificate.
    */
   public final IdentityCertificate
-  getAnyIdentityCertificate(Name certificateName)
+  getAnyIdentityCertificate(Name certificateName) throws SecurityException
   {
     return identityManager_.getAnyCertificate(certificateName);
   }
@@ -481,7 +481,7 @@ public class KeyChain {
   public final void
   verifyData
     (Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed,
-     int stepCount)
+     int stepCount) throws SecurityException
   {
     Logger.getLogger(this.getClass().getName()).log
       (Level.INFO, "Enter Verify");
@@ -521,6 +521,7 @@ public class KeyChain {
    */
   public final void
   verifyData(Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed)
+    throws SecurityException
   {
     verifyData(data, onVerified, onVerifyFailed, 0);
   }
@@ -528,7 +529,7 @@ public class KeyChain {
   public final void
   verifyInterest
     (Interest interest, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, int stepCount)
+     OnVerifyInterestFailed onVerifyFailed, int stepCount) throws SecurityException
   {
     Logger.getLogger(this.getClass().getName()).log
       (Level.INFO, "Enter Verify");
@@ -571,7 +572,7 @@ public class KeyChain {
   public final void
   verifyInterest
     (Interest interest, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed)
+     OnVerifyInterestFailed onVerifyFailed) throws SecurityException
   {
     verifyInterest(interest, onVerified, onVerifyFailed, 0);
   }
@@ -599,11 +600,15 @@ public class KeyChain {
 
     public final void onData(Interest interest, Data data)
     {
-      // Try to verify the certificate (data) according to the parameters in
-      //   nextStep.
-      verifyData
-        (data, nextStep_.onVerified_, nextStep_.onVerifyFailed_,
-         nextStep_.stepCount_);
+      try {
+        // Try to verify the certificate (data) according to the parameters in
+        //   nextStep.
+        verifyData
+          (data, nextStep_.onVerified_, nextStep_.onVerifyFailed_,
+           nextStep_.stepCount_);
+      } catch (SecurityException ex) {
+        Logger.getLogger(KeyChain.class.getName()).log(Level.SEVERE, null, ex);
+      }
     }
 
     public final void onTimeout(Interest interest)

@@ -336,8 +336,15 @@ public class TestEncodeDecodeBenchmark {
       Data data = new Data();
       data.wireDecode(encoding.buf());
 
-      if (useCrypto)
-        keyChain.verifyData(data, callbacks, callbacks);
+      try {
+        if (useCrypto)
+          keyChain.verifyData(data, callbacks, callbacks);
+      }
+      catch (SecurityException exception) {
+        // Don't expect this to happen.
+        throw new Error
+          ("SecurityException in verify: " + exception.getMessage());
+      }
     }
     double finish = getNowSeconds();
 

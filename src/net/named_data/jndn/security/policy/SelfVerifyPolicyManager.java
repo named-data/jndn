@@ -134,7 +134,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    */
   public ValidationRequest checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified,
-     OnVerifyFailed onVerifyFailed)
+     OnVerifyFailed onVerifyFailed) throws net.named_data.jndn.security.SecurityException
   {
     // wireEncode returns the cached encoding if available.
     if (verify(data.getSignature(), data.wireEncode()))
@@ -165,7 +165,8 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   public ValidationRequest
   checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat)
+     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat) 
+    throws net.named_data.jndn.security.SecurityException
   {
     // Decode the last two name components of the signed interest
     net.named_data.jndn.Signature signature;
@@ -227,7 +228,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * @return True if the signature is verified, false if failed.
    */
   private boolean
-  verify(net.named_data.jndn.Signature signatureInfo, SignedBlob signedBlob)
+  verify(net.named_data.jndn.Signature signatureInfo, SignedBlob signedBlob) throws net.named_data.jndn.security.SecurityException
   {
     if (!(signatureInfo instanceof Sha256WithRsaSignature))
       throw new SecurityException("SelfVerifyPolicyManager: Signature is not Sha256WithRsaSignature.");

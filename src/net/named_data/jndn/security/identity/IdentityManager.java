@@ -149,7 +149,7 @@ public class IdentityManager {
    * identity name is inferred from the keyName.
    */
   public final void
-  setDefaultKeyForIdentity(Name keyName, Name identityName)
+  setDefaultKeyForIdentity(Name keyName, Name identityName) throws SecurityException
   {
     identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
   }
@@ -159,7 +159,7 @@ public class IdentityManager {
    * @param keyName The name of the key.
    */
   public final void
-  setDefaultKeyForIdentity(Name keyName)
+  setDefaultKeyForIdentity(Name keyName) throws SecurityException
   {
     setDefaultKeyForIdentity(keyName, new Name());
   }
@@ -358,7 +358,7 @@ public class IdentityManager {
    * @return the requested certificate which is valid.
    */
   public final IdentityCertificate
-  getCertificate(Name certificateName)
+  getCertificate(Name certificateName) throws SecurityException
   {
     return new IdentityCertificate
       (identityStorage_.getCertificate(certificateName, false));
@@ -370,7 +370,7 @@ public class IdentityManager {
    * @return the requested certificate.
    */
   public final IdentityCertificate
-  getAnyCertificate(Name certificateName)
+  getAnyCertificate(Name certificateName) throws SecurityException
   {
     return new IdentityCertificate
       (identityStorage_.getCertificate(certificateName, true));

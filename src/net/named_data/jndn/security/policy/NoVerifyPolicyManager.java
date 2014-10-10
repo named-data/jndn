@@ -39,7 +39,7 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param data The received data packet.
    * @return true.
    */
-  public boolean skipVerifyAndTrust(Data data)
+  public final boolean skipVerifyAndTrust(Data data)
   {
     return true;
   }
@@ -49,7 +49,7 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param interest The received interest.
    * @return true.
    */
-  public boolean skipVerifyAndTrust(Interest interest)
+  public final boolean skipVerifyAndTrust(Interest interest)
   {
     return true;
   }
@@ -59,7 +59,7 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param data The received data packet.
    * @return false.
    */
-  public boolean requireVerify(Data data)
+  public final boolean requireVerify(Data data)
   {
     return false;
   }
@@ -69,7 +69,7 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param interest The received interest.
    * @return false.
    */
-  public boolean requireVerify(Interest interest)
+  public final boolean requireVerify(Interest interest)
   {
     return false;
   }
@@ -84,8 +84,9 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param onVerifyFailed Override to ignore this.
    * @return null for no further step.
    */
-  public ValidationRequest checkVerificationPolicy
+  public final ValidationRequest checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified, OnVerifyFailed onVerifyFailed)
+    throws SecurityException
   {
     onVerified.onVerified(data);
     return null;
@@ -101,9 +102,10 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param onVerifyFailed Override to ignore this.
    * @return null for no further step.
    */
-  public ValidationRequest checkVerificationPolicy
+  public final ValidationRequest checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
      OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat)
+    throws SecurityException
   {
     onVerified.onVerifiedInterest(interest);
     return null;
@@ -117,7 +119,7 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @return true to indicate that the signing certificate can be used to sign
    * the data.
    */
-  public boolean checkSigningPolicy(Name dataName, Name certificateName)
+  public final boolean checkSigningPolicy(Name dataName, Name certificateName)
   {
     return true;
   }
@@ -127,7 +129,7 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param dataName The name of data to be signed.
    * @return An empty name because cannot infer.
    */
-  public Name inferSigningIdentity(Name dataName)
+  public final Name inferSigningIdentity(Name dataName)
   {
     return new Name();
   }

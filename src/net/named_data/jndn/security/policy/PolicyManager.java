@@ -29,6 +29,7 @@ import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnVerifyFailed;
 import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.ValidationRequest;
+import net.named_data.jndn.security.SecurityException;
 
 /**
  * A PolicyManager is an abstract base class to represent the policy for
@@ -88,7 +89,7 @@ public abstract class PolicyManager {
   public abstract ValidationRequest
   checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified,
-     OnVerifyFailed onVerifyFailed);
+     OnVerifyFailed onVerifyFailed) throws SecurityException;
 
   /**
    * Check whether the received signed interest complies with the verification
@@ -106,12 +107,12 @@ public abstract class PolicyManager {
   public abstract ValidationRequest
   checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat);
+     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat) throws SecurityException;
 
   public ValidationRequest
   checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed)
+     OnVerifyInterestFailed onVerifyFailed) throws SecurityException
   {
     return checkVerificationPolicy
       (interest, stepCount, onVerified, onVerifyFailed,
