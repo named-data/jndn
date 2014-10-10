@@ -72,7 +72,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   revokeIdentity()
   {
     throw new UnsupportedOperationException
-      ("MemoryIdentityStorage::revokeIdentity not implemented");
+      ("MemoryIdentityStorage.revokeIdentity not implemented");
   }
 
   /**
@@ -149,7 +149,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   activateKey(Name keyName)
   {
     throw new UnsupportedOperationException
-      ("MemoryIdentityStorage::activateKey not implemented");
+      ("MemoryIdentityStorage.activateKey not implemented");
   }
 
   /**
@@ -161,7 +161,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   deactivateKey(Name keyName)
   {
     throw new UnsupportedOperationException
-      ("MemoryIdentityStorage::deactivateKey not implemented");
+      ("MemoryIdentityStorage.deactivateKey not implemented");
   }
 
   /**
@@ -185,7 +185,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   addCertificate(IdentityCertificate certificate) throws SecurityException
   {
     throw new UnsupportedOperationException
-      ("MemoryIdentityStorage::addCertificate not implemented");
+      ("MemoryIdentityStorage.addCertificate not implemented");
     /*
     Name certificateName = certificate.getName();
     Name keyName = certificate.getPublicKeyName();
@@ -264,7 +264,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   getDefaultKeyNameForIdentity(Name identityName) throws SecurityException
   {
     throw new UnsupportedOperationException
-      ("MemoryIdentityStorage::getDefaultKeyNameForIdentity not implemented");
+      ("MemoryIdentityStorage.getDefaultKeyNameForIdentity not implemented");
   }
 
   /**
@@ -278,7 +278,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   getDefaultCertificateNameForKey(Name keyName) throws SecurityException
   {
     throw new UnsupportedOperationException
-      ("MemoryIdentityStorage::getDefaultCertificateNameForKey not implemented");
+      ("MemoryIdentityStorage.getDefaultCertificateNameForKey not implemented");
   }
 
   /**
@@ -306,7 +306,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
   {
     throw new UnsupportedOperationException
-      ("MemoryIdentityStorage::setDefaultKeyNameForIdentity not implemented");
+      ("MemoryIdentityStorage.setDefaultKeyNameForIdentity not implemented");
   }
 
   /**
@@ -318,7 +318,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   setDefaultCertificateNameForKey(Name keyName, Name certificateName)
   {
     throw new UnsupportedOperationException
-      ("MemoryIdentityStorage::setDefaultCertificateNameForKey not implemented");
+      ("MemoryIdentityStorage.setDefaultCertificateNameForKey not implemented");
   }
 
   private static class KeyRecord {

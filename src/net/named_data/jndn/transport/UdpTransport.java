@@ -29,7 +29,7 @@ import net.named_data.jndn.encoding.EncodingException;
 
 public class UdpTransport extends Transport {
   /**
-   * A UdpTransport::ConnectionInfo extends Transport::ConnectionInfo to hold
+   * A UdpTransport.ConnectionInfo extends Transport.ConnectionInfo to hold
    * the host and port info for the UDP connection.
    */
   public static class ConnectionInfo extends Transport.ConnectionInfo {

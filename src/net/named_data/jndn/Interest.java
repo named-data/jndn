@@ -443,7 +443,7 @@ public class Interest implements ChangeCountable {
   }
 
   /**
-   * Check if this Interest's name matches the given name (using Name::match)
+   * Check if this Interest's name matches the given name (using Name.match)
    * and the given name also conforms to the interest selectors.
    * @param name The name to check.
    * @return True if the name and interest selectors match, otherwise false.

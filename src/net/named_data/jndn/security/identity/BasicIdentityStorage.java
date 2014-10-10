@@ -317,7 +317,7 @@ public class BasicIdentityStorage extends IdentityStorage {
           return new Name(result.getString("identity_name"));
         else
           throw new SecurityException
-            ("BasicIdentityStorage::getDefaultIdentity: The default identity is not defined");
+            ("BasicIdentityStorage.getDefaultIdentity: The default identity is not defined");
       } finally {
         statement.close();
       }
@@ -347,7 +347,7 @@ public class BasicIdentityStorage extends IdentityStorage {
           return new Name(identityName).append(result.getString("key_identifier"));
         else
           throw new SecurityException
-            ("BasicIdentityStorage::getDefaultKeyNameForIdentity: The default key for the identity is not defined");
+            ("BasicIdentityStorage.getDefaultKeyNameForIdentity: The default key for the identity is not defined");
       } finally {
         statement.close();
       }
@@ -382,7 +382,7 @@ public class BasicIdentityStorage extends IdentityStorage {
           return new Name(result.getString("cert_name"));
         else
           throw new SecurityException
-            ("BasicIdentityStorage::getDefaultCertificateNameForKey: The default certificate for the key name is not defined");
+            ("BasicIdentityStorage.getDefaultCertificateNameForKey: The default certificate for the key name is not defined");
       } finally {
         statement.close();
       }

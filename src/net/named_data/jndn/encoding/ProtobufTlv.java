@@ -130,7 +130,7 @@ public class ProtobufTlv {
         else if (field.getType() == Type.ENUM) {
           int intValue = ((EnumValueDescriptor)value).getNumber();
           if (intValue < 0)
-            throw new Error("ProtobufTlv::encode: ENUM value may not be negative");
+            throw new Error("ProtobufTlv.encode: ENUM value may not be negative");
           encoder.writeNonNegativeIntegerTlv(tlvType, intValue);
         }
         else if (field.getType() == Type.BYTES)
@@ -143,7 +143,7 @@ public class ProtobufTlv {
             encoder.writeTypeAndLength(tlvType, 0);
         }
         else
-          throw new Error("ProtobufTlv::encode: Unknown field type");
+          throw new Error("ProtobufTlv.encode: Unknown field type");
       }
     }
   }

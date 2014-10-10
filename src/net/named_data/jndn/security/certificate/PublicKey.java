@@ -107,7 +107,7 @@ public class PublicKey {
       }
     }
     else
-      throw new SecurityException("PublicKey::fromDer: Unrecognized keyType");
+      throw new SecurityException("PublicKey.fromDer: Unrecognized keyType");
 
     return new PublicKey(keyType, keyDer);
   }

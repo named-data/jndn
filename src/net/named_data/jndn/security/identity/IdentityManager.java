@@ -289,7 +289,7 @@ public class IdentityManager {
      double notBefore, double notAfter)
   {
     throw new UnsupportedOperationException
-      ("IdentityManager::createIdentityCertificate not implemented");
+      ("IdentityManager.createIdentityCertificate not implemented");
   }
 
   /**
@@ -494,7 +494,7 @@ public class IdentityManager {
   selfSign(Name keyName)
   {
     throw new UnsupportedOperationException
-      ("IdentityManager::selfSign not implemented");
+      ("IdentityManager.selfSign not implemented");
   }
 
   /**

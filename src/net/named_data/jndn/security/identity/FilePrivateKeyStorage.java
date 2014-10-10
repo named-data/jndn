@@ -69,7 +69,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   generateKeyPair
     (Name keyName, KeyType keyType, int keySize) throws SecurityException
   {
-    throw new Error("FilePrivateKeyStorage::generateKeyPair not implemented");
+    throw new Error("FilePrivateKeyStorage.generateKeyPair not implemented");
   }
 
   /**
@@ -126,11 +126,11 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
 
     if (!doesKeyExist(keyName, KeyClass.PRIVATE))
       throw new SecurityException
-        ("FilePrivateKeyStorage::sign: private key doesn't exist");
+        ("FilePrivateKeyStorage.sign: private key doesn't exist");
 
     if (digestAlgorithm != DigestAlgorithm.SHA256)
       throw new SecurityException
-        ("FilePrivateKeyStorage::sign: Unsupported digest algorithm");
+        ("FilePrivateKeyStorage.sign: Unsupported digest algorithm");
 
     // Read the private key.
     StringBuilder contents = new StringBuilder();
@@ -215,7 +215,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   decrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
          throws SecurityException
   {
-    throw new Error("FilePrivateKeyStorage::decrypt not implemented");
+    throw new Error("FilePrivateKeyStorage.decrypt not implemented");
   }
 
   /**
@@ -232,7 +232,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   encrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
           throws SecurityException
   {
-    throw new Error("FilePrivateKeyStorage::encrypt not implemented");
+    throw new Error("FilePrivateKeyStorage.encrypt not implemented");
   }
 
   /**
@@ -246,7 +246,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   generateKey(Name keyName, KeyType keyType, int keySize)
              throws SecurityException
   {
-    throw new Error("FilePrivateKeyStorage::generateKey not implemented");
+    throw new Error("FilePrivateKeyStorage.generateKey not implemented");
   }
     
   /**

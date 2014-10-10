@@ -29,7 +29,7 @@ import net.named_data.jndn.encoding.EncodingException;
 
 public class TcpTransport extends Transport {
   /**
-   * A TcpTransport::ConnectionInfo extends Transport::ConnectionInfo to hold
+   * A TcpTransport.ConnectionInfo extends Transport.ConnectionInfo to hold
    * the host and port info for the TCP connection.
    */
   public static class ConnectionInfo extends Transport.ConnectionInfo {
