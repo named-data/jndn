@@ -108,10 +108,26 @@ public class BasicIdentityStorage extends IdentityStorage {
    * @return True if the identity exists, otherwise false.
    */
   public final boolean
-  doesIdentityExist(Name identityName)
+  doesIdentityExist(Name identityName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.doesIdentityExist is not implemented");
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("SELECT count(*) FROM Identity WHERE identity_name=?");
+      statement.setString(1, identityName.toUri());
+
+      try {
+        ResultSet result = statement.executeQuery();
+
+        if (result.next())
+          return result.getInt(1) > 0;
+        else
+          return false;
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -123,8 +139,22 @@ public class BasicIdentityStorage extends IdentityStorage {
   public final void
   addIdentity(Name identityName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.addIdentity is not implemented");
+    if (doesIdentityExist(identityName))
+      throw new SecurityException("Identity already exists");
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("INSERT INTO Identity (identity_name) values (?)");
+      statement.setString(1, identityName.toUri());
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -134,8 +164,8 @@ public class BasicIdentityStorage extends IdentityStorage {
   public final boolean
   revokeIdentity()
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.revokeIdentity is not implemented");
+    //TODO:
+    return false;
   }
 
   /**
@@ -147,7 +177,7 @@ public class BasicIdentityStorage extends IdentityStorage {
   doesKeyExist(Name keyName) throws SecurityException
   {
     String keyId = keyName.get(-1).toEscapedString();
-    Name identityName = keyName.getSubName(0, keyName.size() - 1);
+    Name identityName = keyName.getPrefix(-1);
 
     try {
       PreparedStatement statement = database_.prepareStatement
@@ -180,8 +210,31 @@ public class BasicIdentityStorage extends IdentityStorage {
   public final void
   addKey(Name keyName, KeyType keyType, Blob publicKeyDer) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.addKey is not implemented");
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getPrefix(-1);
+
+    if (!doesIdentityExist(identityName))
+      addIdentity(identityName);
+
+    if (doesKeyExist(keyName))
+      throw new SecurityException("a key with the same name already exists!");
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("INSERT INTO Key (identity_name, key_identifier, key_type, public_key) values (?, ?, ?, ?)");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+      statement.setInt(3, keyType.getNumericType());
+      statement.setBytes(4, publicKeyDer.getImmutableArray());
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -196,7 +249,7 @@ public class BasicIdentityStorage extends IdentityStorage {
       return new Blob();
 
     String keyId = keyName.get(-1).toEscapedString();
-    Name identityName = keyName.getSubName(0, keyName.size() - 1);
+    Name identityName = keyName.getPrefix(-1);
 
     try {
       PreparedStatement statement = database_.prepareStatement
@@ -228,8 +281,29 @@ public class BasicIdentityStorage extends IdentityStorage {
   public final KeyType
   getKeyType(Name keyName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.getKeyType is not implemented");
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getPrefix(-1);
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("SELECT key_type FROM Key WHERE identity_name=? AND key_identifier=?");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+
+      try {
+        ResultSet result = statement.executeQuery();
+
+        if (result.next())
+          return KeyType.values()[result.getInt("key_type")];
+        else
+          throw new SecurityException
+            ("Cannot get public key type because the keyName doesn't exist");
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -238,10 +312,9 @@ public class BasicIdentityStorage extends IdentityStorage {
    * @param keyName The name of the key.
    */
   public final void
-  activateKey(Name keyName)
+  activateKey(Name keyName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.activateKey is not implemented");
+    updateKeyStatus(keyName, true);
   }
 
   /**
@@ -250,10 +323,32 @@ public class BasicIdentityStorage extends IdentityStorage {
    * @param keyName The name of the key.
    */
   public final void
-  deactivateKey(Name keyName)
+  deactivateKey(Name keyName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.deactivateKey is not implemented");
+    updateKeyStatus(keyName, false);
+  }
+
+  private void
+  updateKeyStatus(Name keyName, boolean isActive) throws SecurityException
+  {
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getPrefix(-1);
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("UPDATE Key SET active=? WHERE identity_name=? AND key_identifier=?");
+      statement.setInt(1, (isActive ? 1 : 0));
+      statement.setString(2, identityName.toUri());
+      statement.setString(3, keyId);
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -262,10 +357,26 @@ public class BasicIdentityStorage extends IdentityStorage {
    * @return True if the certificate exists, otherwise false.
    */
   public final boolean
-  doesCertificateExist(Name certificateName)
+  doesCertificateExist(Name certificateName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.doesCertificateExist is not implemented");
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("SELECT count(*) FROM Certificate WHERE cert_name=?");
+      statement.setString(1, certificateName.toUri());
+
+      try {
+        ResultSet result = statement.executeQuery();
+
+        if (result.next())
+          return result.getInt(1) > 0;
+        else
+          return false;
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -367,7 +478,7 @@ public class BasicIdentityStorage extends IdentityStorage {
   getDefaultCertificateNameForKey(Name keyName) throws SecurityException
   {
     String keyId = keyName.get(-1).toEscapedString();
-    Name identityName = keyName.getSubName(0, keyName.size() - 1);
+    Name identityName = keyName.getPrefix(-1);
 
     try {
       PreparedStatement statement = database_.prepareStatement
