@@ -45,6 +45,32 @@ import net.named_data.jndn.util.Blob;
  */
 public class Tlv0_1WireFormat extends WireFormat {
   /**
+   * Encode name in NDN-TLV and return the encoding.
+   * @param name The Name object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeName(Name name)
+  {
+    TlvEncoder encoder = new TlvEncoder();
+    encodeName(name, new int[1], new int[1], encoder);
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as a name in NDN-TLV and set the fields of the interest object.
+   * @param name The Name object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void
+  decodeName(Name name, ByteBuffer input) throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    decodeName(name, new int[1], new int[1], decoder);
+  }
+
+  /**
    * Encode interest using NDN-TLV and return the encoding.
    * @param interest The Interest object to encode.
    * @param signedPortionBeginOffset Return the offset in the encoding of the

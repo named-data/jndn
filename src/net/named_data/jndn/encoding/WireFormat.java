@@ -24,10 +24,39 @@ import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.ForwardingEntry;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.Name;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.util.Blob;
 
 public class WireFormat {
+  /**
+   * Encode name and return the encoding.  Your derived class should
+   * override.
+   * @param name The Name object to encode.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public Blob
+  encodeName(Name name)
+  {
+    throw new UnsupportedOperationException("encodeName is not implemented");
+  }
+
+  /**
+   * Decode input as a name and set the fields of the Name object.
+   * Your derived class should override.
+   * @param name The Name object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void
+  decodeName(Name name, ByteBuffer input) throws EncodingException
+  {
+    throw new UnsupportedOperationException("decodeName is not implemented");
+  }
+
   /**
    * Encode interest and return the encoding.  Your derived class should
    * override.
