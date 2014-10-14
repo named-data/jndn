@@ -22,4 +22,9 @@ package net.named_data.jndn.encoding;
 
 public class OID {
   // TODO: Implement OID.
+  public OID(String oid)
+  {
+    throw new UnsupportedOperationException
+      ("OID constructor from String is not implemented");
+  }
 }
