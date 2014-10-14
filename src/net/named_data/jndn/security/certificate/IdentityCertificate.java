@@ -24,12 +24,55 @@ import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
 
 public class IdentityCertificate extends Certificate {
-  // TODO: Implement IdentityCertificate.
   public IdentityCertificate() {}
-  public IdentityCertificate(Data data) {}
 
-  public Name
+  /**
+   * Create an IdentityCertificate from the content in the data packet.
+   * @param data The data packet with the content to decode.
+   */
+  public IdentityCertificate(Data data)
+  {
+    super(data);
+
+    if (!isCorrectName(data.getName()))
+      throw new SecurityException("Wrong Identity Certificate Name!");
+
+    setPublicKeyName();
+  }
+
+  /**
+   * The copy constructor.
+   */
+  public IdentityCertificate(IdentityCertificate identityCertificate)
+  {
+    super(identityCertificate);
+    publicKeyName_ = identityCertificate.publicKeyName_;
+  }
+
+  /**
+   * Override the base class method to check that the name is a valid identity certificate name.
+   * @param name The identity certificate name which is copied.
+   * @return This Data so that you can chain calls to update values.
+   */
+  public Data
+  setName(Name name)
+  {
+    if (!isCorrectName(name))
+      throw new SecurityException("Wrong Identity Certificate Name!");
+
+    super.setName(name);
+    setPublicKeyName();
+    return this;
+  }
+
+  public final Name
   getPublicKeyName() { return publicKeyName_; }
+
+  public static boolean
+  isIdentityCertificate(Certificate certificate)
+  {
+    return isCorrectName(certificate.getName());
+  }
 
   /**
    * Get the public key name from the full certificate name.
@@ -57,5 +100,38 @@ public class IdentityCertificate extends Certificate {
       (tmpName.getSubName(i + 1, tmpName.size() - i - 1));
   }
 
-  private Name publicKeyName_;
+  private static boolean
+  isCorrectName(Name name)
+  {
+    int i = name.size() - 1;
+
+    String idString = "ID-CERT";
+    for (; i >= 0; i--) {
+      if(name.get(i).toEscapedString().equals(idString))
+        break;
+    }
+
+    if (i < 0)
+      return false;
+
+    int keyIdx = 0;
+    String keyString = "KEY";
+    for (; keyIdx < name.size(); keyIdx++) {
+      if(name.get(keyIdx).toEscapedString().equals(keyString))
+        break;
+    }
+
+    if (keyIdx >= name.size())
+      return false;
+
+    return true;
+  }
+
+  private void
+  setPublicKeyName()
+  {
+    publicKeyName_ = certificateNameToPublicKeyName(getName());
+  }
+
+  private Name publicKeyName_ = new Name();
 }
