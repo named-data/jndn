@@ -135,7 +135,7 @@ public class Interest implements ChangeCountable {
    * WireFormat.getDefaultWireFormat().
    * @return The encoded buffer.
    */
-  public final Blob
+  public final SignedBlob
   wireEncode()
   {
     return wireEncode(WireFormat.getDefaultWireFormat());
