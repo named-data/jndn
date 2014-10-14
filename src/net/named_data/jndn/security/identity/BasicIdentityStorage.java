@@ -32,10 +32,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithRsaSignature;
+import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 /**
  * BasicIdentityStorage extends IdentityStorage to implement a basic storage of
@@ -388,8 +391,61 @@ public class BasicIdentityStorage extends IdentityStorage {
   public final void
   addCertificate(IdentityCertificate certificate) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.addCertificate is not implemented");
+    Name certificateName = certificate.getName();
+    Name keyName = certificate.getPublicKeyName();
+
+    if (!doesKeyExist(keyName))
+      throw new SecurityException
+        ("No corresponding Key record for certificate!" + keyName.toUri() +
+         " " + certificateName.toUri());
+
+    // Check if the certificate already exists.
+    if (doesCertificateExist(certificateName))
+      throw new SecurityException("Certificate has already been installed!");
+
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identity = keyName.getPrefix(-1);
+
+    // Check if the public key of the certificate is the same as the key record.
+
+    Blob keyBlob = getKey(keyName);
+
+    if (keyBlob.isNull() || !keyBlob.equals(certificate.getPublicKeyInfo().getKeyDer()))
+      throw new SecurityException("Certificate does not match the public key!");
+
+    // Insert the certificate.
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("INSERT INTO Certificate (cert_name, cert_issuer, identity_name, key_identifier, not_before, not_after, certificate_data) " +
+         "values (?, ?, ?, ?, datetime(?, 'unixepoch'), datetime(?, 'unixepoch'), ?)");
+      statement.setString(1, certificateName.toUri());
+
+      // TODO: Support signature types other than Sha256WithRsaSignature.
+      if (!(certificate.getSignature() instanceof Sha256WithRsaSignature))
+        throw new SecurityException
+        ("BasicIdentityStorage: addCertificate: Signature is not Sha256WithRsaSignature.");
+      Sha256WithRsaSignature signature = (Sha256WithRsaSignature)certificate.getSignature();
+      Name signerName = signature.getKeyLocator().getKeyName();
+      statement.setString(2, signerName.toUri());
+
+      statement.setString(3, identity.toUri());
+      statement.setString(4, keyId);
+
+      // Convert from milliseconds to seconds since 1/1/1970.
+      statement.setLong(5, (long)(Math.floor(certificate.getNotBefore() / 1000.0)));
+      statement.setLong(6, (long)(Math.floor(certificate.getNotAfter() / 1000.0)));
+
+      // wireEncode returns the cached encoding if available.
+      statement.setBytes(7, certificate.wireEncode().getImmutableArray());
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -400,10 +456,53 @@ public class BasicIdentityStorage extends IdentityStorage {
    * @return The requested certificate. If not found, return null.
    */
   public final Data
-  getCertificate(Name certificateName, boolean allowAny)
+  getCertificate(Name certificateName, boolean allowAny) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.getCertificate is not implemented");
+    if (doesCertificateExist(certificateName)) {
+      try {
+        PreparedStatement statement;
+
+        if (!allowAny) {
+          throw new UnsupportedOperationException
+            ("BasicIdentityStorage.getCertificate for !allowAny is not implemented");
+          /*
+          statement = database_.prepareStatement
+            ("SELECT certificate_data FROM Certificate " +
+             "WHERE cert_name=? AND not_before<datetime(?, 'unixepoch') AND not_after>datetime(?, 'unixepoch') and valid_flag=1");
+          statement.setString(1, certificateName.toUri());
+          sqlite3_bind_int64(statement, 2, (sqlite3_int64)floor(ndn_getNowMilliseconds() / 1000.0));
+          sqlite3_bind_int64(statement, 3, (sqlite3_int64)floor(ndn_getNowMilliseconds() / 1000.0));
+          */
+        }
+        else {
+          statement = database_.prepareStatement
+            ("SELECT certificate_data FROM Certificate WHERE cert_name=?");
+          statement.setString(1, certificateName.toUri());
+        }
+
+        Data data = new Data();
+        try {
+          ResultSet result = statement.executeQuery();
+
+          if (result.next()) {
+            try {
+              data.wireDecode(new Blob(result.getBytes("certificate_data")));
+            } catch (EncodingException ex) {
+              throw new SecurityException
+                ("BasicIdentityStorage: Error decoding certificate data: " + ex);
+            }
+          }
+        } finally {
+          statement.close();
+        }
+
+        return data;
+      } catch (SQLException exception) {
+        throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+      }
+    }
+    else
+      return new Data();
   }
 
   /*****************************************
@@ -508,10 +607,30 @@ public class BasicIdentityStorage extends IdentityStorage {
    * @param identityName The default identity name.
    */
   public final void
-  setDefaultIdentity(Name identityName)
+  setDefaultIdentity(Name identityName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.setDefaultIdentity is not implemented");
+    try {
+      // Reset the previous default identity.
+      PreparedStatement statement = database_.prepareStatement
+        ("UPDATE Identity SET default_identity=0 WHERE default_identity=1");
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+
+      // Set the current default identity.
+      statement = database_.prepareStatement
+        ("UPDATE Identity SET default_identity=1 WHERE identity_name=?");
+      statement.setString(1, identityName.toUri());
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -521,9 +640,38 @@ public class BasicIdentityStorage extends IdentityStorage {
    */
   public final void
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
+    throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.setDefaultKeyNameForIdentity is not implemented");
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getPrefix(-1);
+
+    if (identityNameCheck.size() > 0 && !identityNameCheck.equals(identityName))
+      throw new SecurityException("Specified identity name does not match the key name");
+
+    try {
+      // Reset the previous default Key.
+      PreparedStatement statement = database_.prepareStatement
+        ("UPDATE Key SET default_key=0 WHERE default_key=1 and identity_name=?");
+      statement.setString(1, identityName.toUri());
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+
+      // Set the current default Key.
+      statement = database_.prepareStatement
+        ("UPDATE Key SET default_key=1 WHERE identity_name=? AND key_identifier=?");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -533,9 +681,37 @@ public class BasicIdentityStorage extends IdentityStorage {
    */
   public final void
   setDefaultCertificateNameForKey(Name keyName, Name certificateName)
+    throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.setDefaultCertificateNameForKey is not implemented");
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getPrefix(-1);
+
+    try {
+      // Reset the previous default Certificate.
+      PreparedStatement statement = database_.prepareStatement
+        ("UPDATE Certificate SET default_cert=0 WHERE default_cert=1 AND identity_name=? AND key_identifier=?");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+
+      // Set the current default Certificate.
+      statement = database_.prepareStatement
+        ("UPDATE Certificate SET default_cert=1 WHERE identity_name=? AND key_identifier=? AND cert_name=?");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+      statement.setString(3, certificateName.toUri());
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   private static final String INIT_ID_TABLE =
