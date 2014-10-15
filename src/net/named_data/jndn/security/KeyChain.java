@@ -77,7 +77,15 @@ public class KeyChain {
     policyManager_ = new NoVerifyPolicyManager();
   }
 
-  // TODO: KeyChain()
+  /**
+   * Create a new KeyChain with the the default IdentityManager and a
+   * NoVerifyPolicyManager.
+   */
+  KeyChain() throws SecurityException
+  {
+    identityManager_ = new IdentityManager();
+    policyManager_ = new NoVerifyPolicyManager();
+  }
 
   /*****************************************
    *          Identity Management          *
