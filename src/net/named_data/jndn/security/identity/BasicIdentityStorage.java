@@ -20,8 +20,7 @@
 
 package net.named_data.jndn.security.identity;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -38,7 +37,6 @@ import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.util.Blob;
-import net.named_data.jndn.util.Common;
 
 /**
  * BasicIdentityStorage extends IdentityStorage to implement a basic storage of
@@ -55,11 +53,12 @@ public class BasicIdentityStorage extends IdentityStorage {
       return;
     }
 
-    Path identityDir = Paths.get(System.getProperty("user.home", "."), ".ndn");
-    identityDir.toFile().mkdirs();
+    // NOTE: Use File because java.nio.file.Path is not available before Java 7.
+    File identityDir = new File(System.getProperty("user.home", "."), ".ndn");
+    identityDir.mkdirs();
 
     try {
-      Path databasePath = identityDir.resolve("ndnsec-public-info.db");
+      File databasePath = new File(identityDir, "ndnsec-public-info.db");
       database_ = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
 
       Statement statement = database_.createStatement();

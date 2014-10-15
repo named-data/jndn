@@ -22,9 +22,8 @@ package net.named_data.jndn.security.identity;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.File;
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -53,9 +52,10 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
    */
   public FilePrivateKeyStorage()
   {
-    keyStorePath_ = Paths.get
-      (System.getProperty("user.home", "."), ".ndn", "ndnsec-tpm-file");
-    keyStorePath_.toFile().mkdirs();
+    // NOTE: Use File because java.nio.file.Path is not available before Java 7.
+    keyStorePath_ = new File
+      (new File(System.getProperty("user.home", "."), ".ndn"), "ndnsec-tpm-file");
+    keyStorePath_.mkdirs();
   }
 
   /**
@@ -90,7 +90,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     StringBuilder contents = new StringBuilder();
     try {
       BufferedReader reader = new BufferedReader
-        (new FileReader(nameTransform(keyURI, ".pub").toFile()));
+        (new FileReader(nameTransform(keyURI, ".pub")));
       // Use "try/finally instead of "try-with-resources" or "using" which are not supported before Java 7.
       try {
         String line = null;
@@ -136,7 +136,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     StringBuilder contents = new StringBuilder();
     try {
       BufferedReader reader = new BufferedReader
-        (new FileReader(nameTransform(keyURI, ".pri").toFile()));
+        (new FileReader(nameTransform(keyURI, ".pri")));
       try {
         String line = null;
         while ((line = reader.readLine()) != null)
@@ -261,16 +261,16 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   {
     String keyURI = keyName.toUri();
     if (keyClass == KeyClass.PUBLIC)
-      return nameTransform(keyURI, ".pub").toFile().exists();
+      return nameTransform(keyURI, ".pub").exists();
     else if (keyClass == KeyClass.PRIVATE)
-      return nameTransform(keyURI, ".pri").toFile().exists();
+      return nameTransform(keyURI, ".pri").exists();
     else if (keyClass == KeyClass.SYMMETRIC)
-      return nameTransform(keyURI, ".key").toFile().exists();
+      return nameTransform(keyURI, ".key").exists();
     else
       return false;
   }
 
-  private Path
+  private File
   nameTransform(String keyName, String extension)
   {
     MessageDigest sha256;
@@ -288,8 +288,8 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     String digest = DatatypeConverter.printBase64Binary(hash);
     digest = digest.replace('/', '%');
 
-    return keyStorePath_.resolve(digest + extension);
+    return new File(keyStorePath_, digest + extension);
   }
 
-  private final Path keyStorePath_;
+  private final File keyStorePath_;
 }
