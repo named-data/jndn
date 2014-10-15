@@ -110,7 +110,7 @@ public class MemoryContentCache implements OnInterest {
   unregisterAll()
   {
     for (int i = 0; i < registeredPrefixIdList_.size(); ++i)
-      face_.removeRegisteredPrefix((long)registeredPrefixIdList_.get(i));
+      face_.removeRegisteredPrefix((long)(Long)registeredPrefixIdList_.get(i));
     registeredPrefixIdList_.clear();
 
     // Also clear each onDataNotFoundForPrefix given to registerPrefix.
