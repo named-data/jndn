@@ -57,6 +57,40 @@ public class IdentityManager {
   }
 
   /**
+   * Create a new IdentityManager to use the given IdentityStorage and
+   * the default PrivateKeyStorage for your system, which is
+   * OSXPrivateKeyStorage for OS X, otherwise FilePrivateKeyStorage.
+   * @param identityStorage An object of a subclass of IdentityStorage.
+   */
+  public IdentityManager(IdentityStorage identityStorage) throws SecurityException
+  {
+    identityStorage_ = identityStorage;
+
+    if (System.getProperty("os.name").equals("Mac OS X"))
+      throw new SecurityException
+        ("OSXPrivateKeyStorage is not implemented yet. You must create an IdentityManager with a different PrivateKeyStorage.");
+    else
+      privateKeyStorage_ = new FilePrivateKeyStorage();
+  }
+
+  /**
+   * Create a new IdentityManager to use BasicIdentityStorage and
+   * the default PrivateKeyStorage for your system, which is
+   * OSXPrivateKeyStorage for OS X, otherwise FilePrivateKeyStorage.
+   * @param identityStorage An object of a subclass of IdentityStorage.
+   */
+  public IdentityManager() throws SecurityException
+  {
+    identityStorage_ = new BasicIdentityStorage();
+
+    if (System.getProperty("os.name").equals("Mac OS X"))
+      throw new SecurityException
+        ("OSXPrivateKeyStorage is not implemented yet. You must create an IdentityManager with a different PrivateKeyStorage.");
+    else
+      privateKeyStorage_ = new FilePrivateKeyStorage();
+  }
+
+  /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
    * identity and a self-signed certificate of the KSK.
    * @param identityName The name of the identity.
