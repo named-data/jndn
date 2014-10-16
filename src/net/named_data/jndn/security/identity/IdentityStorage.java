@@ -64,7 +64,7 @@ public abstract class IdentityStorage {
    * @param useKsk If true, generate a KSK name, otherwise a DSK name.
    * @return The generated key name.
    */
-  Name
+  public final Name
   getNewKeyName(Name identityName, boolean useKsk) throws SecurityException
   {
     double ti = Common.getNowMilliseconds();
@@ -169,7 +169,7 @@ public abstract class IdentityStorage {
    * @param certificateName The name of the requested certificate.
    * @return The requested certificate. If not found, return null.
    */
-  Data
+  public final Data
   getCertificate(Name certificateName) throws SecurityException
   {
     return getCertificate(certificateName, false);
@@ -203,7 +203,7 @@ public abstract class IdentityStorage {
    * @throws SecurityException if the default key name for the identity is not
    * set or the default certificate name for the key name is not set.
    */
-  Name
+  public final Name
   getDefaultCertificateNameForIdentity(Name identityName) throws SecurityException
   {
     Name keyName = getDefaultKeyNameForIdentity(identityName);
@@ -240,7 +240,7 @@ public abstract class IdentityStorage {
    * Set the default key name for the specified identity.
    * @param keyName The key name.
    */
-  void
+  public final void
   setDefaultKeyNameForIdentity(Name keyName) throws SecurityException
   {
     setDefaultKeyNameForIdentity(keyName, new Name());
