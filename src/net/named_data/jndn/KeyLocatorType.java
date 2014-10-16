@@ -37,5 +37,5 @@ public enum KeyLocatorType {
   public final int
   getNumericType() { return type_; }
 
-  private int type_;
+  private final int type_;
 }

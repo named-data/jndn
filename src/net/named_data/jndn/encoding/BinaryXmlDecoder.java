@@ -51,8 +51,8 @@ public class BinaryXmlDecoder {
     int
     getValue() { return value_; }
 
-    private int type_;
-    private int value_;
+    private final int type_;
+    private final int value_;
   }
 
   /**
