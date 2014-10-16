@@ -109,7 +109,9 @@ public class DynamicByteBuffer {
   ensuredPut(ByteBuffer buffer)
   {
     ensureRemainingCapacity(buffer.remaining());
+    int savePosition = buffer.position();
     buffer_.put(buffer);
+    buffer.position(savePosition);
   }
 
   /**
