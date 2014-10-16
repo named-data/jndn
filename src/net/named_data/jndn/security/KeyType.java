@@ -36,7 +36,8 @@ public enum KeyType {
     type_ = type;
   }
 
-  public int getNumericType() { return type_; }
+  public final int
+  getNumericType() { return type_; }
 
   private int type_;
 }

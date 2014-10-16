@@ -39,7 +39,8 @@ public enum ContentType {
     type_ = type;
   }
 
-  public int getNumericType() { return type_; }
+  public final int
+  getNumericType() { return type_; }
 
   private int type_;
 }
