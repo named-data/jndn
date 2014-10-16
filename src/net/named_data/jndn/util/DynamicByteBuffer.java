@@ -191,6 +191,17 @@ public class DynamicByteBuffer {
     return buffer_.position();
   }
 
+ /**
+   * Call setRemainingFromBack to ensure there are remaining bytes for 1 more
+   * byte and put b at the new position.
+   * @param b The byte to put.
+   */
+  public final void
+  ensuredPutFromBack(byte b)
+  {
+    buffer_.put(setRemainingFromBack(buffer_.remaining() + 1), b);
+  }
+
   /**
    * Return the ByteBuffer.  Note that ensureCapacity can change the returned
    * ByteBuffer.
