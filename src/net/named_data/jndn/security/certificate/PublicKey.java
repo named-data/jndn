@@ -24,6 +24,7 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyType;
@@ -48,10 +49,9 @@ public class PublicKey {
    * @return the encoded DER syntax tree.
    */
   public final DerNode
-  toDer()
+  toDer() throws DerDecodingException
   {
-    throw new UnsupportedOperationException
-      ("PublicKey.toDer is not implemented");
+    return DerNode.parse(keyDer_.buf());
   }
 
   /**
