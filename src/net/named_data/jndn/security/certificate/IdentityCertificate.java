@@ -22,6 +22,7 @@ package net.named_data.jndn.security.certificate;
 
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.encoding.der.DerDecodingException;
 
 public class IdentityCertificate extends Certificate {
   public IdentityCertificate() {}
@@ -30,7 +31,7 @@ public class IdentityCertificate extends Certificate {
    * Create an IdentityCertificate from the content in the data packet.
    * @param data The data packet with the content to decode.
    */
-  public IdentityCertificate(Data data)
+  public IdentityCertificate(Data data) throws DerDecodingException
   {
     super(data);
 
@@ -44,6 +45,7 @@ public class IdentityCertificate extends Certificate {
    * The copy constructor.
    */
   public IdentityCertificate(IdentityCertificate identityCertificate)
+    throws DerDecodingException
   {
     super(identityCertificate);
     publicKeyName_ = identityCertificate.publicKeyName_;

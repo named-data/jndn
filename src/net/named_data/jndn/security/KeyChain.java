@@ -34,6 +34,7 @@ import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.security.certificate.Certificate;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.encryption.EncryptionManager;
@@ -268,7 +269,7 @@ public class KeyChain {
    * @return The requested certificate which is valid.
    */
   public final Certificate
-  getCertificate(Name certificateName) throws SecurityException
+  getCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return identityManager_.getCertificate(certificateName);
   }
@@ -279,7 +280,7 @@ public class KeyChain {
    * @return The requested certificate.
    */
   public final Certificate
-  getAnyCertificate(Name certificateName) throws SecurityException
+  getAnyCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return identityManager_.getAnyCertificate(certificateName);
   }
@@ -290,7 +291,7 @@ public class KeyChain {
    * @return The requested certificate which is valid.
    */
   public final IdentityCertificate
-  getIdentityCertificate(Name certificateName) throws SecurityException
+  getIdentityCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return identityManager_.getCertificate(certificateName);
   }
@@ -301,7 +302,7 @@ public class KeyChain {
    * @return The requested certificate.
    */
   public final IdentityCertificate
-  getAnyIdentityCertificate(Name certificateName) throws SecurityException
+  getAnyIdentityCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return identityManager_.getAnyCertificate(certificateName);
   }

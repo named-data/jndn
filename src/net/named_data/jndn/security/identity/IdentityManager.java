@@ -30,6 +30,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
@@ -392,7 +393,7 @@ public class IdentityManager {
    * @return the requested certificate which is valid.
    */
   public final IdentityCertificate
-  getCertificate(Name certificateName) throws SecurityException
+  getCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return new IdentityCertificate
       (identityStorage_.getCertificate(certificateName, false));
@@ -404,7 +405,7 @@ public class IdentityManager {
    * @return the requested certificate.
    */
   public final IdentityCertificate
-  getAnyCertificate(Name certificateName) throws SecurityException
+  getAnyCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return new IdentityCertificate
       (identityStorage_.getCertificate(certificateName, true));
