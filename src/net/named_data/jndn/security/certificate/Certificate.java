@@ -20,9 +20,14 @@
 
 package net.named_data.jndn.security.certificate;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.encoding.der.DerDecodingException;
+import net.named_data.jndn.encoding.der.DerNode;
+import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 public abstract class Certificate extends Data {
   /**
@@ -30,18 +35,16 @@ public abstract class Certificate extends Data {
    */
   public Certificate()
   {
-    throw new UnsupportedOperationException
-      ("Certificate constructor is not implemented");
   }
 
   /**
    * Create a Certificate from the content in the data packet.
    * @param data The data packet with the content to decode.
    */
-  public Certificate(Data data)
+  public Certificate(Data data) throws DerDecodingException
   {
-    throw new UnsupportedOperationException
-      ("Certificate constructor is not implemented");
+    super(data);
+    decode();
   }
 
   /**
@@ -61,16 +64,14 @@ public abstract class Certificate extends Data {
   public final void
   addSubjectDescription(CertificateSubjectDescription description)
   {
-    throw new UnsupportedOperationException
-      ("Certificate.addSubjectDescription is not implemented");
+    subjectDescriptionList_.add(description);
   }
 
   // List of CertificateSubjectDescription.
   public final List
   getSubjectDescriptionList()
   {
-    throw new UnsupportedOperationException
-      ("Certificate.getSubjectDescriptionList is not implemented");
+    return subjectDescriptionList_;
   }
 
   /**
@@ -80,58 +81,50 @@ public abstract class Certificate extends Data {
   public final void
   addExtension(CertificateExtension extension)
   {
-    throw new UnsupportedOperationException
-      ("Certificate.addExtension is not implemented");
+    extensionList_.add(extension);
   }
 
   // List of CertificateExtension.
   public final List
   getExtensionList()
   {
-    throw new UnsupportedOperationException
-      ("Certificate.getExtensionList is not implemented");
+    return extensionList_;
   }
 
   public final void
   setNotBefore(double notBefore)
   {
-    throw new UnsupportedOperationException
-      ("Certificate.setNotBefore is not implemented");
+    notBefore_ = notBefore;
   }
 
   public final double
   getNotBefore()
   {
-    throw new UnsupportedOperationException
-      ("Certificate.getNotBefore is not implemented");
+    return notBefore_;
   }
 
   public final void
   setNotAfter(double notAfter)
   {
-    throw new UnsupportedOperationException
-      ("Certificate.setNotAfter is not implemented");
+    notAfter_ = notAfter;
   }
 
   public final double
   getNotAfter()
   {
-    throw new UnsupportedOperationException
-      ("Certificate.getNotAfter is not implemented");
+    return notAfter_;
   }
 
   public final void
   setPublicKeyInfo(PublicKey key)
   {
-    throw new UnsupportedOperationException
-      ("Certificate.setPublicKeyInfo is not implemented");
+    key_ = key;
   }
 
   public final PublicKey
   getPublicKeyInfo()
   {
-    throw new UnsupportedOperationException
-      ("Certificate.getPublicKeyInfo is not implemented");
+    return key_;
   }
 
   public abstract Name
@@ -144,8 +137,8 @@ public abstract class Certificate extends Data {
   public final boolean
   isTooEarly()
   {
-    throw new UnsupportedOperationException
-      ("Certificate.isTooEarly is not implemented");
+    double now = Common.getNowMilliseconds();
+    return now < notBefore_;
   }
 
   /**
@@ -155,8 +148,18 @@ public abstract class Certificate extends Data {
   public final boolean
   isTooLate()
   {
+    double now = Common.getNowMilliseconds();
+    return now > notAfter_;
+  }
+
+  /**
+   * Populates the fields by decoding DER data from the Content.
+   */
+  private void
+  decode() throws DerDecodingException
+  {
     throw new UnsupportedOperationException
-      ("Certificate.isTooLate is not implemented");
+      ("Certificate.decode is not implemented");
   }
 
   public final void
@@ -165,4 +168,11 @@ public abstract class Certificate extends Data {
     throw new UnsupportedOperationException
       ("Certificate.printCertificate is not implemented");
   }
+
+  // Use a non-template ArrayList so it works with older Java compilers.
+  private final ArrayList subjectDescriptionList_ = new ArrayList(); // of CertificateSubjectDescription
+  private final ArrayList extensionList_ = new ArrayList();          // of CertificateExtension
+  private double notBefore_ = Double.MAX_VALUE; // MillisecondsSince1970
+  private double notAfter_ = -Double.MAX_VALUE;  // MillisecondsSince1970
+  private PublicKey key_ = new PublicKey();
 }
