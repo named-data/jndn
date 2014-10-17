@@ -33,6 +33,12 @@ import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
 public class PublicKey {
+  public PublicKey() 
+  {
+    keyType_ = null;
+    keyDer_ = new Blob();
+  }
+  
   /**
    * Create a new PublicKey with the given values.
    * @param keyType The KeyType, such as KeyType.RSA.
