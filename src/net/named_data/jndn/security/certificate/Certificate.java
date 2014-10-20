@@ -1,7 +1,8 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * @author: From code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
+ * @author: From PyNDN certificate.py by Adeola Bannis <thecodemaiden@gmail.com>.
+ * @author: Originally from code in NDN-CPP by Yingdi Yu <yingdi@cs.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,12 +21,21 @@
 
 package net.named_data.jndn.security.certificate;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.der.DerDecodingException;
+import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.encoding.der.DerNode;
+import net.named_data.jndn.encoding.der.DerNode.DerBoolean;
+import net.named_data.jndn.encoding.der.DerNode.DerGeneralizedTime;
+import net.named_data.jndn.encoding.der.DerNode.DerSequence;
+import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
@@ -48,13 +58,15 @@ public abstract class Certificate extends Data {
   }
 
   /**
-   * encode certificate info into content
+   * Encode the contents of the certificate in DER format and set the Content
+   * and MetaInfo fields.
    */
   public final void
-  encode()
+  encode() throws DerEncodingException, DerDecodingException
   {
-    throw new UnsupportedOperationException
-      ("Certificate.encode is not implemented");
+    DerNode root = toDer();
+    setContent(root.encode());
+    getMetaInfo().setType(ContentType.KEY);
   }
 
   /**
@@ -153,26 +165,134 @@ public abstract class Certificate extends Data {
   }
 
   /**
-   * Populates the fields by decoding DER data from the Content.
+   * Encode the certificate fields in DER format.
+   * @return The DER encoded contents of the certificate.
+   */
+  private DerSequence
+  toDer() throws DerEncodingException, DerDecodingException
+  {
+    DerSequence root = new DerSequence();
+    DerSequence validity = new DerSequence();
+    DerGeneralizedTime notBefore = new DerGeneralizedTime(notBefore_);
+    DerGeneralizedTime notAfter = new DerGeneralizedTime(notAfter_);
+
+    validity.addChild(notBefore);
+    validity.addChild(notAfter);
+
+    root.addChild(validity);
+
+    DerSequence subjectList = new DerSequence();
+    for (int i = 0; i < subjectDescriptionList_.size(); ++i)
+      subjectList.addChild(((CertificateSubjectDescription)subjectDescriptionList_.get(i)).toDer());
+
+    root.addChild(subjectList);
+    root.addChild(key_.toDer());
+
+    if (extensionList_.size() > 0) {
+      DerSequence extensionList = new DerSequence();
+      for (int i = 0; i < extensionList_.size(); ++i)
+        subjectList.addChild(((CertificateExtension)extensionList_.get(i)).toDer());
+      root.addChild(extensionList);
+    }
+
+    return root;
+  }
+
+  /**
+   * Populate the fields by the decoding DER data from the Content.
    */
   private void
   decode() throws DerDecodingException
   {
-    throw new UnsupportedOperationException
-      ("Certificate.decode is not implemented");
+    DerSequence root = (DerSequence)DerNode.parse(getContent().buf());
+
+    // We need to ensure that there are:
+    //   validity (notBefore, notAfter)
+    //   subject list
+    //   public key
+    //   (optional) extension list
+
+    List rootChildren = root.getChildren();
+    // 1st: validity info
+    List validityChildren = ((DerSequence)rootChildren.get(0)).getChildren();
+    notBefore_ = (Double)((DerGeneralizedTime)validityChildren.get(0)).toVal();
+    notAfter_ = (Double)((DerGeneralizedTime)validityChildren.get(1)).toVal();
+
+    // 2nd: subjectList
+    List subjectChildren = ((DerSequence)rootChildren.get(1)).getChildren();
+    for (int i = 0; i < subjectChildren.size(); ++i) {
+      DerSequence sd = (DerSequence)subjectChildren.get(i);
+      List descriptionChildren = sd.getChildren();
+      String oidStr = (String)((DerNode)descriptionChildren.get(0)).toVal();
+      String value = ((Blob)((DerNode)descriptionChildren.get(1)).toVal()).toString();
+
+      addSubjectDescription(new CertificateSubjectDescription(oidStr, value));
+    }
+
+    // 3rd: public key
+    Blob publicKeyInfo = ((DerNode)rootChildren.get(2)).encode();
+    // TODO: Handle key types other than RSA.
+    key_ =  new PublicKey(KeyType.RSA, publicKeyInfo);
+
+    if (rootChildren.size() > 3) {
+      List extensionChildren = ((DerSequence)rootChildren.get(4)).getChildren();
+      for (int i = 0; i < extensionChildren.size(); ++i) {
+        DerSequence extInfo = (DerSequence)extensionChildren.get(i);
+
+        List children = extInfo.getChildren();
+        String oidStr = (String)((DerNode)children.get(0)).toVal();
+        boolean isCritical = (Boolean)((DerBoolean)children.get(1)).toVal();
+        Blob value = ((DerNode)children.get(2)).encode();
+        addExtension(new CertificateExtension(oidStr, isCritical, value));
+      }
+    }
   }
 
-  public final void
-  printCertificate()
+  public String
+  toString()
   {
-    throw new UnsupportedOperationException
-      ("Certificate.printCertificate is not implemented");
+    String s = "Certificate name:\n";
+    s += "  " + getName().toUri() + "\n";
+    s += "Validity:\n";
+
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    String notBeforeStr = dateFormat.format(new Date((long)Math.round(notBefore_)));
+    String notAfterStr = dateFormat.format(new Date((long)Math.round(notAfter_)));
+
+    s += "  NotBefore: " + notBeforeStr + "\n";
+    s += "  NotAfter: " + notAfterStr + "\n";
+    for (int i = 0; i < subjectDescriptionList_.size(); ++i) {
+      CertificateSubjectDescription sd =
+        (CertificateSubjectDescription)subjectDescriptionList_.get(i);
+      s += "Subject Description:\n";
+      s += "  " + sd.getOidString() + ": " + sd.getValue() + "\n";
+    }
+
+    s += "Public key bits:\n";
+    Blob keyDer = key_.getKeyDer();
+    String encodedKey = Common.base64Encode(keyDer.getImmutableArray());
+    for (int i = 0; i < encodedKey.length(); i += 64)
+      s += encodedKey.substring(i, Math.min(i + 64, encodedKey.length())) + "\n";
+
+    if (extensionList_.size() > 0) {
+      s += "Extensions:\n";
+      for (int i = 0; i < extensionList_.size(); ++i) {
+        CertificateExtension ext = (CertificateExtension)extensionList_.get(i);
+        s += "  OID: " + ext.getOid() + "\n";
+        s += "  Is critical: " + (ext.getIsCritical() ? 'Y' : 'N') + "\n";
+
+        s += "  Value: " + ext.getValue().toHex() + "\n" ;
+      }
+    }
+    
+    return s;
   }
 
   // Use a non-template ArrayList so it works with older Java compilers.
   private final ArrayList subjectDescriptionList_ = new ArrayList(); // of CertificateSubjectDescription
   private final ArrayList extensionList_ = new ArrayList();          // of CertificateExtension
   private double notBefore_ = Double.MAX_VALUE; // MillisecondsSince1970
-  private double notAfter_ = -Double.MAX_VALUE;  // MillisecondsSince1970
+  private double notAfter_ = -Double.MAX_VALUE; // MillisecondsSince1970
   private PublicKey key_ = new PublicKey();
 }
