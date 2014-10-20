@@ -39,7 +39,7 @@ import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
-public abstract class Certificate extends Data {
+public class Certificate extends Data {
   /**
    * The default constructor.
    */
@@ -138,9 +138,6 @@ public abstract class Certificate extends Data {
   {
     return key_;
   }
-
-  public abstract Name
-  getPublicKeyName();
 
   /**
    * Check if the certificate is valid.
