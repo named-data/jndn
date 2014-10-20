@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.named_data.jndn.encoding.OID;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.DynamicByteBuffer;
 
@@ -557,6 +556,18 @@ public class DerNode {
         parts[i] = Integer.parseInt(splitString[i]);
 
       prepareEncoding(parts);
+    }
+
+    /**
+     * Create a DerOid with the given object identifier. The object identifier
+     * must begin with 0,1, or 2 and must contain at least 2 digits.
+     * @param oid The OID to encode.
+     */
+    public DerOid(OID oid) throws DerEncodingException
+    {
+      super(NodeType.ObjectIdentifier);
+
+      prepareEncoding(oid.getIntegerList());
     }
 
     private DerOid()
