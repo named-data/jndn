@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.1 (2014-10-14)
+Interim changes since jNDN v0.1 (2014-10-20)
 --------------------------------------------
 
 Changes
@@ -12,6 +12,8 @@ Changes
 * Added JUnit tests to tests/src/net/named_data/jndn/tests/unit_tests.
 * In MetaInfo, added get/setFinalBlockId (replaces the deprecated get/setFinalBlockID).
 * In Name.Component toNumberWithMarker and fromNumberWithMarker, pass the marker as int, not byte.
+* Security library: Implemented certificate encode/decode.
+* Unit tests: Added TestDerEncodeDecode to test certificate encoding.
 
 Deprecated
 * In MetaInfo, deprecated get/setFinalBlockID. Use get/setFinalBlockId.
