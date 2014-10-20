@@ -77,4 +77,99 @@ public class Common {
 
     return output.toString();
   }
+
+  /**
+   * Encode the input as base64 using the appropriate base64Converter_ from
+   * establishBase64Converter(), for ANDROID or Java 7+.
+   * @param input The bytes to encode.
+   * @return The base64 string.
+   * @throws UnsupportedOperationException If can't establish a base64 converter for
+   * this platform.
+   */
+  public static String
+  base64Encode(byte[] input)
+  {
+    establishBase64Converter();
+
+    try {
+      if (base64ConverterType_ == Base64ConverterType.ANDROID)
+        // Base64.NO_WRAP  is 2.
+        return (String)base64Converter_.getDeclaredMethod
+          ("encodeToString", byte[].class, int.class).invoke(null, input, 2);
+      else
+        // Default to Base64ConverterType.JAVAX.
+        return (String)base64Converter_.getDeclaredMethod
+          ("printBase64Binary", byte[].class).invoke(null, input);
+    } catch (Exception ex) {
+      throw new UnsupportedOperationException("base64Encode: Error invoking method: " + ex);
+    }
+  }
+
+  /**
+   * Decode the input as base64 using the appropriate base64Converter_ from
+   * establishBase64Converter(), for ANDROID or Java 7+.
+   * @param encoding The base64 string.
+   * @return The decoded bytes.
+   * @throws UnsupportedOperationException If can't establish a base64 converter for
+   * this platform.
+   */
+  public static byte[]
+  base64Decode(String encoding) throws SecurityException
+  {
+    establishBase64Converter();
+
+    try {
+      if (base64ConverterType_ == Base64ConverterType.ANDROID)
+        // Base64.DEFAULT is 0.
+        return (byte[])base64Converter_.getDeclaredMethod
+          ("decode", String.class, int.class).invoke(null, encoding, 0);
+      else
+        // Default to Base64ConverterType.JAVAX.
+        return (byte[])base64Converter_.getDeclaredMethod
+          ("parseBase64Binary", String.class).invoke(null, encoding);
+    } catch (Exception ex) {
+      throw new UnsupportedOperationException("base64Decode: Error invoking method: " + ex);
+    }
+  }
+
+  private enum Base64ConverterType {
+    UNINITIALIZED, JAVAX, ANDROID, UNSUPPORTED
+  }
+
+  /**
+   * If not already initialized, set base64Converter_ to the correct loaded
+   * class and set base64ConverterType_ to the loaded type.
+   * If base64ConverterType_ is UNINITIALIZED, set base64Converter_ to
+   * the class for javax.xml.bind.DatatypeConverter and set
+   * base64ConverterType_ to JAVAX.  Else try to set base64Converter_ to
+   * the class for android.util.Base64 and set base64ConverterType_ to ANDROID.
+   * If these fail, set base64ConverterType_ to UNSUPPORTED and throw an
+   * UnsupportedOperationException from now on.
+   */
+  private static void
+  establishBase64Converter()
+  {
+    if (base64ConverterType_ == Base64ConverterType.UNINITIALIZED) {
+      try {
+        base64Converter_ = Class.forName("javax.xml.bind.DatatypeConverter");
+        base64ConverterType_ = Base64ConverterType.JAVAX;
+        return;
+      } catch (ClassNotFoundException ex) {}
+
+      try {
+        base64Converter_ = Class.forName("android.util.Base64");
+        base64ConverterType_ = Base64ConverterType.ANDROID;
+        return;
+      } catch (ClassNotFoundException ex) {}
+
+      base64ConverterType_ = Base64ConverterType.UNSUPPORTED;
+    }
+
+   if (base64ConverterType_ == Base64ConverterType.UNSUPPORTED)
+      throw new UnsupportedOperationException
+        ("Common.establishBase64Converter: Cannot load a Base64 converter");
+  }
+
+  private static Base64ConverterType base64ConverterType_ = Base64ConverterType.UNINITIALIZED;
+  private static Class base64Converter_ = null;
 }
