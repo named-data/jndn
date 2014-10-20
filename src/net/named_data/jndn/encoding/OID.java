@@ -20,11 +20,59 @@
 
 package net.named_data.jndn.encoding;
 
+import java.util.Arrays;
+
 public class OID {
-  // TODO: Implement OID.
   public OID(String oid)
   {
-    throw new UnsupportedOperationException
-      ("OID constructor from String is not implemented");
+    String[] splitString = oid.split("\\.");
+    oid_ = new int[splitString.length];
+    for (int i = 0; i < oid_.length; ++i)
+      oid_[i] = Integer.parseInt(splitString[i]);
   }
+
+  public OID(int[] oid)
+  {
+    oid_ = Arrays.copyOf(oid, oid.length);
+  }
+
+  public final int[]
+  getIntegerList() { return oid_; }
+
+  public final void
+  setIntegerList(int[] oid)
+  {
+    oid_ = Arrays.copyOf(oid, oid.length);
+  }
+
+  public String
+  toString()
+  {
+    String result = "";
+    for (int i = 0; i < oid_.length; ++i) {
+      if (i != 0)
+        result += ".";
+      result += oid_[i];
+    }
+
+    return result;
+  }
+
+  public final boolean
+  equals(OID other)
+  {
+    return Arrays.equals(oid_, other.oid_);
+  }
+
+  public boolean
+  equals(Object other)
+  {
+    if (!(other instanceof OID))
+      return false;
+
+    return equals((OID)other);
+  }
+
+  // Use a non-template ArrayList so it works with older Java compilers.
+  int[] oid_ = new int[0];
 }
