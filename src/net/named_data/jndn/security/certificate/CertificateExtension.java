@@ -21,7 +21,12 @@
 package net.named_data.jndn.security.certificate;
 
 import net.named_data.jndn.encoding.OID;
+import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.encoding.der.DerNode;
+import net.named_data.jndn.encoding.der.DerNode.DerBoolean;
+import net.named_data.jndn.encoding.der.DerNode.DerOctetString;
+import net.named_data.jndn.encoding.der.DerNode.DerOid;
+import net.named_data.jndn.encoding.der.DerNode.DerSequence;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -59,17 +64,27 @@ public class CertificateExtension {
    * @return The encoded DER syntax tree.
    */
   public final DerNode
-  toDer()
+  toDer() throws DerEncodingException
   {
-    throw new UnsupportedOperationException
-      ("CertificateExtension.toDer is not implemented");
+    DerSequence root = new DerSequence();
+
+    DerOid extensionId = new DerOid(extensionId_);
+    DerBoolean isCritical = new DerBoolean(isCritical_);
+    DerOctetString extensionValue = new DerOctetString(extensionValue_.buf());
+
+    root.addChild(extensionId);
+    root.addChild(isCritical);
+    root.addChild(extensionValue);
+
+    root.getSize();
+
+    return root;
   }
 
   public final Blob
-  toDerBlob()
+  toDerBlob() throws DerEncodingException
   {
-    throw new UnsupportedOperationException
-      ("CertificateExtension.toDerBlob is not implemented");
+    return toDer().encode();
   }
 
   public final OID

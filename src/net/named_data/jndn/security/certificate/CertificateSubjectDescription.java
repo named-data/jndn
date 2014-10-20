@@ -21,7 +21,11 @@
 package net.named_data.jndn.security.certificate;
 
 import net.named_data.jndn.encoding.OID;
+import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.encoding.der.DerNode;
+import net.named_data.jndn.encoding.der.DerNode.DerOid;
+import net.named_data.jndn.encoding.der.DerNode.DerPrintableString;
+import net.named_data.jndn.encoding.der.DerNode.DerSequence;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -56,10 +60,18 @@ public class CertificateSubjectDescription {
    * @return The encoded DER syntax tree.
    */
   public final DerNode
-  toDer()
+  toDer() throws DerEncodingException
   {
-    throw new UnsupportedOperationException
-      ("CertificateSubjectDescription.toDer is not implemented");
+    DerSequence root = new DerSequence();
+
+    DerOid oid = new DerOid(oid_);
+    // Use Blob to convert the String to a ByteBuffer.
+    DerPrintableString value = new DerPrintableString(new Blob(value_).buf());
+
+    root.addChild(oid);
+    root.addChild(value);
+
+    return root;
   }
 
   public final String
