@@ -217,23 +217,23 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
-  public Data
+  public IdentityCertificate
   getCertificate(Name certificateName, boolean allowAny)
   {
     Blob certificateDer = (Blob)certificateStore_.get(certificateName.toUri());
     if (certificateDer == null)
       // Not found.  Silently return null.
-      return new Data();
+      return new IdentityCertificate();
 
-    Data data = new Data();
+    IdentityCertificate certificate = new IdentityCertificate();
     try {
-      data.wireDecode(certificateDer);
+      certificate.wireDecode(certificateDer);
     }
     catch (EncodingException ex) {
       // Don't expect this to happen. Silently return null.
-      return new Data();
+      return new IdentityCertificate();
     }
-    return data;
+    return certificate;
   }
 
   /*****************************************

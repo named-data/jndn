@@ -160,7 +160,7 @@ public abstract class IdentityStorage {
    * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
-  public abstract Data
+  public abstract IdentityCertificate
   getCertificate(Name certificateName, boolean allowAny) throws SecurityException;
 
   /**
@@ -169,7 +169,7 @@ public abstract class IdentityStorage {
    * @param certificateName The name of the requested certificate.
    * @return The requested certificate. If not found, return null.
    */
-  public final Data
+  public final IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException
   {
     return getCertificate(certificateName, false);

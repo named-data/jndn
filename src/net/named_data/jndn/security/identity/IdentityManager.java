@@ -395,8 +395,7 @@ public class IdentityManager {
   public final IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
-    return new IdentityCertificate
-      (identityStorage_.getCertificate(certificateName, false));
+    return identityStorage_.getCertificate(certificateName, false);
   }
 
   /**
@@ -407,8 +406,7 @@ public class IdentityManager {
   public final IdentityCertificate
   getAnyCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
-    return new IdentityCertificate
-      (identityStorage_.getCertificate(certificateName, true));
+    return identityStorage_.getCertificate(certificateName, true);
   }
 
   /**

@@ -454,7 +454,7 @@ public class BasicIdentityStorage extends IdentityStorage {
    * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
-  public final Data
+  public final IdentityCertificate
   getCertificate(Name certificateName, boolean allowAny) throws SecurityException
   {
     if (doesCertificateExist(certificateName)) {
@@ -479,13 +479,13 @@ public class BasicIdentityStorage extends IdentityStorage {
           statement.setString(1, certificateName.toUri());
         }
 
-        Data data = new Data();
+        IdentityCertificate certificate = new IdentityCertificate();
         try {
           ResultSet result = statement.executeQuery();
 
           if (result.next()) {
             try {
-              data.wireDecode(new Blob(result.getBytes("certificate_data")));
+              certificate.wireDecode(new Blob(result.getBytes("certificate_data")));
             } catch (EncodingException ex) {
               throw new SecurityException
                 ("BasicIdentityStorage: Error decoding certificate data: " + ex);
@@ -495,13 +495,13 @@ public class BasicIdentityStorage extends IdentityStorage {
           statement.close();
         }
 
-        return data;
+        return certificate;
       } catch (SQLException exception) {
         throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
       }
     }
     else
-      return new Data();
+      return new IdentityCertificate();
   }
 
   /*****************************************
