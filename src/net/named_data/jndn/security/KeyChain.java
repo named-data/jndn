@@ -279,7 +279,7 @@ public class KeyChain {
    * @param certificateName The name of the requested certificate.
    * @return The requested certificate.
    */
-  public final Certificate
+  public final IdentityCertificate
   getAnyCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return identityManager_.getAnyCertificate(certificateName);
