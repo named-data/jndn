@@ -20,14 +20,6 @@
 
 package net.named_data.jndn.security.policy;
 
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
@@ -37,6 +29,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnVerifyFailed;
@@ -134,7 +127,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    */
   public ValidationRequest checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified,
-     OnVerifyFailed onVerifyFailed) throws net.named_data.jndn.security.SecurityException
+     OnVerifyFailed onVerifyFailed) throws SecurityException
   {
     // wireEncode returns the cached encoding if available.
     if (verify(data.getSignature(), data.wireEncode()))
