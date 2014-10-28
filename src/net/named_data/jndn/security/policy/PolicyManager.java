@@ -20,9 +20,18 @@
 
 package net.named_data.jndn.security.policy;
 
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
@@ -30,6 +39,8 @@ import net.named_data.jndn.security.OnVerifyFailed;
 import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.SignedBlob;
 
 /**
  * A PolicyManager is an abstract base class to represent the policy for
@@ -138,4 +149,134 @@ public abstract class PolicyManager {
    */
   public abstract Name
   inferSigningIdentity(Name dataName);
+
+  /**
+   * Verify the RSA signature on the SignedBlob using the given public key.
+   * TODO: Move this general verification code to a more central location.
+   * @param signature The Sha256WithRsaSignature.
+   * @param signedBlob the SignedBlob with the signed portion to verify.
+   * @param publicKeyDer The DER-encoded public key used to verify the signature.
+   * @return true if the signature verifies, false if not.
+   * @throws SecurityException if data does not have a Sha256WithRsaSignature.
+   */
+  protected static boolean
+  verifySha256WithRsaSignature
+    (Sha256WithRsaSignature signature, SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
+  {
+    if (signature.getDigestAlgorithm().size() != 0)
+      // TODO: Allow a non-default digest algorithm.
+      throw new SecurityException
+        ("Cannot verify a data packet with a non-default digest algorithm.");
+
+    KeyFactory keyFactory = null;
+    try {
+      keyFactory = KeyFactory.getInstance("RSA");
+    }
+    catch (NoSuchAlgorithmException exception) {
+      // Don't expect this to happen.
+      throw new SecurityException
+        ("RSA is not supported: " + exception.getMessage());
+    }
+
+    PublicKey publicKey = null;
+    try {
+      publicKey = keyFactory.generatePublic
+        (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
+    }
+    catch (InvalidKeySpecException exception) {
+      // Don't expect this to happen.
+      throw new SecurityException
+        ("X509EncodedKeySpec is not supported: " + exception.getMessage());
+    }
+
+    Signature rsaSignature = null;
+    try {
+      rsaSignature = Signature.getInstance("SHA256withRSA");
+    }
+    catch (NoSuchAlgorithmException e) {
+      // Don't expect this to happen.
+      throw new SecurityException("SHA256withRSA algorithm is not supported");
+    }
+
+    try {
+      rsaSignature.initVerify(publicKey);
+    }
+    catch (InvalidKeyException exception) {
+      throw new SecurityException
+        ("InvalidKeyException: " + exception.getMessage());
+    }
+    try {
+      // wireEncode returns the cached encoding if available.
+      rsaSignature.update(signedBlob.signedBuf());
+      return rsaSignature.verify(signature.getSignature().getImmutableArray());
+    }
+    catch (SignatureException exception) {
+      throw new SecurityException
+        ("SignatureException: " + exception.getMessage());
+    }
+  }
+
+  /**
+   * Verify the ECDSA signature on the SignedBlob using the given public key.
+   * TODO: Move this general verification code to a more central location.
+   * @param signature The Sha256WithEcdsaSignature.
+   * @param signedBlob the SignedBlob with the signed portion to verify.
+   * @param publicKeyDer The DER-encoded public key used to verify the signature.
+   * @return true if the signature verifies, false if not.
+   * @throws SecurityException if data does not have a Sha256WithEcdsaSignature.
+   */
+  protected static boolean
+  verifySha256WithEcdsaSignature
+    (
+     //Sha256WithEcdsaSignature signature,
+     Sha256WithRsaSignature signature,
+     SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
+  {
+    KeyFactory keyFactory = null;
+    try {
+      keyFactory = KeyFactory.getInstance("EC");
+    }
+    catch (NoSuchAlgorithmException exception) {
+      // Don't expect this to happen.
+      throw new SecurityException
+        ("EC is not supported: " + exception.getMessage());
+    }
+
+    PublicKey publicKey = null;
+    try {
+      publicKey = keyFactory.generatePublic
+        (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
+    }
+    catch (InvalidKeySpecException exception) {
+      // Don't expect this to happen.
+      throw new SecurityException
+        ("X509EncodedKeySpec is not supported: " + exception.getMessage());
+    }
+
+    Signature ecSignature = null;
+    try {
+      ecSignature = Signature.getInstance("SHA256withECDSA");
+    }
+    catch (NoSuchAlgorithmException e) {
+      // Don't expect this to happen.
+      throw new SecurityException("SHA256withECDSA algorithm is not supported");
+    }
+
+    try {
+      ecSignature.initVerify(publicKey);
+    }
+    catch (InvalidKeyException exception) {
+      throw new SecurityException
+        ("InvalidKeyException: " + exception.getMessage());
+    }
+    try {
+      // wireEncode returns the cached encoding if available.
+      ecSignature.update(signedBlob.signedBuf());
+      return ecSignature.verify(signature.getSignature().getImmutableArray());
+    }
+    catch (SignatureException exception) {
+      throw new SecurityException
+        ("SignatureException: " + exception.getMessage());
+    }
+  }
 }
