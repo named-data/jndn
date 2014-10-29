@@ -547,8 +547,7 @@ public class KeyChain {
       ValidationRequest nextStep = policyManager_.checkVerificationPolicy
         (interest, stepCount, onVerified, onVerifyFailed);
       if (nextStep != null) {
-        /*
-        VerifyCallbacks callbacks = new VerifyCallbacks
+        VerifyCallbacksForVerifyInterest callbacks = new VerifyCallbacksForVerifyInterest
           (nextStep, nextStep.retry_, onVerifyFailed, interest);
         try {
           face_.expressInterest(nextStep.interest_, callbacks, callbacks);
@@ -556,9 +555,6 @@ public class KeyChain {
         catch (IOException ex) {
           onVerifyFailed.onVerifyInterestFailed(interest);
         }
-        */
-        throw new Error
-          ("verifyInterest: ValidationRequest not implemented yet");
       }
     }
     else if (policyManager_.skipVerifyAndTrust(interest))
@@ -599,12 +595,12 @@ public class KeyChain {
   private class VerifyCallbacks implements OnData, OnTimeout {
     public VerifyCallbacks
       (ValidationRequest nextStep, int retry, OnVerifyFailed onVerifyFailed,
-       Data data)
+       Data originalData)
     {
       nextStep_ = nextStep;
       retry_ = retry;
       onVerifyFailed_ = onVerifyFailed;
-      data_ = data;
+      originalData_ = originalData;
     }
 
     public final void onData(Interest interest, Data data)
@@ -626,22 +622,76 @@ public class KeyChain {
         // Issue the same expressInterest as in verifyData except decrement
         //   retry.
         VerifyCallbacks callbacks = new VerifyCallbacks
-          (nextStep_, retry_ - 1, onVerifyFailed_, data_);
+          (nextStep_, retry_ - 1, onVerifyFailed_, originalData_);
         try {
           face_.expressInterest(interest, callbacks, callbacks);
         }
         catch (IOException ex) {
-          onVerifyFailed_.onVerifyFailed(data_);
+          onVerifyFailed_.onVerifyFailed(originalData_);
         }
       }
       else
-        onVerifyFailed_.onVerifyFailed(data_);
+        onVerifyFailed_.onVerifyFailed(originalData_);
     }
 
     private ValidationRequest nextStep_;
     private int retry_;
     private OnVerifyFailed onVerifyFailed_;
-    private Data data_;
+    private Data originalData_;
+  }
+
+  /**
+   * A VerifyCallbacksForVerifyInterest is used for callbacks from verifyInterest.
+   * This is the same as VerifyCallbacks, but we call
+   * onVerifyFailed.onVerifyInterestFailed(originalInterest) if we have too many
+   * retries.
+   */
+  private class VerifyCallbacksForVerifyInterest implements OnData, OnTimeout {
+    public VerifyCallbacksForVerifyInterest
+      (ValidationRequest nextStep, int retry, OnVerifyInterestFailed onVerifyFailed,
+       Interest originalInterest)
+    {
+      nextStep_ = nextStep;
+      retry_ = retry;
+      onVerifyFailed_ = onVerifyFailed;
+      originalInterest_ = originalInterest;
+    }
+
+    public final void onData(Interest interest, Data data)
+    {
+      try {
+        // Try to verify the certificate (data) according to the parameters in
+        //   nextStep.
+        verifyData
+          (data, nextStep_.onVerified_, nextStep_.onVerifyFailed_,
+           nextStep_.stepCount_);
+      } catch (SecurityException ex) {
+        Logger.getLogger(KeyChain.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    }
+
+    public final void onTimeout(Interest interest)
+    {
+      if (retry_ > 0) {
+        // Issue the same expressInterest as in verifyData except decrement
+        //   retry.
+        VerifyCallbacksForVerifyInterest callbacks = new VerifyCallbacksForVerifyInterest
+          (nextStep_, retry_ - 1, onVerifyFailed_, originalInterest_);
+        try {
+          face_.expressInterest(interest, callbacks, callbacks);
+        }
+        catch (IOException ex) {
+          onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+        }
+      }
+      else
+        onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+    }
+
+    private ValidationRequest nextStep_;
+    private int retry_;
+    private OnVerifyInterestFailed onVerifyFailed_;
+    private Interest originalInterest_;
   }
 
   private IdentityManager identityManager_;
