@@ -21,7 +21,6 @@ package net.named_data.jndn.security.identity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyType;
@@ -319,6 +318,43 @@ public class MemoryIdentityStorage extends IdentityStorage {
   {
     throw new UnsupportedOperationException
       ("MemoryIdentityStorage.setDefaultCertificateNameForKey not implemented");
+  }
+
+  /*****************************************
+   *            Delete Methods             *
+   *****************************************/
+
+  /**
+   * Delete a certificate.
+   * @param certificateName The certificate name.
+   */
+  public void
+  deleteCertificateInfo(Name certificateName) throws SecurityException
+  {
+    throw new UnsupportedOperationException
+      ("MemoryIdentityStorage.deleteCertificateInfo is not implemented");
+  }
+
+  /**
+   * Delete a public key and related certificates.
+   * @param keyName The key name.
+   */
+  public void
+  deletePublicKeyInfo(Name keyName) throws SecurityException
+  {
+    throw new UnsupportedOperationException
+      ("MemoryIdentityStorage.deletePublicKeyInfo is not implemented");
+  }
+
+  /**
+   * Delete an identity and related public keys and certificates.
+   * @param identity The identity name.
+   */
+  public void
+  deleteIdentityInfo(Name identity) throws SecurityException
+  {
+    throw new UnsupportedOperationException
+      ("MemoryIdentityStorage.deleteIdentityInfo is not implemented");
   }
 
   private static class KeyRecord {

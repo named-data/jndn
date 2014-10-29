@@ -253,4 +253,29 @@ public abstract class IdentityStorage {
    */
   public abstract void
   setDefaultCertificateNameForKey(Name keyName, Name certificateName) throws SecurityException;
+
+  /*****************************************
+   *            Delete Methods             *
+   *****************************************/
+
+  /**
+   * Delete a certificate.
+   * @param certificateName The certificate name.
+   */
+  public abstract void
+  deleteCertificateInfo(Name certificateName) throws SecurityException;
+
+  /**
+   * Delete a public key and related certificates.
+   * @param keyName The key name.
+   */
+  public abstract void
+  deletePublicKeyInfo(Name keyName) throws SecurityException;
+
+  /**
+   * Delete an identity and related public keys and certificates.
+   * @param identity The identity name.
+   */
+  public abstract void
+  deleteIdentityInfo(Name identity) throws SecurityException;
 }

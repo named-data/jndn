@@ -713,6 +713,43 @@ public class BasicIdentityStorage extends IdentityStorage {
     }
   }
 
+  /*****************************************
+   *            Delete Methods             *
+   *****************************************/
+
+  /**
+   * Delete a certificate.
+   * @param certificateName The certificate name.
+   */
+  public void
+  deleteCertificateInfo(Name certificateName) throws SecurityException
+  {
+    throw new UnsupportedOperationException
+      ("BasicIdentityStorage.deleteCertificateInfo is not implemented");
+  }
+
+  /**
+   * Delete a public key and related certificates.
+   * @param keyName The key name.
+   */
+  public void
+  deletePublicKeyInfo(Name keyName) throws SecurityException
+  {
+    throw new UnsupportedOperationException
+      ("BasicIdentityStorage.deletePublicKeyInfo is not implemented");
+  }
+
+  /**
+   * Delete an identity and related public keys and certificates.
+   * @param identity The identity name.
+   */
+  public void
+  deleteIdentityInfo(Name identity) throws SecurityException
+  {
+    throw new UnsupportedOperationException
+      ("BasicIdentityStorage.deleteIdentityInfo is not implemented");
+  }
+
   private static final String INIT_ID_TABLE =
 "CREATE TABLE IF NOT EXISTS                                           \n" +
 "  Identity(                                                          \n" +
