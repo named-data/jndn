@@ -150,7 +150,7 @@ public class Node implements ElementListener {
    * @param onInterest This calls onInterest.onInterest(prefix, interest) when
    * a matching interest is received.
    * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix)
-   * if failed to retrieve the connected hub’s ID or failed to register the
+   * if failed to retrieve the connected hub's ID or failed to register the
    * prefix.
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
@@ -226,7 +226,7 @@ public class Node implements ElementListener {
    * onInterest or onTimeout. This returns immediately if there is no data to
    * receive. This blocks while calling the callbacks. You should repeatedly
    * call this from an event loop, with calls to sleep as needed so that the
-   * loop doesn’t use 100% of the CPU. Since processEvents modifies the pending
+   * loop doesn't use 100% of the CPU. Since processEvents modifies the pending
    * interest table, your application should make sure that it calls
    * processEvents in the same thread as expressInterest (which also modifies
    * the pending interest table).
