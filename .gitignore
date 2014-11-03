@@ -9,5 +9,8 @@
 # Javadoc output
 /doc
 
+# Eclipse build files
+/samples/android/NDNPing/bin
+
 # Emacs temp files
 *~
