@@ -285,6 +285,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   public final void
   shutdown()
   {
+    enabled_ = false;
     contentCache_.unregisterAll();
   }
 
@@ -419,6 +420,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   onInterest
     (Name prefix, Interest inst, Transport transport, long registerPrefixId)
   {
+    if (!enabled_)
+      // Ignore callbacks after the application calls shutdown().
+      return;
+
     // Search if the digest already exists in the digest log.
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
       "Sync Interest received in callback.");
@@ -477,6 +482,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   public final void
   onData(Interest inst, Data co)
   {
+    if (!enabled_)
+      // Ignore callbacks after the application calls shutdown().
+      return;
+
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
       "Sync ContentObject received in callback");
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
@@ -545,6 +554,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     public final void
     onTimeout(Interest interest)
     {
+      if (!enabled_)
+        // Ignore callbacks after the application calls shutdown().
+        return;
+
       Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
         "initial sync timeout");
       Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
@@ -734,6 +747,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     public final void
     onTimeout(Interest interest)
     {
+      if (!enabled_)
+        // Ignore callbacks after the application calls shutdown().
+        return;
+
       int index2 = logfind(syncdigest_t_);
       if (index2 != -1) {
         if (!syncdigest_t_.equals(digest_tree_.getRoot()))
@@ -765,10 +782,14 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   public void
   onTimeout(Interest interest)
   {
-     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
-       "Sync Interest time out.");
-     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
-       "Sync Interest name: {0}", interest.getName().toUri());
+    if (!enabled_)
+      // Ignore callbacks after the application calls shutdown().
+      return;
+
+    Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
+      "Sync Interest time out.");
+    Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
+      "Sync Interest name: {0}", interest.getName().toUri());
     String component = interest.getName().get(4).toEscapedString();
     if (component.equals(digest_tree_.getRoot())) {
       Name n = new Name(interest.getName());
@@ -925,4 +946,5 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   long usrseq_ = -1;
   MemoryContentCache contentCache_;
   ArrayList pendingInterestTable_ = new ArrayList(); // of PendingInterest
+  boolean enabled_ = true;
 }
