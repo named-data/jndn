@@ -64,6 +64,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
    * the digest log with a digest of "00" and and empty content. Register the
    * applicationBroadcastPrefix to receive interests for sync state messages and
    * express an interest for the initial root digest "00".
+   * @note Your application must call processEvents. Since processEvents
+   * modifies the internal ChronoSync data structures, your application should
+   * make sure that it calls processEvents in the same thread as this
+   * constructor (which also modifies the data structures).
    * @param onReceivedSyncState When ChronoSync receives a sync state message,
    * this calls onReceivedSyncState.onReceivedSyncState(syncStates, isRecovery)
    * where syncStates is the
@@ -202,6 +206,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
    * update with the name applicationBroadcastPrefix + the new root digest.
    * After this, your application should publish the content for the new
    * sequence number. You can get the new sequence number with getSequenceNo().
+   * @note Your application must call processEvents. Since processEvents
+   * modifies the internal ChronoSync data structures, your application should
+   * make sure that it calls processEvents in the same thread as
+   * publishNextSequenceNo() (which also modifies the data structures).
    */
   public final void
   publishNextSequenceNo() throws IOException, SecurityException
@@ -262,6 +270,22 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     private final String digest_;
     // Use a non-template ArrayList so it works with older Java compilers.
     List data_; // of SyncStateProto.SyncState
+  }
+
+  /**
+   * Unregister callbacks so that this does not respond to interests anymore.
+   * If you will discard this ChronoSync2013 object while your application is
+   * still running, you should call shutdown() first.  After calling this, you
+   * should not call publishNextSequenceNo() again since the behavior will be
+   * undefined.
+   * @note Because this modifies internal ChronoSync data structures, your
+   * application should make sure that it calls processEvents in the same
+   * thread as shutdown() (which also modifies the data structures).
+   */
+  public final void
+  shutdown()
+  {
+    contentCache_.unregisterAll();
   }
 
   /**
