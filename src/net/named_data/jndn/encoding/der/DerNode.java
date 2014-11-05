@@ -139,8 +139,7 @@ public class DerNode {
   public Blob
   encode()
   {
-    DynamicByteBuffer buffer = new DynamicByteBuffer
-      (header_.remaining() + payload_.remaining());
+    DynamicByteBuffer buffer = new DynamicByteBuffer(getSize());
 
     buffer.ensuredPut(header_);
     buffer.ensuredPut(payload_.flippedBuffer());
