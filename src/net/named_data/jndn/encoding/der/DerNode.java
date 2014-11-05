@@ -722,7 +722,7 @@ public class DerNode {
 
     private DerPrintableString()
     {
-      super(null, NodeType.BitString);
+      super(null, NodeType.PrintableString);
     }
 
     /**
