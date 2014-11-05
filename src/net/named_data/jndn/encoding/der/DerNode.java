@@ -724,17 +724,6 @@ public class DerNode {
     {
       super(null, NodeType.PrintableString);
     }
-
-    /**
-     * Override to return just the printable string.
-     * @return The printable string as a copy of the payload ByteBuffer.
-     */
-    public Object
-    toVal() throws DerDecodingException
-    {
-      // Make a copy since payload_ can change.
-      return new Blob(payload_.flippedBuffer(), true);
-    }
   }
 
   /**
