@@ -67,7 +67,7 @@ public class DerNode {
       // We don't expect this to happen since this is a protected method and
       // always called with the non-negative size() of some buffer.
       throw new Error("encodeHeader: DER object has negative length");
-    else if (size < 127)
+    else if (size <= 127)
       buffer.ensuredPut((byte)(size & 0xff));
     else {
       DynamicByteBuffer tempBuf = new DynamicByteBuffer(10);
