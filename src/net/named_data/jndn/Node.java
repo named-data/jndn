@@ -561,8 +561,9 @@ public class Node implements ElementListener {
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
         }
 
-        Logger.getLogger(Node.class.getName()).log(Level.INFO,
-          "Register prefix succeeded with the NFD forwarder");
+        Logger.getLogger(Node.class.getName()).log(Level.INFO, 
+          "Register prefix succeeded with the NFD forwarder for prefix {0}",
+          info_.prefix_.toUri());
       }
       else {
         Name expectedName = new Name("/ndnx/.../selfreg");
@@ -578,7 +579,8 @@ public class Node implements ElementListener {
         }
 
         Logger.getLogger(Node.class.getName()).log(Level.INFO,
-          "Register prefix succeeded with the NDNx forwarder");
+          "Register prefix succeeded with the NDNx forwarder for prefix {0}",
+          info_.prefix_.toUri());
       }
     }
 
