@@ -232,7 +232,7 @@ public class Certificate extends Data {
     key_ =  new PublicKey(KeyType.RSA, publicKeyInfo);
 
     if (rootChildren.size() > 3) {
-      List extensionChildren = ((DerSequence)rootChildren.get(4)).getChildren();
+      List extensionChildren = ((DerSequence)rootChildren.get(3)).getChildren();
       for (int i = 0; i < extensionChildren.size(); ++i) {
         DerSequence extInfo = (DerSequence)extensionChildren.get(i);
 
