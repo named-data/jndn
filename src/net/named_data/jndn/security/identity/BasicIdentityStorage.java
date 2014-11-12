@@ -212,14 +212,14 @@ public class BasicIdentityStorage extends IdentityStorage {
   public final void
   addKey(Name keyName, KeyType keyType, Blob publicKeyDer) throws SecurityException
   {
-    String keyId = keyName.get(-1).toEscapedString();
-    Name identityName = keyName.getPrefix(-1);
-
-    if (!doesIdentityExist(identityName))
-      addIdentity(identityName);
+    if (keyName.size() == 0)
+      return;
 
     if (doesKeyExist(keyName))
       throw new SecurityException("a key with the same name already exists!");
+
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getPrefix(-1);
 
     try {
       PreparedStatement statement = database_.prepareStatement
