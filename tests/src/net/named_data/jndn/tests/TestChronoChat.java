@@ -258,9 +258,9 @@ class Chat implements ChronoSync2013.OnInitialized,
     }
     if (getNowMilliseconds() - content.getTimestamp() * 1000.0 < 120000.0) {
       String name = content.getFrom();
-      String prefix = co.getName().getPrefix(chat_prefix_.size()).toUri();
-      long session = Long.parseLong(co.getName().get(chat_prefix_.size() + 0).toEscapedString());
-      long seqno = Long.parseLong(co.getName().get(chat_prefix_.size() + 1).toEscapedString());
+      String prefix = co.getName().getPrefix(-2).toUri();
+      long session = Long.parseLong(co.getName().get(-2).toEscapedString());
+      long seqno = Long.parseLong(co.getName().get(-1).toEscapedString());
       String nameAndSession = name + session;
 
       int l = 0;
