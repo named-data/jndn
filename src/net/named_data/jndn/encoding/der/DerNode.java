@@ -42,7 +42,7 @@ public class DerNode {
    * constructor used by one of the public DerNode subclasses defined below.
    * @param nodeType The DER node type.
    */
-  private DerNode(NodeType nodeType)
+  private DerNode(DerNodeType nodeType)
   {
     nodeType_ = nodeType;
   }
@@ -105,7 +105,7 @@ public class DerNode {
     int nodeType = ((int)inputBuf.get(idx)) & 0xff;
     idx += 1;
 
-    nodeType_ = NodeType.fromNumericType(nodeType);
+    nodeType_ = DerNodeType.fromNumericType(nodeType);
 
     int sizeLen = ((int)inputBuf.get(idx)) & 0xff;
     idx += 1;
@@ -183,23 +183,23 @@ public class DerNode {
     // Don't increment idx. We're just peeking.
 
     DerNode newNode;
-    if (nodeType == NodeType.Boolean.getNumericType())
+    if (nodeType == DerNodeType.Boolean.getNumericType())
       newNode = new DerBoolean();
-    else if (nodeType == NodeType.Integer.getNumericType())
+    else if (nodeType == DerNodeType.Integer.getNumericType())
       newNode = new DerInteger();
-    else if (nodeType == NodeType.BitString.getNumericType())
+    else if (nodeType == DerNodeType.BitString.getNumericType())
       newNode = new DerBitString();
-    else if (nodeType == NodeType.OctetString.getNumericType())
+    else if (nodeType == DerNodeType.OctetString.getNumericType())
       newNode = new DerOctetString();
-    else if (nodeType == NodeType.Null.getNumericType())
+    else if (nodeType == DerNodeType.Null.getNumericType())
       newNode = new DerNull();
-    else if (nodeType == NodeType.ObjectIdentifier.getNumericType())
+    else if (nodeType == DerNodeType.ObjectIdentifier.getNumericType())
       newNode = new DerOid();
-    else if (nodeType == NodeType.Sequence.getNumericType())
+    else if (nodeType == DerNodeType.Sequence.getNumericType())
       newNode = new DerSequence();
-    else if (nodeType == NodeType.PrintableString.getNumericType())
+    else if (nodeType == DerNodeType.PrintableString.getNumericType())
       newNode = new DerPrintableString();
-    else if (nodeType == NodeType.GeneralizedTime.getNumericType())
+    else if (nodeType == DerNodeType.GeneralizedTime.getNumericType())
       newNode = new DerGeneralizedTime();
     else
       throw new DerDecodingException("Unimplemented DER type " + nodeType);
@@ -241,7 +241,7 @@ public class DerNode {
      * constructor. To create an object, use DerSequence.
      * @param nodeType The DER node type.
      */
-    private DerStructure(NodeType nodeType)
+    private DerStructure(DerNodeType nodeType)
     {
       super(nodeType);
     }
@@ -391,7 +391,7 @@ public class DerNode {
      * copies from the buffer's position to limit, but does not change position.
      * @param nodeType The specific DER node type.
      */
-    private DerByteString(ByteBuffer inputData, NodeType nodeType)
+    private DerByteString(ByteBuffer inputData, DerNodeType nodeType)
     {
       super(nodeType);
 
@@ -423,7 +423,7 @@ public class DerNode {
      */
     public DerBoolean(boolean value)
     {
-      super(NodeType.Boolean);
+      super(DerNodeType.Boolean);
 
       byte val = value ? (byte)0xff : (byte)0x00;
       payload_.ensuredPut(val);
@@ -432,7 +432,7 @@ public class DerNode {
 
     private DerBoolean()
     {
-      super(NodeType.Boolean);
+      super(DerNodeType.Boolean);
     }
 
     public Object
@@ -453,7 +453,7 @@ public class DerNode {
      */
     public DerInteger(int integer)
     {
-      super(NodeType.Integer);
+      super(DerNodeType.Integer);
 
       // Convert the integer to bytes the easy/slow way.
       DynamicByteBuffer temp = new DynamicByteBuffer(10);
@@ -470,7 +470,7 @@ public class DerNode {
 
     public DerInteger()
     {
-      super(NodeType.Integer);
+      super(DerNodeType.Integer);
     }
   }
 
@@ -487,7 +487,7 @@ public class DerNode {
      */
     public DerBitString(ByteBuffer inputBuf, int paddingLen)
     {
-      super(NodeType.BitString);
+      super(DerNodeType.BitString);
 
       if (inputBuf != null) {
         payload_.ensuredPut((byte)(paddingLen & 0xff));
@@ -498,7 +498,7 @@ public class DerNode {
 
     private DerBitString()
     {
-      super(NodeType.BitString);
+      super(DerNodeType.BitString);
     }
   }
 
@@ -513,12 +513,12 @@ public class DerNode {
      */
     public DerOctetString(ByteBuffer inputData)
     {
-      super(inputData, NodeType.OctetString);
+      super(inputData, DerNodeType.OctetString);
     }
 
     private DerOctetString()
     {
-      super(null, NodeType.OctetString);
+      super(null, DerNodeType.OctetString);
     }
   }
 
@@ -531,7 +531,7 @@ public class DerNode {
      */
     public DerNull()
     {
-      super(NodeType.Null);
+      super(DerNodeType.Null);
       encodeHeader(0);
     }
   }
@@ -547,7 +547,7 @@ public class DerNode {
      */
     public DerOid(String oidStr) throws DerEncodingException
     {
-      super(NodeType.ObjectIdentifier);
+      super(DerNodeType.ObjectIdentifier);
 
       String[] splitString = oidStr.split("\\.");
       int[] parts = new int[splitString.length];
@@ -564,14 +564,14 @@ public class DerNode {
      */
     public DerOid(OID oid) throws DerEncodingException
     {
-      super(NodeType.ObjectIdentifier);
+      super(DerNodeType.ObjectIdentifier);
 
       prepareEncoding(oid.getIntegerList());
     }
 
     private DerOid()
     {
-      super(NodeType.ObjectIdentifier);
+      super(DerNodeType.ObjectIdentifier);
     }
 
     /**
@@ -701,7 +701,7 @@ public class DerNode {
      */
     public DerSequence()
     {
-      super(NodeType.Sequence);
+      super(DerNodeType.Sequence);
     }
   }
 
@@ -717,12 +717,12 @@ public class DerNode {
      */
     public DerPrintableString(ByteBuffer inputData)
     {
-      super(inputData, NodeType.PrintableString);
+      super(inputData, DerNodeType.PrintableString);
     }
 
     private DerPrintableString()
     {
-      super(null, NodeType.PrintableString);
+      super(null, DerNodeType.PrintableString);
     }
   }
 
@@ -737,7 +737,7 @@ public class DerNode {
      */
     public DerGeneralizedTime(double msSince1970)
     {
-      super(NodeType.GeneralizedTime);
+      super(DerNodeType.GeneralizedTime);
 
       String derTime = toDerTimeString(msSince1970);
       // Use Blob to convert to a ByteBuffer.
@@ -747,7 +747,7 @@ public class DerNode {
 
     private DerGeneralizedTime()
     {
-      super(NodeType.GeneralizedTime);
+      super(DerNodeType.GeneralizedTime);
     }
 
     /**
@@ -795,7 +795,7 @@ public class DerNode {
   }
 
   protected DerStructure parent_ = null;
-  private NodeType nodeType_;
+  private DerNodeType nodeType_;
   protected ByteBuffer header_ = ByteBuffer.allocate(0);
   // NOTE: We never "flip" the internal buffer.  Its data is from 0 to position().
   protected DynamicByteBuffer payload_ = new DynamicByteBuffer(0);

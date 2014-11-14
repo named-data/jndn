@@ -24,7 +24,7 @@ package net.named_data.jndn.encoding.der;
 /**
  * The NodeType enum defines the known DER node types.
  */
-public enum NodeType {
+public enum DerNodeType {
     Eoc(0),
     Boolean(1),
     Integer(2),
@@ -55,7 +55,7 @@ public enum NodeType {
     CharacterString(29),
     BmpString(30);
 
-  NodeType (int type)
+  DerNodeType (int type)
   {
     type_ = type;
   }
@@ -63,10 +63,10 @@ public enum NodeType {
   public final int
   getNumericType() { return type_; }
 
-  public static NodeType
+  public static DerNodeType
   fromNumericType(int type)
   {
-    NodeType[] array = NodeType.values();
+    DerNodeType[] array = DerNodeType.values();
     for(int i = 0; i < array.length; ++i) {
       if (array[i].getNumericType() == type)
         return array[i];
