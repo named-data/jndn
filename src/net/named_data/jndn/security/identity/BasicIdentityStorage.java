@@ -29,7 +29,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
@@ -724,8 +723,22 @@ public class BasicIdentityStorage extends IdentityStorage {
   public void
   deleteCertificateInfo(Name certificateName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.deleteCertificateInfo is not implemented");
+    if (certificateName.size() == 0)
+      return;
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("DELETE FROM Certificate WHERE cert_name=?");
+      statement.setString(1, certificateName.toUri());
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
@@ -735,19 +748,81 @@ public class BasicIdentityStorage extends IdentityStorage {
   public void
   deletePublicKeyInfo(Name keyName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.deletePublicKeyInfo is not implemented");
+    if (keyName.size() == 0)
+      return;
+
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getPrefix(-1);
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("DELETE FROM Certificate WHERE identity_name=? and key_identifier=?");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+
+      statement = database_.prepareStatement
+        ("DELETE FROM Key WHERE identity_name=? and key_identifier=?");
+      statement.setString(1, identityName.toUri());
+      statement.setString(2, keyId);
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   /**
    * Delete an identity and related public keys and certificates.
-   * @param identity The identity name.
+   * @param identityName The identity name.
    */
   public void
-  deleteIdentityInfo(Name identity) throws SecurityException
+  deleteIdentityInfo(Name identityName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("BasicIdentityStorage.deleteIdentityInfo is not implemented");
+    String identity = identityName.toUri();
+
+    try {
+      PreparedStatement statement = database_.prepareStatement
+        ("DELETE FROM Certificate WHERE identity_name=?");
+      statement.setString(1, identity);
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+
+      statement = database_.prepareStatement
+        ("DELETE FROM Key WHERE identity_name=?");
+      statement.setString(1, identity);
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+
+      statement = database_.prepareStatement
+        ("DELETE FROM Identity WHERE identity_name=?");
+      statement.setString(1, identity);
+
+      try {
+        statement.executeUpdate();
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
   }
 
   private static final String INIT_ID_TABLE =
