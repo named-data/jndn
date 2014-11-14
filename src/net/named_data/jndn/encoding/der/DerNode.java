@@ -38,7 +38,7 @@ import net.named_data.jndn.util.DynamicByteBuffer;
  */
 public class DerNode {
   /**
-   * Create an generic DER node with the given nodeType. This is a private
+   * Create a generic DER node with the given nodeType. This is a private
    * constructor used by one of the public DerNode subclasses defined below.
    * @param nodeType The DER node type.
    */
