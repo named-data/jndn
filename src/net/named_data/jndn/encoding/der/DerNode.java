@@ -154,7 +154,7 @@ public class DerNode {
    * position.
    * @param startIdx The offset into the buffer.
    */
-  public void
+  protected void
   decode(ByteBuffer inputBuf, int startIdx) throws DerDecodingException
   {
     int idx = startIdx;
