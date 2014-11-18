@@ -58,29 +58,29 @@ class Chat implements ChronoSync2013.OnInitialized,
     (String screenName, String chatRoom, Name hubPrefix, Face face,
      KeyChain keyChain, Name certificateName)
   {
-    screen_name_ = screenName;
-    chatroom_ = chatRoom;
+    screenName_ = screenName;
+    chatRoom_ = chatRoom;
     face_ = face;
     keyChain_ = keyChain;
     certificateName_ = certificateName;
     heartbeat_ = this.new Heartbeat();
 
     // This should only be called once, so get the random string here.
-    chat_prefix_ = new Name(hubPrefix).append(chatroom_).append(getRandomString());
+    chatPrefix_ = new Name(hubPrefix).append(chatRoom_).append(getRandomString());
     int session = (int)Math.round(getNowMilliseconds() / 1000.0);
-    usrname_ = screen_name_ + session;
+    userName_ = screenName_ + session;
     try {
       sync_ = new ChronoSync2013
-        (this, this, chat_prefix_,
-         new Name("/ndn/broadcast/ChronoChat-0.3").append(chatroom_), session,
-         face, keyChain, certificateName, sync_lifetime_, RegisterFailed.onRegisterFailed_);
+        (this, this, chatPrefix_,
+         new Name("/ndn/broadcast/ChronoChat-0.3").append(chatRoom_), session,
+         face, keyChain, certificateName, syncLifetime_, RegisterFailed.onRegisterFailed_);
     } catch (IOException | SecurityException ex) {
       Logger.getLogger(Chat.class.getName()).log(Level.SEVERE, null, ex);
       return;
     }
 
     try {
-      face.registerPrefix(chat_prefix_, this, RegisterFailed.onRegisterFailed_);
+      face.registerPrefix(chatPrefix_, this, RegisterFailed.onRegisterFailed_);
     } catch (IOException | SecurityException ex) {
       Logger.getLogger(Chat.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -88,17 +88,17 @@ class Chat implements ChronoSync2013.OnInitialized,
 
   // Send a chat message.
   public final void
-  sendMessage(String chatmsg) throws IOException, SecurityException
+  sendMessage(String chatMessage) throws IOException, SecurityException
   {
-    if (msgcache_.size() == 0)
+    if (messageCache_.size() == 0)
       messageCacheAppend(ChatMessage.ChatMessageType.JOIN, "xxx");
 
     // Ignore an empty message.
     // forming Sync Data Packet.
-    if (!chatmsg.equals("")) {
+    if (!chatMessage.equals("")) {
       sync_.publishNextSequenceNo();
-      messageCacheAppend(ChatMessage.ChatMessageType.CHAT, chatmsg);
-      System.out.println(screen_name_ + ": " + chatmsg);
+      messageCacheAppend(ChatMessage.ChatMessageType.CHAT, chatMessage);
+      System.out.println(screenName_ + ": " + chatMessage);
     }
   }
 
@@ -136,10 +136,10 @@ class Chat implements ChronoSync2013.OnInitialized,
       return;
     }
 
-    if (roster_.indexOf(usrname_) < 0) {
-      roster_.add(usrname_);
-      System.out.println("Member: " + screen_name_);
-      System.out.println(screen_name_ + ": Join");
+    if (roster_.indexOf(userName_) < 0) {
+      roster_.add(userName_);
+      System.out.println("Member: " + screenName_);
+      System.out.println(screenName_ + ": Join");
       messageCacheAppend(ChatMessage.ChatMessageType.JOIN, "xxx");
     }
   }
@@ -153,39 +153,39 @@ class Chat implements ChronoSync2013.OnInitialized,
     // This is used by onData to decide whether to display the chat messages.
     isRecoverySyncState_ = isRecovery;
 
-    ArrayList sendlist = new ArrayList(); // of String
-    ArrayList sessionlist = new ArrayList(); // of long
-    ArrayList seqlist = new ArrayList(); // of long
+    ArrayList sendList = new ArrayList(); // of String
+    ArrayList sessionNoList = new ArrayList(); // of long
+    ArrayList sequenceNoList = new ArrayList(); // of long
     for (int j = 0; j < syncStates.size(); ++j) {
       ChronoSync2013.SyncState syncState = (ChronoSync2013.SyncState)syncStates.get(j);
-      Name name_components = new Name(syncState.getDataPrefix());
-      String name_t = name_components.get(-1).toEscapedString();
-      long session = syncState.getSessionNo();
-      if (!name_t.equals(screen_name_)) {
-        int index_n = -1;
-        for (int k = 0; k < sendlist.size(); ++k) {
-          if (((String)sendlist.get(k)).equals(syncState.getDataPrefix())) {
-            index_n = k;
+      Name nameComponents = new Name(syncState.getDataPrefix());
+      String tempName = nameComponents.get(-1).toEscapedString();
+      long sessionNo = syncState.getSessionNo();
+      if (!tempName.equals(screenName_)) {
+        int index = -1;
+        for (int k = 0; k < sendList.size(); ++k) {
+          if (((String)sendList.get(k)).equals(syncState.getDataPrefix())) {
+            index = k;
             break;
           }
         }
-        if (index_n != -1) {
-          sessionlist.set(index_n, session);
-          seqlist.set(index_n, syncState.getSequenceNo());
+        if (index != -1) {
+          sessionNoList.set(index, sessionNo);
+          sequenceNoList.set(index, syncState.getSequenceNo());
         }
         else{
-          sendlist.add(syncState.getDataPrefix());
-          sessionlist.add(session);
-          seqlist.add(syncState.getSequenceNo());
+          sendList.add(syncState.getDataPrefix());
+          sessionNoList.add(sessionNo);
+          sequenceNoList.add(syncState.getSequenceNo());
         }
       }
     }
 
-    for (int i = 0; i < sendlist.size(); ++i) {
-      String uri = (String)sendlist.get(i) + "/" + (long)sessionlist.get(i) +
-        "/" + (long)seqlist.get(i);
+    for (int i = 0; i < sendList.size(); ++i) {
+      String uri = (String)sendList.get(i) + "/" + (long)sessionNoList.get(i) +
+        "/" + (long)sequenceNoList.get(i);
       Interest interest = new Interest(new Name(uri));
-      interest.setInterestLifetimeMilliseconds(sync_lifetime_);
+      interest.setInterestLifetimeMilliseconds(syncLifetime_);
       try {
         face_.expressInterest(interest, this, ChatTimeout.onTimeout_);
       } catch (IOException ex) {
@@ -199,23 +199,23 @@ class Chat implements ChronoSync2013.OnInitialized,
   // (Do not call this. It is only public to implement the interface.)
   public final void
   onInterest
-    (Name prefix, Interest inst, Transport transport, long registeredPrefixId)
+    (Name prefix, Interest interest, Transport transport, long registeredPrefixId)
   {
     ChatMessage.Builder builder = ChatMessage.newBuilder();
-    long seq = Long.parseLong(inst.getName().get(chat_prefix_.size() + 1).toEscapedString());
+    long sequenceNo = Long.parseLong(interest.getName().get(chatPrefix_.size() + 1).toEscapedString());
     boolean gotContent = false;
-    for (int i = msgcache_.size() - 1; i >= 0; --i) {
-      CachedMessage message = (CachedMessage)msgcache_.get(i);
-      if (message.getSequenceNo() == seq) {
+    for (int i = messageCache_.size() - 1; i >= 0; --i) {
+      CachedMessage message = (CachedMessage)messageCache_.get(i);
+      if (message.getSequenceNo() == sequenceNo) {
         if (!message.getMessageType().equals(ChatMessage.ChatMessageType.CHAT)) {
-          builder.setFrom(screen_name_);
-          builder.setTo(chatroom_);
+          builder.setFrom(screenName_);
+          builder.setTo(chatRoom_);
           builder.setType(message.getMessageType());
           builder.setTimestamp((int)Math.round(message.getTime() / 1000.0));
         }
         else {
-          builder.setFrom(screen_name_);
-          builder.setTo(chatroom_);
+          builder.setFrom(screenName_);
+          builder.setTo(chatRoom_);
           builder.setType(message.getMessageType());
           builder.setData(message.getMessage());
           builder.setTimestamp((int)Math.round(message.getTime() / 1000.0));
@@ -228,7 +228,7 @@ class Chat implements ChronoSync2013.OnInitialized,
     if (gotContent) {
       ChatMessage content = builder.build();
       byte[] array = content.toByteArray();
-      Data co = new Data(inst.getName());
+      Data co = new Data(interest.getName());
       co.setContent(new Blob(array));
       try {
         keyChain_.sign(co, certificateName_);
@@ -247,7 +247,7 @@ class Chat implements ChronoSync2013.OnInitialized,
   // Process the incoming Chat data.
   // (Do not call this. It is only public to implement the interface.)
   public final void
-  onData(Interest inst, Data co)
+  onData(Interest interest, Data co)
   {
     ChatMessage content;
     try {
@@ -259,20 +259,20 @@ class Chat implements ChronoSync2013.OnInitialized,
     if (getNowMilliseconds() - content.getTimestamp() * 1000.0 < 120000.0) {
       String name = content.getFrom();
       String prefix = co.getName().getPrefix(-2).toUri();
-      long session = Long.parseLong(co.getName().get(-2).toEscapedString());
-      long seqno = Long.parseLong(co.getName().get(-1).toEscapedString());
-      String nameAndSession = name + session;
+      long sessionNo = Long.parseLong(co.getName().get(-2).toEscapedString());
+      long sequenceNo = Long.parseLong(co.getName().get(-1).toEscapedString());
+      String nameAndSession = name + sessionNo;
 
       int l = 0;
       //update roster
       while (l < roster_.size()) {
         String entry = (String)roster_.get(l);
-        String name_t2 = entry.substring(0, entry.length() - 10);
-        long session_t = Long.parseLong(entry.substring(entry.length() - 10));
-        if (!name.equals(name_t2) && !content.getType().equals(ChatMessage.ChatMessageType.LEAVE))
+        String tempName = entry.substring(0, entry.length() - 10);
+        long tempSessionNo = Long.parseLong(entry.substring(entry.length() - 10));
+        if (!name.equals(tempName) && !content.getType().equals(ChatMessage.ChatMessageType.LEAVE))
           ++l;
         else {
-          if (name.equals(name_t2) && session > session_t)
+          if (name.equals(tempName) && sessionNo > tempSessionNo)
             roster_.set(l, nameAndSession);
           break;
         }
@@ -290,7 +290,7 @@ class Chat implements ChronoSync2013.OnInitialized,
       try {
         face_.expressInterest
           (timeout, DummyOnData.onData_,
-           this.new Alive(seqno, name, session, prefix));
+           this.new Alive(sequenceNo, name, sessionNo, prefix));
       } catch (IOException ex) {
         Logger.getLogger(Chat.class.getName()).log(Level.SEVERE, null, ex);
         return;
@@ -300,12 +300,12 @@ class Chat implements ChronoSync2013.OnInitialized,
       // TODO: If isRecoverySyncState_ changed, this assumes that we won't get
       //   data from an interest sent before it changed.
       if (content.getType().equals(ChatMessage.ChatMessageType.CHAT) &&
-          !isRecoverySyncState_ && !content.getFrom().equals(screen_name_))
+          !isRecoverySyncState_ && !content.getFrom().equals(screenName_))
         System.out.println(content.getFrom() + ": " + content.getData());
       else if (content.getType().equals(ChatMessage.ChatMessageType.LEAVE)) {
         // leave message
         int n = roster_.indexOf(nameAndSession);
-        if (n >= 0 && !name.equals(screen_name_)) {
+        if (n >= 0 && !name.equals(screenName_)) {
           roster_.remove(n);
           System.out.println(name + ": Leave");
         }
@@ -331,7 +331,7 @@ class Chat implements ChronoSync2013.OnInitialized,
   private class Heartbeat implements OnTimeout {
     public final void
     onTimeout(Interest interest) {
-      if (msgcache_.size() == 0)
+      if (messageCache_.size() == 0)
         messageCacheAppend(ChatMessage.ChatMessageType.JOIN, "xxx");
 
       try {
@@ -361,31 +361,31 @@ class Chat implements ChronoSync2013.OnInitialized,
    * This is used as the onTimeout for Face.expressInterest.
    */
   private class Alive implements OnTimeout {
-    public Alive(long temp_seq, String name, long session, String prefix)
+    public Alive(long tempSequenceNo, String name, long sessionNo, String prefix)
     {
-      temp_seq_ = temp_seq;
+      tempSequenceNo_ = tempSequenceNo;
       name_ = name;
-      session_ = session;
+      sessionNo_ = sessionNo;
       prefix_ = prefix;
     }
 
     public final void
     onTimeout(Interest interest)
     {
-      long seq = sync_.getProducerSequenceNo(prefix_, session_);
-      String nameAndSession = name_ + session_;
+      long sequenceNo = sync_.getProducerSequenceNo(prefix_, sessionNo_);
+      String nameAndSession = name_ + sessionNo_;
       int n = roster_.indexOf(nameAndSession);
-      if (seq != -1 && n >= 0) {
-        if (temp_seq_ == seq) {
+      if (sequenceNo != -1 && n >= 0) {
+        if (tempSequenceNo_ == sequenceNo) {
           roster_.remove(n);
           System.out.println(name_ + ": Leave");
         }
       }
     }
 
-    private final long temp_seq_;
+    private final long tempSequenceNo_;
     private final String name_;
-    private final long session_;
+    private final long sessionNo_;
     private final String prefix_;
   }
 
@@ -398,10 +398,10 @@ class Chat implements ChronoSync2013.OnInitialized,
   private void
   messageCacheAppend(ChatMessage.ChatMessageType messageType, String message)
   {
-    msgcache_.add(new CachedMessage
+    messageCache_.add(new CachedMessage
       (sync_.getSequenceNo(), messageType, message, getNowMilliseconds()));
-    while (msgcache_.size() > maxmsgcachelength_)
-      msgcache_.remove(0);
+    while (messageCache_.size() > maxMessageCacheLength_)
+      messageCache_.remove(0);
   }
 
   // Generate a random name for ChronoSync.
@@ -413,8 +413,8 @@ class Chat implements ChronoSync2013.OnInitialized,
     Random random = new Random();
     for (int i = 0; i < 10; ++i) {
       // Using % means the distribution isn't uniform, but that's OK.
-      int pos = random.nextInt(256) % seed.length();
-      result += seed.charAt(pos);
+      int position = random.nextInt(256) % seed.length();
+      result += seed.charAt(position);
     }
 
     return result;
@@ -441,42 +441,42 @@ class Chat implements ChronoSync2013.OnInitialized,
 
   private static class CachedMessage {
   public CachedMessage
-      (long seqno, ChatMessage.ChatMessageType msgtype, String msg, double time)
+      (long sequenceNo, ChatMessage.ChatMessageType messageType, String message, double time)
     {
-      seqno_ = seqno;
-      msgtype_ = msgtype;
-      msg_ = msg;
+      sequenceNo_ = sequenceNo;
+      messageType_ = messageType;
+      message_ = message;
       time_ = time;
     }
 
     public final long
-    getSequenceNo() { return seqno_; }
+    getSequenceNo() { return sequenceNo_; }
 
     public final ChatMessage.ChatMessageType
-    getMessageType() { return msgtype_; }
+    getMessageType() { return messageType_; }
 
     public final String
-    getMessage() { return msg_; }
+    getMessage() { return message_; }
 
     public final double
     getTime() { return time_; }
 
-    private final long seqno_;
-    private final ChatMessage.ChatMessageType msgtype_;
-    private final String msg_;
+    private final long sequenceNo_;
+    private final ChatMessage.ChatMessageType messageType_;
+    private final String message_;
     private final double time_;
   };
 
   // Use a non-template ArrayList so it works with older Java compilers.
-  private final ArrayList msgcache_ = new ArrayList(); // of CachedMessage
+  private final ArrayList messageCache_ = new ArrayList(); // of CachedMessage
   private final ArrayList roster_ = new ArrayList(); // of String
-  private final int maxmsgcachelength_ = 100;
+  private final int maxMessageCacheLength_ = 100;
   private boolean isRecoverySyncState_ = true;
-  private final String screen_name_;
-  private final String chatroom_;
-  private final String usrname_;
-  private final Name chat_prefix_;
-  private final double sync_lifetime_ = 5000.0; // milliseconds
+  private final String screenName_;
+  private final String chatRoom_;
+  private final String userName_;
+  private final Name chatPrefix_;
+  private final double syncLifetime_ = 5000.0; // milliseconds
   private ChronoSync2013 sync_;
   private final Face face_;
   private final KeyChain keyChain_;

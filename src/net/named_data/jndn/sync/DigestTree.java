@@ -120,7 +120,7 @@ public class DigestTree {
       sha256.update(number);
       int32ToLittleEndian((int)seqno_seq_, number);
       sha256.update(number);
-      byte[] digest_seq = sha256.digest();
+      byte[] sequenceDigest = sha256.digest();
 
       sha256.reset();
       try {
@@ -129,13 +129,13 @@ public class DigestTree {
         // We don't expect this to happen.
         throw new Error("UTF-8 encoder not supported: " + ex.getMessage());
       }
-      byte[] digest_name = sha256.digest();
+      byte[] nameDigest = sha256.digest();
 
       sha256.reset();
-      sha256.update(digest_name);
-      sha256.update(digest_seq);
-      byte[] digest_node = sha256.digest();
-      digest_ = Common.toHex(digest_node);
+      sha256.update(nameDigest);
+      sha256.update(sequenceDigest);
+      byte[] nodeDigest = sha256.digest();
+      digest_ = Common.toHex(nodeDigest);
     }
     
     private static void
@@ -166,15 +166,15 @@ public class DigestTree {
   public final boolean
   update(String dataPrefix, long sessionNo, long sequenceNo)
   {
-    int n_index = find(dataPrefix, sessionNo);
+    int nodeIndex = find(dataPrefix, sessionNo);
     Logger.getLogger(DigestTree.class.getName()).log(Level.FINE,
       "{0}, {1}",  new Object[]{dataPrefix, sessionNo});
     Logger.getLogger(DigestTree.class.getName()).log(Level.FINE, 
-      "DigestTree.update session {0}, n_index {1}", new Object[]{sessionNo, n_index});
-    if (n_index >= 0) {
+      "DigestTree.update session {0}, nodeIndex {1}", new Object[]{sessionNo, nodeIndex});
+    if (nodeIndex >= 0) {
       // Only update to a  newer status.
-      if (((Node)digestnode_.get(n_index)).getSequenceNo() < sequenceNo)
-        ((Node)digestnode_.get(n_index)).setSequenceNo(sequenceNo);
+      if (((Node)digestNode_.get(nodeIndex)).getSequenceNo() < sequenceNo)
+        ((Node)digestNode_.get(nodeIndex)).setSequenceNo(sequenceNo);
       else
         return false;
     }
@@ -185,12 +185,12 @@ public class DigestTree {
       Node temp = new Node(dataPrefix, sequenceNo, sessionNo);
       // Find the index of the first node where it is not less than temp.
       int i = 0;
-      while (i < digestnode_.size()) {
-        if (!((Node)digestnode_.get(i)).lessThan(temp))
+      while (i < digestNode_.size()) {
+        if (!((Node)digestNode_.get(i)).lessThan(temp))
           break;
         ++i;
       }
-      digestnode_.add(i, temp);
+      digestNode_.add(i, temp);
     }
 
     recomputeRoot();
@@ -200,9 +200,9 @@ public class DigestTree {
   public final int
   find(String dataPrefix, long sessionNo)
   {
-    for (int i = 0; i < digestnode_.size(); ++i) {
-      if (((Node)digestnode_.get(i)).getDataPrefix().equals(dataPrefix) &&
-          ((Node)digestnode_.get(i)).getSessionNo() == sessionNo)
+    for (int i = 0; i < digestNode_.size(); ++i) {
+      if (((Node)digestNode_.get(i)).getDataPrefix().equals(dataPrefix) &&
+          ((Node)digestNode_.get(i)).getSessionNo() == sessionNo)
         return i;
     }
 
@@ -210,10 +210,10 @@ public class DigestTree {
   }
 
   public final int
-  size() { return digestnode_.size(); }
+  size() { return digestNode_.size(); }
 
   public final Node
-  get(int i) { return (Node)digestnode_.get(i); }
+  get(int i) { return (Node)digestNode_.get(i); }
 
   /**
    * Get the root digest.
@@ -271,8 +271,8 @@ public class DigestTree {
         ("MessageDigest: SHA-256 is not supported: " + exception.getMessage());
     }
 
-    for (int i = 0; i < digestnode_.size(); ++i)
-      updateHex(sha256, ((Node)digestnode_.get(i)).getDigest());
+    for (int i = 0; i < digestNode_.size(); ++i)
+      updateHex(sha256, ((Node)digestNode_.get(i)).getDigest());
     byte[] digest_root = sha256.digest();
     root_ = Common.toHex(digest_root);
     Logger.getLogger(DigestTree.class.getName()).log(Level.FINE,
@@ -280,6 +280,6 @@ public class DigestTree {
   }
 
   // Use a non-template ArrayList so it works with older Java compilers.
-  private final ArrayList digestnode_ = new ArrayList(); // of DigestTree.Node
+  private final ArrayList digestNode_ = new ArrayList(); // of DigestTree.Node
   private String root_;
 }
