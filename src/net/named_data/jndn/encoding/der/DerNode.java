@@ -178,8 +178,7 @@ public class DerNode {
   public static DerNode
   parse(ByteBuffer inputBuf, int startIdx) throws DerDecodingException
   {
-    int idx = startIdx;
-    int nodeType = ((int)inputBuf.get(idx)) & 0xff;
+    int nodeType = ((int)inputBuf.get(startIdx)) & 0xff;
     // Don't increment idx. We're just peeking.
 
     DerNode newNode;
@@ -204,7 +203,7 @@ public class DerNode {
     else
       throw new DerDecodingException("Unimplemented DER type " + nodeType);
 
-    newNode.decode(inputBuf, idx);
+    newNode.decode(inputBuf, startIdx);
     return newNode;
   }
 
