@@ -480,7 +480,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   // Process Sync Data.
   // (Do not call this. It is only public to implement the interface.)
   public final void
-  onData(Interest interest, Data co)
+  onData(Interest interest, Data data)
   {
     if (!enabled_)
       // Ignore callbacks after the application calls shutdown().
@@ -489,10 +489,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
       "Sync ContentObject received in callback");
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
-      "name: {0}", co.getName().toUri());
+      "name: {0}", data.getName().toUri());
     SyncStateProto.SyncStateMsg tempContent;
     try {
-      tempContent = SyncStateProto.SyncStateMsg.parseFrom(co.getContent().getImmutableArray());
+      tempContent = SyncStateProto.SyncStateMsg.parseFrom(data.getContent().getImmutableArray());
     } catch (InvalidProtocolBufferException ex) {
       Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
       return;
@@ -616,16 +616,16 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
 
       if (tempContent.getSsCount() != 0) {
         byte[] array = tempContent.toByteArray();
-        Data co = new Data(interest.getName());
-        co.setContent(new Blob(array));
+        Data data = new Data(interest.getName());
+        data.setContent(new Blob(array));
         try {
-          keyChain_.sign(co, certificateName_);
+          keyChain_.sign(data, certificateName_);
         } catch (SecurityException ex) {
           Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
           return;
         }
         try {
-          transport.send(co.wireEncode().buf());
+          transport.send(data.wireEncode().buf());
         } catch (IOException ex) {
           Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE,
             ex.getMessage());
@@ -696,12 +696,12 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       Name name = new Name(applicationBroadcastPrefix_);
       name.append(syncDigest);
       byte[] array = tempContent.toByteArray();
-      Data co = new Data(name);
-      co.setContent(new Blob(array));
-      keyChain_.sign(co, certificateName_);
+      Data data = new Data(name);
+      data.setContent(new Blob(array));
+      keyChain_.sign(data, certificateName_);
 
       try {
-        transport.send(co.wireEncode().buf());
+        transport.send(data.wireEncode().buf());
       } catch (IOException ex) {
         Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE,
           ex.getMessage());

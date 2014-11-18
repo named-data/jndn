@@ -228,16 +228,16 @@ class Chat implements ChronoSync2013.OnInitialized,
     if (gotContent) {
       ChatMessage content = builder.build();
       byte[] array = content.toByteArray();
-      Data co = new Data(interest.getName());
-      co.setContent(new Blob(array));
+      Data data = new Data(interest.getName());
+      data.setContent(new Blob(array));
       try {
-        keyChain_.sign(co, certificateName_);
+        keyChain_.sign(data, certificateName_);
       } catch (SecurityException ex) {
         Logger.getLogger(Chat.class.getName()).log(Level.SEVERE, null, ex);
         return;
       }
       try {
-        transport.send(co.wireEncode().buf());
+        transport.send(data.wireEncode().buf());
       } catch (IOException ex) {
         Logger.getLogger(Chat.class.getName()).log(Level.SEVERE, null, ex);
       }
@@ -247,20 +247,20 @@ class Chat implements ChronoSync2013.OnInitialized,
   // Process the incoming Chat data.
   // (Do not call this. It is only public to implement the interface.)
   public final void
-  onData(Interest interest, Data co)
+  onData(Interest interest, Data data)
   {
     ChatMessage content;
     try {
-      content = ChatMessage.parseFrom(co.getContent().getImmutableArray());
+      content = ChatMessage.parseFrom(data.getContent().getImmutableArray());
     } catch (InvalidProtocolBufferException ex) {
       Logger.getLogger(Chat.class.getName()).log(Level.SEVERE, null, ex);
       return;
     }
     if (getNowMilliseconds() - content.getTimestamp() * 1000.0 < 120000.0) {
       String name = content.getFrom();
-      String prefix = co.getName().getPrefix(-2).toUri();
-      long sessionNo = Long.parseLong(co.getName().get(-2).toEscapedString());
-      long sequenceNo = Long.parseLong(co.getName().get(-1).toEscapedString());
+      String prefix = data.getName().getPrefix(-2).toUri();
+      long sessionNo = Long.parseLong(data.getName().get(-2).toEscapedString());
+      long sequenceNo = Long.parseLong(data.getName().get(-1).toEscapedString());
       String nameAndSession = name + sessionNo;
 
       int l = 0;
