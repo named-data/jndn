@@ -214,14 +214,14 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   public final void
   publishNextSequenceNo() throws IOException, SecurityException
   {
-    ++usrseq_;
+    ++sequenceNo_;
 
     SyncStateProto.SyncStateMsg.Builder builder =
       SyncStateProto.SyncStateMsg.newBuilder();
     builder.addSsBuilder()
       .setName(applicationDataPrefixUri_)
       .setType(SyncStateProto.SyncState.ActionType.UPDATE)
-      .getSeqnoBuilder().setSeq(usrseq_)
+      .getSeqnoBuilder().setSeq(sequenceNo_)
                         .setSession(session_);
     SyncStateProto.SyncStateMsg syncMessage = builder.build();
     
@@ -247,7 +247,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
    * @return The sequence number.
    */
   public final long
-  getSequenceNo() { return usrseq_; }
+  getSequenceNo() { return sequenceNo_; }
 
   private static class DigestLogEntry {
     public DigestLogEntry(String digest, List data)
@@ -385,7 +385,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
              syncState.getSeqno().getSeq())) {
           // The digest tree was updated.
           if (applicationDataPrefixUri_.equals(syncState.getName()))
-            usrseq_ = syncState.getSeqno().getSeq();
+            sequenceNo_ = syncState.getSeqno().getSeq();
         }
       }
     }
@@ -562,18 +562,18 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         "initial sync timeout");
       Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
         "no other people");
-      ++usrseq_;
-      if (usrseq_ != 0)
+      ++sequenceNo_;
+      if (sequenceNo_ != 0)
         // Since there were no other users, we expect sequence no 0.
         throw new Error
-          ("ChronoSync: usrseq_ is not the expected value of 0 for first use.");
+          ("ChronoSync: sequenceNo_ is not the expected value of 0 for first use.");
 
       SyncStateProto.SyncStateMsg.Builder builder =
         SyncStateProto.SyncStateMsg.newBuilder();
       builder.addSsBuilder()
         .setName(applicationDataPrefixUri_)
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
-        .getSeqnoBuilder().setSeq(usrseq_)
+        .getSeqnoBuilder().setSeq(sequenceNo_)
                           .setSession(session_);
       SyncStateProto.SyncStateMsg content_t = builder.build();
       update(content_t.getSsList());
@@ -838,14 +838,14 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     }
 
     SyncStateProto.SyncStateMsg content2;
-    if (usrseq_ >= 0) {
+    if (sequenceNo_ >= 0) {
       // Send the data packet with the new seqno back.
       SyncStateProto.SyncStateMsg.Builder builder =
         SyncStateProto.SyncStateMsg.newBuilder();
       builder.addSsBuilder()
         .setName(applicationDataPrefixUri_)
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
-        .getSeqnoBuilder().setSeq(usrseq_)
+        .getSeqnoBuilder().setSeq(sequenceNo_)
                           .setSession(session_);
       content2 = builder.build();
     }
@@ -866,13 +866,13 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       // the user hasn't put himself in the digest tree.
       Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
         "initial state");
-      ++usrseq_;
+      ++sequenceNo_;
       SyncStateProto.SyncStateMsg.Builder builder =
         SyncStateProto.SyncStateMsg.newBuilder();
       builder.addSsBuilder()
         .setName(applicationDataPrefixUri_)
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
-        .getSeqnoBuilder().setSeq(usrseq_)
+        .getSeqnoBuilder().setSeq(sequenceNo_)
                           .setSession(session_);
       SyncStateProto.SyncStateMsg tempContent = builder.build();
 
@@ -943,7 +943,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   String applicationDataPrefixUri_;
   Name applicationBroadcastPrefix_;
   long session_;
-  long usrseq_ = -1;
+  long sequenceNo_ = -1;
   MemoryContentCache contentCache_;
   ArrayList pendingInterestTable_ = new ArrayList(); // of PendingInterest
   boolean enabled_ = true;
