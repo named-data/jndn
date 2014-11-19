@@ -38,14 +38,14 @@ public class DigestTree {
     /**
      * Create a new DigestTree.Node with the given fields and compute the digest.
      * @param dataPrefix The data prefix. This is encoded as UTF-8 to digest.
-     * @param seqno_seq
-     * @param seqno_session
+     * @param sequenceNo
+     * @param sessionNo
      */
-    public Node(String dataPrefix, long seqno_seq, long seqno_session)
+    public Node(String dataPrefix, long sequenceNo, long sessionNo)
     {
       dataPrefix_ = dataPrefix;
-      seqno_seq_ = seqno_seq;
-      seqno_session_ = seqno_session;
+      sequenceNo_ = sequenceNo;
+      sessionNo_ = sessionNo;
       recomputeDigest();
     }
 
@@ -53,10 +53,10 @@ public class DigestTree {
     getDataPrefix() { return dataPrefix_; }
 
     public final long
-    getSequenceNo() { return seqno_seq_; }
+    getSequenceNo() { return sequenceNo_; }
 
     public final long
-    getSessionNo() { return seqno_session_; }
+    getSessionNo() { return sessionNo_; }
 
     /**
      * Get the digest.
@@ -73,12 +73,12 @@ public class DigestTree {
     public final void
     setSequenceNo(long sequenceNo)
     {
-      seqno_seq_ = sequenceNo;
+      sequenceNo_ = sequenceNo;
       recomputeDigest();
     }
 
     /**
-     * Compare this Node with node2 first comparing dataPrefix_ then seqno_session_.
+     * Compare this Node with node2 first comparing dataPrefix_ then sessionNo_.
      * @param node2 The other Node to compare.
      * @return True if this node is less than node2.
      */
@@ -94,7 +94,7 @@ public class DigestTree {
       if (prefixComparison != 0)
         return prefixComparison < 0;
 
-      return seqno_session_ < node2.seqno_session_;
+      return sessionNo_ < node2.sessionNo_;
     }
 
     /**
@@ -116,9 +116,9 @@ public class DigestTree {
       byte[] number = new byte[4];
       // Debug: sync-state-proto.proto defines seq and session as uint64, but
       //   the original ChronoChat-js only digests 32 bits.
-      int32ToLittleEndian((int)seqno_session_, number);
+      int32ToLittleEndian((int)sessionNo_, number);
       sha256.update(number);
-      int32ToLittleEndian((int)seqno_seq_, number);
+      int32ToLittleEndian((int)sequenceNo_, number);
       sha256.update(number);
       byte[] sequenceDigest = sha256.digest();
 
@@ -148,8 +148,8 @@ public class DigestTree {
     }
 
     private final String dataPrefix_;
-    private long seqno_seq_;
-    private final long seqno_session_;
+    private long sequenceNo_;
+    private final long sessionNo_;
     private String digest_;
   }
 

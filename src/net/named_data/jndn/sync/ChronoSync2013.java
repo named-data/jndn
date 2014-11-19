@@ -441,7 +441,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     if (interest.getName().size() == applicationBroadcastPrefix_.size() + 2 ||
         syncDigest.equals("00"))
       // Recovery interest or newcomer interest.
-      processRecoveryInst(interest, syncDigest, transport);
+      processRecoveryInterest(interest, syncDigest, transport);
     else {
       // Save the unanswered interest in our local pending interest table.
       pendingInterestTable_.add(new PendingInterest(interest, transport));
@@ -468,7 +468,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         else {
           try {
             // common interest processing
-            processSyncInst(index, syncDigest, transport);
+            processSyncInterest(index, syncDigest, transport);
           } catch (SecurityException ex) {
             Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
           }
@@ -598,10 +598,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   }
 
   private void
-  processRecoveryInst(Interest interest, String syncDigest, Transport transport)
+  processRecoveryInterest(Interest interest, String syncDigest, Transport transport)
   {
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
-      "processRecoveryInst");
+      "processRecoveryInterest");
     if (logFind(syncDigest) != -1) {
       SyncStateProto.SyncStateMsg.Builder builder =
         SyncStateProto.SyncStateMsg.newBuilder();
@@ -645,7 +645,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
    * otherwise false.
    */
   private boolean
-  processSyncInst(int index, String syncDigest, Transport transport) throws SecurityException
+  processSyncInterest(int index, String syncDigest, Transport transport) throws SecurityException
   {
     ArrayList nameList = new ArrayList(); // of String
     ArrayList sequenceNoList = new ArrayList();  // of long
@@ -755,7 +755,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       if (index2 != -1) {
         if (!syncDigest_.equals(digestTree_.getRoot()))
           try {
-            processSyncInst(index2, syncDigest_, transport_);
+            processSyncInterest(index2, syncDigest_, transport_);
         } catch (SecurityException ex) {
           Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
           return;
@@ -822,7 +822,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       if (syncState.getName().equals(applicationDataPrefixUri_) &&
           syncState.getSeqno().getSession() == session_) {
         // If the user was an old comer, after add the static log he needs to
-        // increase his seqno by 1.
+        // increase his sequence number by 1.
         SyncStateProto.SyncStateMsg.Builder builder =
           SyncStateProto.SyncStateMsg.newBuilder();
         builder.addSsBuilder()
@@ -839,7 +839,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
 
     SyncStateProto.SyncStateMsg content2;
     if (sequenceNo_ >= 0) {
-      // Send the data packet with the new seqno back.
+      // Send the data packet with the new sequence number back.
       SyncStateProto.SyncStateMsg.Builder builder =
         SyncStateProto.SyncStateMsg.newBuilder();
       builder.addSsBuilder()
