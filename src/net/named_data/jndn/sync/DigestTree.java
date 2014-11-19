@@ -273,8 +273,8 @@ public class DigestTree {
 
     for (int i = 0; i < digestNode_.size(); ++i)
       updateHex(sha256, ((Node)digestNode_.get(i)).getDigest());
-    byte[] digest_root = sha256.digest();
-    root_ = Common.toHex(digest_root);
+    byte[] digestRoot = sha256.digest();
+    root_ = Common.toHex(digestRoot);
     Logger.getLogger(DigestTree.class.getName()).log(Level.FINE,
       "update root to: {0}", root_);
   }
