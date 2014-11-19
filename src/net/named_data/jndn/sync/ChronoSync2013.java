@@ -43,7 +43,7 @@ import net.named_data.jndn.util.MemoryContentCache;
 
 /**
  * ChronoSync2013 implements the NDN ChronoSync protocol as described in the
- * 2013 paper "Let’s ChronoSync: Decentralized Dataset State Synchronization in
+ * 2013 paper "Let's ChronoSync: Decentralized Dataset State Synchronization in
  * Named Data Networking". http://named-data.net/publications/chronosync .
  * @note The support for ChronoSync is experimental and the API is not finalized.
  * See the API docs for more detail at
