@@ -38,14 +38,14 @@ public class DigestTree {
     /**
      * Create a new DigestTree.Node with the given fields and compute the digest.
      * @param dataPrefix The data prefix. This is encoded as UTF-8 to digest.
-     * @param sequenceNo
-     * @param sessionNo
+     * @param sessionNo The session number.
+     * @param sequenceNo The sequence number.
      */
-    public Node(String dataPrefix, long sequenceNo, long sessionNo)
+    public Node(String dataPrefix, long sessionNo, long sequenceNo)
     {
       dataPrefix_ = dataPrefix;
-      sequenceNo_ = sequenceNo;
       sessionNo_ = sessionNo;
+      sequenceNo_ = sequenceNo;
       recomputeDigest();
     }
 
@@ -53,10 +53,10 @@ public class DigestTree {
     getDataPrefix() { return dataPrefix_; }
 
     public final long
-    getSequenceNo() { return sequenceNo_; }
+    getSessionNo() { return sessionNo_; }
 
     public final long
-    getSessionNo() { return sessionNo_; }
+    getSequenceNo() { return sequenceNo_; }
 
     /**
      * Get the digest.
@@ -148,8 +148,8 @@ public class DigestTree {
     }
 
     private final String dataPrefix_;
-    private long sequenceNo_;
     private final long sessionNo_;
+    private long sequenceNo_;
     private String digest_;
   }
 
@@ -180,9 +180,9 @@ public class DigestTree {
     }
     else {
       Logger.getLogger(DigestTree.class.getName()).log(Level.FINE,
-        "new comer {0},{1},{2}", new Object[]{dataPrefix, sequenceNo, sessionNo});
+        "new comer {0}, session {1}, sequence {2}", new Object[]{dataPrefix, sessionNo, sequenceNo});
       // Insert into digestnode_ sorted.
-      Node temp = new Node(dataPrefix, sequenceNo, sessionNo);
+      Node temp = new Node(dataPrefix, sessionNo, sequenceNo);
       // Find the index of the first node where it is not less than temp.
       int i = 0;
       while (i < digestNode_.size()) {
