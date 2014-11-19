@@ -98,7 +98,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
    * sync interests.
    * @param onRegisterFailed If failed to register the prefix to receive
    * interests for the applicationBroadcastPrefix, this calls
-   * onRegisterFailed(applicationBroadcastPrefix).
+   * onRegisterFailed.onRegisterFailed(applicationBroadcastPrefix).
    */
   public ChronoSync2013
     (OnReceivedSyncState onReceivedSyncState, OnInitialized onInitialized,
