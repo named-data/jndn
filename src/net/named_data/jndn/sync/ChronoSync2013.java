@@ -110,7 +110,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     onInitialized_ = onInitialized;
     applicationDataPrefixUri_ = applicationDataPrefix.toUri();
     applicationBroadcastPrefix_ = new Name(applicationBroadcastPrefix);
-    session_ = sessionNo;
+    sessionNo_ = sessionNo;
     face_ = face;
     keyChain_ = keyChain;
     certificateName_ = new Name(certificateName);
@@ -222,7 +222,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       .setName(applicationDataPrefixUri_)
       .setType(SyncStateProto.SyncState.ActionType.UPDATE)
       .getSeqnoBuilder().setSeq(sequenceNo_)
-                        .setSession(session_);
+                        .setSession(sessionNo_);
     SyncStateProto.SyncStateMsg syncMessage = builder.build();
     
     broadcastSyncState(digestTree_.getRoot(), syncMessage);
@@ -574,7 +574,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         .setName(applicationDataPrefixUri_)
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
         .getSeqnoBuilder().setSeq(sequenceNo_)
-                          .setSession(session_);
+                          .setSession(sessionNo_);
       SyncStateProto.SyncStateMsg tempContent = builder.build();
       update(tempContent.getSsList());
 
@@ -821,7 +821,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       SyncStateProto.SyncState syncState =
         (SyncStateProto.SyncState)content.get(i);
       if (syncState.getName().equals(applicationDataPrefixUri_) &&
-          syncState.getSeqno().getSession() == session_) {
+          syncState.getSeqno().getSession() == sessionNo_) {
         // If the user was an old comer, after add the static log he needs to
         // increase his sequence number by 1.
         SyncStateProto.SyncStateMsg.Builder builder =
@@ -830,7 +830,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
           .setName(applicationDataPrefixUri_)
           .setType(SyncStateProto.SyncState.ActionType.UPDATE)
           .getSeqnoBuilder().setSeq(syncState.getSeqno().getSeq() + 1)
-                            .setSession(session_);
+                            .setSession(sessionNo_);
         SyncStateProto.SyncStateMsg tempContent = builder.build();
 
         if (update(tempContent.getSsList()))
@@ -847,7 +847,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         .setName(applicationDataPrefixUri_)
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
         .getSeqnoBuilder().setSeq(sequenceNo_)
-                          .setSession(session_);
+                          .setSession(sessionNo_);
       tempContent2 = builder.build();
     }
     else {
@@ -857,13 +857,13 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         .setName(applicationDataPrefixUri_)
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
         .getSeqnoBuilder().setSeq(0)
-                          .setSession(session_);
+                          .setSession(sessionNo_);
       tempContent2 = builder.build();
     }
 
     broadcastSyncState(digest, tempContent2);
 
-    if (digestTree_.find(applicationDataPrefixUri_, session_) == -1) {
+    if (digestTree_.find(applicationDataPrefixUri_, sessionNo_) == -1) {
       // the user hasn't put himself in the digest tree.
       Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
         "initial state");
@@ -874,7 +874,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         .setName(applicationDataPrefixUri_)
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
         .getSeqnoBuilder().setSeq(sequenceNo_)
-                          .setSession(session_);
+                          .setSession(sessionNo_);
       SyncStateProto.SyncStateMsg tempContent = builder.build();
 
       if (update(tempContent.getSsList()))
@@ -943,7 +943,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   DigestTree digestTree_ = new DigestTree();
   String applicationDataPrefixUri_;
   Name applicationBroadcastPrefix_;
-  long session_;
+  long sessionNo_;
   long sequenceNo_ = -1;
   MemoryContentCache contentCache_;
   ArrayList pendingInterestTable_ = new ArrayList(); // of PendingInterest
