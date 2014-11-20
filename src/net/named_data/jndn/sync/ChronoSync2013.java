@@ -575,8 +575,8 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
         .getSeqnoBuilder().setSeq(sequenceNo_)
                           .setSession(session_);
-      SyncStateProto.SyncStateMsg content_t = builder.build();
-      update(content_t.getSsList());
+      SyncStateProto.SyncStateMsg tempContent = builder.build();
+      update(tempContent.getSsList());
 
       onInitialized_.onInitialized();
 
@@ -753,12 +753,13 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
 
       int index2 = logFind(syncDigest_);
       if (index2 != -1) {
-        if (!syncDigest_.equals(digestTree_.getRoot()))
+        if (!syncDigest_.equals(digestTree_.getRoot())) {
           try {
             processSyncInterest(index2, syncDigest_, transport_);
-        } catch (SecurityException ex) {
-          Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
-          return;
+          } catch (SecurityException ex) {
+            Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+          }
         }
       }
       else {
@@ -795,12 +796,12 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       Name name = new Name(interest.getName());
       Interest retryInterest = new Interest(interest.getName());
       retryInterest.setInterestLifetimeMilliseconds(syncLifetime_);
-       try {
-         face_.expressInterest(retryInterest, this, this);
-       } catch (IOException ex) {
-         Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
-         return;
-       }
+      try {
+        face_.expressInterest(retryInterest, this, this);
+      } catch (IOException ex) {
+        Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
+        return;
+      }
       Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
         "Syncinterest expressed:");
       Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
@@ -830,14 +831,14 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
           .setType(SyncStateProto.SyncState.ActionType.UPDATE)
           .getSeqnoBuilder().setSeq(syncState.getSeqno().getSeq() + 1)
                             .setSession(session_);
-        SyncStateProto.SyncStateMsg content_t = builder.build();
+        SyncStateProto.SyncStateMsg tempContent = builder.build();
 
-        if (update(content_t.getSsList()))
+        if (update(tempContent.getSsList()))
           onInitialized_.onInitialized();
       }
     }
 
-    SyncStateProto.SyncStateMsg content2;
+    SyncStateProto.SyncStateMsg tempContent2;
     if (sequenceNo_ >= 0) {
       // Send the data packet with the new sequence number back.
       SyncStateProto.SyncStateMsg.Builder builder =
@@ -847,7 +848,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
         .getSeqnoBuilder().setSeq(sequenceNo_)
                           .setSession(session_);
-      content2 = builder.build();
+      tempContent2 = builder.build();
     }
     else {
       SyncStateProto.SyncStateMsg.Builder builder =
@@ -857,10 +858,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
         .getSeqnoBuilder().setSeq(0)
                           .setSession(session_);
-      content2 = builder.build();
+      tempContent2 = builder.build();
     }
 
-    broadcastSyncState(digest, content2);
+    broadcastSyncState(digest, tempContent2);
 
     if (digestTree_.find(applicationDataPrefixUri_, session_) == -1) {
       // the user hasn't put himself in the digest tree.
