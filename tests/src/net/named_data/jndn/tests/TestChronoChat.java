@@ -126,8 +126,8 @@ class Chat implements ChronoSync2013.OnInitialized,
   {
     // Set the heartbeat timeout using the Interest timeout mechanism. The
     // heartbeat() function will call itself again after a timeout.
-    // TODO: Are we sure using a "/timeout" interest is the best future call approach?
-    Interest timeout = new Interest(new Name("/timeout"));
+    // TODO: Are we sure using a "/local/timeout" interest is the best future call approach?
+    Interest timeout = new Interest(new Name("/local/timeout"));
     timeout.setInterestLifetimeMilliseconds(60000);
     try {
       face_.expressInterest(timeout, DummyOnData.onData_, heartbeat_);
