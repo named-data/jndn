@@ -437,7 +437,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       syncDigest = interest.getName().get
         (applicationBroadcastPrefix_.size() + 1).toEscapedString();
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE, 
-      "syncdigest: {0}", syncDigest);
+      "syncDigest: {0}", syncDigest);
     if (interest.getName().size() == applicationBroadcastPrefix_.size() + 2 ||
         syncDigest.equals("00"))
       // Recovery interest or newcomer interest.
