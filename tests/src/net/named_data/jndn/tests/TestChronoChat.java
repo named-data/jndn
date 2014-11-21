@@ -118,7 +118,7 @@ class Chat implements ChronoSync2013.OnInitialized,
   public static double
   getNowMilliseconds() { return (double)System.currentTimeMillis(); }
 
-  // initial: push the JOIN message in to the msgcache, update roster and
+  // initial: push the JOIN message in to the messageCache_, update roster and
   // start the heartbeat.
   // (Do not call this. It is only public to implement the interface.)
   public final void
@@ -390,10 +390,10 @@ class Chat implements ChronoSync2013.OnInitialized,
   }
 
   /**
-   * Append a new CachedMessage to msgcache, using given messageType and message,
+   * Append a new CachedMessage to messageCache_, using given messageType and message,
    * the sequence number from sync_.getSequenceNo() and the current time. Also
    * remove elements from the front of the cache as needed to keep
-   * the size to maxmsgcachelength_.
+   * the size to maxMessageCacheLength_.
    */
   private void
   messageCacheAppend(ChatMessage.ChatMessageType messageType, String message)
