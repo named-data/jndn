@@ -48,17 +48,15 @@ public class MemoryIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Add a new identity. An exception will be thrown if the identity already
-   * exists.
+   * Add a new identity. Do nothing if the identity already exists.
    * @param identityName The identity name to be added.
-   * @throws SecurityException if the identityName is already added.
    */
   public void
   addIdentity(Name identityName) throws SecurityException
   {
     String identityUri = identityName.toUri();
     if (identityStore_.contains(identityUri))
-      throw new SecurityException("Identity already exists: " + identityUri);
+      return;
 
     identityStore_.add(identityUri);
   }

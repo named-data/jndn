@@ -132,16 +132,14 @@ public class BasicIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Add a new identity. An exception will be thrown if the identity already
-   * exists.
+   * Add a new identity. Do nothing if the identity already exists.
    * @param identityName The identity name to be added.
-   * @throws SecurityException if the identityName is already added.
    */
   public final void
   addIdentity(Name identityName) throws SecurityException
   {
     if (doesIdentityExist(identityName))
-      throw new SecurityException("Identity already exists");
+      return;
 
     try {
       PreparedStatement statement = database_.prepareStatement

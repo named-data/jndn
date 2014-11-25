@@ -20,7 +20,6 @@
 
 package net.named_data.jndn.security.identity;
 
-import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
@@ -43,10 +42,8 @@ public abstract class IdentityStorage {
   doesIdentityExist(Name identityName) throws SecurityException;
 
   /**
-   * Add a new identity. An exception will be thrown if the identity already
-   * exists.
+   * Add a new identity. Do nothing if the identity already exists.
    * @param identityName The identity name to be added.
-   * @throws SecurityException if the identityName is already added.
    */
   public abstract void
   addIdentity(Name identityName) throws SecurityException;
