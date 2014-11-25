@@ -91,7 +91,8 @@ public abstract class IdentityStorage {
   doesKeyExist(Name keyName) throws SecurityException;
 
   /**
-   * Add a public key to the identity storage.
+   * Add a public key to the identity storage. Also call addIdentity to ensure
+   * that the identityName for the key exists.
    * @param keyName The name of the public key to be added.
    * @param keyType Type of the public key to be added.
    * @param publicKeyDer A blob of the public key DER to be added.
