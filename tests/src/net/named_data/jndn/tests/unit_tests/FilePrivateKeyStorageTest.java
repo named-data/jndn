@@ -7,6 +7,9 @@ package net.named_data.jndn.tests.unit_tests;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.util.Arrays;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
@@ -38,6 +41,7 @@ public class FilePrivateKeyStorageTest {
     // create some test key files to use in tests
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     instance.generateKeyPair(new Name("/test/KEY/123"), KeyType.RSA, 2048);
+    instance.generateKey(new Name("/test/KEY/456"), KeyType.AES, 128); // can't be greater than 128 without Java Crypto Extension (JCE)
   }
   
   @AfterClass
@@ -78,14 +82,14 @@ public class FilePrivateKeyStorageTest {
   public void testGenerateKeys() throws Exception {
     // create some more key files
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
-    instance.generateKeyPair(new Name("/test/KEY/456"), KeyType.RSA, 2048);
-    instance.generateKey(new Name("/test/KEY/789"), KeyType.AES, 256);
+    instance.generateKeyPair(new Name("/test/KEY/temp1"), KeyType.RSA, 2048);
+    instance.generateKey(new Name("/test/KEY/temp2"), KeyType.AES, 128);
     // check if files created
     File[] files = ndnFolder_.listFiles();
     System.out.print("Files created by generateKeyPair(): ");
     for(File f : files){ System.out.print(f + ", "); }
     System.out.println();
-    assertEquals(5, files.length); // 2 pre-created + 3 created now
+    assertEquals(6, files.length); // 3 pre-created + 3 created now
   }
   
   /**
@@ -95,6 +99,7 @@ public class FilePrivateKeyStorageTest {
   public void testDoesKeyExist() throws Exception {
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     assertTrue(instance.doesKeyExist(new Name("/test/KEY/123"), KeyClass.PRIVATE));
+    assertTrue(instance.doesKeyExist(new Name("/test/KEY/456"), KeyClass.SYMMETRIC));
     assertFalse(instance.doesKeyExist(new Name("/unknown"), KeyClass.PRIVATE));
   }
 
@@ -131,9 +136,52 @@ public class FilePrivateKeyStorageTest {
     assertNotNull(encrypted);
     assertFalse(Arrays.equals(plaintext, encrypted.getImmutableArray()));
     // decrypt
-    Blob encryptedCopy = new Blob(encrypted.getImmutableArray()); // copy bytes because decrypt tries to modify them
-    Blob decrypted = instance.decrypt(new Name("/test/KEY/123"), encryptedCopy.buf(), false);
+    Blob decrypted = instance.decrypt(new Name("/test/KEY/123"), encrypted.buf(), false);
     assertNotNull(decrypted);
     assertTrue(Arrays.equals(plaintext, decrypted.getImmutableArray()));
   } 
+  
+  /**
+   * Test encrypt/decrypt methods, of class FilePrivateKeyStorage.
+   */
+  @Test
+  public void testSymmetricEncryptAndDecrypt() throws Exception {
+    byte[] plaintext = "Some text...".getBytes();
+    FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
+    // encrypt
+    Blob encrypted = instance.encrypt(new Name("/test/KEY/456"), ByteBuffer.wrap(plaintext), true);
+    assertNotNull(encrypted);
+    assertFalse(Arrays.equals(plaintext, encrypted.getImmutableArray()));
+    // decrypt
+    Blob decrypted = instance.decrypt(new Name("/test/KEY/456"), encrypted.buf(), true);
+    assertNotNull(decrypted);
+    assertTrue(Arrays.equals(plaintext, decrypted.getImmutableArray()));
+  } 
+  
+//  /**
+//   * Verify key read/write work correctly; requires changing some methods
+//   * to public
+//   * @throws Exception 
+//   */
+//  @Test
+//  public void testKeyGenerationWrite() throws Exception{
+//    FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
+//    
+//    // generate
+//    KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+//    generator.initialize(1024);
+//    KeyPair pair = generator.generateKeyPair();
+//    
+//    // write
+//    Name name = new Name("/1/2/3");
+//    instance.write(name, KeyClass.PRIVATE, pair.getPrivate().getEncoded());
+//    instance.write(name, KeyClass.PUBLIC, pair.getPublic().getEncoded());
+//    
+//    // read
+//    PublicKey publicKey = instance.getPublicKey(name);
+//    PrivateKey privateKey = instance.getPrivateKey(name);
+//    
+//    assertTrue(Arrays.equals(pair.getPublic().getEncoded(), publicKey.getKeyDer().getImmutableArray()));
+//    assertTrue(Arrays.equals(pair.getPrivate().getEncoded(), privateKey.getEncoded()));
+//  }
 }

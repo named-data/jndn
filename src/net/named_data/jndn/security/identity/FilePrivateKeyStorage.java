@@ -60,7 +60,7 @@ import net.named_data.jndn.util.Common;
  * FilePrivateKeyStorage extends PrivateKeyStorage to implement private key
  * storage using files.
  */
-public class FilePrivateKeyStorage extends PrivateKeyStorage {
+public class FilePrivateKeyStorage extends PrivateKeyStorage { 
   /**
    * Create a new FilePrivateKeyStorage to connect to the default directory.
    */
@@ -225,7 +225,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
         ("FilePrivateKeyStorage: SignatureException: " + exception.getMessage());
     }
   }
-
+  
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
@@ -248,7 +248,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
             : this.getPrivateKey(keyName);
     
     Cipher cipher = null;
-    String cipherAlgorithm = isSymmetric ? "AES" : "RSA"; // TODO don't assume this
+    String cipherAlgorithm = isSymmetric ? "AES" : "RSA"; // TODO don't assume
     try{
       cipher = Cipher.getInstance(cipherAlgorithm);
     }
@@ -267,12 +267,13 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     }
     
     try{
-      // allocate new ByteBuffer because data is read-only
-      ByteBuffer decrypted = ByteBuffer.allocate(data.capacity());
+      // allocate a new ByteBuffer because data is read-only
+      ByteBuffer decrypted = ByteBuffer.allocate(cipher.getOutputSize(data.limit()));
       cipher.doFinal(data, decrypted);
-      return new Blob(decrypted, false);
+      decrypted.flip(); // otherwise bytes are reversed
+      return new Blob(decrypted, true);
     }
-    catch(ShortBufferException | BadPaddingException | 
+    catch(BadPaddingException | ShortBufferException |
             IllegalBlockSizeException e){
       throw new SecurityException
         ("FilePrivateKeyStorage.decrypt: " + e.getMessage());
@@ -298,10 +299,10 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
         ("FilePrivateKeyStorage.encrypt: key doesn't exist");
     
     Key key = isSymmetric ? this.getSymmetricKey(keyName) 
-            : getPrivateKey(keyName);
+            : this.getPrivateKey(keyName);
     
     Cipher cipher = null;
-    String cipherAlgorithm = isSymmetric ? "AES" : "RSA"; // TODO don't assume this
+    String cipherAlgorithm = isSymmetric ? "AES" : "RSA"; // TODO don't assume
     try{
       cipher = Cipher.getInstance(cipherAlgorithm);
     }
@@ -371,7 +372,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   {
     String keyURI = keyName.toUri();
     String extension = (String) keyTypeMap_.get(keyClass);
-    if(extension == null) return false;
+    if(extension == null) throw new SecurityException("Unrecognized key class");
     else return nameTransform(keyURI, extension).exists();
   }
 
@@ -425,13 +426,6 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       finally{
         writer.close();
       }
-//      FileOutputStream handle = new FileOutputStream(nameTransform(keyName.toUri(), extension));
-//      try {
-//          handle.write(data);
-//          handle.flush();
-//      } finally {
-//          handle.close();
-//      }
     }
     catch(SecurityException | IOException e){
       throw new SecurityException
