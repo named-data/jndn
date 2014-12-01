@@ -218,7 +218,6 @@ public abstract class PolicyManager {
 
   /**
    * Verify the ECDSA signature on the SignedBlob using the given public key.
-   * TODO: Move this general verification code to a more central location.
    * @param signature The Sha256WithEcdsaSignature.
    * @param signedBlob the SignedBlob with the signed portion to verify.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
