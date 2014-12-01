@@ -42,7 +42,31 @@ import net.named_data.jndn.util.Blob;
  * identity, public keys and certificates using SQLite.
  */
 public class BasicIdentityStorage extends IdentityStorage {
+  /**
+   * Create a new BasicIdentityStorage to work the SQLite in the default
+   * location.
+   */
   public BasicIdentityStorage() throws SecurityException
+  {
+    // NOTE: Use File because java.nio.file.Path is not available before Java 7.
+    File identityDir = new File(System.getProperty("user.home", "."), ".ndn");
+    identityDir.mkdirs();
+    File databasePath = new File(identityDir, "ndnsec-public-info.db");
+    construct(databasePath.getAbsolutePath());
+  }
+
+  /**
+   * Create a new BasicIdentityStorage to work with the given SQLite file.
+   * @param databaseFilePath The path of the SQLite file. If
+      omitted, use the default location.
+   */
+  public BasicIdentityStorage(String databaseFilePath) throws SecurityException
+  {
+    construct(databaseFilePath);
+  }
+
+  private void
+  construct(String databaseFilePath) throws SecurityException
   {
     try {
       Class.forName("org.sqlite.JDBC");
@@ -52,13 +76,8 @@ public class BasicIdentityStorage extends IdentityStorage {
       return;
     }
 
-    // NOTE: Use File because java.nio.file.Path is not available before Java 7.
-    File identityDir = new File(System.getProperty("user.home", "."), ".ndn");
-    identityDir.mkdirs();
-
     try {
-      File databasePath = new File(identityDir, "ndnsec-public-info.db");
-      database_ = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
+      database_ = DriverManager.getConnection("jdbc:sqlite:" + databaseFilePath);
 
       Statement statement = database_.createStatement();
       // Use "try/finally instead of "try-with-resources" or "using" which are not supported before Java 7.
