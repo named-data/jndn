@@ -129,16 +129,7 @@ public class FilePrivateKeyStorageTest {
    */
   @Test
   public void testAsymmetricEncryptAndDecrypt() throws Exception {
-    byte[] plaintext = "Some text...".getBytes();
-    FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
-    // encrypt
-    Blob encrypted = instance.encrypt(new Name("/test/KEY/123"), ByteBuffer.wrap(plaintext), false);
-    assertNotNull(encrypted);
-    assertFalse(Arrays.equals(plaintext, encrypted.getImmutableArray()));
-    // decrypt
-    Blob decrypted = instance.decrypt(new Name("/test/KEY/123"), encrypted.buf(), false);
-    assertNotNull(decrypted);
-    assertTrue(Arrays.equals(plaintext, decrypted.getImmutableArray()));
+    // REMOVED
   } 
   
   /**
@@ -156,32 +147,5 @@ public class FilePrivateKeyStorageTest {
     Blob decrypted = instance.decrypt(new Name("/test/KEY/456"), encrypted.buf(), true);
     assertNotNull(decrypted);
     assertTrue(Arrays.equals(plaintext, decrypted.getImmutableArray()));
-  } 
-  
-//  /**
-//   * Verify key read/write work correctly; requires changing some methods
-//   * to public
-//   * @throws Exception 
-//   */
-//  @Test
-//  public void testKeyGenerationWrite() throws Exception{
-//    FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
-//    
-//    // generate
-//    KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-//    generator.initialize(1024);
-//    KeyPair pair = generator.generateKeyPair();
-//    
-//    // write
-//    Name name = new Name("/1/2/3");
-//    instance.write(name, KeyClass.PRIVATE, pair.getPrivate().getEncoded());
-//    instance.write(name, KeyClass.PUBLIC, pair.getPublic().getEncoded());
-//    
-//    // read
-//    PublicKey publicKey = instance.getPublicKey(name);
-//    PrivateKey privateKey = instance.getPrivateKey(name);
-//    
-//    assertTrue(Arrays.equals(pair.getPublic().getEncoded(), publicKey.getKeyDer().getImmutableArray()));
-//    assertTrue(Arrays.equals(pair.getPrivate().getEncoded(), privateKey.getEncoded()));
-//  }
+  }
 }

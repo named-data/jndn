@@ -240,15 +240,17 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   decrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
          throws SecurityException
   {
-    if (!doesKeyExist(keyName, isSymmetric ? KeyClass.SYMMETRIC : KeyClass.PRIVATE))
+    if(!isSymmetric)
+      throw new UnsupportedOperationException
+        ("Asymmetric encryption/decryption not yet supported.");
+    
+    if (!doesKeyExist(keyName, KeyClass.SYMMETRIC))
       throw new SecurityException
         ("FilePrivateKeyStorage.decrypt: key doesn't exist");
     
-    Key key = isSymmetric ? this.getSymmetricKey(keyName) 
-            : this.getPrivateKey(keyName);
-    
+    Key key = this.getSymmetricKey(keyName);
     Cipher cipher = null;
-    String cipherAlgorithm = isSymmetric ? "AES" : "RSA"; // TODO don't assume
+    String cipherAlgorithm = "AES"; // TODO don't assume
     try{
       cipher = Cipher.getInstance(cipherAlgorithm);
     }
@@ -294,15 +296,17 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   encrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
           throws SecurityException
   {
+    if(!isSymmetric)
+      throw new UnsupportedOperationException
+        ("Asymmetric encryption/decryption not yet supported.");
+    
     if (!doesKeyExist(keyName, isSymmetric ? KeyClass.SYMMETRIC : KeyClass.PRIVATE))
       throw new SecurityException
         ("FilePrivateKeyStorage.encrypt: key doesn't exist");
     
-    Key key = isSymmetric ? this.getSymmetricKey(keyName) 
-            : this.getPrivateKey(keyName);
-    
+    Key key = this.getSymmetricKey(keyName);
     Cipher cipher = null;
-    String cipherAlgorithm = isSymmetric ? "AES" : "RSA"; // TODO don't assume
+    String cipherAlgorithm = "AES"; // TODO don't assume
     try{
       cipher = Cipher.getInstance(cipherAlgorithm);
     }
