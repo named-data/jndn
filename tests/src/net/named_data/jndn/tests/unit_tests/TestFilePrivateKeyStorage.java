@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2014 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * @author: Andrew Brown
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
