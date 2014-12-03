@@ -1,15 +1,25 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2014 Regents of the University of California.
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 package net.named_data.jndn.tests.unit_tests;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
 import java.util.Arrays;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
@@ -18,24 +28,22 @@ import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.security.identity.FilePrivateKeyStorage;
 import net.named_data.jndn.util.Blob;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author abrown
- */
-public class FilePrivateKeyStorageTest {
+public class TestFilePrivateKeyStorage {
   
-  private static File ndnFolder_ = new File (new File(System.getProperty("user.home", "."), ".ndn"), "ndnsec-tpm-file");;
+  /**
+   * Keep a reference to the key storage folder
+   */
+  private static final File ndnFolder_ = new File (new File(System.getProperty("user.home", "."), ".ndn"), "ndnsec-tpm-file");;
   
-  public FilePrivateKeyStorageTest() {
-  }
-  
+  /**
+   * Create a few keys before testing
+   * @throws Exception 
+   */
   @BeforeClass
   public static void setUpClass() throws Exception {
     // create some test key files to use in tests
@@ -44,27 +52,27 @@ public class FilePrivateKeyStorageTest {
     instance.generateKey(new Name("/test/KEY/456"), KeyType.AES, 128); // can't be greater than 128 without Java Crypto Extension (JCE)
   }
   
+  /**
+   * Delete the keys we created
+   */
   @AfterClass
   public static void tearDownClass() {
     // delete all keys when done
-    File[] files = ndnFolder_.listFiles();
-    if(files != null){
-      for(File f : files){
-        f.delete();
-      }
+    FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
+    try{
+      instance.deleteKey(new Name("/test/KEY/123"));
+      instance.deleteKey(new Name("/test/KEY/456"));
+    }
+    catch(Exception e){
+      System.err.println("Failed to clean up generated keys");
     }
   }
-  
-  @Before
-  public void setUp() {
 
-  }
-  
-  @After
-  public void tearDown() {
-  }
-  
-  // Convert the int array to a ByteBuffer.
+  /**
+   * Convert the int array to a ByteBuffer.
+   * @param array
+   * @return 
+   */
   private static ByteBuffer toBuffer(int[] array)
   {
     ByteBuffer result = ByteBuffer.allocate(array.length);
@@ -79,17 +87,24 @@ public class FilePrivateKeyStorageTest {
    * Test of generateKeyPair method, of class FilePrivateKeyStorage.
    */
   @Test
-  public void testGenerateKeys() throws Exception {
+  public void testGenerateAndDeleteKeys() throws Exception {
     // create some more key files
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     instance.generateKeyPair(new Name("/test/KEY/temp1"), KeyType.RSA, 2048);
     instance.generateKey(new Name("/test/KEY/temp2"), KeyType.AES, 128);
     // check if files created
     File[] files = ndnFolder_.listFiles();
+    int createdFileCount = files.length;
     System.out.print("Files created by generateKeyPair(): ");
     for(File f : files){ System.out.print(f + ", "); }
     System.out.println();
-    assertEquals(6, files.length); // 3 pre-created + 3 created now
+    assertTrue(createdFileCount >= 6); // 3 pre-created + 3 created now + some created by NFD
+    // delete these keys
+    instance.deleteKey(new Name("/test/KEY/temp1"));
+    instance.deleteKey(new Name("/test/KEY/temp2"));
+    files = ndnFolder_.listFiles();
+    int deletedfileCount = files.length;
+    assertTrue(createdFileCount - 3 == deletedfileCount);    
   }
   
   /**

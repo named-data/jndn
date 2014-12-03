@@ -363,6 +363,28 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     // ... and save
     this.write(keyName, KeyClass.SYMMETRIC, key.getEncoded());
   }
+  
+  /**
+   * Delete a key by name; checks all KeyClass types
+   * @param keyName
+   * @throws SecurityException
+   */
+  public final void
+  deleteKey(Name keyName) throws SecurityException
+  {
+    int deletedFiles = 0;
+    for(KeyClass keyClass : KeyClass.values()){
+      if (doesKeyExist(keyName, keyClass)){
+        String extension = (String) keyTypeMap_.get(keyClass);
+        File file = nameTransform(keyName.toUri(), extension);
+        file.delete();
+        deletedFiles++;
+      }
+    }
+    if(deletedFiles == 0){
+      throw new SecurityException("No key files found to delete");
+    }
+  }
     
   /**
    * Check if a particular key exists.
