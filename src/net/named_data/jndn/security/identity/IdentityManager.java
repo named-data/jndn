@@ -21,6 +21,7 @@
 package net.named_data.jndn.security.identity;
 
 import java.nio.ByteBuffer;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
@@ -31,9 +32,11 @@ import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
+import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.certificate.CertificateSubjectDescription;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.util.Blob;
@@ -524,10 +527,59 @@ public class IdentityManager {
    * @return The generated certificate.
    */
   private IdentityCertificate
-  selfSign(Name keyName)
+  selfSign(Name keyName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("IdentityManager.selfSign not implemented");
+    IdentityCertificate certificate = new IdentityCertificate();
+
+    Name certificateName = keyName.getSubName(0, keyName.size() - 1);
+    certificateName.append("KEY").append(keyName.get(keyName.size() - 1)).append
+      ("ID-CERT").append("0");
+    certificate.setName(certificateName);
+
+    Blob keyBlob = identityStorage_.getKey(keyName);
+    PublicKey publicKey = PublicKey.fromDer(KeyType.RSA, keyBlob);
+
+    Calendar calendar = Calendar.getInstance();
+    double notBefore = (double)calendar.getTimeInMillis();
+    calendar.add(Calendar.YEAR, 20);
+    double notAfter = (double)calendar.getTimeInMillis();
+
+    certificate.setNotBefore(notBefore);
+    certificate.setNotAfter(notAfter);
+    certificate.setPublicKeyInfo(publicKey);
+    certificate.addSubjectDescription(new CertificateSubjectDescription
+      ("2.5.4.41", keyName.toUri()));
+    try {
+      certificate.encode();
+    } catch (DerEncodingException ex) {
+      // We don't expect this to happen.
+      Logger.getLogger(IdentityManager.class.getName()).log(Level.SEVERE, null, ex);
+      return null;
+    } catch (DerDecodingException ex) {
+      // We don't expect this to happen.
+      Logger.getLogger(IdentityManager.class.getName()).log(Level.SEVERE, null, ex);
+      return null;
+    }
+
+    Sha256WithRsaSignature sha256Sig = new Sha256WithRsaSignature();
+
+    KeyLocator keyLocator = new KeyLocator();
+    keyLocator.setType(KeyLocatorType.KEYNAME);
+    keyLocator.setKeyName(certificateName);
+
+    sha256Sig.setKeyLocator(keyLocator);
+    sha256Sig.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
+      (publicKey.getDigest());
+
+    certificate.setSignature(sha256Sig);
+
+    SignedBlob unsignedData = certificate.wireEncode();
+
+    Blob sigBits = privateKeyStorage_.sign(unsignedData.signedBuf(), keyName);
+
+    sha256Sig.setSignature(sigBits);
+
+    return certificate;
   }
 
   /**
