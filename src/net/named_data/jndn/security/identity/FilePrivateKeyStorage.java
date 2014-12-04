@@ -85,6 +85,11 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   generateKeyPair
     (Name keyName, KeyType keyType, int keySize) throws SecurityException
   {
+    if (doesKeyExist(keyName, KeyClass.PUBLIC))
+      throw new SecurityException("Public Key already exists");
+    if (doesKeyExist(keyName, KeyClass.PRIVATE))
+      throw new SecurityException("Private Key already exists");
+
     KeyPairGenerator generator = null;
     try{
       generator = KeyPairGenerator.getInstance(keyType.toString());
