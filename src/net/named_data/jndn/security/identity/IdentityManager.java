@@ -129,6 +129,17 @@ public class IdentityManager {
   }
 
   /**
+   * Set the default identity.  If the identityName does not exist, then clear
+   * the default identity so that getDefaultIdentity() throws an exception.
+   * @param identityName The default identity name.
+   */
+  public final void
+  setDefaultIdentity(Name identityName) throws SecurityException
+  {
+    identityStorage_.setDefaultIdentity(identityName);
+  }
+
+  /**
    * Get the default identity.
    * @return The name of default identity.
    * @throws SecurityException if the default identity is not set.
