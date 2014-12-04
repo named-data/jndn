@@ -40,6 +40,7 @@ import net.named_data.jndn.security.certificate.CertificateSubjectDescription;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
@@ -542,21 +543,22 @@ public class IdentityManager {
   {
     IdentityCertificate certificate = new IdentityCertificate();
 
-    Name certificateName = keyName.getSubName(0, keyName.size() - 1);
-    certificateName.append("KEY").append(keyName.get(keyName.size() - 1)).append
-      ("ID-CERT").append("0");
-    certificate.setName(certificateName);
-
     Blob keyBlob = identityStorage_.getKey(keyName);
     PublicKey publicKey = PublicKey.fromDer(KeyType.RSA, keyBlob);
 
     Calendar calendar = Calendar.getInstance();
     double notBefore = (double)calendar.getTimeInMillis();
-    calendar.add(Calendar.YEAR, 20);
+    calendar.add(Calendar.YEAR, 2);
     double notAfter = (double)calendar.getTimeInMillis();
 
     certificate.setNotBefore(notBefore);
     certificate.setNotAfter(notAfter);
+
+    Name certificateName = keyName.getPrefix(-1).append("KEY").append
+      (keyName.get(-1)).append("ID-CERT").append
+      (Name.Component.fromNumber((long)certificate.getNotBefore()));
+    certificate.setName(certificateName);
+
     certificate.setPublicKeyInfo(publicKey);
     certificate.addSubjectDescription(new CertificateSubjectDescription
       ("2.5.4.41", keyName.toUri()));
