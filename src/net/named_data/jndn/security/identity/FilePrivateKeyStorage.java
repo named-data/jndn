@@ -39,6 +39,8 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -99,6 +101,22 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     // save
     this.write(keyName, KeyClass.PRIVATE, pair.getPrivate().getEncoded());
     this.write(keyName, KeyClass.PUBLIC, pair.getPublic().getEncoded());
+  }
+
+  /**
+   * Delete a pair of asymmetric keys. If the key doesn't exist, do nothing.
+   * @param keyName The name of the key pair.
+   */
+  public void
+  deleteKeyPair(Name keyName) throws SecurityException
+  {
+    try {
+      // deleteKeyPair is required by an older API which will be changed.
+      // For now, call deleteKey.
+      deleteKey(keyName);
+    } catch (SecurityException ex) {
+      // In the deleteKeyPair API, do nothing if the key doesn't exist.
+    }
   }
 
   /**

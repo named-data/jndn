@@ -65,6 +65,13 @@ public abstract class PrivateKeyStorage {
   }
 
   /**
+   * Delete a pair of asymmetric keys. If the key doesn't exist, do nothing.
+   * @param keyName The name of the key pair.
+   */
+  public abstract void
+  deleteKeyPair(Name keyName) throws SecurityException;
+
+  /**
    * Get the public key
    * @param keyName The name of public key.
    * @return The public key.

@@ -114,6 +114,19 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   }
 
   /**
+   * Delete a pair of asymmetric keys. If the key doesn't exist, do nothing.
+   * @param keyName The name of the key pair.
+   */
+  public void
+  deleteKeyPair(Name keyName) throws SecurityException
+  {
+    String keyUri = keyName.toUri();
+
+    publicKeyStore_.remove(keyUri);
+    privateKeyStore_.remove(keyUri);
+  }
+
+  /**
    * Get the public key
    * @param keyName The name of public key.
    * @return The public key.
