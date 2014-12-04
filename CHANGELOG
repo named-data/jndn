@@ -14,6 +14,9 @@ Changes
 * In MetaInfo, added get/setFinalBlockId (replaces the deprecated get/setFinalBlockID).
 * In Name.Component toNumberWithMarker and fromNumberWithMarker, pass the marker as int, not byte.
 * Security library: Implemented certificate encode/decode.
+* In FilePrivateKeyStorage, implemented generateKeyPair, generateKey, and
+  encrypt/decrypt (for symmetric). Now KeyChain.createIdentity works. Thanks to Andrew Brown!
+* Unit tests: Added TestFilePrivateKeyStorage. Thanks to Andrew Brown!
 * Unit tests: Added TestDerEncodeDecode to test certificate encoding.
 
 Deprecated
