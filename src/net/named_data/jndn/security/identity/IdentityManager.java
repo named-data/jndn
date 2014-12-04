@@ -574,23 +574,7 @@ public class IdentityManager {
       return null;
     }
 
-    Sha256WithRsaSignature sha256Sig = new Sha256WithRsaSignature();
-
-    KeyLocator keyLocator = new KeyLocator();
-    keyLocator.setType(KeyLocatorType.KEYNAME);
-    keyLocator.setKeyName(certificateName);
-
-    sha256Sig.setKeyLocator(keyLocator);
-    sha256Sig.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-      (publicKey.getDigest());
-
-    certificate.setSignature(sha256Sig);
-
-    SignedBlob unsignedData = certificate.wireEncode();
-
-    Blob sigBits = privateKeyStorage_.sign(unsignedData.signedBuf(), keyName);
-
-    sha256Sig.setSignature(sigBits);
+    signByCertificate(certificate, certificate.getName());
 
     return certificate;
   }
