@@ -22,6 +22,8 @@ package net.named_data.jndn.security.identity;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -109,8 +111,26 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   generateKeyPair
     (Name keyName, KeyType keyType, int keySize) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("MemoryPrivateKeyStorage.generateKeyPair is not implemented");
+    if (doesKeyExist(keyName, KeyClass.PUBLIC))
+      throw new SecurityException("Public Key already exists");
+    if (doesKeyExist(keyName, KeyClass.PRIVATE))
+      throw new SecurityException("Private Key already exists");
+
+    KeyPairGenerator generator = null;
+    try{
+      generator = KeyPairGenerator.getInstance(keyType.toString());
+    }
+    catch(NoSuchAlgorithmException e){
+      throw new SecurityException
+        ("FilePrivateKeyStorage: Could not create the key generator: " + e.getMessage());
+    }
+
+    generator.initialize(keySize);
+    KeyPair pair = generator.generateKeyPair();
+
+    setKeyPairForKeyName
+      (keyName, keyType, ByteBuffer.wrap(pair.getPublic().getEncoded()),
+       ByteBuffer.wrap(pair.getPrivate().getEncoded()));
   }
 
   /**
