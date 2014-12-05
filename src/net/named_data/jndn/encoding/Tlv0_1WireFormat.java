@@ -292,8 +292,10 @@ public class Tlv0_1WireFormat extends WireFormat {
        controlParameters.getExpirationPeriod());
 
     // Encode strategy
-    encoder.writeOptionalBlobTlv(Tlv.ControlParameters_Strategy, 
-      encodeName(controlParameters.getStrategy()).buf());
+    if(controlParameters.getStrategy() != null){
+      encoder.writeBlobTlv(Tlv.ControlParameters_Strategy, encodeName(
+        controlParameters.getStrategy()).buf());
+    }
 
     int flags = controlParameters.getForwardingFlags().getNfdForwardingFlags();
     if (flags != new ForwardingFlags().getNfdForwardingFlags())
@@ -309,12 +311,18 @@ public class Tlv0_1WireFormat extends WireFormat {
        controlParameters.getLocalControlFeature());
 
     // Encode URI
-    encoder.writeOptionalBlobTlv(Tlv.ControlParameters_Uri, 
-      new Blob(controlParameters.getUri().getBytes()).buf());
+    if(controlParameters.getUri() != null){
+      encoder.writeBlobTlv(Tlv.ControlParameters_Uri, 
+        new Blob(controlParameters.getUri()).buf());
+    }
 
     encoder.writeOptionalNonNegativeIntegerTlv
       (Tlv.ControlParameters_FaceId, controlParameters.getFaceId());
-    encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
+    
+    // Encode name
+    if(controlParameters.getName() != null){
+      encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
+    }
 
     encoder.writeTypeAndLength
       (Tlv.ControlParameters_ControlParameters, encoder.getLength() - saveLength);

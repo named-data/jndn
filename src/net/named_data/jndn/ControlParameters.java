@@ -192,6 +192,12 @@ public class ControlParameters {
     expirationPeriod_ = expirationPeriod;
     return this;
   }
+  
+  public final boolean
+  equals(Object other)
+  {
+    return false;
+  }
 
   private Name name_;
   private int faceId_ = -1;                  /**< -1 for none. */
