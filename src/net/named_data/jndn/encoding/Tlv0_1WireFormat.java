@@ -309,7 +309,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     // TODO: Encode Uri.
 
     encoder.writeOptionalNonNegativeIntegerTlv
-      (Tlv.FaceID, controlParameters.getFaceId());
+      (Tlv.ControlParameters_FaceId, controlParameters.getFaceId());
     encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
 
     encoder.writeTypeAndLength
