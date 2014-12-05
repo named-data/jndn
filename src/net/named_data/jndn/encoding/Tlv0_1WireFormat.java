@@ -291,7 +291,9 @@ public class Tlv0_1WireFormat extends WireFormat {
       (Tlv.ControlParameters_ExpirationPeriod,
        controlParameters.getExpirationPeriod());
 
-    // TODO: Encode Strategy.
+    // Encode strategy
+    encoder.writeOptionalBlobTlv(Tlv.ControlParameters_Strategy, 
+      encodeName(controlParameters.getStrategy()).buf());
 
     int flags = controlParameters.getForwardingFlags().getNfdForwardingFlags();
     if (flags != new ForwardingFlags().getNfdForwardingFlags())
@@ -306,7 +308,9 @@ public class Tlv0_1WireFormat extends WireFormat {
       (Tlv.ControlParameters_LocalControlFeature,
        controlParameters.getLocalControlFeature());
 
-    // TODO: Encode Uri.
+    // Encode URI
+    encoder.writeOptionalBlobTlv(Tlv.ControlParameters_Uri, 
+      new Blob(controlParameters.getUri().getBytes()).buf());
 
     encoder.writeOptionalNonNegativeIntegerTlv
       (Tlv.ControlParameters_FaceId, controlParameters.getFaceId());
@@ -316,6 +320,68 @@ public class Tlv0_1WireFormat extends WireFormat {
       (Tlv.ControlParameters_ControlParameters, encoder.getLength() - saveLength);
 
     return new Blob(encoder.getOutput(), false);
+  }
+  
+  /**
+   * Decode controlParameters in NDN-TLV and return the encoding.
+   * @param controlParameters The ControlParameters object to encode.
+   * @param input
+   * @throws EncodingException For invalid encoding
+   */
+  public void
+  decodeControlParameters(ControlParameters controlParameters,
+	ByteBuffer input) throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = decoder.
+      readNestedTlvsStart(Tlv.ControlParameters_ControlParameters);
+
+    // decode name
+    if (decoder.peekType(Tlv.Name, endOffset)) {
+      Name name = new Name();
+      decodeName(name, new int[1], new int[1], 
+        decoder);
+      controlParameters.setName(name);
+    }
+
+    // decode face ID
+    controlParameters.setFaceId((int) decoder.readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_FaceId, endOffset));
+
+    // decode URI
+    if (decoder.peekType(Tlv.ControlParameters_Uri, endOffset)) {
+      Blob uri = new Blob(decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), true);
+      controlParameters.setUri(uri.toString());
+    }
+    
+    // decode integers
+    controlParameters.setLocalControlFeature((int) decoder.
+      readOptionalNonNegativeIntegerTlv(
+        Tlv.ControlParameters_LocalControlFeature, endOffset));
+    controlParameters.setOrigin((int) decoder.
+      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Origin, 
+        endOffset));
+    controlParameters.setCost((int) decoder.readOptionalNonNegativeIntegerTlv(
+      Tlv.ControlParameters_Cost, endOffset));
+
+    // set forwarding flags
+    ForwardingFlags flags = new ForwardingFlags();
+    flags.setNfdForwardingFlags((int) decoder.
+      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Flags, 
+        endOffset));
+    controlParameters.setForwardingFlags(flags);
+
+    // decode strategy
+    if (decoder.peekType(Tlv.ControlParameters_Strategy, endOffset)) {
+      Name strategy = new Name();
+      decodeName(strategy, new int[1], new int[1], 
+        decoder);
+      controlParameters.setStrategy(strategy);
+    }
+
+    // decode expiration period
+    controlParameters.setExpirationPeriod((int) decoder.readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_ExpirationPeriod, endOffset));
+
+    decoder.finishNestedTlvs(endOffset);
   }
 
   /**

@@ -107,6 +107,9 @@ public class ControlParameters {
 
   public final int
   getFaceId() { return faceId_; }
+  
+  public final String
+  getUri() { return uri_; }
 
   public final int
   getLocalControlFeature() { return localControlFeature_; }
@@ -120,6 +123,9 @@ public class ControlParameters {
   public final ForwardingFlags
   getForwardingFlags() { return flags_; }
 
+  public final Name
+  getStrategy() { return strategy_; }
+  
   public final double
   getExpirationPeriod() { return expirationPeriod_; }
 
@@ -134,6 +140,13 @@ public class ControlParameters {
   setFaceId(int faceId)
   {
     faceId_ = faceId;
+    return this;
+  }
+  
+  public final ControlParameters
+  setUri(String uri)
+  {
+    uri_ = uri;
     return this;
   }
 
@@ -165,6 +178,13 @@ public class ControlParameters {
       new ForwardingFlags() : new ForwardingFlags(forwardingFlags);
     return this;
   }
+  
+  public final ControlParameters
+  setStrategy(Name strategy)
+  {
+    strategy_ = strategy;
+    return this;
+  }
 
   public final ControlParameters
   setExpirationPeriod(double expirationPeriod)
@@ -175,11 +195,11 @@ public class ControlParameters {
 
   private Name name_;
   private int faceId_ = -1;                  /**< -1 for none. */
-  // TODO: Add "Uri" string.
+  private String uri_;
   private int localControlFeature_ = -1;     /**< -1 for none. */
   private int origin_ = -1;                  /**< -1 for none. */
   private int cost_ = -1;                    /**< -1 for none. */
   private ForwardingFlags flags_ = new ForwardingFlags();
-  // TODO: Add "Strategy" name.
+  private Name strategy_;
   private double expirationPeriod_ = -1.0;   /**< Milliseconds. -1 for none. */
 }
