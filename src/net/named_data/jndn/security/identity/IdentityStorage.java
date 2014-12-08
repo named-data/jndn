@@ -64,9 +64,14 @@ public abstract class IdentityStorage {
   public final Name
   getNewKeyName(Name identityName, boolean useKsk) throws SecurityException
   {
-    double ti = Common.getNowMilliseconds();
-    // Get the number of seconds.
-    String timeString = "" + (long)Math.floor(ti);
+    long timestamp = (long)Math.floor(Common.getNowMilliseconds());
+    while (timestamp <= lastTimestamp_)
+      // Make the timestamp unique.
+      timestamp += 1;
+    lastTimestamp_ = timestamp;
+
+    // Get the number of seconds as a string.
+    String timeString = "" + timestamp;
 
     String keyIdStr;
     if (useKsk)
@@ -276,4 +281,7 @@ public abstract class IdentityStorage {
    */
   public abstract void
   deleteIdentityInfo(Name identity) throws SecurityException;
+
+  private static long lastTimestamp_ =
+    (long)Math.floor(Common.getNowMilliseconds());
 }
