@@ -292,7 +292,7 @@ public class Tlv0_1WireFormat extends WireFormat {
        controlParameters.getExpirationPeriod());
 
     // Encode strategy
-    if(controlParameters.getStrategy() != null){
+    if(controlParameters.getStrategy().size() != 0){
       encoder.writeBlobTlv(Tlv.ControlParameters_Strategy, encodeName(
         controlParameters.getStrategy()).buf());
     }
@@ -311,7 +311,7 @@ public class Tlv0_1WireFormat extends WireFormat {
        controlParameters.getLocalControlFeature());
 
     // Encode URI
-    if(controlParameters.getUri() != null){
+    if(!controlParameters.getUri().isEmpty()){
       encoder.writeBlobTlv(Tlv.ControlParameters_Uri, 
         new Blob(controlParameters.getUri()).buf());
     }
@@ -320,7 +320,7 @@ public class Tlv0_1WireFormat extends WireFormat {
       (Tlv.ControlParameters_FaceId, controlParameters.getFaceId());
     
     // Encode name
-    if(controlParameters.getName() != null){
+    if(controlParameters.getName().size() != 0){
       encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
     }
 
@@ -347,8 +347,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     // decode name
     if (decoder.peekType(Tlv.Name, endOffset)) {
       Name name = new Name();
-      decodeName(name, new int[1], new int[1], 
-        decoder);
+      decodeName(name, new int[1], new int[1], decoder);
       controlParameters.setName(name);
     }
 
@@ -381,8 +380,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     // decode strategy
     if (decoder.peekType(Tlv.ControlParameters_Strategy, endOffset)) {
       Name strategy = new Name();
-      decodeName(strategy, new int[1], new int[1], 
-        decoder);
+      decodeName(strategy, new int[1], new int[1], decoder);
       controlParameters.setStrategy(strategy);
     }
 

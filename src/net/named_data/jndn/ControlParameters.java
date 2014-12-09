@@ -28,6 +28,9 @@ import net.named_data.jndn.util.Blob;
  * A ControlParameters holds a Name and other fields for a ControlParameters
  * which is used, for example, in the command interest to register a prefix with
  * a forwarder.
+ * 
+ * Note: getters will never be null so check for empty Names with something like
+ * `controlParameters.getStrategy().size() != 0`
  */
 public class ControlParameters {
   /**
@@ -146,7 +149,7 @@ public class ControlParameters {
   public final ControlParameters
   setUri(String uri)
   {
-    uri_ = uri;
+    uri_ = uri == null ? "" : uri;
     return this;
   }
 
@@ -182,7 +185,7 @@ public class ControlParameters {
   public final ControlParameters
   setStrategy(Name strategy)
   {
-    strategy_ = strategy;
+    strategy_ = strategy == null ? new Name() : new Name(strategy);
     return this;
   }
 
@@ -199,13 +202,13 @@ public class ControlParameters {
     return false;
   }
 
-  private Name name_;
+  private Name name_ = new Name();
   private int faceId_ = -1;                  /**< -1 for none. */
-  private String uri_;
+  private String uri_ = "";
   private int localControlFeature_ = -1;     /**< -1 for none. */
   private int origin_ = -1;                  /**< -1 for none. */
   private int cost_ = -1;                    /**< -1 for none. */
   private ForwardingFlags flags_ = new ForwardingFlags();
-  private Name strategy_;
+  private Name strategy_ = new Name();
   private double expirationPeriod_ = -1.0;   /**< Milliseconds. -1 for none. */
 }
