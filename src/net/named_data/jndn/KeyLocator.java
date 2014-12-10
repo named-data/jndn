@@ -39,8 +39,7 @@ public class KeyLocator implements ChangeCountable {
   {
     type_ = keyLocator.type_;
     keyData_ = keyLocator.keyData_;
-    if (keyLocator.keyName_ != null)
-      keyName_.set(new Name(keyLocator.getKeyName()));
+    keyName_.set(new Name(keyLocator.getKeyName()));
     keyNameType_ = keyLocator.keyNameType_;
   }
 
