@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.1 (2014-11-03)
+Interim changes since jNDN v0.1 (2014-12-10)
 --------------------------------------------
 
 Changes
@@ -16,6 +16,8 @@ Changes
 * Security library: Implemented certificate encode/decode.
 * In FilePrivateKeyStorage, implemented generateKeyPair, generateKey, and
   encrypt/decrypt (for symmetric). Now KeyChain.createIdentity works. Thanks to Andrew Brown!
+* In ControlParameters, added support for Uri and Strategy. Allow the Name to be optional. Thanks to Andrew Brown!
+* In the default WireFormat, implemented decodeControlParameters. Thanks again to Andrew Brown!
 * Unit tests: Added TestFilePrivateKeyStorage. Thanks to Andrew Brown!
 * Unit tests: Added TestDerEncodeDecode to test certificate encoding.
 
