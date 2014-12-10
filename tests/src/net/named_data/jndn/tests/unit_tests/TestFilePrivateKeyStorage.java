@@ -95,9 +95,6 @@ public class TestFilePrivateKeyStorage {
     // check if files created
     File[] files = ndnFolder_.listFiles();
     int createdFileCount = files.length;
-    System.out.print("Files created by generateKeyPair(): ");
-    for(File f : files){ System.out.print(f + ", "); }
-    System.out.println();
     assertTrue(createdFileCount >= 6); // 3 pre-created + 3 created now + some created by NFD
     // delete these keys
     instance.deleteKey(new Name("/test/KEY/temp1"));
