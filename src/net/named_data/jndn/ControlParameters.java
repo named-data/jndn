@@ -28,6 +28,9 @@ import net.named_data.jndn.util.Blob;
  * A ControlParameters holds a Name and other fields for a ControlParameters
  * which is used, for example, in the command interest to register a prefix with
  * a forwarder.
+ * 
+ * Note: getters will never be null so check for empty Names with something like
+ * `controlParameters.getStrategy().size() != 0`
  */
 public class ControlParameters {
   /**
@@ -107,6 +110,9 @@ public class ControlParameters {
 
   public final int
   getFaceId() { return faceId_; }
+  
+  public final String
+  getUri() { return uri_; }
 
   public final int
   getLocalControlFeature() { return localControlFeature_; }
@@ -120,6 +126,9 @@ public class ControlParameters {
   public final ForwardingFlags
   getForwardingFlags() { return flags_; }
 
+  public final Name
+  getStrategy() { return strategy_; }
+  
   public final double
   getExpirationPeriod() { return expirationPeriod_; }
 
@@ -134,6 +143,13 @@ public class ControlParameters {
   setFaceId(int faceId)
   {
     faceId_ = faceId;
+    return this;
+  }
+  
+  public final ControlParameters
+  setUri(String uri)
+  {
+    uri_ = uri == null ? "" : uri;
     return this;
   }
 
@@ -165,6 +181,13 @@ public class ControlParameters {
       new ForwardingFlags() : new ForwardingFlags(forwardingFlags);
     return this;
   }
+  
+  public final ControlParameters
+  setStrategy(Name strategy)
+  {
+    strategy_ = strategy == null ? new Name() : new Name(strategy);
+    return this;
+  }
 
   public final ControlParameters
   setExpirationPeriod(double expirationPeriod)
@@ -172,14 +195,20 @@ public class ControlParameters {
     expirationPeriod_ = expirationPeriod;
     return this;
   }
+  
+  public final boolean
+  equals(Object other)
+  {
+    return false;
+  }
 
-  private Name name_;
+  private Name name_ = new Name();
   private int faceId_ = -1;                  /**< -1 for none. */
-  // TODO: Add "Uri" string.
+  private String uri_ = "";
   private int localControlFeature_ = -1;     /**< -1 for none. */
   private int origin_ = -1;                  /**< -1 for none. */
   private int cost_ = -1;                    /**< -1 for none. */
   private ForwardingFlags flags_ = new ForwardingFlags();
-  // TODO: Add "Strategy" name.
+  private Name strategy_ = new Name();
   private double expirationPeriod_ = -1.0;   /**< Milliseconds. -1 for none. */
 }
