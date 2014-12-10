@@ -368,24 +368,8 @@ public class KeyChain {
   public final void
   sign(Interest interest, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
-    // TODO: Handle signature algorithms other than Sha256WithRsa.
-    Sha256WithRsaSignature signature = new Sha256WithRsaSignature();
-    signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
-    signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
-
-    // Append the encoded SignatureInfo.
-    interest.getName().append(wireFormat.encodeSignatureInfo(signature));
-
-    // Append an empty signature so that the "signedPortion" is correct.
-    interest.getName().append(new Name.Component());
-    // Encode once to get the signed portion.
-    SignedBlob encoding = interest.wireEncode(wireFormat);
-    Sha256WithRsaSignature signedSignature = (Sha256WithRsaSignature)sign
-      (encoding.signedBuf(), certificateName);
-
-    // Remove the empty signature and append the real one.
-    interest.setName(interest.getName().getPrefix(-1).append
-      (wireFormat.encodeSignatureValue(signedSignature)));
+    identityManager_.signInterestByCertificate
+      (interest, certificateName, wireFormat);
   }
 
   public final void
