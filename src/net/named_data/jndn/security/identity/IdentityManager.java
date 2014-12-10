@@ -527,24 +527,25 @@ public class IdentityManager {
   signInterestByCertificate
     (Interest interest, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
-    // TODO: Handle signature algorithms other than Sha256WithRsa.
-    Sha256WithRsaSignature signature = new Sha256WithRsaSignature();
-    signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
-    signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
+    DigestAlgorithm[] digestAlgorithm = new DigestAlgorithm[1];
+    Signature signature = makeSignatureByCertificate
+      (certificateName, digestAlgorithm);
 
     // Append the encoded SignatureInfo.
     interest.getName().append(wireFormat.encodeSignatureInfo(signature));
 
     // Append an empty signature so that the "signedPortion" is correct.
     interest.getName().append(new Name.Component());
-    // Encode once to get the signed portion.
+    // Encode once to get the signed portion, and sign.
     SignedBlob encoding = interest.wireEncode(wireFormat);
-    Sha256WithRsaSignature signedSignature = (Sha256WithRsaSignature)signByCertificate
-      (encoding.signedBuf(), certificateName);
+    signature.setSignature
+      (privateKeyStorage_.sign(encoding.signedBuf(),
+       IdentityCertificate.certificateNameToPublicKeyName(certificateName),
+       digestAlgorithm[0]));
 
     // Remove the empty signature and append the real one.
     interest.setName(interest.getName().getPrefix(-1).append
-      (wireFormat.encodeSignatureValue(signedSignature)));
+      (wireFormat.encodeSignatureValue(signature)));
   }
 
   /**
