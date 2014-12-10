@@ -633,7 +633,7 @@ public class IdentityManager {
     digestAlgorithm[0] = DigestAlgorithm.SHA256;
 
     signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
-    signature.getKeyLocator().setKeyName(certificateName);
+    signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
     signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
       (publicKey.getDigest());
 
