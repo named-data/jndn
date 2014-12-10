@@ -462,25 +462,15 @@ public class IdentityManager {
   public final Signature
   signByCertificate(ByteBuffer buffer, Name certificateName) throws SecurityException
   {
-    Name keyName = IdentityCertificate.certificateNameToPublicKeyName
-      (certificateName);
-    PublicKey publicKey = privateKeyStorage_.getPublicKey(keyName);
+    DigestAlgorithm[] digestAlgorithm = new DigestAlgorithm[1];
+    Signature signature = makeSignatureByCertificate
+      (certificateName, digestAlgorithm);
 
-    Blob sigBits = privateKeyStorage_.sign(buffer, keyName);
+    signature.setSignature(privateKeyStorage_.sign(buffer, 
+      IdentityCertificate.certificateNameToPublicKeyName(certificateName),
+      digestAlgorithm[0]));
 
-    //For temporary usage, we support RSA + SHA256 only, but will support more.
-    Sha256WithRsaSignature sha256Sig = new Sha256WithRsaSignature();
-
-    KeyLocator keyLocator = new KeyLocator();
-    keyLocator.setType(KeyLocatorType.KEYNAME);
-    keyLocator.setKeyName(certificateName);
-
-    sha256Sig.setKeyLocator(keyLocator);
-    sha256Sig.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-      (publicKey.getDigest());
-    sha256Sig.setSignature(sigBits);
-
-    return sha256Sig;
+    return signature;
   }
 
   /**
@@ -507,27 +497,18 @@ public class IdentityManager {
   signByCertificate
     (Data data, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
-    Name keyName = IdentityCertificate.certificateNameToPublicKeyName
-      (certificateName);
-    PublicKey publicKey = privateKeyStorage_.getPublicKey(keyName);
+    DigestAlgorithm[] digestAlgorithm = new DigestAlgorithm[1];
+    Signature signature = makeSignatureByCertificate
+      (certificateName, digestAlgorithm);
 
-    // For temporary usage, we support RSA + SHA256 only, but will support more.
-    data.setSignature(new Sha256WithRsaSignature());
-    // Get a pointer to the clone which Data made.
-    Sha256WithRsaSignature signature = (Sha256WithRsaSignature)data.getSignature();
-    DigestAlgorithm digestAlgorithm = DigestAlgorithm.SHA256;
-
-    signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
-    signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
-    // Ignore witness and leave the digestAlgorithm as the default.
-    signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-      (publicKey.getDigest());
-
+    data.setSignature(signature);
     // Encode once to get the signed portion.
     SignedBlob encoding = data.wireEncode(wireFormat);
 
     signature.setSignature
-      (privateKeyStorage_.sign(encoding.signedBuf(), keyName, digestAlgorithm));
+      (privateKeyStorage_.sign(encoding.signedBuf(), 
+       IdentityCertificate.certificateNameToPublicKeyName(certificateName),
+       digestAlgorithm[0]));
 
     // Encode again to include the signature.
     data.wireEncode(wireFormat);
@@ -629,6 +610,34 @@ public class IdentityManager {
       (certificatePrefix.getSubName(i + 1, certificatePrefix.size()-i-1));
 
     return result;
+  }
+
+  /**
+   * Return a new Signature object based on the signature algorithm of the
+   * public key with keyName (derived from certificateName).
+   * @param certificateName The certificate name.
+   * @param digestAlgorithm Set digestAlgorithm[0] to the signature algorithm's
+   * digest algorithm, e.g. DigestAlgorithm.SHA256.
+   * @return A new object of the correct subclass of Signature.
+   */
+  private Signature
+  makeSignatureByCertificate
+    (Name certificateName, DigestAlgorithm[] digestAlgorithm) throws SecurityException
+  {
+    Name keyName = IdentityCertificate.certificateNameToPublicKeyName
+      (certificateName);
+    PublicKey publicKey = privateKeyStorage_.getPublicKey(keyName);
+
+    //For temporary usage, we support RSA + SHA256 only, but will support more.
+    Sha256WithRsaSignature signature = new Sha256WithRsaSignature();
+    digestAlgorithm[0] = DigestAlgorithm.SHA256;
+
+    signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+    signature.getKeyLocator().setKeyName(certificateName);
+    signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
+      (publicKey.getDigest());
+
+    return signature;
   }
 
   private IdentityStorage identityStorage_;
