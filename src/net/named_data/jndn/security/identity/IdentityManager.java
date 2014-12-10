@@ -505,7 +505,7 @@ public class IdentityManager {
     // Encode once to get the signed portion.
     SignedBlob encoding = data.wireEncode(wireFormat);
 
-    signature.setSignature
+    data.getSignature().setSignature
       (privateKeyStorage_.sign(encoding.signedBuf(), 
        IdentityCertificate.certificateNameToPublicKeyName(certificateName),
        digestAlgorithm[0]));
