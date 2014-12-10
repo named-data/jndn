@@ -66,6 +66,10 @@ public class Sha256WithRsaSignature extends Signature {
   public final Blob
   getWitness() { return witness_; }
 
+  /**
+   * Get the signature bytes.
+   * @return The signature bytes. If not specified, the value isNull().
+   */
   public final Blob
   getSignature() { return signature_; }
 
@@ -92,6 +96,10 @@ public class Sha256WithRsaSignature extends Signature {
     ++changeCount_;
   }
 
+  /**
+   * Set the signature bytes to the given value.
+   * @param signature A Blob with the signature bytes.
+   */
   public final void
   setSignature(Blob signature)
   {

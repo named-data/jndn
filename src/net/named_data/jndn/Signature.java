@@ -18,6 +18,7 @@
  */
 
 package net.named_data.jndn;
+import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCountable;
 
 /**
@@ -33,6 +34,20 @@ public abstract class Signature implements ChangeCountable {
    * @throws CloneNotSupportedException
    */
   public abstract Object clone() throws CloneNotSupportedException;
+
+  /**
+   * Get the signature bytes.
+   * @return The signature bytes. If not specified, the value isNull().
+   */
+  public abstract Blob
+  getSignature();
+
+  /**
+   * Set the signature bytes to the given value.
+   * @param signature A Blob with the signature bytes.
+   */
+  public abstract void
+  setSignature(Blob signature);
 
   /**
    * Get the change count, which is incremented each time this object
