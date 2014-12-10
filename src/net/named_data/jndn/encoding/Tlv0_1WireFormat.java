@@ -293,10 +293,14 @@ public class Tlv0_1WireFormat extends WireFormat {
 
     // Encode strategy
     if(controlParameters.getStrategy().size() != 0){
-      encoder.writeBlobTlv(Tlv.ControlParameters_Strategy, encodeName(
-        controlParameters.getStrategy()).buf());
+      int strategySaveLength = encoder.getLength();
+      encodeName(controlParameters.getStrategy(), new int[1], new int[1], 
+        encoder);
+      encoder.writeTypeAndLength(Tlv.ControlParameters_Strategy, 
+        encoder.getLength() - strategySaveLength);
     }
 
+    // Encode ForwardingFlags
     int flags = controlParameters.getForwardingFlags().getNfdForwardingFlags();
     if (flags != new ForwardingFlags().getNfdForwardingFlags())
         // The flags are not the default value.
@@ -379,9 +383,9 @@ public class Tlv0_1WireFormat extends WireFormat {
 
     // decode strategy
     if (decoder.peekType(Tlv.ControlParameters_Strategy, endOffset)) {
-      Name strategy = new Name();
-      decodeName(strategy, new int[1], new int[1], decoder);
-      controlParameters.setStrategy(strategy);
+      int strategyEndOffset = decoder.readNestedTlvsStart(Tlv.ControlParameters_Strategy);
+      decodeName(controlParameters.getStrategy(), new int[1], new int[1], decoder);
+      decoder.finishNestedTlvs(strategyEndOffset);
     }
 
     // decode expiration period

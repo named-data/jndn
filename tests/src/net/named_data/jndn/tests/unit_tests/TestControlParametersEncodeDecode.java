@@ -53,6 +53,30 @@ public class TestControlParametersEncodeDecode {
   }
   
   /**
+   * Test encoding/decoding with no name defined
+   * 
+   * @throws EncodingException 
+   */
+  @Test
+  public void
+  testEncodeDecodeWithNoName() throws EncodingException
+  {
+    ControlParameters controlParameters = new ControlParameters();
+    controlParameters.setStrategy(
+      new Name("/localhost/nfd/strategy/broadcast"));
+    controlParameters.setUri("null://");
+    // encode
+    Blob encoded = controlParameters.wireEncode();
+    // decode
+    ControlParameters decodedControlParameters = new ControlParameters();
+    decodedControlParameters.wireDecode(encoded);
+    // compare
+    assertEquals(controlParameters.getStrategy().toUri(), 
+      decodedControlParameters.getStrategy().toUri());
+    assertEquals(controlParameters.getUri(), decodedControlParameters.getUri());
+  }
+  
+  /**
    * Test that not setting the any properties returns in an (almost) empty Blob 
    */
   @Test
