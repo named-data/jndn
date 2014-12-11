@@ -31,6 +31,7 @@ import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.MetaInfo;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.SignatureHolder;
@@ -217,10 +218,7 @@ public class Tlv0_1WireFormat extends WireFormat {
        ((Sha256WithRsaSignature)data.getSignature()).getSignature().buf());
     int signedPortionEndOffsetFromBack = encoder.getLength();
 
-    // Use getSignatureOrMetaInfoKeyLocator for the transition of moving
-    //   the key locator from the MetaInfo to the Signauture object.
-    encodeSignatureSha256WithRsa
-      ((Sha256WithRsaSignature)data.getSignature(), encoder);
+    encodeSignatureInfo(data.getSignature(), encoder);
     encoder.writeBlobTlv(Tlv.Content, data.getContent().buf());
     encodeMetaInfo(data.getMetaInfo(), encoder);
     encodeName(data.getName(), new int[1], new int[1], encoder);
@@ -403,7 +401,7 @@ public class Tlv0_1WireFormat extends WireFormat {
   encodeSignatureInfo(Signature signature)
   {
     TlvEncoder encoder = new TlvEncoder(256);
-    encodeSignatureSha256WithRsa((Sha256WithRsaSignature)signature, encoder);
+    encodeSignatureInfo(signature, encoder);
 
     return new Blob(encoder.getOutput(), false);
   }
@@ -523,7 +521,6 @@ public class Tlv0_1WireFormat extends WireFormat {
         signedPortionEndOffset[0] =
           encoder.getLength() - signedPortionEndOffsetFromBack;
   }
-
 
   /**
    * Decode the name as NDN-TLV and set the fields in name.
@@ -731,20 +728,38 @@ public class Tlv0_1WireFormat extends WireFormat {
     decoder.finishNestedTlvs(endOffset);
   }
 
-  private static void
-  encodeSignatureSha256WithRsa
-    (Sha256WithRsaSignature signature, TlvEncoder encoder)
+  /**
+   * An internal method to encode signature as the appropriate form of
+   * SignatureInfo in NDN-TLV.
+   * @param signature An object of a subclass of Signature to encode.
+   * @param encoder The TlvEncoder to receive the encoding.
+   */
+  private void
+  encodeSignatureInfo(Signature signature, TlvEncoder encoder)
   {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
-    encodeKeyLocator(Tlv.KeyLocator, signature.getKeyLocator(), encoder);
-    encoder.writeNonNegativeIntegerTlv
-      (Tlv.SignatureType, Tlv.SignatureType_SignatureSha256WithRsa);
+    if (signature instanceof Sha256WithRsaSignature) {
+      encodeKeyLocator
+        (Tlv.KeyLocator, ((Sha256WithRsaSignature)signature).getKeyLocator(),
+         encoder);
+      encoder.writeNonNegativeIntegerTlv
+        (Tlv.SignatureType, Tlv.SignatureType_SignatureSha256WithRsa);
+    }
+    else if (signature instanceof Sha256WithEcdsaSignature) {
+      encodeKeyLocator
+        (Tlv.KeyLocator, ((Sha256WithEcdsaSignature)signature).getKeyLocator(),
+         encoder);
+      encoder.writeNonNegativeIntegerTlv
+        (Tlv.SignatureType, Tlv.SignatureType_SignatureSha256WithEcdsa);
+    }
+    else
+      throw new Error("encodeSignatureInfo: Unrecognized Signature object type");
 
     encoder.writeTypeAndLength
       (Tlv.SignatureInfo, encoder.getLength() - saveLength);
-  };
+  }
 
   private static void
   decodeSignatureInfo
@@ -753,8 +768,6 @@ public class Tlv0_1WireFormat extends WireFormat {
     int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
 
     int signatureType = (int)decoder.readNonNegativeIntegerTlv(Tlv.SignatureType);
-    // TODO: The library needs to handle other signature types than
-    //     SignatureSha256WithRsa.
     if (signatureType == Tlv.SignatureType_SignatureSha256WithRsa) {
         signatureHolder.setSignature(new Sha256WithRsaSignature());
         // Modify data's signature object because if we create an object
@@ -763,12 +776,20 @@ public class Tlv0_1WireFormat extends WireFormat {
           (Sha256WithRsaSignature)signatureHolder.getSignature();
         decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
     }
+    else if (signatureType == Tlv.SignatureType_SignatureSha256WithEcdsa) {
+        signatureHolder.setSignature(new Sha256WithEcdsaSignature());
+        // Modify data's signature object because if we create an object
+        //   and set it, then data will have to copy all the fields.
+        Sha256WithEcdsaSignature signatureInfo =
+          (Sha256WithEcdsaSignature)signatureHolder.getSignature();
+        decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
+    }
     else
         throw new EncodingException
          ("decodeSignatureInfo: unrecognized SignatureInfo type" + signatureType);
 
     decoder.finishNestedTlvs(endOffset);
-  };
+  }
 
   private static void
   encodeMetaInfo(MetaInfo metaInfo, TlvEncoder encoder)
@@ -801,7 +822,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     }
 
     encoder.writeTypeAndLength(Tlv.MetaInfo, encoder.getLength() - saveLength);
-  };
+  }
 
   private static void
   decodeMetaInfo(MetaInfo metaInfo, TlvDecoder decoder) throws EncodingException
@@ -834,7 +855,7 @@ public class Tlv0_1WireFormat extends WireFormat {
       metaInfo.setFinalBlockId(null);
 
     decoder.finishNestedTlvs(endOffset);
-  };
+  }
 
   private static final SecureRandom random_ = new SecureRandom();
   private static Tlv0_1WireFormat instance_ = new Tlv0_1WireFormat();
