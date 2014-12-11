@@ -29,6 +29,7 @@ import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
@@ -661,17 +662,30 @@ public class IdentityManager {
     Name keyName = IdentityCertificate.certificateNameToPublicKeyName
       (certificateName);
     PublicKey publicKey = privateKeyStorage_.getPublicKey(keyName);
+    KeyType keyType = publicKey.getKeyType();
 
-    //For temporary usage, we support RSA + SHA256 only, but will support more.
-    Sha256WithRsaSignature signature = new Sha256WithRsaSignature();
-    digestAlgorithm[0] = DigestAlgorithm.SHA256;
+    if (keyType == KeyType.RSA) {
+      Sha256WithRsaSignature signature = new Sha256WithRsaSignature();
+      digestAlgorithm[0] = DigestAlgorithm.SHA256;
 
-    signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
-    signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
-    signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-      (publicKey.getDigest());
+      signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+      signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
+      signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
+        (publicKey.getDigest());
 
-    return signature;
+      return signature;
+    }
+    else if (keyType == KeyType.EC) {
+      Sha256WithEcdsaSignature signature = new Sha256WithEcdsaSignature();
+      digestAlgorithm[0] = DigestAlgorithm.SHA256;
+
+      signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+      signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
+
+      return signature;
+    }
+    else
+      throw new SecurityException("Key type is not recognized");
   }
 
   private IdentityStorage identityStorage_;
