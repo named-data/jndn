@@ -232,7 +232,8 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       // Use the public key DER directly.
       // wireEncode returns the cached encoding if available.
       if (verifySha256WithRsaSignature
-          (signature, signedBlob, signature.getKeyLocator().getKeyData()))
+          (signature.getSignature(), signedBlob,
+           signature.getKeyLocator().getKeyData()))
         return true;
       else
         return false;
@@ -248,7 +249,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
         return false;
 
       if (verifySha256WithRsaSignature
-          (signature, signedBlob, publicKeyDer))
+          (signature.getSignature(), signedBlob, publicKeyDer))
         return true;
       else
         return false;

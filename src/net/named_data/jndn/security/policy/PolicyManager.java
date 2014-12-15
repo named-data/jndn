@@ -152,22 +152,15 @@ public abstract class PolicyManager {
 
   /**
    * Verify the RSA signature on the SignedBlob using the given public key.
-   * TODO: Move this general verification code to a more central location.
-   * @param signature The Sha256WithRsaSignature.
+   * @param signature The signature bits.
    * @param signedBlob the SignedBlob with the signed portion to verify.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
-   * @throws SecurityException if data does not have a Sha256WithRsaSignature.
    */
   protected static boolean
   verifySha256WithRsaSignature
-    (Sha256WithRsaSignature signature, SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
+    (Blob signature, SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
   {
-    if (signature.getDigestAlgorithm().size() != 0)
-      // TODO: Allow a non-default digest algorithm.
-      throw new SecurityException
-        ("Cannot verify a data packet with a non-default digest algorithm.");
-
     KeyFactory keyFactory = null;
     try {
       keyFactory = KeyFactory.getInstance("RSA");
@@ -208,7 +201,7 @@ public abstract class PolicyManager {
     try {
       // wireEncode returns the cached encoding if available.
       rsaSignature.update(signedBlob.signedBuf());
-      return rsaSignature.verify(signature.getSignature().getImmutableArray());
+      return rsaSignature.verify(signature.getImmutableArray());
     }
     catch (SignatureException exception) {
       throw new SecurityException
@@ -218,7 +211,7 @@ public abstract class PolicyManager {
 
   /**
    * Verify the ECDSA signature on the SignedBlob using the given public key.
-   * @param signature The Sha256WithEcdsaSignature.
+   * @param signature The signature bits.
    * @param signedBlob the SignedBlob with the signed portion to verify.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
@@ -226,10 +219,7 @@ public abstract class PolicyManager {
    */
   protected static boolean
   verifySha256WithEcdsaSignature
-    (
-     //Sha256WithEcdsaSignature signature,
-     Sha256WithRsaSignature signature,
-     SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
+    (Blob signature, SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
   {
     KeyFactory keyFactory = null;
     try {
@@ -271,7 +261,7 @@ public abstract class PolicyManager {
     try {
       // wireEncode returns the cached encoding if available.
       ecSignature.update(signedBlob.signedBuf());
-      return ecSignature.verify(signature.getSignature().getImmutableArray());
+      return ecSignature.verify(signature.getImmutableArray());
     }
     catch (SignatureException exception) {
       throw new SecurityException
