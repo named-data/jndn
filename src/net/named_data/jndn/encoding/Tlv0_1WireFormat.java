@@ -211,11 +211,8 @@ public class Tlv0_1WireFormat extends WireFormat {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
-    // TODO: The library needs to handle other signature types than
-    //   SignatureSha256WithRsa.
     encoder.writeBlobTlv
-      (Tlv.SignatureValue,
-       ((Sha256WithRsaSignature)data.getSignature()).getSignature().buf());
+      (Tlv.SignatureValue, (data.getSignature()).getSignature().buf());
     int signedPortionEndOffsetFromBack = encoder.getLength();
 
     encodeSignatureInfo(data.getSignature(), encoder);
@@ -265,9 +262,7 @@ public class Tlv0_1WireFormat extends WireFormat {
     decodeSignatureInfo(data, decoder);
 
     signedPortionEndOffset[0] = decoder.getOffset();
-    // TODO: The library needs to handle other signature types than
-    //   SignatureSha256WithRsa.
-    ((Sha256WithRsaSignature)data.getSignature()).setSignature
+    data.getSignature().setSignature
       (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
 
     decoder.finishNestedTlvs(endOffset);
