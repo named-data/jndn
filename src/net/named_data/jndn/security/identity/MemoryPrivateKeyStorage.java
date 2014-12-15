@@ -116,9 +116,17 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     if (doesKeyExist(keyName, KeyClass.PRIVATE))
       throw new SecurityException("Private Key already exists");
 
+    String keyAlgorithm;
+    if (keyType == KeyType.RSA)
+      keyAlgorithm = "RSA";
+    else if (keyType == KeyType.EC)
+      keyAlgorithm = "EC";
+    else
+      throw new SecurityException("Cannot generate a key pair of type " + keyType);
+
     KeyPairGenerator generator = null;
     try{
-      generator = KeyPairGenerator.getInstance(keyType.toString());
+      generator = KeyPairGenerator.getInstance(keyAlgorithm);
     }
     catch(NoSuchAlgorithmException e){
       throw new SecurityException

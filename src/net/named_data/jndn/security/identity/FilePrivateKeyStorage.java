@@ -39,8 +39,6 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -90,9 +88,17 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     if (doesKeyExist(keyName, KeyClass.PRIVATE))
       throw new SecurityException("Private Key already exists");
 
+    String keyAlgorithm;
+    if (keyType == KeyType.RSA)
+      keyAlgorithm = "RSA";
+    else if (keyType == KeyType.EC)
+      keyAlgorithm = "EC";
+    else
+      throw new SecurityException("Cannot generate a key pair of type " + keyType);
+
     KeyPairGenerator generator = null;
     try{
-      generator = KeyPairGenerator.getInstance(keyType.toString());
+      generator = KeyPairGenerator.getInstance(keyAlgorithm);
     }
     catch(NoSuchAlgorithmException e){
       throw new SecurityException
