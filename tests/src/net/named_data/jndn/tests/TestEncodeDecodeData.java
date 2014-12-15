@@ -24,8 +24,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
@@ -265,23 +267,35 @@ public class TestEncodeDecodeData {
       (data.getMetaInfo().getFinalBlockId().getValue().size() > 0 ?
        data.getMetaInfo().getFinalBlockId().getValue().toHex() : "<none>"));
 
+    KeyLocator keyLocator = null;
     if (data.getSignature() instanceof Sha256WithRsaSignature) {
       Sha256WithRsaSignature signature =
         (Sha256WithRsaSignature)data.getSignature();
-      System.out.println("signature.signature: " +
+      System.out.println("Sha256WithRsa signature.signature: " +
         (signature.getSignature().size() > 0 ?
          signature.getSignature().toHex() : "<none>"));
+      keyLocator = signature.getKeyLocator();
+    }
+    else if (data.getSignature() instanceof Sha256WithEcdsaSignature) {
+      Sha256WithEcdsaSignature signature =
+        (Sha256WithEcdsaSignature)data.getSignature();
+      System.out.println("Sha256WithEcdsa signature.signature: " +
+        (signature.getSignature().size() > 0 ?
+         signature.getSignature().toHex() : "<none>"));
+      keyLocator = signature.getKeyLocator();
+    }
+    if (keyLocator != null) {
       System.out.print("signature.keyLocator: ");
-      if (signature.getKeyLocator().getType() == KeyLocatorType.NONE)
+      if (keyLocator.getType() == KeyLocatorType.NONE)
         System.out.println("<none>");
-      else if (signature.getKeyLocator().getType() == KeyLocatorType.KEY)
-        System.out.println("Key: " + signature.getKeyLocator().getKeyData().toHex());
-      else if (signature.getKeyLocator().getType() == KeyLocatorType.CERTIFICATE)
-        System.out.println("Certificate: " + signature.getKeyLocator().getKeyData().toHex());
-      else if (signature.getKeyLocator().getType() ==KeyLocatorType.KEY_LOCATOR_DIGEST)
-        System.out.println("KeyLocatorDigest: " + signature.getKeyLocator().getKeyData().toHex());
-      else if (signature.getKeyLocator().getType() == KeyLocatorType.KEYNAME)
-        System.out.println("KeyName: " + signature.getKeyLocator().getKeyName().toUri());
+      else if (keyLocator.getType() == KeyLocatorType.KEY)
+        System.out.println("Key: " + keyLocator.getKeyData().toHex());
+      else if (keyLocator.getType() == KeyLocatorType.CERTIFICATE)
+        System.out.println("Certificate: " + keyLocator.getKeyData().toHex());
+      else if (keyLocator.getType() ==KeyLocatorType.KEY_LOCATOR_DIGEST)
+        System.out.println("KeyLocatorDigest: " + keyLocator.getKeyData().toHex());
+      else if (keyLocator.getType() == KeyLocatorType.KEYNAME)
+        System.out.println("KeyName: " + keyLocator.getKeyName().toUri());
       else
         System.out.println("<unrecognized ndn_KeyLocatorType>");
     }
