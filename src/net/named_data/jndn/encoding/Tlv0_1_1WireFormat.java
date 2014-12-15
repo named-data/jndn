@@ -41,8 +41,8 @@ import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.util.Blob;
 
 /**
- * A Tlv0_1WireFormat implements the WireFormat interface for encoding and
- * decoding with the NDN-TLV wire format, version 0.1.
+ * A Tlv0_1_1WireFormat implements the WireFormat interface for encoding and
+ * decoding with the NDN-TLV wire format, version 0.1.1.
  */
 public class Tlv0_1_1WireFormat extends WireFormat {
   /**
