@@ -44,7 +44,7 @@ import net.named_data.jndn.util.Blob;
  * A Tlv0_1WireFormat implements the WireFormat interface for encoding and
  * decoding with the NDN-TLV wire format, version 0.1.
  */
-public class Tlv0_1WireFormat extends WireFormat {
+public class Tlv0_1_1WireFormat extends WireFormat {
   /**
    * Encode name in NDN-TLV and return the encoding.
    * @param name The Name object to encode.
@@ -469,7 +469,7 @@ public class Tlv0_1WireFormat extends WireFormat {
    * preferred version NDN-TLV, you should use TlvWireFormat.get().
    * @return The singleton instance.
    */
-  public static Tlv0_1WireFormat
+  public static Tlv0_1_1WireFormat
   get()
   {
     return instance_;
@@ -853,5 +853,5 @@ public class Tlv0_1WireFormat extends WireFormat {
   }
 
   private static final SecureRandom random_ = new SecureRandom();
-  private static Tlv0_1WireFormat instance_ = new Tlv0_1WireFormat();
+  private static Tlv0_1_1WireFormat instance_ = new Tlv0_1_1WireFormat();
 }
