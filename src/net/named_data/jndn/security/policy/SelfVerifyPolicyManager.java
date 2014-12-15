@@ -24,8 +24,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
@@ -223,40 +225,50 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   private boolean
   verify(net.named_data.jndn.Signature signatureInfo, SignedBlob signedBlob) throws net.named_data.jndn.security.SecurityException
   {
-    if (!(signatureInfo instanceof Sha256WithRsaSignature))
-      throw new SecurityException("SelfVerifyPolicyManager: Signature is not Sha256WithRsaSignature.");
-    Sha256WithRsaSignature signature =
-      (Sha256WithRsaSignature)signatureInfo;
-
-    if (signature.getKeyLocator().getType() == KeyLocatorType.KEY) {
-      // Use the public key DER directly.
-      // wireEncode returns the cached encoding if available.
-      if (verifySha256WithRsaSignature
-          (signature.getSignature(), signedBlob,
-           signature.getKeyLocator().getKeyData()))
-        return true;
-      else
-        return false;
-    }
-    else if (signature.getKeyLocator().getType() == KeyLocatorType.KEYNAME &&
-             identityStorage_ != null) {
-      // Assume the key name is a certificate name.
-      Blob publicKeyDer = identityStorage_.getKey
-        (IdentityCertificate.certificateNameToPublicKeyName
-         (signature.getKeyLocator().getKeyName()));
+    if (signatureInfo instanceof Sha256WithRsaSignature) {
+      Sha256WithRsaSignature signature = (Sha256WithRsaSignature)signatureInfo;
+      Blob publicKeyDer = getPublicKeyDer(signature.getKeyLocator());
       if (publicKeyDer.isNull())
-        // Can't find the public key with the name.
         return false;
-
-      if (verifySha256WithRsaSignature
-          (signature.getSignature(), signedBlob, publicKeyDer))
-        return true;
-      else
+      return verifySha256WithRsaSignature
+          (signature.getSignature(), signedBlob, publicKeyDer);
+    }
+    if (signatureInfo instanceof Sha256WithEcdsaSignature) {
+      Sha256WithEcdsaSignature signature = (Sha256WithEcdsaSignature)signatureInfo;
+      Blob publicKeyDer = getPublicKeyDer(signature.getKeyLocator());
+      if (publicKeyDer.isNull())
         return false;
+      return verifySha256WithEcdsaSignature
+          (signature.getSignature(), signedBlob, publicKeyDer);
     }
     else
+      // We don't expect this to happen.
+      throw new SecurityException
+        ("SelfVerifyPolicyManager: Signature type is unknown");
+  }
+
+  /**
+   * Return the public key DER in the KeyLocator (if available) or look in the
+   * IdentityStorage for the public key with the name in the KeyLocator
+   * (if available). If the public key can't be found, return and empty Blob.
+   * @param keyLocator The KeyLocator.
+   * @return The public key DER or an empty Blob if not found.
+   */
+  private Blob
+  getPublicKeyDer(KeyLocator keyLocator) throws SecurityException
+  {
+    if (keyLocator.getType() == KeyLocatorType.KEY)
+      // Use the public key DER directly.
+      return keyLocator.getKeyData();
+    else if (keyLocator.getType() == KeyLocatorType.KEYNAME &&
+             identityStorage_ != null)
+      // Assume the key name is a certificate name.
+      return identityStorage_.getKey
+        (IdentityCertificate.certificateNameToPublicKeyName
+         (keyLocator.getKeyName()));
+    else
       // Can't find a key to verify.
-      return false;
+      return new Blob();
   }
 
   private final IdentityStorage identityStorage_;
