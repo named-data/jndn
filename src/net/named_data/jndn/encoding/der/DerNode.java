@@ -244,26 +244,26 @@ public class DerNode {
   }
 
   /**
-   * Check that index is in bounds for the outerChildren list, cast
-   * outerChildren.get(index) to DerSequence and return it.
-   * @param outerChildren The list of DerNode, usually returned by another
+   * Check that index is in bounds for the children list, cast
+   * children.get(index) to DerSequence and return it.
+   * @param children The list of DerNode, usually returned by another
    * call to getChildren.
-   * @param index The index of the outerChildren.
-   * @return outerChildren.get(index) cast to DerSequence.
+   * @param index The index of the children.
+   * @return children.get(index) cast to DerSequence.
    * @throws DerDecodingException if index is out of bounds or if
-   * outerChildren.get(index) is not a DerSequence.
+   * children.get(index) is not a DerSequence.
    */
   public static DerSequence
-  getSequence(List outerChildren, int index) throws DerDecodingException
+  getSequence(List children, int index) throws DerDecodingException
   {
-    if (index < 0 || index >= outerChildren.size())
+    if (index < 0 || index >= children.size())
       throw new DerDecodingException("getSequence: Child index is out of bounds");
 
-    if (!(outerChildren.get(index) instanceof DerSequence))
+    if (!(children.get(index) instanceof DerSequence))
       throw new DerDecodingException
-        ("getSequence: Parent DerNode is not DerSequence");
+        ("getSequence: Child DerNode is not DerSequence");
 
-    return (DerSequence)outerChildren.get(index);
+    return (DerSequence)children.get(index);
   }
 
   /**
