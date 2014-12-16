@@ -211,14 +211,14 @@ public class Certificate extends Data {
 
     List rootChildren = root.getChildren();
     // 1st: validity info
-    List validityChildren = ((DerSequence)rootChildren.get(0)).getChildren();
+    List validityChildren = DerNode.getSequence(rootChildren, 0).getChildren();
     notBefore_ = (Double)((DerGeneralizedTime)validityChildren.get(0)).toVal();
     notAfter_ = (Double)((DerGeneralizedTime)validityChildren.get(1)).toVal();
 
     // 2nd: subjectList
-    List subjectChildren = ((DerSequence)rootChildren.get(1)).getChildren();
+    List subjectChildren = DerNode.getSequence(rootChildren, 1).getChildren();
     for (int i = 0; i < subjectChildren.size(); ++i) {
-      DerSequence sd = (DerSequence)subjectChildren.get(i);
+      DerSequence sd = DerNode.getSequence(subjectChildren, i);
       List descriptionChildren = sd.getChildren();
       String oidStr = (String)((DerNode)descriptionChildren.get(0)).toVal();
       String value = ((Blob)((DerNode)descriptionChildren.get(1)).toVal()).toString();
@@ -232,9 +232,9 @@ public class Certificate extends Data {
     key_ =  new PublicKey(KeyType.RSA, publicKeyInfo);
 
     if (rootChildren.size() > 3) {
-      List extensionChildren = ((DerSequence)rootChildren.get(3)).getChildren();
+      List extensionChildren = DerNode.getSequence(rootChildren, 3).getChildren();
       for (int i = 0; i < extensionChildren.size(); ++i) {
-        DerSequence extInfo = (DerSequence)extensionChildren.get(i);
+        DerSequence extInfo = DerNode.getSequence(extensionChildren, i);
 
         List children = extInfo.getChildren();
         String oidStr = (String)((DerNode)children.get(0)).toVal();
