@@ -201,7 +201,7 @@ public class Certificate extends Data {
   private void
   decode() throws DerDecodingException
   {
-    DerSequence root = (DerSequence)DerNode.parse(getContent().buf());
+    DerNode parsedNode = DerNode.parse(getContent().buf());
 
     // We need to ensure that there are:
     //   validity (notBefore, notAfter)
@@ -209,7 +209,7 @@ public class Certificate extends Data {
     //   public key
     //   (optional) extension list
 
-    List rootChildren = root.getChildren();
+    List rootChildren = parsedNode.getChildren();
     // 1st: validity info
     List validityChildren = DerNode.getSequence(rootChildren, 0).getChildren();
     notBefore_ = (Double)((DerGeneralizedTime)validityChildren.get(0)).toVal();

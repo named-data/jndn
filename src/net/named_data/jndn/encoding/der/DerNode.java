@@ -232,13 +232,25 @@ public class DerNode {
   }
 
   /**
+   * If this object is a DerSequence, get the children of this node. Otherwise,
+   * throw an exception. (DerSequence overrides to implement this method.)
+   * @return The children as a List of DerNode.
+   * @throws DerDecodingException if this object is not a DerSequence.
+   */
+  public List
+  getChildren() throws DerDecodingException
+  {
+    throw new DerDecodingException("getChildren: This DerNode is not DerSequence");
+  }
+
+  /**
    * Check that index is in bounds for the outerChildren list, cast
    * outerChildren.get(index) to DerSequence and return it.
    * @param outerChildren The list of DerNode, usually returned by another
    * call to getChildren.
    * @param index The index of the outerChildren.
    * @return outerChildren.get(index) cast to DerSequence.
-   * @throw DerDecodingException if index is out of bounds or if
+   * @throws DerDecodingException if index is out of bounds or if
    * outerChildren.get(index) is not a DerSequence.
    */
   public static DerSequence
