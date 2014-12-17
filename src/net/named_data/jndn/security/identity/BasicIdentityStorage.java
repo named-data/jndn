@@ -294,40 +294,6 @@ public class BasicIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Get the KeyType of the public key with the given keyName.
-   * @param keyName The name of the requested public key.
-   * @return The KeyType, for example KeyType.RSA.
-   * @throws SecurityException if the keyName is not found.
-   */
-  public final KeyType
-  getKeyType(Name keyName) throws SecurityException
-  {
-    String keyId = keyName.get(-1).toEscapedString();
-    Name identityName = keyName.getPrefix(-1);
-
-    try {
-      PreparedStatement statement = database_.prepareStatement
-        ("SELECT key_type FROM Key WHERE identity_name=? AND key_identifier=?");
-      statement.setString(1, identityName.toUri());
-      statement.setString(2, keyId);
-
-      try {
-        ResultSet result = statement.executeQuery();
-
-        if (result.next())
-          return KeyType.values()[result.getInt("key_type")];
-        else
-          throw new SecurityException
-            ("Cannot get public key type because the keyName doesn't exist");
-      } finally {
-        statement.close();
-      }
-    } catch (SQLException exception) {
-      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
-    }
-  }
-
-  /**
    * Activate a key.  If a key is marked as inactive, its private part will not
    * be used in packet signing.
    * @param keyName The name of the key.
