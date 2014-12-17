@@ -24,11 +24,13 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.List;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.UnrecognizedDigestAlgorithmException;
+import net.named_data.jndn.security.UnrecognizedKeyFormatException;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
@@ -40,14 +42,80 @@ public class PublicKey {
   }
   
   /**
-   * Create a new PublicKey with the given values.
-   * @param keyType The KeyType, such as KeyType.RSA.
-   * @param keyDer The blob of the PublicKeyInfo in terms of DER.
+   * Create a new PublicKey by decoding the keyDer. Set the key type from the
+   * decoding.
+   * @param keyDer The blob of the SubjectPublicKeyInfo DER.
+   * @throws UnrecognizedKeyFormatException if can't decode the key DER.
    */
-  public PublicKey(KeyType keyType, Blob keyDer)
+  public PublicKey(Blob keyDer) throws UnrecognizedKeyFormatException
   {
-    keyType_ = keyType;
     keyDer_ = keyDer;
+
+    // Get the public key OID.
+    String oidString = null;
+    try {
+      DerNode parsedNode = DerNode.parse(keyDer.buf(), 0);
+      List rootChildren = parsedNode.getChildren();
+      List algorithmIdChildren =
+        DerNode.getSequence(rootChildren, 0).getChildren();
+      oidString = ((DerNode)algorithmIdChildren.get(0)).toVal().toString();
+    }
+    catch (DerDecodingException ex) {
+      throw new UnrecognizedKeyFormatException
+        ("PublicKey: Error decoding the public key" +
+         ex.getMessage());
+    }
+
+    // Verify that the we can decode.
+    if (oidString.equals(RSA_ENCRYPTION_OID)) {
+      keyType_ = KeyType.RSA;
+
+      KeyFactory keyFactory = null;
+      try {
+        keyFactory = KeyFactory.getInstance("RSA");
+      }
+      catch (NoSuchAlgorithmException exception) {
+        // Don't expect this to happen.
+        throw new UnrecognizedKeyFormatException
+          ("RSA is not supported: " + exception.getMessage());
+      }
+
+      try {
+        keyFactory.generatePublic
+          (new X509EncodedKeySpec(keyDer.getImmutableArray()));
+      }
+      catch (InvalidKeySpecException exception) {
+        // Don't expect this to happen.
+        throw new UnrecognizedKeyFormatException
+          ("X509EncodedKeySpec is not supported for RSA: " + exception.getMessage());
+      }
+    }
+    else if (oidString.equals(EC_ENCRYPTION_OID)) {
+      keyType_ = KeyType.EC;
+
+      KeyFactory keyFactory = null;
+      try {
+        keyFactory = KeyFactory.getInstance("EC");
+      }
+      catch (NoSuchAlgorithmException exception) {
+        // Don't expect this to happen.
+        throw new UnrecognizedKeyFormatException
+          ("EC is not supported: " + exception.getMessage());
+      }
+
+      try {
+        keyFactory.generatePublic
+          (new X509EncodedKeySpec(keyDer.getImmutableArray()));
+      }
+      catch (InvalidKeySpecException exception) {
+        // Don't expect this to happen.
+        throw new UnrecognizedKeyFormatException
+          ("X509EncodedKeySpec is not supported for EC: " + exception.getMessage());
+      }
+    }
+    else
+      throw new UnrecognizedKeyFormatException(
+        "PublicKey: Unrecognized OID " + oidString);
   }
 
   /**
@@ -58,64 +126,6 @@ public class PublicKey {
   toDer() throws DerDecodingException
   {
     return DerNode.parse(keyDer_.buf());
-  }
-
-  /**
-   * Decode the public key from DER blob.
-   * @param keyType The KeyType, such as KeyType.RSA.
-   * @param keyDer The DER blob.
-   * @return The decoded public key.
-   * @throws SecurityException if can't decode the key DER.
-   */
-  public static PublicKey
-  fromDer(KeyType keyType, Blob keyDer) throws SecurityException
-  {
-    if (keyType == KeyType.RSA) {
-      KeyFactory keyFactory = null;
-      try {
-        keyFactory = KeyFactory.getInstance("RSA");
-      }
-      catch (NoSuchAlgorithmException exception) {
-        // Don't expect this to happen.
-        throw new SecurityException
-          ("RSA is not supported: " + exception.getMessage());
-      }
-
-      try {
-        keyFactory.generatePublic
-          (new X509EncodedKeySpec(keyDer.getImmutableArray()));
-      }
-      catch (InvalidKeySpecException exception) {
-        // Don't expect this to happen.
-        throw new SecurityException
-          ("X509EncodedKeySpec is not supported for RSA: " + exception.getMessage());
-      }
-    }
-    else if (keyType == KeyType.EC) {
-      KeyFactory keyFactory = null;
-      try {
-        keyFactory = KeyFactory.getInstance("EC");
-      }
-      catch (NoSuchAlgorithmException exception) {
-        // Don't expect this to happen.
-        throw new SecurityException
-          ("EC is not supported: " + exception.getMessage());
-      }
-
-      try {
-        keyFactory.generatePublic
-          (new X509EncodedKeySpec(keyDer.getImmutableArray()));
-      }
-      catch (InvalidKeySpecException exception) {
-        // Don't expect this to happen.
-        throw new SecurityException
-          ("X509EncodedKeySpec is not supported for EC: " + exception.getMessage());
-      }
-    }
-    else
-      throw new SecurityException("PublicKey.fromDer: Unrecognized keyType");
-
-    return new PublicKey(keyType, keyDer);
   }
 
   public KeyType
@@ -155,6 +165,9 @@ public class PublicKey {
    */
   public final Blob
   getKeyDer() { return keyDer_; }
+
+  private static String RSA_ENCRYPTION_OID = "1.2.840.113549.1.1.1";
+  private static String EC_ENCRYPTION_OID = "1.2.840.10045.2.1";
 
   private final KeyType keyType_;
   private final Blob keyDer_;   /**< PublicKeyInfo in DER */
