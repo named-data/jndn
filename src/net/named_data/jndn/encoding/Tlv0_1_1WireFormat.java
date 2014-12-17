@@ -437,9 +437,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     decodeSignatureInfo(signatureHolder, decoder);
 
     decoder = new TlvDecoder(signatureValue);
-    // TODO: The library needs to handle other signature types than
-    //   SignatureSha256WithRsa.
-    ((Sha256WithRsaSignature)signatureHolder.getSignature()).setSignature
+    signatureHolder.getSignature().setSignature
       (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
 
     return signatureHolder.getSignature();
@@ -456,10 +454,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   encodeSignatureValue(Signature signature)
   {
     TlvEncoder encoder = new TlvEncoder(256);
-    // TODO: This assumes it is a Sha256WithRsaSignature.
-    encoder.writeBlobTlv
-      (Tlv.SignatureValue,
-       ((Sha256WithRsaSignature)signature).getSignature().buf());
+    encoder.writeBlobTlv(Tlv.SignatureValue, signature.getSignature().buf());
 
     return new Blob(encoder.getOutput(), false);
   }
