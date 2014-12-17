@@ -53,12 +53,22 @@ class CredentialStorage {
     defaultCertName_ = keyName.getSubName(0, keyName.size() - 1).append
       ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
 
+    Name ecdsaKeyName = new Name("/testEcdsa/DSK-123");
+    ecdsaCertName_ = ecdsaKeyName.getSubName(0, ecdsaKeyName.size() - 1).append
+      ("KEY").append(ecdsaKeyName.get(-1)).append("ID-CERT").append("0");
+
     try {
       identityStorage_.addKey
-              (keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
+        (keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
       privateKeyStorage_.setKeyPairForKeyName
         (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER,
          DEFAULT_RSA_PRIVATE_KEY_DER);
+
+      identityStorage_.addKey
+        (ecdsaKeyName, KeyType.EC, new Blob(DEFAULT_EC_PUBLIC_KEY_DER, false));
+      privateKeyStorage_.setKeyPairForKeyName
+        (ecdsaKeyName, KeyType.EC, DEFAULT_EC_PUBLIC_KEY_DER,
+         DEFAULT_EC_PRIVATE_KEY_DER);
     } catch (SecurityException ex) {
       // Don't expect this to happen;
       identityStorage_ = null;
@@ -87,6 +97,9 @@ class CredentialStorage {
   {
     keyChain_.verifyData(data, verifiedCallback, failedCallback);
   }
+
+  public final Name
+  getEcdsaCertName() { return ecdsaCertName_; }
 
   private static final ByteBuffer DEFAULT_RSA_PUBLIC_KEY_DER = TestDataMethods.toBuffer(new int[] {
     0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
@@ -191,12 +204,31 @@ class CredentialStorage {
     0xcb, 0xea, 0x8f
   });
 
+  private static final ByteBuffer DEFAULT_EC_PUBLIC_KEY_DER = TestDataMethods.toBuffer(new int[] {
+    0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a,
+    0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00, 0x04, 0x98, 0x9a, 0xf0, 0x61, 0x70,
+    0x43, 0x2e, 0xb6, 0x12, 0x92, 0xf5, 0x57, 0x08, 0x07, 0xe7, 0xaf, 0x23, 0xab, 0x79, 0x0b, 0x05,
+    0xaf, 0xa0, 0x3f, 0x8f, 0x23, 0x04, 0x50, 0xd2, 0x30, 0x47, 0x00, 0x1a, 0xff, 0x77, 0xba, 0x08,
+    0x5b, 0x9a, 0xb1, 0xe6, 0x1a, 0xc4, 0x6a, 0x38, 0x00, 0x79, 0x15, 0xf8, 0x92, 0x3d, 0x9d, 0x8e,
+    0x16, 0x29, 0x57, 0x34, 0x0b, 0xd4, 0x66, 0xb2, 0xe7, 0x54, 0x0b
+  });
+
+  // Java uses an unencrypted PKCS #8 PrivateKeyInfo, without full parameters.
+  private static final ByteBuffer DEFAULT_EC_PRIVATE_KEY_DER = TestDataMethods.toBuffer(new int[] {
+    0x30, 0x41, 0x02, 0x01, 0x00, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
+    0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x04, 0x27, 0x30, 0x25, 0x02, 0x01,
+    0x01, 0x04, 0x20, 0x49, 0x35, 0xef, 0x6c, 0xbf, 0xca, 0x40, 0x55, 0xfc, 0x63, 0x61, 0x69, 0xa2,
+    0x8a, 0x5d, 0x1e, 0x48, 0x7b, 0x83, 0x44, 0xf4, 0x65, 0xd3, 0xe2, 0xab, 0x2b, 0xc0, 0xbc, 0x8d,
+    0x6f, 0x17, 0x1b
+  });
+
   private MemoryIdentityStorage identityStorage_ = new MemoryIdentityStorage();
   private MemoryPrivateKeyStorage privateKeyStorage_ = new MemoryPrivateKeyStorage();
   private final KeyChain keyChain_ = new KeyChain
     (new IdentityManager(identityStorage_, privateKeyStorage_),
      new SelfVerifyPolicyManager(identityStorage_));
   private final Name defaultCertName_;
+  private final Name ecdsaCertName_;
 };
 
 class VerifyCounter implements OnVerified, OnVerifyFailed
@@ -445,6 +477,23 @@ public class TestDataMethods {
 
     try {
       credentials.signData(freshData);
+    } catch (SecurityException ex) {
+      fail("Cannot sign freshData " + ex.getMessage());
+    }
+
+    credentials.verifyData(freshData, counter, counter);
+    assertEquals("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
+    assertEquals("Verification callback was not used", counter.onVerifiedCallCount_, 1);
+  }
+
+  @Test
+  public void
+  testVerifyEcdsa() throws SecurityException
+  {
+    VerifyCounter counter = new VerifyCounter();
+
+    try {
+      credentials.signData(freshData, credentials.getEcdsaCertName());
     } catch (SecurityException ex) {
       fail("Cannot sign freshData " + ex.getMessage());
     }
