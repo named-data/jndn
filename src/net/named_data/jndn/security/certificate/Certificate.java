@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.TimeZone;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
-import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.encoding.der.DerNode;
@@ -36,6 +35,7 @@ import net.named_data.jndn.encoding.der.DerNode.DerBoolean;
 import net.named_data.jndn.encoding.der.DerNode.DerGeneralizedTime;
 import net.named_data.jndn.encoding.der.DerNode.DerSequence;
 import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.UnrecognizedKeyFormatException;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
@@ -228,8 +228,12 @@ public class Certificate extends Data {
 
     // 3rd: public key
     Blob publicKeyInfo = ((DerNode)rootChildren.get(2)).encode();
-    // TODO: Handle key types other than RSA.
-    key_ =  new PublicKey(KeyType.RSA, publicKeyInfo);
+    try {
+      key_ = new PublicKey(publicKeyInfo);
+    }
+    catch (UnrecognizedKeyFormatException ex) {
+      throw new DerDecodingException(ex.getMessage());
+    }
 
     if (rootChildren.size() > 3) {
       List extensionChildren = DerNode.getSequence(rootChildren, 3).getChildren();

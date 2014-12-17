@@ -51,7 +51,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     (Name keyName, KeyType keyType, ByteBuffer publicKeyDer) throws SecurityException
   {
     publicKeyStore_.put
-      (keyName.toUri(), PublicKey.fromDer(keyType, new Blob(publicKeyDer, true)));
+      (keyName.toUri(), new PublicKey(new Blob(publicKeyDer, true)));
   }
 
   /**

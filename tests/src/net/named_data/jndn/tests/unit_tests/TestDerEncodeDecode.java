@@ -27,6 +27,7 @@ import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.encoding.der.DerNode.DerOid;
 import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.UnrecognizedKeyFormatException;
 import net.named_data.jndn.security.certificate.Certificate;
 import net.named_data.jndn.security.certificate.CertificateSubjectDescription;
 import net.named_data.jndn.security.certificate.PublicKey;
@@ -146,14 +147,14 @@ public class TestDerEncodeDecode {
 
   @Before
   public void
-  setUp() throws DerDecodingException
+  setUp() throws DerDecodingException, UnrecognizedKeyFormatException
   {
     Certificate cert = new Certificate();
     cert.setNotBefore(1388100174000L);
     cert.setNotAfter(1388100174000L);
 
     cert.addSubjectDescription(new CertificateSubjectDescription(TEST_OID, "TEST NAME"));
-    cert.setPublicKeyInfo(new PublicKey(KeyType.RSA, new Blob(PUBLIC_KEY, false)));
+    cert.setPublicKeyInfo(new PublicKey(new Blob(PUBLIC_KEY, false)));
 
     toyCert = cert;
   }

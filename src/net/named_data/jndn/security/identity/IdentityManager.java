@@ -380,8 +380,7 @@ public class IdentityManager {
   public final PublicKey
   getPublicKey(Name keyName) throws SecurityException
   {
-    return PublicKey.fromDer
-      (identityStorage_.getKeyType(keyName), identityStorage_.getKey(keyName));
+    return new PublicKey(identityStorage_.getKey(keyName));
   }
 
   /**
@@ -402,7 +401,7 @@ public class IdentityManager {
     Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
 
     Blob keyBlob = identityStorage_.getKey(keyName);
-    PublicKey publicKey = PublicKey.fromDer(KeyType.RSA, keyBlob);
+    PublicKey publicKey = new PublicKey(keyBlob);
 
     IdentityCertificate certificate = createIdentityCertificate
       (certificatePrefix, publicKey,  signerCertificateName, notBefore, notAfter);
@@ -646,7 +645,7 @@ public class IdentityManager {
     IdentityCertificate certificate = new IdentityCertificate();
 
     Blob keyBlob = identityStorage_.getKey(keyName);
-    PublicKey publicKey = PublicKey.fromDer(KeyType.RSA, keyBlob);
+    PublicKey publicKey = new PublicKey(keyBlob);
 
     Calendar calendar = Calendar.getInstance();
     double notBefore = (double)calendar.getTimeInMillis();

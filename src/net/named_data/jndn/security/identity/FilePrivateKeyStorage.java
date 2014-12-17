@@ -145,8 +145,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     // Read the file contents.
     byte[] der = this.read(keyName, KeyClass.PUBLIC);
 
-    // TODO: Don't assume keyType is RSA.
-    return PublicKey.fromDer(KeyType.RSA, new Blob(der));
+    return new PublicKey(new Blob(der));
   }
   
   /**
