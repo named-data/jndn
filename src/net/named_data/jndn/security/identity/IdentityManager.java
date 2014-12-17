@@ -195,6 +195,47 @@ public class IdentityManager {
   }
 
   /**
+   * Generate a pair of ECDSA keys for the specified identity.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @param keySize The size of the key.
+   * @return The generated key name.
+   */
+  public final Name
+  generateEcdsaKeyPair
+    (Name identityName, boolean isKsk, int keySize) throws SecurityException
+  {
+    Name keyName = generateKeyPair(identityName, isKsk, KeyType.EC, keySize);
+
+    return keyName;
+  }
+
+  /**
+   * Generate a pair of ECDSA keys for the specified identity and default keySize
+   * 256.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @return The generated key name.
+   */
+  public final Name
+  generateEcdsaKeyPair(Name identityName, boolean isKsk) throws SecurityException
+  {
+    return generateEcdsaKeyPair(identityName, isKsk, 256);
+  }
+
+  /**
+   * Generate a pair of ECDSA keys for the specified identity for a
+   * Data-Signing-Key and default keySize 256.
+   * @param identityName The name of the identity.
+   * @return The generated key name.
+   */
+  public final Name
+  generateEcdsaKeyPair(Name identityName) throws SecurityException
+  {
+    return generateEcdsaKeyPair(identityName, false, 256);
+  }
+
+  /**
    * Set a key as the default key of an identity.
    * @param keyName The name of the key.
    * @param identityName the name of the identity. If empty, the
@@ -283,6 +324,51 @@ public class IdentityManager {
   generateRSAKeyPairAsDefault(Name identityName) throws SecurityException
   {
     return generateRSAKeyPairAsDefault(identityName, false, 2048);
+  }
+
+  /**
+   * Generate a pair of ECDSA keys for the specified identity and set it as
+   * default key for the identity.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @param keySize The size of the key.
+   * @return The generated key name.
+   */
+  public final Name
+  generateEcdsaKeyPairAsDefault
+    (Name identityName, boolean isKsk, int keySize) throws SecurityException
+  {
+    Name keyName = generateKeyPair(identityName, isKsk, KeyType.EC, keySize);
+
+    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+
+    return keyName;
+  }
+
+  /**
+   * Generate a pair of ECDSA keys for the specified identity and set it as
+   * default key for the identity, using the default keySize 256.
+   * @param identityName The name of the identity.
+   * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
+   * @return The generated key name.
+   */
+  public final Name
+  generateEcdsaKeyPairAsDefault(Name identityName, boolean isKsk) throws SecurityException
+  {
+    return generateEcdsaKeyPairAsDefault(identityName, isKsk, 256);
+  }
+
+  /**
+   * Generate a pair of ECDSA keys for the specified identity and set it as
+   * default key for the identity for a Data-Signing-Key and using the default
+   * keySize 256.
+   * @param identityName The name of the identity.
+   * @return The generated key name.
+   */
+  public final Name
+  generateEcdsaKeyPairAsDefault(Name identityName) throws SecurityException
+  {
+    return generateEcdsaKeyPairAsDefault(identityName, false, 256);
   }
 
   /**
