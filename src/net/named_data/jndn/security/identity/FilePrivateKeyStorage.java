@@ -39,6 +39,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
+import java.util.List;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -48,6 +49,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.encoding.der.DerDecodingException;
+import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyClass;
 import net.named_data.jndn.security.KeyType;
@@ -150,12 +153,13 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   
   /**
    * Get the private key for this name; internal helper method
-   * @param keyName
-   * @return
+   * @param keyName The name of the key.
+   * @param keyType Set keyType[0] to the KeyType.
+   * @return The java.security.PrivateKey.
    * @throws SecurityException 
    */
-  private final PrivateKey
-  getPrivateKey(Name keyName) throws SecurityException
+  private PrivateKey
+  getPrivateKey(Name keyName, KeyType[] keyType) throws SecurityException
   {
     if (!doesKeyExist(keyName, KeyClass.PRIVATE))
       throw new SecurityException
@@ -163,23 +167,61 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
 
     // Read the file contents.
     byte[] der = this.read(keyName, KeyClass.PRIVATE);
+
+    // Decode the PKCS #8 DER to find the algorithm OID.
+    String oidString = null;
+    try {
+      DerNode parsedNode = DerNode.parse(ByteBuffer.wrap(der), 0);
+      List pkcs8Children = parsedNode.getChildren();
+      List algorithmIdChildren = DerNode.getSequence(pkcs8Children, 1).getChildren();
+      oidString = ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal().toString();
+    }
+    catch (DerDecodingException ex) {
+      throw new SecurityException("Cannot decode the PKCS #8 private key: " + ex);
+    }
+
     PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(der);
-    try{
-      // TODO: Check the key type. Don't assume RSA.
-      KeyFactory kf = KeyFactory.getInstance("RSA");
-      return kf.generatePrivate(spec);
+    if (oidString.equals(RSA_ENCRYPTION_OID)) {
+      keyType[0] = KeyType.RSA;
+
+      try {
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        return kf.generatePrivate(spec);
+      }
+      catch(InvalidKeySpecException e){
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("FilePrivateKeyStorage: RSA is not supported: " + e.getMessage());
+      }
+      catch(NoSuchAlgorithmException e){
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("FilePrivateKeyStorage: PKCS8EncodedKeySpec is not supported for RSA: "
+                  + e.getMessage());
+      }
     }
-    catch(InvalidKeySpecException e){
-      // Don't expect this to happen.
+    else if (oidString.equals(EC_ENCRYPTION_OID)) {
+      keyType[0] = KeyType.EC;
+
+      try {
+        KeyFactory kf = KeyFactory.getInstance("EC");
+        return kf.generatePrivate(spec);
+      }
+      catch(InvalidKeySpecException e){
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("FilePrivateKeyStorage: EC is not supported: " + e.getMessage());
+      }
+      catch(NoSuchAlgorithmException e){
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("FilePrivateKeyStorage: PKCS8EncodedKeySpec is not supported for EC: "
+                  + e.getMessage());
+      }
+    }
+    else
       throw new SecurityException
-        ("FilePrivateKeyStorage: RSA is not supported: " + e.getMessage());
-    }
-    catch(NoSuchAlgorithmException e){
-      // Don't expect this to happen.
-      throw new SecurityException
-        ("FilePrivateKeyStorage: PKCS8EncodedKeySpec is not supported for RSA: " 
-                + e.getMessage());
-    }
+        ("FilePrivateKeyStorage::sign: Unrecognized private key OID: " + oidString);
   }
   
   /**
@@ -224,18 +266,35 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
         ("FilePrivateKeyStorage.sign: Unsupported digest algorithm");
 
     // Retrieve the private key.
-    PrivateKey privateKey = this.getPrivateKey(keyName);
+    KeyType[] keyType = new KeyType[1];
+    PrivateKey privateKey = getPrivateKey(keyName, keyType);
 
     // Sign.
     Signature signature = null;
-    // TODO: Check the key type. Don't assume RSA.
-    try {
-      signature = Signature.getInstance("SHA256withRSA");
+    if (keyType[0] == KeyType.RSA) {
+      try {
+        signature = Signature.getInstance("SHA256withRSA");
+      }
+      catch (NoSuchAlgorithmException e) {
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("FilePrivateKeyStorage: The SHA256withRSA algorithm is not supported");
+      }
     }
-    catch (NoSuchAlgorithmException e) {
-      // Don't expect this to happen.
-      throw new SecurityException("FilePrivateKeyStorage: SHA256withRSA algorithm is not supported");
+    else if (keyType[0] == KeyType.EC) {
+      try {
+        signature = Signature.getInstance("SHA256withECDSA");
+      }
+      catch (NoSuchAlgorithmException e) {
+        // Don't expect this to happen.
+        throw new SecurityException
+          ("FilePrivateKeyStorage: The SHA256withECDSA algorithm is not supported");
+      }
     }
+    else
+      // We don't expect this to happen since getPrivateKey checked it.
+      throw new SecurityException
+        ("FilePrivateKeyStorage: Unsupported signature key type " + keyType[0]);
 
     try {
       signature.initSign(privateKey);
@@ -518,6 +577,9 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     }
     return Common.base64Decode(contents.toString());
   }
+
+  static private String RSA_ENCRYPTION_OID = "1.2.840.113549.1.1.1";
+  static private String EC_ENCRYPTION_OID = "1.2.840.10045.2.1";
 
   private final File keyStorePath_;
   private static final HashMap keyTypeMap_;
