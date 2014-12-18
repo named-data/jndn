@@ -97,6 +97,25 @@ public class KeyLocator implements ChangeCountable {
   }
 
   /**
+   * If the signature is a type that has a KeyLocator, then return it. Otherwise
+   * throw an error.
+   * @param signature An object of a subclass of Signature.
+   * @return The signature's KeyLocator. It is an error if signature doesn't
+   * have a KeyLocator.
+   */
+  public static KeyLocator
+  getFromSignature(Signature signature)
+  {
+    if (signature instanceof Sha256WithRsaSignature)
+      return ((Sha256WithRsaSignature)signature).getKeyLocator();
+    else if (signature instanceof Sha256WithEcdsaSignature)
+      return ((Sha256WithEcdsaSignature)signature).getKeyLocator();
+    else
+      throw new Error
+        ("KeyLocator.getFromSignature: Signature type does not have a KeyLocator");
+  }
+
+  /**
    * Get the change count, which is incremented each time this object
    * (or a child object) is changed.
    * @return The change count.
