@@ -31,6 +31,7 @@ import java.security.spec.X509EncodedKeySpec;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.OnVerified;
@@ -149,6 +150,34 @@ public abstract class PolicyManager {
    */
   public abstract Name
   inferSigningIdentity(Name dataName);
+
+  /**
+   * Check the type of signature and use the publicKeyDer to verify the
+   * signedBlob using the appropriate signature algorithm.
+   * @param signature An object of a subclass of Signature, e.g.
+   * Sha256WithRsaSignature.
+   * @param signedBlob the SignedBlob with the signed portion to verify.
+   * @param publicKeyDer The DER-encoded public key used to verify the signature.
+   * @return True if the signature is verified, false if failed.
+   * @throws SecurityException if the signature type is not recognized or if
+   * publicKeyDer can't be decoded.
+   */
+  protected static boolean
+  verifySignature
+    (net.named_data.jndn.Signature signature, SignedBlob signedBlob,
+     Blob publicKeyDer) throws SecurityException
+  {
+    if (signature instanceof Sha256WithRsaSignature)
+      return verifySha256WithRsaSignature
+          (signature.getSignature(), signedBlob, publicKeyDer);
+    else if (signature instanceof Sha256WithEcdsaSignature)
+      return verifySha256WithEcdsaSignature
+          (signature.getSignature(), signedBlob, publicKeyDer);
+    else
+      // We don't expect this to happen.
+      throw new SecurityException
+        ("PolicyManager.verify: Signature type is unknown");
+  }
 
   /**
    * Verify the RSA signature on the SignedBlob using the given public key.
