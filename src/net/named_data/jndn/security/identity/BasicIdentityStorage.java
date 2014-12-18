@@ -29,8 +29,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.Name;
-import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
@@ -404,12 +404,8 @@ public class BasicIdentityStorage extends IdentityStorage {
          "values (?, ?, ?, ?, datetime(?, 'unixepoch'), datetime(?, 'unixepoch'), ?)");
       statement.setString(1, certificateName.toUri());
 
-      // TODO: Support signature types other than Sha256WithRsaSignature.
-      if (!(certificate.getSignature() instanceof Sha256WithRsaSignature))
-        throw new SecurityException
-        ("BasicIdentityStorage: addCertificate: Signature is not Sha256WithRsaSignature.");
-      Sha256WithRsaSignature signature = (Sha256WithRsaSignature)certificate.getSignature();
-      Name signerName = signature.getKeyLocator().getKeyName();
+      Name signerName = KeyLocator.getFromSignature
+        (certificate.getSignature()).getKeyName();
       statement.setString(2, signerName.toUri());
 
       statement.setString(3, identity.toUri());
