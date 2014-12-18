@@ -225,26 +225,11 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   private boolean
   verify(net.named_data.jndn.Signature signatureInfo, SignedBlob signedBlob) throws net.named_data.jndn.security.SecurityException
   {
-    if (signatureInfo instanceof Sha256WithRsaSignature) {
-      Sha256WithRsaSignature signature = (Sha256WithRsaSignature)signatureInfo;
-      Blob publicKeyDer = getPublicKeyDer(signature.getKeyLocator());
-      if (publicKeyDer.isNull())
-        return false;
-      return verifySha256WithRsaSignature
-          (signature.getSignature(), signedBlob, publicKeyDer);
-    }
-    if (signatureInfo instanceof Sha256WithEcdsaSignature) {
-      Sha256WithEcdsaSignature signature = (Sha256WithEcdsaSignature)signatureInfo;
-      Blob publicKeyDer = getPublicKeyDer(signature.getKeyLocator());
-      if (publicKeyDer.isNull())
-        return false;
-      return verifySha256WithEcdsaSignature
-          (signature.getSignature(), signedBlob, publicKeyDer);
-    }
-    else
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("SelfVerifyPolicyManager: Signature type is unknown");
+    Blob publicKeyDer = getPublicKeyDer(KeyLocator.getFromSignature(signatureInfo));
+    if (publicKeyDer.isNull())
+      return false;
+
+    return verifySignature(signatureInfo, signedBlob, publicKeyDer);
   }
 
   /**
