@@ -28,7 +28,9 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
@@ -41,6 +43,7 @@ import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
@@ -158,6 +161,7 @@ public abstract class PolicyManager {
    * Sha256WithRsaSignature.
    * @param signedBlob the SignedBlob with the signed portion to verify.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
+   * This may be null if the signature type does not require a public key.
    * @return True if the signature is verified, false if failed.
    * @throws SecurityException if the signature type is not recognized or if
    * publicKeyDer can't be decoded.
@@ -173,6 +177,8 @@ public abstract class PolicyManager {
     else if (signature instanceof Sha256WithEcdsaSignature)
       return verifySha256WithEcdsaSignature
           (signature.getSignature(), signedBlob, publicKeyDer);
+    else if (signature instanceof DigestSha256Signature)
+      return verifyDigestSha256Signature(signature.getSignature(), signedBlob);
     else
       // We don't expect this to happen.
       throw new SecurityException
@@ -228,7 +234,6 @@ public abstract class PolicyManager {
         ("InvalidKeyException: " + exception.getMessage());
     }
     try {
-      // wireEncode returns the cached encoding if available.
       rsaSignature.update(signedBlob.signedBuf());
       return rsaSignature.verify(signature.getImmutableArray());
     }
@@ -244,7 +249,6 @@ public abstract class PolicyManager {
    * @param signedBlob the SignedBlob with the signed portion to verify.
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
-   * @throws SecurityException if data does not have a Sha256WithEcdsaSignature.
    */
   protected static boolean
   verifySha256WithEcdsaSignature
@@ -288,7 +292,6 @@ public abstract class PolicyManager {
         ("InvalidKeyException: " + exception.getMessage());
     }
     try {
-      // wireEncode returns the cached encoding if available.
       ecSignature.update(signedBlob.signedBuf());
       return ecSignature.verify(signature.getImmutableArray());
     }
@@ -296,5 +299,21 @@ public abstract class PolicyManager {
       throw new SecurityException
         ("SignatureException: " + exception.getMessage());
     }
+  }
+
+  /**
+   * Verify the DigestSha256 signature on the SignedBlob by verifying that the
+   * digest of SignedBlob equals the signature.
+   * @param signature The signature bits.
+   * @param signedBlob the SignedBlob with the signed portion to verify.
+   * @return true if the signature verifies, false if not.
+   */
+  protected static boolean
+  verifyDigestSha256Signature(Blob signature, SignedBlob signedBlob)
+  {
+    // Set signedPortionDigest to the digest of the signed portion of the signedBlob.
+    byte[] signedPortionDigest = Common.digestSha256(signedBlob.signedBuf());
+    
+    return Arrays.equals(signedPortionDigest, signature.getImmutableArray());
   }
 }
