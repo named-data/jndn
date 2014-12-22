@@ -223,10 +223,13 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   private boolean
   verify(net.named_data.jndn.Signature signatureInfo, SignedBlob signedBlob) throws net.named_data.jndn.security.SecurityException
   {
-    Blob publicKeyDer = getPublicKeyDer(KeyLocator.getFromSignature(signatureInfo));
-    if (publicKeyDer.isNull())
-      return false;
-
+    Blob publicKeyDer = null;
+    if (KeyLocator.canGetFromSignature(signatureInfo)) {
+      publicKeyDer = getPublicKeyDer(KeyLocator.getFromSignature(signatureInfo));
+      if (publicKeyDer.isNull())
+        return false;
+    }
+    
     return verifySignature(signatureInfo, signedBlob, publicKeyDer);
   }
 
