@@ -97,6 +97,24 @@ public class KeyLocator implements ChangeCountable {
   }
 
   /**
+   * If the signature is a type that has a KeyLocator (so that
+   * getFromSignature will succeed), return true.
+   * Note: This is a static method of KeyLocator instead of a method of
+   * Signature so that the Signature base class does not need to be overloaded
+   * with all the different kinds of information that various signature
+   * algorithms may use.
+   * @param signature An object of a subclass of Signature.
+   * @return True if the signature is a type that has a KeyLocator, otherwise
+   * false.
+   */
+  public static boolean
+  canGetFromSignature(Signature signature)
+  {
+    return signature instanceof Sha256WithRsaSignature ||
+           signature instanceof Sha256WithEcdsaSignature;
+  }
+
+  /**
    * If the signature is a type that has a KeyLocator, then return it. Otherwise
    * throw an error.
    * @param signature An object of a subclass of Signature.
