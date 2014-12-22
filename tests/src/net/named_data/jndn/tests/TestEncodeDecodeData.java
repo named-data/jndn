@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
@@ -283,6 +284,13 @@ public class TestEncodeDecodeData {
         (signature.getSignature().size() > 0 ?
          signature.getSignature().toHex() : "<none>"));
       keyLocator = signature.getKeyLocator();
+    }
+    else if (data.getSignature() instanceof DigestSha256Signature) {
+      DigestSha256Signature signature =
+        (DigestSha256Signature)data.getSignature();
+      System.out.println("DigestSha256 signature.signature: " +
+        (signature.getSignature().size() > 0 ?
+         signature.getSignature().toHex() : "<none>"));
     }
     if (keyLocator != null) {
       System.out.print("signature.keyLocator: ");
