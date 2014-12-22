@@ -440,6 +440,14 @@ public class KeyChain {
     sign(data, certificateName, WireFormat.getDefaultWireFormat());
   }
 
+  /**
+   * Append a SignatureInfo to the Interest name, sign the name components and
+   * append a final name component with the signature bits.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param certificateName The certificate name of the key to use for signing.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
   public final void
   sign(Interest interest, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
@@ -447,6 +455,13 @@ public class KeyChain {
       (interest, certificateName, wireFormat);
   }
 
+  /**
+   * Append a SignatureInfo to the Interest name, sign the name components and
+   * append a final name component with the signature bits.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param certificateName The certificate name of the key to use for signing.
+   */
   public final void
   sign(Interest interest, Name certificateName) throws SecurityException
   {
@@ -544,6 +559,58 @@ public class KeyChain {
       throw new SecurityException("No qualified certificate name found!");
 
     return identityManager_.signByCertificate(buffer, signingCertificateName);
+  }
+
+  /**
+   * Wire encode the Data object, digest it and set its SignatureInfo to
+   * a DigestSha256.
+   * @param data The Data object to be signed. This updates its signature and
+   * wireEncoding.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
+  public final void
+  signWithSha256(Data data, WireFormat wireFormat) throws SecurityException
+  {
+    identityManager_.signWithSha256(data, wireFormat);
+  }
+
+  /**
+   * Wire encode the Data object, digest it and set its SignatureInfo to
+   * a DigestSha256.
+   * @param data The Data object to be signed. This updates its signature and
+   * wireEncoding.
+   */
+  public final void
+  signWithSha256(Data data) throws SecurityException
+  {
+    signWithSha256(data, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Append a SignatureInfo for DigestSha256 to the Interest name, digest the
+   * name components and append a final name component with the signature bits
+   * (which is the digest).
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
+  public final void
+  signWithSha256(Interest interest, WireFormat wireFormat) throws SecurityException
+  {
+    identityManager_.signInterestWithSha256(interest, wireFormat);
+  }
+
+  /**
+   * Append a SignatureInfo for DigestSha256 to the Interest name, digest the
+   * name components and append a final name component with the signature bits
+   * (which is the digest).
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   */
+  public final void
+  signWithSha256(Interest interest) throws SecurityException
+  {
+    signWithSha256(interest, WireFormat.getDefaultWireFormat());
   }
 
   public final void
