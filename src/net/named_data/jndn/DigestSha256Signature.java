@@ -26,7 +26,7 @@ import net.named_data.jndn.util.Blob;
  * are only the SHA256 digest) and an empty SignatureInfo for a data packet or
  * signed interest.
  */
-public class DigestSha256Signature {
+public class DigestSha256Signature extends Signature {
   /**
    * Create a new DigestSha256Signature with default values.
    */
