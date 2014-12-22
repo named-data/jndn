@@ -24,6 +24,7 @@ import java.security.SecureRandom;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Exclude;
 import net.named_data.jndn.ForwardingFlags;
 import net.named_data.jndn.Interest;
@@ -744,6 +745,9 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       encoder.writeNonNegativeIntegerTlv
         (Tlv.SignatureType, Tlv.SignatureType_SignatureSha256WithEcdsa);
     }
+    else if (signature instanceof DigestSha256Signature)
+      encoder.writeNonNegativeIntegerTlv
+        (Tlv.SignatureType, Tlv.SignatureType_DigestSha256);
     else
       throw new Error("encodeSignatureInfo: Unrecognized Signature object type");
 
@@ -768,12 +772,12 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     }
     else if (signatureType == Tlv.SignatureType_SignatureSha256WithEcdsa) {
         signatureHolder.setSignature(new Sha256WithEcdsaSignature());
-        // Modify data's signature object because if we create an object
-        //   and set it, then data will have to copy all the fields.
         Sha256WithEcdsaSignature signatureInfo =
           (Sha256WithEcdsaSignature)signatureHolder.getSignature();
         decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
     }
+    else if (signatureType == Tlv.SignatureType_DigestSha256)
+        signatureHolder.setSignature(new DigestSha256Signature());
     else
         throw new EncodingException
          ("decodeSignatureInfo: unrecognized SignatureInfo type" + signatureType);
