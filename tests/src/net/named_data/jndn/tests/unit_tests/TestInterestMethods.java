@@ -27,13 +27,40 @@ import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.OnVerifiedInterest;
+import net.named_data.jndn.security.OnVerifyInterestFailed;
+import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.identity.IdentityManager;
+import net.named_data.jndn.security.identity.MemoryIdentityStorage;
+import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
+import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
+
+class VerifyInterestCounter implements OnVerifiedInterest, OnVerifyInterestFailed
+{
+  public void
+  onVerifiedInterest(Interest interest)
+  {
+    ++onVerifiedCallCount_;
+  }
+
+  public void
+  onVerifyInterestFailed(Interest interest)
+  {
+    ++onVerifyFailedCallCount_;
+  }
+
+  public int onVerifiedCallCount_ = 0;
+  public int onVerifyFailedCallCount_ = 0;
+};
 
 public class TestInterestMethods {
   // Convert the int array to a ByteBuffer.
@@ -261,5 +288,27 @@ public class TestInterestMethods {
     interest.getExclude().clear();
     assertTrue("Interest should not have a nonce after changing fields",
                interest.getNonce().isNull());
+  }
+
+  @Test
+  public void
+  testVerifyDigestSha256() throws SecurityException
+  {
+    // Create a KeyChain but we don't need to add keys.
+    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
+    MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+    KeyChain keyChain = new KeyChain
+      (new IdentityManager(identityStorage, privateKeyStorage),
+       new SelfVerifyPolicyManager(identityStorage));
+
+    Interest interest = new Interest(new Name("/test/signed-interest"));
+    keyChain.signWithSha256(interest);
+
+    VerifyInterestCounter counter = new VerifyInterestCounter();
+    keyChain.verifyInterest(interest, counter, counter);
+    assertEquals
+      ("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
+    assertEquals
+      ("Verification callback was not used", counter.onVerifiedCallCount_, 1);
   }
 }
