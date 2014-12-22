@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
@@ -628,6 +629,58 @@ public class IdentityManager {
       (privateKeyStorage_.sign(encoding.signedBuf(),
        IdentityCertificate.certificateNameToPublicKeyName(certificateName),
        digestAlgorithm[0]));
+
+    // Remove the empty signature and append the real one.
+    interest.setName(interest.getName().getPrefix(-1).append
+      (wireFormat.encodeSignatureValue(signature)));
+  }
+
+  /**
+   * Wire encode the Data object, digest it and set its SignatureInfo to
+   * a DigestSha256.
+   * @param data The Data object to be signed. This updates its signature and
+   * wireEncoding.
+   * @param wireFormat The WireFormat for calling encodeData.
+   */
+  public final void
+  signWithSha256(Data data, WireFormat wireFormat)
+  {
+    data.setSignature(new DigestSha256Signature());
+
+    // Encode once to get the signed portion.
+    SignedBlob encoding = data.wireEncode(wireFormat);
+
+    // Digest and set the signature.
+    byte[] signedPortionDigest = Common.digestSha256(encoding.signedBuf());
+    data.getSignature().setSignature(new Blob(signedPortionDigest));
+
+    // Encode again to include the signature.
+    data.wireEncode(wireFormat);
+  }
+
+  /**
+   * Append a SignatureInfo for DigestSha256 to the Interest name, digest the
+   * name components and append a final name component with the signature bits
+   * (which is the digest).
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
+  public final void
+  signInterestWithSha256(Interest interest, WireFormat wireFormat)
+  {
+    DigestSha256Signature signature = new DigestSha256Signature();
+    // Append the encoded SignatureInfo.
+    interest.getName().append(wireFormat.encodeSignatureInfo(signature));
+
+    // Append an empty signature so that the "signedPortion" is correct.
+    interest.getName().append(new Name.Component());
+    // Encode once to get the signed portion.
+    SignedBlob encoding = interest.wireEncode(wireFormat);
+
+    // Digest and set the signature.
+    byte[] signedPortionDigest = Common.digestSha256(encoding.signedBuf());
+    signature.setSignature(new Blob(signedPortionDigest));
 
     // Remove the empty signature and append the real one.
     interest.setName(interest.getName().getPrefix(-1).append
