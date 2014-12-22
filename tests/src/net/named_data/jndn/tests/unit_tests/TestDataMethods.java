@@ -91,6 +91,12 @@ class CredentialStorage {
   }
 
   public void
+  signDataWithSha256(Data data) throws SecurityException
+  {
+    keyChain_.signWithSha256(data);
+  }
+
+  public void
   verifyData
     (Data data, OnVerified verifiedCallback, OnVerifyFailed failedCallback)
     throws SecurityException
@@ -494,6 +500,23 @@ public class TestDataMethods {
 
     try {
       credentials.signData(freshData, credentials.getEcdsaCertName());
+    } catch (SecurityException ex) {
+      fail("Cannot sign freshData " + ex.getMessage());
+    }
+
+    credentials.verifyData(freshData, counter, counter);
+    assertEquals("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
+    assertEquals("Verification callback was not used", counter.onVerifiedCallCount_, 1);
+  }
+
+  @Test
+  public void
+  testVerifyDigestSha256() throws SecurityException
+  {
+    VerifyCounter counter = new VerifyCounter();
+
+    try {
+      credentials.signDataWithSha256(freshData);
     } catch (SecurityException ex) {
       fail("Cannot sign freshData " + ex.getMessage());
     }
