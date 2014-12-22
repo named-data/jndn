@@ -341,16 +341,21 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     try{
       cipher = Cipher.getInstance(cipherAlgorithm);
     }
-    catch(NoSuchAlgorithmException | NoSuchPaddingException e){
+    catch(NoSuchAlgorithmException e) {
       throw new SecurityException
-        ("FilePrivateKeyStorage.decrypt: can't start Cipher: " 
+        ("FilePrivateKeyStorage.decrypt: can't start Cipher: "
+                + e.getMessage());
+    }
+    catch(NoSuchPaddingException e) {
+      throw new SecurityException
+        ("FilePrivateKeyStorage.decrypt: can't start Cipher: "
                 + e.getMessage());
     }
     
     try{
       cipher.init(Cipher.DECRYPT_MODE, key);
     }
-    catch(InvalidKeyException e){
+    catch(InvalidKeyException e) {
       throw new SecurityException
         ("FilePrivateKeyStorage.decrypt: invalid key: " + e.getMessage());
     }
@@ -362,8 +367,15 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       decrypted.flip(); // otherwise bytes are reversed
       return new Blob(decrypted, true);
     }
-    catch(BadPaddingException | ShortBufferException |
-            IllegalBlockSizeException e){
+    catch(BadPaddingException e) {
+      throw new SecurityException
+        ("FilePrivateKeyStorage.decrypt: " + e.getMessage());
+    }
+    catch(ShortBufferException e) {
+      throw new SecurityException
+        ("FilePrivateKeyStorage.decrypt: " + e.getMessage());
+    }
+    catch(IllegalBlockSizeException e) {
       throw new SecurityException
         ("FilePrivateKeyStorage.decrypt: " + e.getMessage());
     }
@@ -397,9 +409,14 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     try{
       cipher = Cipher.getInstance(cipherAlgorithm);
     }
-    catch(NoSuchAlgorithmException | NoSuchPaddingException e){
+    catch(NoSuchAlgorithmException e) {
       throw new SecurityException
         ("FilePrivateKeyStorage.encrypt: can't start Cipher: " 
+                + e.getMessage());
+    }
+    catch(NoSuchPaddingException e) {
+      throw new SecurityException
+        ("FilePrivateKeyStorage.encrypt: can't start Cipher: "
                 + e.getMessage());
     }
     
@@ -416,9 +433,14 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       byte[] encrypted = cipher.doFinal(data.array());
       return new Blob(encrypted);
     }
-    catch(BadPaddingException | IllegalBlockSizeException e){
+    catch(BadPaddingException e) {
       throw new SecurityException
-        ("FilePrivateKeyStorage.encrypt: invalid input ByteBuffer: " 
+        ("FilePrivateKeyStorage.encrypt: invalid input ByteBuffer: "
+                + e.getMessage());
+    }
+    catch(IllegalBlockSizeException e) {
+      throw new SecurityException
+        ("FilePrivateKeyStorage.encrypt: invalid input ByteBuffer: "
                 + e.getMessage());
     }
   }
@@ -540,7 +562,11 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
         writer.close();
       }
     }
-    catch(SecurityException | IOException e){
+    catch(SecurityException e){
+      throw new SecurityException
+        ("FilePrivateKeyStorage: Failed to write key: " + e.getMessage());
+    }
+    catch(IOException e){
       throw new SecurityException
         ("FilePrivateKeyStorage: Failed to write key: " + e.getMessage());
     }
@@ -571,10 +597,15 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
         reader.close();
       }
     }
-    catch(SecurityException | IOException e){
+    catch(SecurityException e) {
       throw new SecurityException
         ("FilePrivateKeyStorage: Failed to read key: " + e.getMessage());
     }
+    catch(IOException e) {
+      throw new SecurityException
+        ("FilePrivateKeyStorage: Failed to read key: " + e.getMessage());
+    }
+
     return Common.base64Decode(contents.toString());
   }
 
