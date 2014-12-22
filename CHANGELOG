@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.1 (2014-12-18)
+Interim changes since jNDN v0.1 (2014-12-22)
 --------------------------------------------
 
 Changes
@@ -8,7 +8,9 @@ Changes
 * Added ChronoSync2013 and TestChronoChat.
 * Added UdpTransport.
 * Added Sha256WithEcdsaSignature. Support encoding/decoding it in interests and data packets.
+* Added DigestSha256Signature. Support encoding/decoding it in interests and data packets.
 * In KeyChain, added generateEcdsaKeyPair and generateEcdsaKeyPairAsDefault.
+* In KeyChain, added signWithSha256.
 * In Name, added wireEncode and wireDecode.
 * Moved tests from src/net/named_data/jndn/tests to tests/src/net/named_data/jndn/tests.
 * Added JUnit tests to tests/src/net/named_data/jndn/tests/unit_tests.
@@ -22,7 +24,8 @@ Changes
 * In the default WireFormat, implemented decodeControlParameters. Thanks again to Andrew Brown!
 * Unit tests: Added TestFilePrivateKeyStorage. Thanks to Andrew Brown!
 * Unit tests: Added TestDerEncodeDecode to test certificate encoding.
-* Unit tests: In TestDataMethods, added TestDataMethods.
+* Unit tests: In TestDataMethods, added VerifyEcdsa and VerifyDigestSha256.
+* Unit tests: In test-interest-methods, added VerifyDigestSha256.
 
 Deprecated
 * In MetaInfo, deprecated get/setFinalBlockID. Use get/setFinalBlockId.
