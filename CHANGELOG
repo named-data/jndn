@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.1 (2014-12-22)
---------------------------------------------
+jNDN v0.2 (2014-12-23)
+----------------------
 
 Changes
 * Added build.xml for Ant. Updated INSTALL.md to use it.
