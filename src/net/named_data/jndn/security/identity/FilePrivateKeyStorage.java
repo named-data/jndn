@@ -615,7 +615,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   private final File keyStorePath_;
   private static final HashMap keyTypeMap_;
   static{
-    keyTypeMap_ = new HashMap<KeyClass, String>();
+    keyTypeMap_ = new HashMap();
     keyTypeMap_.put(KeyClass.PUBLIC, ".pub");
     keyTypeMap_.put(KeyClass.PRIVATE, ".pri");
     keyTypeMap_.put(KeyClass.SYMMETRIC, ".key");
