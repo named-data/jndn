@@ -48,7 +48,7 @@ public class BoostInfoParser {
    * Write the root tree of this BoostInfoParser as file in Boost's INFO format.
    * @param fileName The output path.
    */
-  public void
+  public final void
   write(String fileName) throws IOException
   {
     BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
@@ -65,7 +65,7 @@ public class BoostInfoParser {
    * Get the root tree of this parser.
    * @return The root BoostInfoTree.
    */
-  public BoostInfoTree
+  public final BoostInfoTree
   getRoot() { return root_; }
 
   /**

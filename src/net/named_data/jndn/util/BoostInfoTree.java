@@ -55,7 +55,7 @@ public class BoostInfoTree {
    * @param treeName The name of the new sub-tree.
    * @param newTree The sub-tree to add.
    */
-  public void
+  public final void
   addSubtree(String treeName, BoostInfoTree newTree)
   {
     ArrayList subtreeList = find(treeName);
@@ -77,7 +77,7 @@ public class BoostInfoTree {
    * @param value The value associated with the new sub-tree.
    * @return The created sub-tree.
    */
-  public BoostInfoTree
+  public final BoostInfoTree
   createSubtree(String treeName, String value)
   {
     BoostInfoTree newTree = new BoostInfoTree(value, this);
@@ -91,7 +91,7 @@ public class BoostInfoTree {
    * @param treeName The name of the new sub-tree.
    * @return The created sub-tree.
    */
-  public BoostInfoTree
+  public final BoostInfoTree
   createSubtree(String treeName)
   {
     return createSubtree(treeName, "");
@@ -102,7 +102,7 @@ public class BoostInfoTree {
    * @param key The key which may be a path separated with '/'.
    * @return A new ArrayList of BoostInfoTree which are the subtrees.
    */
-  public ArrayList
+  public final ArrayList
   get(String key)
   {
     ArrayList foundVals = new ArrayList();
@@ -144,7 +144,7 @@ public class BoostInfoTree {
    * @param key The key which may be a path separated with '/'.
    * @return A pointer to the string value or null if not found.
    */
-  public String
+  public final String
   getFirstValue(String key)
   {
     ArrayList list = get(key);
@@ -154,16 +154,16 @@ public class BoostInfoTree {
       return null;
   }
 
-  public String
+  public final String
   getValue() { return value_; }
 
-  public BoostInfoTree
+  public final BoostInfoTree
   getParent() { return parent_; }
 
-  public BoostInfoTree
+  public final BoostInfoTree
   getLastChild() { return lastChild_; }
 
-  public String
+  public final String
   prettyPrint(int indentLevel)
   {
     // Set prefix to indentLevel spaces.
@@ -194,13 +194,13 @@ public class BoostInfoTree {
     return s;
   }
 
-  public String
+  public final String
   prettyPrint()
   {
     return prettyPrint(1);
   }
 
-  public String
+  public final String
   toString() { return prettyPrint(); }
 
   private class TreeEntry {
