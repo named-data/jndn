@@ -20,7 +20,6 @@ package net.named_data.jndn.tests.unit_tests;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyClass;
@@ -49,7 +48,6 @@ public class TestFilePrivateKeyStorage {
     // create some test key files to use in tests
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     instance.generateKeyPair(new Name("/test/KEY/123"), KeyType.RSA, 2048);
-    instance.generateKey(new Name("/test/KEY/456"), KeyType.AES, 128); // can't be greater than 128 without Java Crypto Extension (JCE)
   }
   
   /**
@@ -61,7 +59,6 @@ public class TestFilePrivateKeyStorage {
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     try{
       instance.deleteKey(new Name("/test/KEY/123"));
-      instance.deleteKey(new Name("/test/KEY/456"));
     }
     catch(Exception e){
       System.err.println("Failed to clean up generated keys");
@@ -91,17 +88,15 @@ public class TestFilePrivateKeyStorage {
     // create some more key files
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     instance.generateKeyPair(new Name("/test/KEY/temp1"), KeyType.RSA, 2048);
-    instance.generateKey(new Name("/test/KEY/temp2"), KeyType.AES, 128);
     // check if files created
     File[] files = ndnFolder_.listFiles();
     int createdFileCount = files.length;
-    assertTrue(createdFileCount >= 6); // 3 pre-created + 3 created now + some created by NFD
+    assertTrue(createdFileCount >= 2); // 2 pre-created + 2 created now + some created by NFD
     // delete these keys
     instance.deleteKey(new Name("/test/KEY/temp1"));
-    instance.deleteKey(new Name("/test/KEY/temp2"));
     files = ndnFolder_.listFiles();
     int deletedfileCount = files.length;
-    assertTrue(createdFileCount - 3 == deletedfileCount);    
+    assertTrue(createdFileCount - 2 == deletedfileCount);
   }
   
   /**
@@ -111,7 +106,6 @@ public class TestFilePrivateKeyStorage {
   public void testDoesKeyExist() throws Exception {
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     assertTrue(instance.doesKeyExist(new Name("/test/KEY/123"), KeyClass.PRIVATE));
-    assertTrue(instance.doesKeyExist(new Name("/test/KEY/456"), KeyClass.SYMMETRIC));
     assertFalse(instance.doesKeyExist(new Name("/unknown"), KeyClass.PRIVATE));
   }
 
@@ -134,30 +128,5 @@ public class TestFilePrivateKeyStorage {
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     Blob result = instance.sign(toBuffer(data), new Name("/test/KEY/123"), DigestAlgorithm.SHA256);
     assertNotNull(result);
-  }
-
-  /**
-   * Test encrypt/decrypt methods, of class FilePrivateKeyStorage.
-   */
-  @Test
-  public void testAsymmetricEncryptAndDecrypt() throws Exception {
-    // REMOVED
-  } 
-  
-  /**
-   * Test encrypt/decrypt methods, of class FilePrivateKeyStorage.
-   */
-  @Test
-  public void testSymmetricEncryptAndDecrypt() throws Exception {
-    byte[] plaintext = "Some text...".getBytes();
-    FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
-    // encrypt
-    Blob encrypted = instance.encrypt(new Name("/test/KEY/456"), ByteBuffer.wrap(plaintext), true);
-    assertNotNull(encrypted);
-    assertFalse(Arrays.equals(plaintext, encrypted.getImmutableArray()));
-    // decrypt
-    Blob decrypted = instance.decrypt(new Name("/test/KEY/456"), encrypted.buf(), true);
-    assertNotNull(decrypted);
-    assertTrue(Arrays.equals(plaintext, decrypted.getImmutableArray()));
   }
 }
