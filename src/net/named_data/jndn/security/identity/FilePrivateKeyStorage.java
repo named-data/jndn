@@ -327,58 +327,8 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   decrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
          throws SecurityException
   {
-    if(!isSymmetric)
-      throw new UnsupportedOperationException
-        ("Asymmetric encryption/decryption not yet supported.");
-    
-    if (!doesKeyExist(keyName, KeyClass.SYMMETRIC))
-      throw new SecurityException
-        ("FilePrivateKeyStorage.decrypt: key doesn't exist");
-    
-    Key key = this.getSymmetricKey(keyName);
-    Cipher cipher = null;
-    String cipherAlgorithm = "AES"; // TODO don't assume
-    try{
-      cipher = Cipher.getInstance(cipherAlgorithm);
-    }
-    catch(NoSuchAlgorithmException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.decrypt: can't start Cipher: "
-                + e.getMessage());
-    }
-    catch(NoSuchPaddingException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.decrypt: can't start Cipher: "
-                + e.getMessage());
-    }
-    
-    try{
-      cipher.init(Cipher.DECRYPT_MODE, key);
-    }
-    catch(InvalidKeyException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.decrypt: invalid key: " + e.getMessage());
-    }
-    
-    try{
-      // allocate a new ByteBuffer because data is read-only
-      ByteBuffer decrypted = ByteBuffer.allocate(cipher.getOutputSize(data.limit()));
-      cipher.doFinal(data, decrypted);
-      decrypted.flip(); // otherwise bytes are reversed
-      return new Blob(decrypted, true);
-    }
-    catch(BadPaddingException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.decrypt: " + e.getMessage());
-    }
-    catch(ShortBufferException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.decrypt: " + e.getMessage());
-    }
-    catch(IllegalBlockSizeException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.decrypt: " + e.getMessage());
-    }
+    throw new UnsupportedOperationException
+      ("FilePrivateKeyStorage.decrypt is not implemented");
   }
 
   /**
@@ -395,54 +345,8 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   encrypt(Name keyName, ByteBuffer data, boolean isSymmetric)
           throws SecurityException
   {
-    if(!isSymmetric)
-      throw new UnsupportedOperationException
-        ("Asymmetric encryption/decryption not yet supported.");
-    
-    if (!doesKeyExist(keyName, isSymmetric ? KeyClass.SYMMETRIC : KeyClass.PRIVATE))
-      throw new SecurityException
-        ("FilePrivateKeyStorage.encrypt: key doesn't exist");
-    
-    Key key = this.getSymmetricKey(keyName);
-    Cipher cipher = null;
-    String cipherAlgorithm = "AES"; // TODO don't assume
-    try{
-      cipher = Cipher.getInstance(cipherAlgorithm);
-    }
-    catch(NoSuchAlgorithmException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.encrypt: can't start Cipher: " 
-                + e.getMessage());
-    }
-    catch(NoSuchPaddingException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.encrypt: can't start Cipher: "
-                + e.getMessage());
-    }
-    
-    try{
-      cipher.init(Cipher.ENCRYPT_MODE, key);
-    }
-    catch(InvalidKeyException e){
-      throw new SecurityException
-        ("FilePrivateKeyStorage.encrypt: invalid key: " 
-                + e.getMessage());
-    }
-    
-    try{
-      byte[] encrypted = cipher.doFinal(data.array());
-      return new Blob(encrypted);
-    }
-    catch(BadPaddingException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.encrypt: invalid input ByteBuffer: "
-                + e.getMessage());
-    }
-    catch(IllegalBlockSizeException e) {
-      throw new SecurityException
-        ("FilePrivateKeyStorage.encrypt: invalid input ByteBuffer: "
-                + e.getMessage());
-    }
+    throw new UnsupportedOperationException
+      ("FilePrivateKeyStorage.encrypt is not implemented");
   }
 
   /**
@@ -456,21 +360,8 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   generateKey(Name keyName, KeyType keyType, int keySize)
              throws SecurityException
   {
-    KeyGenerator generator = null;
-    try{
-      generator = KeyGenerator.getInstance(keyType.toString());
-    }
-    catch(NoSuchAlgorithmException e){
-      throw new SecurityException
-        ("FilePrivateKeyStorage: Could not create the key generator: " + e.getMessage());
-    }
-    
-    // generate...
-    generator.init(keySize);
-    SecretKey key = generator.generateKey();
-    
-    // ... and save
-    this.write(keyName, KeyClass.SYMMETRIC, key.getEncoded());
+    throw new UnsupportedOperationException
+      ("FilePrivateKeyStorage.generateKey is not implemented");
   }
   
   /**
