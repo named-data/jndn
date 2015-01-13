@@ -405,7 +405,7 @@ public class ConfigPolicyManager extends PolicyManager {
       File[] allFiles = new File(directoryName).listFiles();
       if (allFiles == null)
         throw new SecurityException
-          ("Cannot file files in directory " + directoryName);
+          ("Cannot find files in directory " + directoryName);
 
       ArrayList certificateNames = new ArrayList();
       for (int i = 0; i < allFiles.length; ++i) {
@@ -821,7 +821,7 @@ public class ConfigPolicyManager extends PolicyManager {
   interestTimestampIsFresh(Name keyName, double timestamp)
   {
     String keyNameUri = keyName.toUri();
-    if (keyTimestamps_.containsKey(keyNameUri)) {
+    if (!keyTimestamps_.containsKey(keyNameUri)) {
       double now = Common.getNowMilliseconds();
       double notBefore = now - keyGraceInterval_;
       double notAfter = now + keyGraceInterval_;
