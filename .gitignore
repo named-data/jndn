@@ -14,3 +14,6 @@
 
 # Emacs temp files
 *~
+
+# unit_test temporary files
+tests/src/net/named_data/jndn/tests/unit_tests/policy_config/test-public-info.db
