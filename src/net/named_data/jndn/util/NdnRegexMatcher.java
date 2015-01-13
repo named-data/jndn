@@ -45,9 +45,9 @@ public class NdnRegexMatcher {
 
     pattern = sanitizeSets(pattern);
 
-    pattern = pattern.replace("<>", "(?:<.+?>)");
-    pattern = pattern.replace(">", "");
-    pattern = pattern.replace("<(?!!)", "/");
+    pattern = pattern.replaceAll("<>", "(?:<.+?>)");
+    pattern = pattern.replaceAll(">", "");
+    pattern = pattern.replaceAll("<(?!!)", "/");
 
     Matcher match = Pattern.compile(pattern).matcher(nameUri);
     if (match.find())
