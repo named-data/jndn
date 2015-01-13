@@ -692,7 +692,7 @@ public class IdentityManager {
    * @param keyName The name of the public key.
    * @return The generated certificate.
    */
-  private IdentityCertificate
+  public IdentityCertificate
   selfSign(Name keyName) throws SecurityException
   {
     IdentityCertificate certificate = new IdentityCertificate();
