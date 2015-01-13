@@ -45,6 +45,5 @@ public class TestPolicyManager {
   public void
   testNoVerify()
   {
-    throw new Error("dir " + System.getProperty("user.dir"));
   }
 }
