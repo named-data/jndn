@@ -22,6 +22,7 @@
 package net.named_data.jndn.security.policy;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -399,14 +400,40 @@ public class ConfigPolicyManager extends PolicyManager {
     }
 
     public void
-    addDirectory(String directoryName, double refreshPeriod)
+    addDirectory(String directoryName, double refreshPeriod) throws SecurityException
     {
-      // TODO: Implement.
-      throw new UnsupportedOperationException("addDirectory is not implemented yet");
+      File[] allFiles = new File(directoryName).listFiles();
+      if (allFiles == null)
+        throw new SecurityException
+          ("Cannot file files in directory " + directoryName);
+
+      ArrayList certificateNames = new ArrayList();
+      for (int i = 0; i < allFiles.length; ++i) {
+        File file = allFiles[i];
+        
+        IdentityCertificate cert;
+        try {
+          cert = loadIdentityCertificateFromFile(file.getPath());
+        }
+        catch (SecurityException ex) {
+          // Allow files that are not certificates.
+          continue;
+        }
+
+        // Cut off the timestamp so it matches KeyLocator Name format.
+        String certUri = cert.getName().getPrefix(-1).toUri();
+        certificateCache_.insertCertificate(cert);
+        certificateNames.add(certUri);
+      }
+
+      refreshDirectories_.put
+        (directoryName, new DirectoryInfo
+          (certificateNames, Common.getNowMilliseconds() + refreshPeriod,
+           refreshPeriod));
     }
 
     public void
-    refreshAnchors()
+    refreshAnchors() throws SecurityException
     {
       double refreshTime = Common.getNowMilliseconds();
 
