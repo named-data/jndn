@@ -526,7 +526,7 @@ public class ConfigPolicyManager extends PolicyManager {
    * interest.
    * @return True if matches.
    */
-  boolean
+  private boolean
   checkSignatureMatch(Name signatureName, Name objectName, BoostInfoTree rule)
     throws SecurityException
   {
@@ -1075,6 +1075,66 @@ public class ConfigPolicyManager extends PolicyManager {
 
     private final OnVerifyInterestFailed onVerifyFailed_;
     private final Interest interest_;
+  }
+
+  /**
+   * A class implements Friend if it has a method 
+   * setConfigPolicyManagerFriendAccess which setFriendAccess calls to set
+   * the FriendAccess object.
+   */
+  public interface Friend {
+    void setConfigPolicyManagerFriendAccess(FriendAccess friendAccess);
+  }
+
+  /**
+   * Call friend.setConfigPolicyManagerFriendAccess to pass an instance of
+   * a FriendAccess class to allow a friend class to call private methods.
+   * @param friend The friend class for calling setConfigPolicyManagerFriendAccess.
+   * This uses friend.getClass() to make sure that it is a friend class.
+   * Therefore, only a friend class gets an implementation of FriendAccess.
+   */
+  public static void setFriendAccess(Friend friend)
+  {
+    if (friend.getClass().getName().equals
+        ("net.named_data.jndn.tests.unit_tests.TestVerificationRules"))
+    {
+      friend.setConfigPolicyManagerFriendAccess(new FriendAccessImpl());
+    }
+  }
+
+  /**
+   * A friend class can call the methods of FriendAccess to access private
+   * methods.  This abstract class is public, but setFriendAccess passes an
+   * instance of a private class which implements the methods.
+   */
+  public abstract static class FriendAccess {
+    public abstract BoostInfoTree
+    findMatchingRule(ConfigPolicyManager policyManager, Name objName, String matchType);
+    
+    public abstract boolean
+    checkSignatureMatch
+      (ConfigPolicyManager policyManager, Name signatureName, Name objectName, BoostInfoTree rule)
+      throws SecurityException;
+  }
+
+  /**
+   * setFriendAccess passes an instance of this private class which implements
+   * the FriendAccess methods.
+   */
+  private static class FriendAccessImpl extends FriendAccess {
+    public BoostInfoTree
+    findMatchingRule(ConfigPolicyManager policyManager, Name objName, String matchType)
+    {
+      return policyManager.findMatchingRule(objName, matchType);
+    }
+
+    public boolean
+    checkSignatureMatch
+      (ConfigPolicyManager policyManager, Name signatureName, Name objectName, BoostInfoTree rule)
+      throws SecurityException
+    {
+      return policyManager.checkSignatureMatch(signatureName, objectName, rule);
+    }
   }
 
   private CertificateCache certificateCache_ = new CertificateCache();
