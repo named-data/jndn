@@ -144,18 +144,32 @@ public class Blob {
   }
 
   /**
-   * Get a byte array by calling ByteBuffer.array().  This is called
-   * immutableArray to remind you not to change the contents of the returned
-   * array.  This method is necessary because the read-only ByteBuffer
-   * returned by buf()  doesn't allow you to call array().
+   * Get a byte array by calling ByteBuffer.array() if possible (because the
+   * ByteBuffer slice covers the entire backing array). Otherwise return byte
+   * array as a copy of the ByteBuffer. This is called immutableArray to remind
+   * you not to change the contents of the returned array. This method is
+   * necessary because the read-only ByteBuffer returned by buf() doesn't allow
+   * you to call array().
    * @return A byte array which you should not modify, or null if the pointer
    * is null.
    */
   public final byte[]
   getImmutableArray()
   {
-    if (buffer_ != null)
-      return buffer_.array();
+    if (buffer_ != null) {
+      byte[] array =  buffer_.array();
+      if (array.length == buffer_.remaining())
+        // Assume the buffer_ covers the entire backing array, so just return.
+        return array;
+
+      // We have to copy to a new byte array.
+      ByteBuffer tempBuffer = ByteBuffer.allocate(buffer_.remaining());
+      int savePosition = buffer_.position();
+      tempBuffer.put(buffer_);
+      buffer_.position(savePosition);
+      tempBuffer.flip();
+      return tempBuffer.array();
+    }
     else
       return null;
   }
