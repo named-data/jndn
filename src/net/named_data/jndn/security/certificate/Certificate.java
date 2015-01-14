@@ -26,8 +26,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.encoding.der.DerNode;
@@ -67,6 +71,24 @@ public class Certificate extends Data {
     DerNode root = toDer();
     setContent(root.encode());
     getMetaInfo().setType(ContentType.KEY);
+  }
+
+  /**
+   * Override to call the base class wireDecode then populate the certificate
+   * fields.
+   * @param input The input byte array to be decoded as an immutable Blob.
+   * @param wireFormat A WireFormat object used to decode the input.
+   */
+  public void
+  wireDecode(Blob input, WireFormat wireFormat)
+    throws EncodingException
+  {
+    super.wireDecode(input, wireFormat);
+    try {
+      decode();
+    } catch (DerDecodingException ex) {
+      throw new EncodingException(ex.getMessage());
+    }
   }
 
   /**
