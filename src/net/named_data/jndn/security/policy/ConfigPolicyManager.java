@@ -519,7 +519,7 @@ public class ConfigPolicyManager extends PolicyManager {
             refreshPeriod = 0;
           else {
             refreshPeriod = Integer.parseInt(refreshMatch.group(1));
-            if (refreshMatch.group(2).equals("s")) {
+            if (!refreshMatch.group(2).equals("s")) {
               refreshPeriod *= 60;
               if (!refreshMatch.group(2).equals("m"))
                 refreshPeriod *= 60;
