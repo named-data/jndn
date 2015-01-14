@@ -22,7 +22,10 @@ package net.named_data.jndn.security.certificate;
 
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
+import net.named_data.jndn.util.Blob;
 
 public class IdentityCertificate extends Certificate {
   public IdentityCertificate() {}
@@ -65,6 +68,18 @@ public class IdentityCertificate extends Certificate {
     super.setName(name);
     setPublicKeyName();
     return this;
+  }
+
+  /**
+   * Override to call the base class wireDecode then update the public key name.
+   * @param input The input byte array to be decoded as an immutable Blob.
+   * @param wireFormat A WireFormat object used to decode the input.
+   */
+  public void
+  wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
+  {
+    super.wireDecode(input, wireFormat);
+    setPublicKeyName();
   }
 
   public final Name
