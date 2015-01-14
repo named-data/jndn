@@ -118,7 +118,7 @@ public class Data implements ChangeCountable, SignatureHolder {
    * @param wireFormat A WireFormat object used to decode the input.
    * @throws EncodingException For invalid encoding.
    */
-  public final void
+  public void
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
     int[] signedPortionBeginOffset = new int[1];
@@ -162,18 +162,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   public final void
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
-    int[] signedPortionBeginOffset = new int[1];
-    int[] signedPortionEndOffset = new int[1];
-    wireFormat.decodeData
-      (this, input, signedPortionBeginOffset, signedPortionEndOffset);
-
-    if (wireFormat == WireFormat.getDefaultWireFormat())
-      // This is the default wire encoding.
-      setDefaultWireEncoding
-        (new SignedBlob(input, true, signedPortionBeginOffset[0],
-         signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
-    else
-      setDefaultWireEncoding(new SignedBlob(), null);
+    wireDecode(new Blob(input, true), wireFormat);
   }
 
   /**
