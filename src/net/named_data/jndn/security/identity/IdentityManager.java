@@ -21,13 +21,13 @@
 package net.named_data.jndn.security.identity;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Interest;
-import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
@@ -130,6 +130,34 @@ public class IdentityManager {
     }
     else
       throw new SecurityException("Identity has already been created!");
+  }
+
+  /**
+   * Delete the identity from the public and private key storage. If the
+   * identity to be deleted is the current default system default, this will not
+   * delete the identity and will return immediately.
+   * @param identityName The name of the identity.
+   */
+  public final void
+  deleteIdentity(Name identityName) throws SecurityException
+  {
+    try {
+      if (identityStorage_.getDefaultIdentity().equals(identityName))
+        // Don't delete the default identity!
+        return;
+    }
+    catch (SecurityException ex) {
+      // There is no default identity to check.
+    }
+
+    ArrayList keysToDelete = new ArrayList();
+    identityStorage_.getAllKeyNamesOfIdentity(identityName, keysToDelete, true);
+    identityStorage_.getAllKeyNamesOfIdentity(identityName, keysToDelete, false);
+
+    identityStorage_.deleteIdentityInfo(identityName);
+
+    for (int i = 0; i < keysToDelete.size(); ++i)
+      privateKeyStorage_.deleteKeyPair((Name)keysToDelete.get(i));
   }
 
   /**
