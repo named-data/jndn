@@ -70,7 +70,7 @@
       <classpath refid="classpath.lib" />
       <classpath refid="classpath.test" />
 
-      <batchtest>
+      <batchtest skipNonTests="yes">
         <fileset dir="${tests-build}" includes="**/unit_tests/Test*" />
       </batchtest>
     </junit>
