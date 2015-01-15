@@ -58,8 +58,34 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+
+class VerificationResult implements OnVerified, OnVerifyFailed,
+    OnVerifiedInterest, OnVerifyInterestFailed {
+  public void onVerified(Data data)
+  {
+    ++successCount_;
+  }
+
+  public void onVerifyFailed(Data data)
+  {
+    ++failureCount_;
+  }
+
+  public void onVerifiedInterest(Interest interest)
+  {
+    ++successCount_;
+  }
+
+  public void onVerifyInterestFailed(Interest interest)
+  {
+    ++failureCount_;
+  }
+
+  public int successCount_ = 0;
+  public int failureCount_ = 0;
+  public boolean hasFurtherSteps_ = false;
+};
 
 public class TestPolicyManager implements ConfigPolicyManager.Friend {
   // Convert the int array to a ByteBuffer.
@@ -197,33 +223,6 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
 
   private static double
   getNowSeconds() { return (double)System.currentTimeMillis() / 1000.0; }
-
-  private static class VerificationResult implements OnVerified, OnVerifyFailed,
-      OnVerifiedInterest, OnVerifyInterestFailed {
-    public void onVerified(Data data)
-    {
-      ++successCount_;
-    }
-
-    public void onVerifyFailed(Data data)
-    {
-      ++failureCount_;
-    }
-
-    public void onVerifiedInterest(Interest interest)
-    {
-      ++successCount_;
-    }
-
-    public void onVerifyInterestFailed(Interest interest)
-    {
-      ++failureCount_;
-    }
-
-    public int successCount_ = 0;
-    public int failureCount_ = 0;
-    public boolean hasFurtherSteps_ = false;
-  };
 
   private static VerificationResult
   doVerify(PolicyManager policyManager, Data toVerify) throws SecurityException
