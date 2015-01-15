@@ -27,6 +27,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.KeyLocator;
@@ -573,6 +574,37 @@ public class BasicIdentityStorage extends IdentityStorage {
         else
           throw new SecurityException
             ("BasicIdentityStorage.getDefaultCertificateNameForKey: The default certificate for the key name is not defined");
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
+  }
+
+  /**
+   * Append all the key names of a particular identity to the nameList.
+   * @param identityName The identity name to search for.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default key name. If false, add only
+   * the non-default key names.
+   */
+  public void
+  getAllKeyNamesOfIdentity
+    (Name identityName, ArrayList nameList, boolean isDefault) throws SecurityException
+  {
+    try {
+      String sql = "SELECT key_identifier FROM Key WHERE default_key=" +
+        (isDefault ? "1" : "0") + " and identity_name=?";
+      PreparedStatement statement = database_.prepareStatement(sql);
+      statement.setString(1, identityName.toUri());
+
+      try {
+        ResultSet result = statement.executeQuery();
+
+        while (result.next())
+          nameList.add
+            (new Name(identityName).append(result.getString("key_identifier")));
       } finally {
         statement.close();
       }

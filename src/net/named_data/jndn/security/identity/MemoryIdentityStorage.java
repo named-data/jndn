@@ -262,6 +262,21 @@ public class MemoryIdentityStorage extends IdentityStorage {
   }
 
   /**
+   * Append all the key names of a particular identity to the nameList.
+   * @param identityName The identity name to search for.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default key name. If false, add only
+   * the non-default key names.
+   */
+  public void
+  getAllKeyNamesOfIdentity
+    (Name identityName, ArrayList nameList, boolean isDefault)
+  {
+    throw new UnsupportedOperationException
+      ("MemoryIdentityStorage.getAllKeyNamesOfIdentity not implemented");
+  }
+
+  /**
    * Set the default identity.  If the identityName does not exist, then clear
    * the default identity so that getDefaultIdentity() throws an exception.
    * @param identityName The default identity name.

@@ -20,6 +20,7 @@
 
 package net.named_data.jndn.security.identity;
 
+import java.util.ArrayList;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
@@ -213,6 +214,17 @@ public abstract class IdentityStorage {
    */
   public abstract Name
   getDefaultCertificateNameForKey(Name keyName) throws SecurityException;
+
+  /**
+   * Append all the key names of a particular identity to the nameList.
+   * @param identityName The identity name to search for.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default key name. If false, add only
+   * the non-default key names.
+   */
+  public abstract void
+  getAllKeyNamesOfIdentity
+    (Name identityName, ArrayList nameList, boolean isDefault) throws SecurityException;
 
   /**
    * Set the default identity.  If the identityName does not exist, then clear
