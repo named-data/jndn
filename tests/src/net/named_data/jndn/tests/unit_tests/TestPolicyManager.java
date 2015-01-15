@@ -258,11 +258,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     // Don't show INFO log messages.
     Logger.getLogger("").setLevel(Level.WARNING);
 
-    policyConfigDirectory_ = new File(System.getProperty("user.dir"));
-    String[] path =
-      {"tests", "src", "net", "named_data", "jndn", "tests", "unit_tests", "policy_config"};
-    for (int i = 0; i < path.length; ++i)
-      policyConfigDirectory_ = new File(policyConfigDirectory_, path[i]);
+    policyConfigDirectory_ = UnitTestCommon.getPolicyConfigDirectory();
     
     testCertFile_ = new File(new File(policyConfigDirectory_, "certs"), "test.cert");
 

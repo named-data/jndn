@@ -164,11 +164,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
   public void
   setUp() throws SecurityException
   {
-    policyConfigDirectory = new File(System.getProperty("user.dir"));
-    String[] path = 
-      {"tests", "src", "net", "named_data", "jndn", "tests", "unit_tests", "policy_config"};
-    for (int i = 0; i < path.length; ++i)
-      policyConfigDirectory = new File(policyConfigDirectory, path[i]);
+    policyConfigDirectory = UnitTestCommon.getPolicyConfigDirectory();
 
     identityStorage = new MemoryIdentityStorage();
     privateKeyStorage = new MemoryPrivateKeyStorage();
