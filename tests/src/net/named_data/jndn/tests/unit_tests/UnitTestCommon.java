@@ -20,6 +20,9 @@
 package net.named_data.jndn.tests.unit_tests;
 
 import java.io.File;
+import net.named_data.jndn.Data;
+import net.named_data.jndn.security.OnVerified;
+import net.named_data.jndn.security.OnVerifyFailed;
 
 /**
  * Common static methods and package classes for unit tests.
@@ -40,5 +43,22 @@ public class UnitTestCommon {
 
     return result;
   }
+}
 
+class VerifyCounter implements OnVerified, OnVerifyFailed
+{
+  public void
+  onVerified(Data data)
+  {
+    ++onVerifiedCallCount_;
+  }
+
+  public void
+  onVerifyFailed(Data data)
+  {
+    ++onVerifyFailedCallCount_;
+  }
+
+  public int onVerifiedCallCount_ = 0;
+  public int onVerifyFailedCallCount_ = 0;
 }

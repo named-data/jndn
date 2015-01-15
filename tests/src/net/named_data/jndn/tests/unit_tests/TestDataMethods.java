@@ -239,24 +239,6 @@ class CredentialStorage {
   private final Name ecdsaCertName_;
 };
 
-class VerifyCounter implements OnVerified, OnVerifyFailed
-{
-  public void
-  onVerified(Data data)
-  {
-    ++onVerifiedCallCount_;
-  }
-
-  public void
-  onVerifyFailed(Data data)
-  {
-    ++onVerifyFailedCallCount_;
-  }
-
-  public int onVerifiedCallCount_ = 0;
-  public int onVerifyFailedCallCount_ = 0;
-};
-
 public class TestDataMethods {
   // Convert the int array to a ByteBuffer.
   public static ByteBuffer
