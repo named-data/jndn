@@ -101,6 +101,18 @@ public class KeyChain {
   }
 
   /**
+   * Delete the identity from the public and private key storage. If the
+   * identity to be deleted is the current default system default, this will not
+   * delete the identity and will return immediately.
+   * @param identityName The name of the identity.
+   */
+  public final void
+  deleteIdentity(Name identityName) throws SecurityException
+  {
+    identityManager_.deleteIdentity(identityName);
+  }
+
+  /**
    * Get the default identity.
    * @return The name of default identity.
    * @throws SecurityException if the default identity is not set.
