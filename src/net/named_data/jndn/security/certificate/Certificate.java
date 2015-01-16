@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.encoding.EncodingException;
@@ -38,7 +36,6 @@ import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.encoding.der.DerNode.DerBoolean;
 import net.named_data.jndn.encoding.der.DerNode.DerGeneralizedTime;
 import net.named_data.jndn.encoding.der.DerNode.DerSequence;
-import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.UnrecognizedKeyFormatException;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
@@ -265,7 +262,7 @@ public class Certificate extends Data {
         List children = extInfo.getChildren();
         String oidStr = (String)((DerNode)children.get(0)).toVal();
         boolean isCritical = (Boolean)((DerBoolean)children.get(1)).toVal();
-        Blob value = ((DerNode)children.get(2)).encode();
+        Blob value = (Blob)((DerNode)children.get(2)).toVal();
         addExtension(new CertificateExtension(oidStr, isCritical, value));
       }
     }
