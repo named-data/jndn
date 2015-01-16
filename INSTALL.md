@@ -56,9 +56,10 @@ To run the unit tests, in a terminal enter:
 
     ant test
 
-To run a sample test file such as TestEncodeDecodeData (see the list below), in a terminal enter:
+To run an example test file such as TestEncodeDecodeData (see the list below), in a terminal enter:
 
-    java -cp $CLASSPATH:tests/build:dist/lib/jndn.jar net.named_data.jndn.tests.TestEncodeDecodeData
+    ant examples
+    java -cp $CLASSPATH:examples/build:dist/lib/jndn.jar net.named_data.jndn.tests.TestEncodeDecodeData
 
 (On Windows, in a command prompt enter the following.)
 
@@ -83,7 +84,7 @@ This makes the following library:
 
 * dist/lib/jndn.jar: The jNDN library.
 
-This makes the following test class files in tests/build/net/named_data/jndn/tests:
+This makes the following test class files in examples/build/net/named_data/jndn/tests:
 
 * TestGetAsync: Connect to one of the NDN testbed hubs, express an interest and display the received data.
 * TestPublishAsyncNdnx: Connect to the local NDNx hub, accept interests with prefix /testecho and echo back a data packet. See test-echo-consumer.
