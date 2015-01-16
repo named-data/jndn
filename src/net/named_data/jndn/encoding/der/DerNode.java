@@ -510,6 +510,20 @@ public class DerNode {
     {
       super(DerNodeType.Integer);
     }
+
+    public Object
+    toVal() throws DerDecodingException
+    {
+      int result = 0;
+      // payload_ is not flipped yet.
+      for (int i = 0; i < payload_.buffer().position(); ++i) {
+        result <<= 8;
+        // Use & 0xff in case byte was in the range -128 to -1.
+        result += ((int)payload_.buffer().get(i)) & 0xff;
+      }
+
+      return result;
+    }
   }
 
   /**
