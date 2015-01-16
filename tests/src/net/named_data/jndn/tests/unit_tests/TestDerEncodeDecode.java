@@ -21,14 +21,19 @@
 package net.named_data.jndn.tests.unit_tests;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerEncodingException;
+import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.encoding.der.DerNode.DerOid;
-import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.encoding.der.DerNode.DerSequence;
+import net.named_data.jndn.encoding.der.DerNode.DerOctetString;
+import net.named_data.jndn.encoding.der.DerNode.DerInteger;
 import net.named_data.jndn.security.UnrecognizedKeyFormatException;
 import net.named_data.jndn.security.certificate.Certificate;
+import net.named_data.jndn.security.certificate.CertificateExtension;
 import net.named_data.jndn.security.certificate.CertificateSubjectDescription;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.util.Blob;
@@ -182,30 +187,73 @@ public class TestDerEncodeDecode {
                  toyCert.toString(), decoded_cert.toString());
   }
 
-  /* TODO: Implement after the PyNDN unit test is finished.
   @Test
   public void
   testExtension() throws DerDecodingException, DerEncodingException
   {
-        #now add an extension
+    // Now add an extension.
+    String name = "/hello/kitty";
+    int trustClass = 0;
+    int trustLevel = 10;
 
-        self.toyCert.encode()
-        extValueRoot = DerSequence()
-        extValueName = DerOctetString("/hello/kitty")
-        extValueTrustClass = DerInteger(0)
-        extValueTrustLevel = DerInteger(10)
+    DerSequence extValueRoot = new DerSequence();
+    DerOctetString extValueName = new DerOctetString(new Blob(name).buf());
+    DerInteger extValueTrustClass = new DerInteger(trustClass);
+    DerInteger extValueTrustLevel = new DerInteger(trustLevel);
 
-        extValueRoot.addChild(extValueName)
-        extValueRoot.addChild(extValueTrustClass)
-        extValueRoot.addChild(extValueTrustLevel)
+    extValueRoot.addChild(extValueName);
+    extValueRoot.addChild(extValueTrustClass);
+    extValueRoot.addChild(extValueTrustLevel);
 
-        extValueData = extValueRoot.encode()
+    Blob extValueData = extValueRoot.encode();
 
-        certExtension = CertificateExtension("1.3.6.1.5.32.1", True, extValueData)
-        cert = Certificate(self.toyCert)
-        cert.addExtension(certExtension)
-  }
-  */
+    String oidString = "1.3.6.1.5.32.1";
+    boolean isCritical = true;
+    CertificateExtension certExtension = new CertificateExtension
+      (oidString, isCritical, extValueData);
+    toyCert.encode();
+    Certificate cert = new Certificate(toyCert);
+    cert.addExtension(certExtension);
+
+    cert.encode();
+    Blob certData = cert.getContent();
+    Data plainData = new Data();
+    plainData.setContent(certData);
+    // The constructor Certificate(Data) calls decode().
+    Certificate decodedCert = new Certificate(plainData);
+    assertEquals
+      ("Wrong number of certificate extensions after decoding",
+       1, decodedCert.getExtensionList().size());
+
+    CertificateExtension decodedExtension = 
+      (CertificateExtension)decodedCert.getExtensionList().get(0);
+    assertEquals
+      ("Certificate extension has the wrong OID after decoding",
+       oidString, decodedExtension.getOid().toString());
+    assertEquals
+      ("Certificate extension has the wrong isCritical value after decoding",
+       isCritical, decodedExtension.getIsCritical());
+
+    // Decode and check the extension value.
+    DerNode parsedExtValue = DerNode.parse(decodedExtension.getValue().buf());
+    List decodedExtValueRoot = parsedExtValue.getChildren();
+    assertEquals
+      ("Wrong number of certificate extension value items after decoding",
+       3, decodedExtValueRoot.size());
+
+    DerOctetString decodedName = (DerOctetString)decodedExtValueRoot.get(0);
+    DerInteger decodedTrustClass = (DerInteger)decodedExtValueRoot.get(1);
+    DerInteger decodedTrustLevel = (DerInteger)decodedExtValueRoot.get(2);
+    assertEquals
+      ("Wrong extension value name after decoding",
+       name, ((Blob)decodedName.toVal()).toString());
+    assertEquals
+      ("Wrong extension value trust class after decoding",
+       trustClass, (int)decodedTrustClass.toVal());
+    assertEquals
+      ("Wrong extension value trust level after decoding",
+       trustLevel, (int)decodedTrustLevel.toVal());
+}
 
   @Test
   public void
