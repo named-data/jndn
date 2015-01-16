@@ -6,6 +6,8 @@
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
   <property name="build" location="build"/>
+  <property name="examples-src" location="examples/src"/>
+  <property name="examples-build" location="examples/build"/>
   <property name="tests-src" location="tests/src"/>
   <property name="tests-build" location="tests/build"/>
   <property name="dist"  location="dist"/>
@@ -19,11 +21,17 @@
     <tstamp/>
     <!-- Create the build directory structure used by compile -->
     <mkdir dir="${build}"/>
+    <mkdir dir="${examples-build}"/>
     <mkdir dir="${tests-build}"/>
   </target>
 
   <path id="classpath.lib">
     <pathelement location="${build}" />
+  </path>
+
+  <path id="classpath.examples">
+    <pathelement location="./contrib/sqlite-jdbc-3.8.7.jar"/>
+    <pathelement location="${examples-build}" />
   </path>
 
   <path id="classpath.test">
@@ -42,13 +50,21 @@
     </javac>
   </target>
 
-  <target name="compile-tests" depends="compile" description="compile the tests source" >
-    <!-- Compile the java code from ${tests-src} into ${tests-build} -->
-    <javac srcdir="${tests-src}" destdir="${tests-build}" includeantruntime="true">
+  <target name="compile-examples" depends="compile" description="compile the examples source" >
+    <!-- Compile the java code from ${examples-src} into ${examples-build} -->
+    <javac srcdir="${examples-src}" destdir="${examples-build}" includeantruntime="true">
       <exclude name="net/named_data/jndn/tests/TestChronoChat.java"           unless="${protobuf.available}"/>
       <exclude name="net/named_data/jndn/tests/ChatbufProto.java"             unless="${protobuf.available}"/>
       <exclude name="net/named_data/jndn/tests/TestEncodeDecodeFibEntry.java" unless="${protobuf.available}"/>
       <exclude name="net/named_data/jndn/tests/FibEntryProto.java"            unless="${protobuf.available}"/>
+      <classpath refid="classpath.lib" />
+      <classpath refid="classpath.examples"/>
+    </javac>
+  </target>
+
+  <target name="compile-tests" depends="compile" description="compile the tests source" >
+    <!-- Compile the java code from ${tests-src} into ${tests-build} -->
+    <javac srcdir="${tests-src}" destdir="${tests-build}" includeantruntime="true">
       <classpath refid="classpath.lib" />
       <classpath refid="classpath.test"/>
     </javac>
@@ -61,6 +77,10 @@
 
     <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
     <jar jarfile="${dist}/lib/jndn.jar" basedir="${build}"/>
+  </target>
+
+  <target name="examples" depends="dist,compile-examples"
+       description="generate the examples class files">
   </target>
 
   <target name="test" depends="compile-tests" description="run the JUnit tests">
@@ -78,6 +98,7 @@
 
   <target name="clean" description="clean up" >
     <delete dir="${build}"/>
+    <delete dir="${examples-build}"/>
     <delete dir="${tests-build}"/>
     <delete dir="${dist}"/>
   </target>
