@@ -210,7 +210,7 @@ public class Certificate extends Data {
     if (extensionList_.size() > 0) {
       DerSequence extensionList = new DerSequence();
       for (int i = 0; i < extensionList_.size(); ++i)
-        subjectList.addChild(((CertificateExtension)extensionList_.get(i)).toDer());
+        extensionList.addChild(((CertificateExtension)extensionList_.get(i)).toDer());
       root.addChild(extensionList);
     }
 
