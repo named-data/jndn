@@ -73,6 +73,5 @@ public class OID {
     return equals((OID)other);
   }
 
-  // Use a non-template ArrayList so it works with older Java compilers.
   int[] oid_ = new int[0];
 }
