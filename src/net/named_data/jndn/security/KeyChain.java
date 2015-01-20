@@ -34,7 +34,6 @@ import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
-import net.named_data.jndn.security.encryption.EncryptionManager;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.security.policy.PolicyManager;
@@ -834,7 +833,6 @@ public class KeyChain {
 
   private IdentityManager identityManager_;
   private PolicyManager policyManager_;
-  private EncryptionManager encryptionManager_;
   private Face face_ = null;
   private int maxSteps_ = 100;
 }
