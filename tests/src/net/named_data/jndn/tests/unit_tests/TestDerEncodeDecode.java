@@ -194,7 +194,7 @@ public class TestDerEncodeDecode {
     // Now add an extension.
     String name = "/hello/kitty";
     int trustClass = 0;
-    int trustLevel = 10;
+    int trustLevel = 300;
 
     DerSequence extValueRoot = new DerSequence();
     DerOctetString extValueName = new DerOctetString(new Blob(name).buf());
