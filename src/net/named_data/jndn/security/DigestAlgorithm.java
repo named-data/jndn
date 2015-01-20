@@ -21,8 +21,5 @@
 package net.named_data.jndn.security;
 
 public enum DigestAlgorithm {
-  // MD2,
-  // MD5,
-  // SHA1,
   SHA256
 }
