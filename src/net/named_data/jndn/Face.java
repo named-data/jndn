@@ -67,6 +67,16 @@ public class Face {
   }
 
   /**
+   * Create a new Face for communication with an NDN hub at "localhost" using the
+   * default port 6363 and the default TcpTransport.
+   */
+  public Face()
+  {
+    node_ = new Node
+      (new TcpTransport(), new TcpTransport.ConnectionInfo("localhost", 6363));
+  }
+
+  /**
    * Send the Interest through the transport, read the entire response and call
    * onData(interest, data).
    * @param interest The Interest to send.  This copies the Interest.
