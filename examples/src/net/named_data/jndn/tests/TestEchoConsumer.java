@@ -56,7 +56,7 @@ public class TestEchoConsumer {
   main(String[] args)
   {
     try {
-      Face face = new Face("localhost");
+      Face face = new Face();
 
       Counter1 counter = new Counter1();
 

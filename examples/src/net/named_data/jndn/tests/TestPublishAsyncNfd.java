@@ -206,7 +206,7 @@ public class TestPublishAsyncNfd {
   main(String[] args)
   {
     try {
-      Face face = new Face("localhost");
+      Face face = new Face();
 
       // For now, when setting face.setCommandSigningInfo, use a key chain with
       //   a default private key instead of the system default key chain. This

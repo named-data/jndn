@@ -206,7 +206,7 @@ public class TestPublishAsyncNdnx {
   main(String[] args)
   {
     try {
-      Face face = new Face("localhost");
+      Face face = new Face();
 
       MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
       MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();

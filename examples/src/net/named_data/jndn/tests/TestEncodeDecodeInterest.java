@@ -302,7 +302,7 @@ public class TestEncodeDecodeInterest {
         (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
 
       // Make a Face just so that we can sign the interest.
-      Face face = new Face("localhost");
+      Face face = new Face();
       face.setCommandSigningInfo(keyChain, certificateName);
       if (WireFormat.getDefaultWireFormat() == TlvWireFormat.get())
         // For the moment, sign and verify of command interests is only supported in TLV.
