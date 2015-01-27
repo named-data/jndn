@@ -83,7 +83,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Interest interest, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
@@ -108,7 +108,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Interest interest, OnData onData, OnTimeout onTimeout) throws IOException
   {
@@ -129,7 +129,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Interest interest, OnData onData, WireFormat wireFormat) throws IOException
   {
@@ -149,7 +149,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest(Interest interest, OnData onData) throws IOException
   {
     return node_.expressInterest
@@ -176,7 +176,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Name name, Interest interestTemplate, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
@@ -219,7 +219,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Name name, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
@@ -245,7 +245,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Name name, Interest interestTemplate, OnData onData,
      WireFormat wireFormat) throws IOException
@@ -273,7 +273,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Name name, Interest interestTemplate, OnData onData,
      OnTimeout onTimeout) throws IOException
@@ -300,7 +300,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Name name, Interest interestTemplate, OnData onData) throws IOException
   {
@@ -327,7 +327,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Name name, OnData onData, OnTimeout onTimeout) throws IOException
   {
@@ -351,7 +351,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest
     (Name name, OnData onData, WireFormat wireFormat) throws IOException
   {
@@ -374,7 +374,7 @@ public class Face {
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
    */
-  public final long
+  public long
   expressInterest(Name name, OnData onData) throws IOException
   {
     return expressInterest
@@ -487,7 +487,7 @@ public class Face {
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
-  public final long
+  public long
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
      ForwardingFlags flags, WireFormat wireFormat) throws IOException, SecurityException
@@ -515,7 +515,7 @@ public class Face {
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
    */
-  public final long
+  public long
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
      ForwardingFlags flags) throws IOException, SecurityException
@@ -544,7 +544,7 @@ public class Face {
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
-  public final long
+  public long
   registerPrefix
     (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
      WireFormat wireFormat) throws IOException, SecurityException
@@ -572,7 +572,7 @@ public class Face {
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
-  public final long
+  public long
   registerPrefix
     (Name prefix, OnInterest onInterest,
      OnRegisterFailed onRegisterFailed) throws IOException, SecurityException
@@ -608,7 +608,7 @@ public class Face {
    * processing the data. If you call this from an main event loop, you may want
    * to catch and log/disregard all exceptions.
    */
-  public final void
+  public void
   processEvents() throws IOException, EncodingException
   {
     // Just call Node's processEvents.
@@ -618,7 +618,7 @@ public class Face {
   /**
    * Shut down and disconnect this Face.
    */
-  public final void
+  public void
   shutdown()
   {
     node_.shutdown();
