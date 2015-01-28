@@ -86,7 +86,7 @@ public abstract class PrivateKeyStorage {
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
-   * @return The signature, or a null pointer if signing fails.
+   * @return The signature Blob.
    * @throws SecurityException
    */
   public abstract Blob
@@ -98,7 +98,7 @@ public abstract class PrivateKeyStorage {
    * DigestAlgorithm.SHA256, returning a signature Blob.
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
-   * @return The signature, or a null pointer if signing fails.
+   * @return The signature Blob.
    * @throws SecurityException
    */
   public final Blob

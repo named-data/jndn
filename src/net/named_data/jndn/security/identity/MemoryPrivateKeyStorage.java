@@ -176,7 +176,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
-   * @return The signature, or Blob with a null pointer if signing fails.
+   * @return The signature Blob.
    * @throws SecurityException
    */
   public Blob
@@ -184,7 +184,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
        throws SecurityException
   {
     if (digestAlgorithm != DigestAlgorithm.SHA256)
-      return new Blob();
+      throw new SecurityException
+        ("MemoryPrivateKeyStorage.sign: Unsupported digest algorithm");
 
     // Find the private key and sign.
     PrivateKey privateKey = (PrivateKey)privateKeyStore_.get(keyName.toUri());

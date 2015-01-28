@@ -243,7 +243,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
    * @param data Pointer the input byte buffer to sign.
    * @param keyName The name of the signing key.
    * @param digestAlgorithm the digest algorithm.
-   * @return The signature, or a null pointer if signing fails.
+   * @return The signature Blob.
    * @throws SecurityException
    */
   public final Blob
