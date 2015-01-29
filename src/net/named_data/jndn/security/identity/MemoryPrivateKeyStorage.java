@@ -119,7 +119,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     String keyAlgorithm;
     if (keyType == KeyType.RSA)
       keyAlgorithm = "RSA";
-    else if (keyType == KeyType.EC)
+    else if (keyType == KeyType.ECDSA)
       keyAlgorithm = "EC";
     else
       throw new SecurityException("Cannot generate a key pair of type " + keyType);
@@ -203,7 +203,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
         throw new SecurityException("SHA256withRSA algorithm is not supported");
       }
     }
-    else if (privateKey.getKeyType() == KeyType.EC) {
+    else if (privateKey.getKeyType() == KeyType.ECDSA) {
       try {
         signature = Signature.getInstance("SHA256withECDSA");
       }
@@ -333,7 +333,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
              exception.getMessage());
         }
       }
-      else if (keyType == KeyType.EC) {
+      else if (keyType == KeyType.ECDSA) {
         KeyFactory keyFactory = null;
         try {
           keyFactory = KeyFactory.getInstance("EC");

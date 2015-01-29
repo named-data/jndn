@@ -234,7 +234,7 @@ public class IdentityManager {
   generateEcdsaKeyPair
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
-    Name keyName = generateKeyPair(identityName, isKsk, KeyType.EC, keySize);
+    Name keyName = generateKeyPair(identityName, isKsk, KeyType.ECDSA, keySize);
 
     return keyName;
   }
@@ -367,7 +367,7 @@ public class IdentityManager {
   generateEcdsaKeyPairAsDefault
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
-    Name keyName = generateKeyPair(identityName, isKsk, KeyType.EC, keySize);
+    Name keyName = generateKeyPair(identityName, isKsk, KeyType.ECDSA, keySize);
 
     identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
 
@@ -841,7 +841,7 @@ public class IdentityManager {
 
       return signature;
     }
-    else if (keyType == KeyType.EC) {
+    else if (keyType == KeyType.ECDSA) {
       Sha256WithEcdsaSignature signature = new Sha256WithEcdsaSignature();
       digestAlgorithm[0] = DigestAlgorithm.SHA256;
 

@@ -87,7 +87,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     String keyAlgorithm;
     if (keyType == KeyType.RSA)
       keyAlgorithm = "RSA";
-    else if (keyType == KeyType.EC)
+    else if (keyType == KeyType.ECDSA)
       keyAlgorithm = "EC";
     else
       throw new SecurityException("Cannot generate a key pair of type " + keyType);
@@ -194,7 +194,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       }
     }
     else if (oidString.equals(EC_ENCRYPTION_OID)) {
-      keyType[0] = KeyType.EC;
+      keyType[0] = KeyType.ECDSA;
 
       try {
         KeyFactory kf = KeyFactory.getInstance("EC");
@@ -274,7 +274,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
           ("FilePrivateKeyStorage: The SHA256withRSA algorithm is not supported");
       }
     }
-    else if (keyType[0] == KeyType.EC) {
+    else if (keyType[0] == KeyType.ECDSA) {
       try {
         signature = Signature.getInstance("SHA256withECDSA");
       }
