@@ -24,6 +24,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyClass;
 import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.security.identity.FilePrivateKeyStorage;
 import net.named_data.jndn.util.Blob;
@@ -47,7 +48,7 @@ public class TestFilePrivateKeyStorage {
   public static void setUpClass() throws Exception {
     // create some test key files to use in tests
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
-    instance.generateKeyPair(new Name("/test/KEY/123"), KeyType.RSA, 2048);
+    instance.generateKeyPair(new Name("/test/KEY/123"), new RsaKeyParams(2048));
   }
   
   /**
@@ -88,7 +89,7 @@ public class TestFilePrivateKeyStorage {
   public void testGenerateAndDeleteKeys() throws Exception {
     // create some more key files
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
-    instance.generateKeyPair(new Name("/test/KEY/temp1"), KeyType.RSA, 2048);
+    instance.generateKeyPair(new Name("/test/KEY/temp1"), new RsaKeyParams(2048));
     // check if files created
     File[] files = ndnFolder_.listFiles();
     int createdFileCount = files.length;

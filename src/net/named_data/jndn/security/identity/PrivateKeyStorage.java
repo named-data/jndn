@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyClass;
-import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.util.Blob;
@@ -33,36 +33,11 @@ public abstract class PrivateKeyStorage {
   /**
    * Generate a pair of asymmetric keys.
    * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KeyType.RSA.
-   * @param keySize The size of the key pair.
+   * @param params The parameters of the key.
    * @throws SecurityException
    */
   public abstract void
-  generateKeyPair
-    (Name keyName, KeyType keyType, int keySize) throws SecurityException;
-
-  /**
-   * Generate a pair of asymmetric keys with key size 2048.
-   * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KeyType.RSA.
-   * @throws SecurityException
-   */
-  public final void
-  generateKeyPair(Name keyName, KeyType keyType) throws SecurityException
-  {
-    generateKeyPair(keyName, keyType, 2048);
-  }
-
-  /**
-   * Generate a pair of RSA asymmetric keys with key size 2048.
-   * @param keyName The name of the key pair.
-   * @throws SecurityException
-   */
-  public final void
-  generateKeyPair(Name keyName) throws SecurityException
-  {
-    generateKeyPair(keyName, KeyType.RSA, 2048);
-  }
+  generateKeyPair(Name keyName, KeyParams params) throws SecurityException;
 
   /**
    * Delete a pair of asymmetric keys. If the key doesn't exist, do nothing.
@@ -166,36 +141,11 @@ public abstract class PrivateKeyStorage {
   /**
    * Generate a symmetric key.
    * @param keyName The name of the key.
-   * @param keyType The type of the key, e.g. KeyType.AES.
-   * @param keySize The size of the key.
+   * @param params The parameters of the key.
    * @throws SecurityException
    */
   public abstract void
-  generateKey(Name keyName, KeyType keyType, int keySize)
-             throws SecurityException;
-
-  /**
-   * Generate a symmetric key of size 256.
-   * @param keyName The name of the key.
-   * @param keyType The type of the key, e.g. KeyType.AES.
-   * @throws SecurityException
-   */
-  public final void
-  generateKey(Name keyName, KeyType keyType) throws SecurityException
-  {
-    generateKey(keyName, keyType, 256);
-  }
-
-  /**
-   * Generate an AES symmetric key of size 256.
-   * @param keyName The name of the key.
-   * @throws SecurityException
-   */
-  public final void
-  generateKey(Name keyName) throws SecurityException
-  {
-    generateKey(keyName, KeyType.AES, 256);
-  }
+  generateKey(Name keyName, KeyParams params) throws SecurityException;
 
   /**
    * Check if a particular key exists.

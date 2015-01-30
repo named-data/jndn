@@ -32,8 +32,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
+import net.named_data.jndn.security.EcdsaKeyParams;
 import net.named_data.jndn.security.KeyClass;
+import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.util.Blob;
@@ -103,13 +106,11 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   /**
    * Generate a pair of asymmetric keys.
    * @param keyName The name of the key pair.
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
-   * @param keySize The size of the key pair.
+   * @param params The parameters of the key.
    * @throws SecurityException
    */
   public void
-  generateKeyPair
-    (Name keyName, KeyType keyType, int keySize) throws SecurityException
+  generateKeyPair(Name keyName, KeyParams params) throws SecurityException
   {
     if (doesKeyExist(keyName, KeyClass.PUBLIC))
       throw new SecurityException("Public Key already exists");
@@ -117,12 +118,18 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       throw new SecurityException("Private Key already exists");
 
     String keyAlgorithm;
-    if (keyType == KeyType.RSA)
+    int keySize;
+    if (params.getKeyType() == KeyType.RSA) {
       keyAlgorithm = "RSA";
-    else if (keyType == KeyType.ECDSA)
+      keySize = ((RsaKeyParams)params).getKeySize();
+    }
+    else if (params.getKeyType() == KeyType.ECDSA) {
       keyAlgorithm = "EC";
+      keySize = ((EcdsaKeyParams)params).getKeySize();
+    }
     else
-      throw new SecurityException("Cannot generate a key pair of type " + keyType);
+      throw new SecurityException
+        ("Cannot generate a key pair of type " + params.getKeyType());
 
     KeyPairGenerator generator = null;
     try{
@@ -137,7 +144,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     KeyPair pair = generator.generateKeyPair();
 
     setKeyPairForKeyName
-      (keyName, keyType, ByteBuffer.wrap(pair.getPublic().getEncoded()),
+      (keyName, params.getKeyType(), ByteBuffer.wrap(pair.getPublic().getEncoded()),
        ByteBuffer.wrap(pair.getPrivate().getEncoded()));
   }
 
@@ -272,13 +279,11 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
   /**
    * Generate a symmetric key.
    * @param keyName The name of the key.
-   * @param keyType The type of the key, e.g. KeyType.AES.
-   * @param keySize The size of the key.
+   * @param params The parameters of the key.
    * @throws SecurityException
    */
   public void
-  generateKey(Name keyName, KeyType keyType, int keySize)
-             throws SecurityException
+  generateKey(Name keyName, KeyParams params) throws SecurityException
   {
     throw new UnsupportedOperationException
       ("MemoryPrivateKeyStorage.generateKey is not implemented");
