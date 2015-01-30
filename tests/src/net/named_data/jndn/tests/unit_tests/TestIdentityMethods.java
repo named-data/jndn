@@ -208,7 +208,7 @@ public class TestIdentityMethods {
     Name identityName = new Name("/TestIdentityStorage/Identity").appendVersion
       ((long)getNowSeconds());
 
-    identityManager.createIdentity(identityName);
+    identityManager.createIdentity(identityName, KeyChain.DEFAULT_KEY_PARAMS);
     Name keyName1 = identityManager.getDefaultKeyNameForIdentity(identityName);
     IdentityCertificate cert2 = identityManager.selfSign(keyName1);
     identityStorage.addCertificate(cert2);

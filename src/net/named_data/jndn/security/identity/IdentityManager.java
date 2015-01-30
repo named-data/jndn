@@ -37,7 +37,10 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.security.DigestAlgorithm;
+import net.named_data.jndn.security.EcdsaKeyParams;
+import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.certificate.CertificateSubjectDescription;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
@@ -102,11 +105,12 @@ public class IdentityManager {
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
    * identity and a self-signed certificate of the KSK.
    * @param identityName The name of the identity.
+   * @param params The key parameters if a key needs to be generated for the identity.
    * @return The key name of the auto-generated KSK of the identity.
    * @throws SecurityException if the identity has already been created.
    */
   public final Name
-  createIdentity(Name identityName) throws SecurityException
+  createIdentity(Name identityName, KeyParams params) throws SecurityException
   {
     if (!identityStorage_.doesIdentityExist(identityName)) {
       Logger.getLogger(this.getClass().getName()).log
@@ -115,7 +119,8 @@ public class IdentityManager {
 
       Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Create Default RSA key pair");
-      Name keyName = generateRSAKeyPairAsDefault(identityName, true);
+      Name keyName = generateKeyPair(identityName, true, params);
+      identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
 
       Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Create self-signed certificate");
@@ -193,7 +198,7 @@ public class IdentityManager {
   generateRSAKeyPair
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
-    Name keyName = generateKeyPair(identityName, isKsk, KeyType.RSA, keySize);
+    Name keyName = generateKeyPair(identityName, isKsk, new RsaKeyParams(keySize));
 
     return keyName;
   }
@@ -234,7 +239,7 @@ public class IdentityManager {
   generateEcdsaKeyPair
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
-    Name keyName = generateKeyPair(identityName, isKsk, KeyType.ECDSA, keySize);
+    Name keyName = generateKeyPair(identityName, isKsk, new EcdsaKeyParams(keySize));
 
     return keyName;
   }
@@ -322,7 +327,7 @@ public class IdentityManager {
   generateRSAKeyPairAsDefault
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
-    Name keyName = generateKeyPair(identityName, isKsk, KeyType.RSA, keySize);
+    Name keyName = generateKeyPair(identityName, isKsk, new RsaKeyParams(keySize));
 
     identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
 
@@ -367,7 +372,7 @@ public class IdentityManager {
   generateEcdsaKeyPairAsDefault
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
-    Name keyName = generateKeyPair(identityName, isKsk, KeyType.ECDSA, keySize);
+    Name keyName = generateKeyPair(identityName, isKsk, new EcdsaKeyParams(keySize));
 
     identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
 
@@ -765,14 +770,12 @@ public class IdentityManager {
    * Generate a key pair for the specified identity.
    * @param identityName The name of the specified identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
-   * @param keyType The type of the key pair, e.g. KEY_TYPE_RSA.
-   * @param keySize The size of the key pair.
+   * @param params The parameters of the key.
    * @return The name of the generated key.
    */
   private Name
   generateKeyPair
-    (Name identityName, boolean isKsk, KeyType keyType,
-     int keySize) throws SecurityException
+    (Name identityName, boolean isKsk, KeyParams params) throws SecurityException
   {
     Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Get new key ID");
@@ -780,12 +783,12 @@ public class IdentityManager {
 
     Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Generate key pair in private storage");
-    privateKeyStorage_.generateKeyPair(keyName, keyType, keySize);
+    privateKeyStorage_.generateKeyPair(keyName, params);
 
     Logger.getLogger(this.getClass().getName()).log
         (Level.INFO, "Create a key record in public storage");
     PublicKey pubKey = privateKeyStorage_.getPublicKey(keyName);
-    identityStorage_.addKey(keyName, keyType, pubKey.getKeyDer());
+    identityStorage_.addKey(keyName, params.getKeyType(), pubKey.getKeyDer());
 
     return keyName;
   }
