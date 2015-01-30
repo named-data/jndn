@@ -88,7 +88,24 @@ public class KeyChain {
    *****************************************/
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this identity and a self-signed certificate of the KSK.
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
+   * identity and a self-signed certificate of the KSK.
+   * @param identityName The name of the identity.
+   * @param params The key parameters if a key needs to be generated for the
+   * identity.
+   * @return The key name of the auto-generated KSK of the identity.
+   * @throws SecurityException if the identity has already been created.
+   */
+  public final Name
+  createIdentity(Name identityName, KeyParams params) throws SecurityException
+  {
+    return identityManager_.createIdentity(identityName, params);
+  }
+
+  /**
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this 
+   * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
+   * to create the key if needed.
    * @param identityName The name of the identity.
    * @return The key name of the auto-generated KSK of the identity.
    * @throws SecurityException if the identity has already been created.
@@ -96,7 +113,7 @@ public class KeyChain {
   public final Name
   createIdentity(Name identityName) throws SecurityException
   {
-    return identityManager_.createIdentity(identityName);
+    return createIdentity(identityName, DEFAULT_KEY_PARAMS);
   }
 
   /**
@@ -725,6 +742,8 @@ public class KeyChain {
    */
   public final void
   setFace(Face face) { face_ = face; }
+
+  public static final RsaKeyParams DEFAULT_KEY_PARAMS = new RsaKeyParams();
 
   /**
    * A VerifyCallbacks is used for callbacks from verifyData.
