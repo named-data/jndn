@@ -110,7 +110,7 @@ public class TestFaceInterestMethods {
   public void
   setUp()
   {
-    face = new Face("aleph.ndn.ucla.edu");
+    face = new Face("localhost");
   }
 
   @Test
