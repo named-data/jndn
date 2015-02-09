@@ -373,7 +373,7 @@ public class TestEncodeDecodeBenchmark {
         (nIterations, useComplex, useCrypto, keyType, encoding);
       System.out.println("Encode " + (useComplex ? "complex " : "simple  ") +
         format + " data: Crypto? " +
-        (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "no ") +
+        (useCrypto ? (keyType == KeyType.ECDSA ? "EC " : "RSA") : "no ") +
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));
     }
     {
@@ -384,7 +384,7 @@ public class TestEncodeDecodeBenchmark {
         (nIterations, useCrypto, keyType, encoding[0]);
       System.out.println("Decode " + (useComplex ? "complex " : "simple  ") +
         format + " data: Crypto? " +
-        (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "no ") +
+        (useCrypto ? (keyType == KeyType.ECDSA ? "EC " : "RSA") : "no ") +
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));
     }
   }
