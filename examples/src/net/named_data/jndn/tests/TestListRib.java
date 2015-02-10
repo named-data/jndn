@@ -31,17 +31,33 @@ import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.ProtobufTlv;
 import net.named_data.jndn.tests.RibEntryProto.RibEntryMessage;
+import net.named_data.jndn.util.Blob;
 
 class DataCallbacks implements OnData, OnTimeout {
   public void
   onData(Interest interest, Data data)
   {
-    ++callbackCount_;
+    enabled_ = false;
+    printRibEntry(data.getContent());
+  }
 
-    // Decode the RibEntry and print the values.
+  public void
+  onTimeout(Interest interest)
+  {
+    enabled_ = false;
+    System.out.println("Time out for interest " + interest.getName().toUri());
+  }
+
+  /**
+   * Decode the encodedMessage as a TLV RibEntry message and display the values.
+   * @param encodedMessage The TLV-encoded RibEntry.
+   */
+  private static void
+  printRibEntry(Blob encodedMessage)
+  {
     RibEntryMessage.Builder ribEntryMessage = RibEntryMessage.newBuilder();
     try {
-      ProtobufTlv.decode(ribEntryMessage, data.getContent());
+      ProtobufTlv.decode(ribEntryMessage, encodedMessage);
     } catch (EncodingException ex) {
       System.out.println("Error decoding the RibEntry message: " + ex.getMessage());
     }
@@ -72,14 +88,20 @@ class DataCallbacks implements OnData, OnTimeout {
     }
   }
 
-  public void
-  onTimeout(Interest interest)
+  /**
+   * Check if the last component in the name is a segment number.
+   * @param name The name to check.
+   * @return True if the name ends with a segment number, otherwise false.
+   */
+  private static boolean
+  endsWithSegmentNumber(Name name)
   {
-    ++callbackCount_;
-    System.out.println("Time out for interest " + interest.getName().toUri());
+    return name.size() >= 1 &&
+           name.get(-1).getValue().size() >= 1 &&
+           name.get(-1).getValue().buf().get(0) == 0;
   }
 
-  public int callbackCount_ = 0;
+  public boolean enabled_ = true;
 }
 
 /**
@@ -101,8 +123,8 @@ public class TestListRib {
       System.out.println("Express interest " + interest.getName().toUri());
       face.expressInterest(interest, callbacks, callbacks);
 
-      // The main event loop.
-      while (callbacks.callbackCount_ < 1) {
+      // Loop calling processEvents until callbacks is finished and sets enabled_ false.
+      while (callbacks.enabled_) {
         face.processEvents();
 
         // We need to sleep for a few milliseconds so we don't use 100% of
