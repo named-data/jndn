@@ -19,9 +19,9 @@
 
 package net.named_data.jndn.tests;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
@@ -33,12 +33,99 @@ import net.named_data.jndn.encoding.ProtobufTlv;
 import net.named_data.jndn.tests.RibEntryProto.RibEntryMessage;
 import net.named_data.jndn.util.Blob;
 
+/**
+ * DataCallbacks handles the onData event to fetch multiple segments. When the
+ * final segment is fetched, pass the result to printRibEntry.
+ * @author jefft0
+ */
 class DataCallbacks implements OnData, OnTimeout {
+  /**
+   * Create a new DataCallbacks to use the Face.
+   * @param face This calls face.expressInterest to fetch more segments.
+   */
+  DataCallbacks(Face face)
+  {
+    face_ = face;
+  }
+
   public void
   onData(Interest interest, Data data)
   {
-    enabled_ = false;
-    printRibEntry(data.getContent());
+    if (!endsWithSegmentNumber(data.getName())) {
+      // We don't expect a name without a segment number.  Treat it as a bad packet.
+      System.out.println("Got an unexpected packet without a segment number");
+      enabled_ = false;
+    }
+    else {
+      long segmentNumber;
+      try {
+        segmentNumber = data.getName().get(-1).toSegment();
+      }
+      catch (EncodingException ex) {
+        System.out.println("Error decoding the name segment number " + ex);
+        enabled_ = false;
+        return;
+      }
+
+      long expectedSegmentNumber = contentParts_.size();
+      if (segmentNumber != expectedSegmentNumber) {
+        try {
+          // Try again to get the expected segment.  This also includes the case
+          //   where the first segment is not segment 0.
+          face_.expressInterest
+            (data.getName().getPrefix(-1).appendSegment(expectedSegmentNumber),
+             this, this);
+        }
+        catch (IOException ex) {
+          System.out.println("I/O error in expressInterest " + ex);
+          enabled_ = false;
+        }
+      }
+      else {
+        // Save the content and check if we are finished.
+        contentParts_.add(data.getContent());
+
+        if (data.getMetaInfo().getFinalBlockId().getValue().size() > 0) {
+          long finalSegmentNumber;
+          try {
+            finalSegmentNumber = data.getMetaInfo().getFinalBlockId().toSegment();
+          }
+          catch (EncodingException ex) {
+            System.out.println("Error decoding the FinalBlockId segment number " + ex);
+            enabled_ = false;
+            return;
+          }
+
+          if (segmentNumber == finalSegmentNumber) {
+            // We are finished.
+            enabled_ = false;
+
+            // Get the total size and concatenate to get encodedContent.
+            int totalSize = 0;
+            for (int i = 0; i < contentParts_.size(); ++i)
+              totalSize += ((Blob)contentParts_.get(i)).size();
+            ByteBuffer encodedMessage = ByteBuffer.allocate(totalSize);
+            for (int i = 0; i < contentParts_.size(); ++i)
+              encodedMessage.put(((Blob)contentParts_.get(i)).buf());
+            encodedMessage.flip();
+
+            printRibEntry(new Blob(encodedMessage, false));
+            return;
+          }
+        }
+
+        try {
+          // Fetch the next segment.
+          face_.expressInterest
+            (data.getName().getPrefix(-1).appendSegment(expectedSegmentNumber + 1),
+             this, this);
+        }
+        catch (IOException ex) {
+          System.out.println("I/O error in expressInterest " + ex);
+          enabled_ = false;
+        }
+      }
+    }
   }
 
   public void
@@ -102,6 +189,9 @@ class DataCallbacks implements OnData, OnTimeout {
   }
 
   public boolean enabled_ = true;
+  // Use a non-template ArrayList so it works with older Java compilers.
+  private final ArrayList contentParts_ = new ArrayList(); // of Blob
+  private final Face face_;
 }
 
 /**
@@ -116,10 +206,11 @@ public class TestListRib {
       // The default Face connects to the local NFD.
       Face face = new Face();
 
-      DataCallbacks callbacks = new DataCallbacks();
+      DataCallbacks callbacks = new DataCallbacks(face);
 
       Interest interest = new Interest(new Name("/localhost/nfd/rib/list"));
       interest.setChildSelector(1);
+      interest.setInterestLifetimeMilliseconds(4000);
       System.out.println("Express interest " + interest.getName().toUri());
       face.expressInterest(interest, callbacks, callbacks);
 
