@@ -36,7 +36,6 @@ import net.named_data.jndn.util.Blob;
 /**
  * DataCallbacks handles the onData event to fetch multiple segments. When the
  * final segment is fetched, pass the result to printRibEntry.
- * @author jefft0
  */
 class DataCallbacks implements OnData, OnTimeout {
   /**
