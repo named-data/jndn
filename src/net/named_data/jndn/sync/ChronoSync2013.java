@@ -686,8 +686,8 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       builder.addSsBuilder()
         .setName((String)nameList.get(i))
         .setType(SyncStateProto.SyncState.ActionType.UPDATE)
-        .getSeqnoBuilder().setSeq((long)sequenceNoList.get(i))
-                          .setSession((long)sessionNoList.get(i));
+        .getSeqnoBuilder().setSeq((long)(Long)sequenceNoList.get(i))
+                          .setSession((long)(Long)sessionNoList.get(i));
     }
     SyncStateProto.SyncStateMsg tempContent = builder.build();
 
