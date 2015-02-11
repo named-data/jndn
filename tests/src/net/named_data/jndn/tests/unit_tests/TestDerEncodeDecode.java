@@ -249,10 +249,10 @@ public class TestDerEncodeDecode {
        name, ((Blob)decodedName.toVal()).toString());
     assertEquals
       ("Wrong extension value trust class after decoding",
-       trustClass, (int)decodedTrustClass.toVal());
+       trustClass, (int)(Integer)decodedTrustClass.toVal());
     assertEquals
       ("Wrong extension value trust level after decoding",
-       trustLevel, (int)decodedTrustLevel.toVal());
+       trustLevel, (int)(Integer)decodedTrustLevel.toVal());
 }
 
   @Test
