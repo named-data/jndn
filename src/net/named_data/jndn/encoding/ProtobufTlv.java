@@ -139,7 +139,7 @@ public class ProtobufTlv {
           // Use Blob to UTF-8 encode and get a ByteBuffer.
           encoder.writeBlobTlv(tlvType, new Blob((String)value).buf());
         else if (field.getType() == Type.BOOL) {
-          if ((boolean)value)
+          if ((boolean)(Boolean)value)
             encoder.writeTypeAndLength(tlvType, 0);
         }
         else
