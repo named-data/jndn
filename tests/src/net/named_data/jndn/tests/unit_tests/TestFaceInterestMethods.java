@@ -82,7 +82,10 @@ public class TestFaceInterestMethods {
       try {
         try {
           face.processEvents();
-        } catch (IOException | EncodingException ex) {
+        } catch (IOException ex) {
+          Logger.getLogger(TestFaceInterestMethods.class.getName()).log(Level.SEVERE, null, ex);
+          break;
+        } catch (EncodingException ex) {
           Logger.getLogger(TestFaceInterestMethods.class.getName()).log(Level.SEVERE, null, ex);
           break;
         }
@@ -190,7 +193,10 @@ public class TestFaceInterestMethods {
            counter.onDataCallCount_ == 0 && counter.onTimeoutCallCount_ == 0) {
       try {
         face.processEvents();
-      } catch (IOException | EncodingException ex) {
+      } catch (IOException ex) {
+        fail("Error in processEvents: " + ex);
+        return;
+      } catch (EncodingException ex) {
         fail("Error in processEvents: " + ex);
         return;
       }
