@@ -2,6 +2,7 @@ Interim changes after jNDN v0.2 (2015-01-30)
 --------------------------------------------
 
 Changes
+* http://redmine.named-data.net/issues/2374 Changed from Ant to the Maven build system.
 * http://redmine.named-data.net/issues/2388 Moved example programs from "tests" to "examples".
 * In KeyChain.createIdentity, added an optional KeyParams argument.
 * examples: Added test-list-rib to query NFD.
