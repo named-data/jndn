@@ -18,7 +18,7 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
-package net.named_data.jndn.tests.unit_tests;
+package net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -64,7 +64,7 @@ public class TestIdentityMethods {
     // Don't show INFO log messages.
     Logger.getLogger("").setLevel(Level.WARNING);
 
-    File policyConfigDirectory = UnitTestCommon.getPolicyConfigDirectory();
+    File policyConfigDirectory = IntegrationTestsCommon.getPolicyConfigDirectory();
 
     databaseFilePath = new File(policyConfigDirectory, "test-public-info.db");
     databaseFilePath.delete();

@@ -18,7 +18,7 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
-package net.named_data.jndn.tests.unit_tests;
+package net.named_data.jndn.tests.integration_tests;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -258,7 +258,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     // Don't show INFO log messages.
     Logger.getLogger("").setLevel(Level.WARNING);
 
-    policyConfigDirectory_ = UnitTestCommon.getPolicyConfigDirectory();
+    policyConfigDirectory_ = IntegrationTestsCommon.getPolicyConfigDirectory();
     
     testCertFile_ = new File(new File(policyConfigDirectory_, "certs"), "test.cert");
 
