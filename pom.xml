@@ -145,20 +145,7 @@
 								<exclude>**/ProtobufTlv.java</exclude>
 								<exclude>**/ChronoSync2013.java</exclude>
 								<exclude>**/SyncStateProto.java</exclude>
-								<exclude>**/ChatbufProto.java</exclude>
-								<exclude>**/FibEntryProto.java</exclude>
-								<exclude>**/TestChronoChat.java</exclude>
-								<exclude>**/TestEncodeDecodeFibEntry.java</exclude>
 							</excludes>
-							<testExcludes>
-								<exclude>**/ProtobufTlv.java</exclude>
-								<exclude>**/ChronoSync2013.java</exclude>
-								<exclude>**/SyncStateProto.java</exclude>
-								<exclude>**/ChatbufProto.java</exclude>
-								<exclude>**/FibEntryProto.java</exclude>
-								<exclude>**/TestChronoChat.java</exclude>
-								<exclude>**/TestEncodeDecodeFibEntry.java</exclude>
-							</testExcludes>
 						</configuration>
 					</plugin>
 					<plugin>
@@ -170,12 +157,6 @@
 								<exclude>**/ProtobufTlv.java</exclude>
 								<exclude>**/ChronoSync2013.java</exclude>
 								<exclude>**/SyncStateProto.java</exclude>
-								<exclude>**/ChatbufProto.java</exclude>
-								<exclude>**/FibEntryProto.java</exclude>
-								<exclude>**/TestChronoChat.java</exclude>
-								<exclude>**/TestEncodeDecodeFibEntry.java</exclude>
-								<!--<exclude>**/tests/*.java</exclude>-->
-								<exclude>**/TestFaceInterestMethods.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
