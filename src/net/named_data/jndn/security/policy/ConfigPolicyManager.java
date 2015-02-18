@@ -1123,9 +1123,9 @@ public class ConfigPolicyManager extends PolicyManager {
   public static void setFriendAccess(Friend friend)
   {
     if (friend.getClass().getName().equals
-          ("net.named_data.jndn.tests.unit_tests.TestPolicyManager") ||
+          ("net.named_data.jndn.tests.integration_tests.TestPolicyManager") ||
         friend.getClass().getName().equals
-          ("net.named_data.jndn.tests.unit_tests.TestVerificationRules"))
+          ("net.named_data.jndn.tests.integration_tests.TestVerificationRules"))
     {
       friend.setConfigPolicyManagerFriendAccess(new FriendAccessImpl());
     }
