@@ -7,6 +7,7 @@ Prerequisites
 * Required: Java JDK version >= 1.7
 * Required: Apache Maven (for building the jar file and running unit tests)
 * Optional: Android SDK (for Android examples)
+* Optional: sqlite-jdbc (for key storage). This is installed by Maven.
 * Optional: Protobuf (for the ProtobufTlv converter and ChronoSync). This is
   installed by Maven.
 
