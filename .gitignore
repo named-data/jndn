@@ -2,6 +2,8 @@
 *.class
 /build
 /dist
+/target
+examples/target
 
 # JUnit output
 /TEST*.xml
@@ -14,6 +16,9 @@
 
 # Emacs temp files
 *~
+
+# Netbeans configuration
+nb-configuration.xml
 
 # unit_test temporary files
 examples/src/net/named_data/jndn/tests/unit_tests/policy_config/test-public-info.db

@@ -828,7 +828,7 @@ public class ConfigPolicyManager extends PolicyManager {
       return timestamp > notBefore && timestamp < notAfter;
     }
     else {
-      double lastTimestamp = (double)keyTimestamps_.get(keyNameUri);
+      double lastTimestamp = (double)(Double)keyTimestamps_.get(keyNameUri);
       return timestamp > lastTimestamp;
     }
   }
@@ -857,7 +857,7 @@ public class ConfigPolicyManager extends PolicyManager {
       Object[] keys = keyTimestamps_.keySet().toArray();
       for (int i = 0; i < keys.length; ++i) {
         String keyUri = (String)keys[i];
-        double ts = (double)keyTimestamps_.get(keyUri);
+        double ts = (double)(Double)keyTimestamps_.get(keyUri);
         if (now - ts > keyTimestampTtl_)
           keysToErase.add(keyUri);
         else if (ts < oldestTimestamp) {

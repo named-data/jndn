@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
-package net.named_data.jndn.tests.unit_tests;
+package net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
 import java.nio.ByteBuffer;

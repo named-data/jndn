@@ -5,69 +5,75 @@ Prerequisites
 =============
 
 * Required: Java JDK version >= 1.7
-* Required: Apache Ant (for building jndn.jar and running unit tests)
+* Required: Apache Maven (for building the jar file and running unit tests)
 * Optional: Android SDK (for Android examples)
-* Optional: Protobuf (for the ProtobufTlv converter and ChronoSync)
+* Optional: sqlite-jdbc (for key storage). This is installed by Maven.
+* Optional: Protobuf (for the ProtobufTlv converter and ChronoSync). This is
+  installed by Maven.
 
 Following are the detailed steps for each platform to install the prerequisites.
 
-## Mac OS X 10.7.3, Mac OS X 10.8.4
+## Mac OS X 10.8.4
 Install Xcode.
 In Xcode Preferences > Downloads, install "Command Line Tools".
 
-To install Apache Ant, install MacPorts from http://www.macports.org/install.php .
+To install Apache Maven, install MacPorts from http://www.macports.org/install.php .
 In a new terminal, enter:
 
-    sudo port install apache-ant
+    sudo port install maven3
 
 Optional: To install Android SDK, install from https://developer.android.com/sdk/index.html .
 
-## Mac OS X 10.9
-Install Xcode.  (Xcode on OS X 10.9 seems to already have the Command Line Tools.)
+## Mac OS X 10.9, Max OS X 10.10
+Install Xcode.  (Xcode seems to already have the Command Line Tools.)
 
-To install Apache Ant, install MacPorts from http://www.macports.org/install.php .
+To install Apache Maven, install MacPorts from http://www.macports.org/install.php .
 In a new terminal, enter:
 
-    sudo port install apache-ant
+    sudo port install maven3
+    sudo port select --set maven maven3
 
 Optional: To install Android SDK, install from https://developer.android.com/sdk/index.html .
 
 ## Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 14.04 (64 bit and 32 bit)
-To install Apache Ant, in a terminal enter:
+To install Apache Maven, in a terminal enter:
 
-    sudo apt-get install ant
+    sudo apt-get install maven
 
 ## Windows
 jNDN is tested on Windows 7 64-bit.
 
-To install Apache Ant, download the binary zip and set up environment variables
-according to the instructions at http://ant.apache.org/manual/install.html .
+To install Apache Maven, follow the instructions at http://maven.apache.org/download.cgi .
+Also see the Windows install hints at
+http://maven.apache.org/guides/getting-started/windows-prerequisites.html .
 
 Build
 =====
 
 To build in a terminal, change directory to the jNDN root.  Enter:
 
-    ant
+    mvn package
 
-This builds the default target "dist" which puts jndn.jar in dist/lib.
+This builds the default profile "with-protobuf" which puts jndn-<version>.jar in the 'target'
+folder, and the javadoc files in 'target/apidocs'. The jar file includes ProtobufTlv and
+other classes so that your deployed application needs the Google Protobuf library.
+To build without this dependency, enter:
 
-To run the unit tests, in a terminal enter:
+    mvn package -P without-protobuf
 
-    ant test
+Building 'package' automatically runs the unit tests in the folder 'tests'. To also
+run the integration tests (you must be running NFD), in a terminal enter:
 
-To run an example test file such as TestEncodeDecodeData (see the list below), in a terminal enter:
+    mvn integration-test
 
-    ant examples
-    java -cp $CLASSPATH:examples/build:dist/lib/jndn.jar net.named_data.jndn.tests.TestEncodeDecodeData
+To run the examples, you must first install the jar file. In the jNDN root directory, enter:
 
-(On Windows, in a command prompt enter the following.)
+    mvn install
 
-    java -cp %CLASSPATH%;tests\build;dist\lib\jndn.jar net.named_data.jndn.tests.TestEncodeDecodeData
+To run an example such as TestEncodeDecodeFibEntry (see the list below), make sure the jar file
+is installed (see above). Change to the 'examples' directory. In a terminal enter:
 
-To make documentation and put into doc, in a terminal enter:
-  
-    find src -type f -name "*.java" | xargs javadoc -d doc
+    mvn -q test -DclassName=TestEncodeDecodeFibEntry
 
 To run the Android samples, install the Android SDK as shown above. The samples
 were tested by installing the following in the Android SDK Manager:
@@ -82,9 +88,11 @@ Files
 =====
 This makes the following library:
 
-* dist/lib/jndn.jar: The jNDN library.
+* target/jndn-<version>.jar: The jNDN library.
 
-This makes the following test class files in examples/build/net/named_data/jndn/tests:
+When you run `mvn test` in the examples directory, it compiles the following java classes
+from examples/src/net/named_data/jndn/tests and puts the class files in
+examples/target/classes/net/named_data/jndn/tests:
 
 * TestGetAsync: Connect to one of the NDN testbed hubs, express an interest and display the received data.
 * TestPublishAsyncNdnx: Connect to the local NDNx hub, accept interests with prefix /testecho and echo back a data packet. See test-echo-consumer.
@@ -93,5 +101,7 @@ This makes the following test class files in examples/build/net/named_data/jndn/
 * TestEncodeDecodeInterest: Encode and decode an interest, testing interest selectors and the name URI.
 * TestEncodeDecodeData: Encode and decode a data packet, including signing the data packet.
 * TestEncodeDecodeForwardingEntry: Encode and decode an NDNx forwarding entry.
+* TestEncodeDecodeFibEntry: Encode and decode a sample Protobuf message using ProtobufTlv.
+* TestChronoChat: A command-line chat application using the ChronoSync2013 API, compatible with ChronoChat-js.
 
-Running javadoc puts code documentation in doc.
+Running `mvn package` puts code documentation in target/apidocs.

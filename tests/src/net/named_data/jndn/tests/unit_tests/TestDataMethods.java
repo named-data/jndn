@@ -48,6 +48,24 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
+class VerifyCounter implements OnVerified, OnVerifyFailed
+{
+  public void
+  onVerified(Data data)
+  {
+    ++onVerifiedCallCount_;
+  }
+
+  public void
+  onVerifyFailed(Data data)
+  {
+    ++onVerifyFailedCallCount_;
+  }
+
+  public int onVerifiedCallCount_ = 0;
+  public int onVerifyFailedCallCount_ = 0;
+}
+
 class CredentialStorage {
   public CredentialStorage()
   {
@@ -73,6 +91,7 @@ class CredentialStorage {
          DEFAULT_EC_PRIVATE_KEY_DER);
     } catch (SecurityException ex) {
       // Don't expect this to happen;
+      System.out.println("Exception setting test keys: " + ex);
       identityStorage_ = null;
       privateKeyStorage_ = null;
     }

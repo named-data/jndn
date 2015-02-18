@@ -1,5 +1,8 @@
+<!-- DEPRECATED. jNDN now uses Maven. Please see INSTALL.md . -->
+
 <!-- based on http://ant.apache.org/manual/using.html -->
 <project name="jNDN" default="dist" basedir=".">
+  <echo message="!!!!!!!!!!! DEPRECATED !!!!!!!!!!!! jNDN now uses Maven. Please see INSTALL.md ."/>
     <description>
         jNDN build file
     </description>
@@ -14,7 +17,6 @@
   <condition property="protobuf.available">
     <available classname="com.google.protobuf.Message"/>
   </condition>
-  <echo message="protobuf.available=${protobuf.available}"/>
 
   <target name="init">
     <!-- Create the time stamp -->

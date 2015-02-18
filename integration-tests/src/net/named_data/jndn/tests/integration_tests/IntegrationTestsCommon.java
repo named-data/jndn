@@ -17,7 +17,7 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
-package net.named_data.jndn.tests.unit_tests;
+package net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
 import net.named_data.jndn.Data;
@@ -25,9 +25,9 @@ import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifyFailed;
 
 /**
- * Common static methods and package classes for unit tests.
+ * Common static methods and package classes for integration tests.
  */
-public class UnitTestCommon {
+public class IntegrationTestsCommon {
   /**
    * Get the policy_config directory based on the current top-level jndn directory.
    * @return
