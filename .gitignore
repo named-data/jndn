@@ -3,6 +3,7 @@
 /build
 /dist
 /target
+examples/target
 
 # JUnit output
 /TEST*.xml
