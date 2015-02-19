@@ -728,8 +728,9 @@ public class Name implements ChangeCountable, Comparable {
     if (components_.size() > name.components_.size())
       return false;
 
-    // Check if at least one of given components doesn't match.
-    for (int i = 0; i < components_.size(); ++i) {
+    // Check if at least one of given components doesn't match. Check from last
+    // to first since the last components are more likely to differ.
+    for (int i = components_.size() - 1; i >= 0; --i) {
       if (!get(i).getValue().equals(name.get(i).getValue()))
         return false;
     }
