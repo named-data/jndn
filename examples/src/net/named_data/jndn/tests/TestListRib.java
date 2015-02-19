@@ -34,17 +34,25 @@ import net.named_data.jndn.tests.RibEntryProto.RibEntryMessage;
 import net.named_data.jndn.util.Blob;
 
 /**
- * DataCallbacks handles the onData event to fetch multiple segments. When the
- * final segment is fetched, pass the result to printRibEntry.
+ * FetchSegmentsCallbacks handles the onData event to fetch multiple segments.
+ * When the final segment is fetched, call onComplete.
  */
-class DataCallbacks implements OnData, OnTimeout {
+class FetchSegmentsCallbacks implements OnData, OnTimeout {
+  public interface OnComplete {
+    void onComplete(Blob content);
+  }
+
   /**
-   * Create a new DataCallbacks to use the Face.
+   * Create a new FetchSegmentsCallbacks to use the Face.
    * @param face This calls face.expressInterest to fetch more segments.
+   * @param onComplete When all segments are received, call
+   * onComplete.onComplete(content) where content is the concatenation of the
+   * content of all the segments.
    */
-  DataCallbacks(Face face)
+  FetchSegmentsCallbacks(Face face, OnComplete onComplete)
   {
     face_ = face;
+    onComplete_ = onComplete;
   }
 
   public void
@@ -99,16 +107,16 @@ class DataCallbacks implements OnData, OnTimeout {
             // We are finished.
             enabled_ = false;
 
-            // Get the total size and concatenate to get encodedContent.
+            // Get the total size and concatenate to get content.
             int totalSize = 0;
             for (int i = 0; i < contentParts_.size(); ++i)
               totalSize += ((Blob)contentParts_.get(i)).size();
-            ByteBuffer encodedMessage = ByteBuffer.allocate(totalSize);
+            ByteBuffer content = ByteBuffer.allocate(totalSize);
             for (int i = 0; i < contentParts_.size(); ++i)
-              encodedMessage.put(((Blob)contentParts_.get(i)).buf());
-            encodedMessage.flip();
+              content.put(((Blob)contentParts_.get(i)).buf());
+            content.flip();
 
-            printRibEntry(new Blob(encodedMessage, false));
+            onComplete_.onComplete(new Blob(content, false));
             return;
           }
         }
@@ -135,10 +143,67 @@ class DataCallbacks implements OnData, OnTimeout {
   }
 
   /**
-   * Decode the encodedMessage as a TLV RibEntry message and display the values.
+   * Check if the last component in the name is a segment number.
+   * @param name The name to check.
+   * @return True if the name ends with a segment number, otherwise false.
+   */
+  private static boolean
+  endsWithSegmentNumber(Name name)
+  {
+    return name.size() >= 1 &&
+           name.get(-1).getValue().size() >= 1 &&
+           name.get(-1).getValue().buf().get(0) == 0;
+  }
+
+  public boolean enabled_ = true;
+  // Use a non-template ArrayList so it works with older Java compilers.
+  private final ArrayList contentParts_ = new ArrayList(); // of Blob
+  private final Face face_;
+  private OnComplete onComplete_;
+}
+
+/**
+ * This sense a rib list request to the local NFD and prints the response.
+ * This is equivalent to the NFD command line command "nfd-status -r".
+ */
+public class TestListRib {
+  public static void
+  main(String[] args)
+  {
+    try {
+      // The default Face connects to the local NFD.
+      Face face = new Face();
+
+      FetchSegmentsCallbacks callbacks = new FetchSegmentsCallbacks
+        (face, new FetchSegmentsCallbacks.OnComplete() {
+           public void onComplete(Blob content) { printRibEntry(content); }});
+
+      Interest interest = new Interest(new Name("/localhost/nfd/rib/list"));
+      interest.setChildSelector(1);
+      interest.setInterestLifetimeMilliseconds(4000);
+      System.out.println("Express interest " + interest.getName().toUri());
+      face.expressInterest(interest, callbacks, callbacks);
+
+      // Loop calling processEvents until callbacks is finished and sets enabled_ false.
+      while (callbacks.enabled_) {
+        face.processEvents();
+
+        // We need to sleep for a few milliseconds so we don't use 100% of
+        //   the CPU.
+        Thread.sleep(5);
+      }
+    }
+    catch (Exception e) {
+       System.out.println("exception: " + e.getMessage());
+    }
+  }
+
+  /**
+   * This is called when all the segments are received to decode the
+   * encodedMessage as a TLV RibEntry message and display the values.
    * @param encodedMessage The TLV-encoded RibEntry.
    */
-  private static void
+  public static void
   printRibEntry(Blob encodedMessage)
   {
     RibEntryMessage.Builder ribEntryMessage = RibEntryMessage.newBuilder();
@@ -171,59 +236,6 @@ class DataCallbacks implements OnData, OnTimeout {
           System.out.print(" expirationPeriod=" + route.getExpirationPeriod());
         System.out.println(")}");
       }
-    }
-  }
-
-  /**
-   * Check if the last component in the name is a segment number.
-   * @param name The name to check.
-   * @return True if the name ends with a segment number, otherwise false.
-   */
-  private static boolean
-  endsWithSegmentNumber(Name name)
-  {
-    return name.size() >= 1 &&
-           name.get(-1).getValue().size() >= 1 &&
-           name.get(-1).getValue().buf().get(0) == 0;
-  }
-
-  public boolean enabled_ = true;
-  // Use a non-template ArrayList so it works with older Java compilers.
-  private final ArrayList contentParts_ = new ArrayList(); // of Blob
-  private final Face face_;
-}
-
-/**
- * This sense a rib list request to the local NFD and prints the response.
- * This is equivalent to the NFD command line command "nfd-status -r".
- */
-public class TestListRib {
-  public static void
-  main(String[] args)
-  {
-    try {
-      // The default Face connects to the local NFD.
-      Face face = new Face();
-
-      DataCallbacks callbacks = new DataCallbacks(face);
-
-      Interest interest = new Interest(new Name("/localhost/nfd/rib/list"));
-      interest.setChildSelector(1);
-      interest.setInterestLifetimeMilliseconds(4000);
-      System.out.println("Express interest " + interest.getName().toUri());
-      face.expressInterest(interest, callbacks, callbacks);
-
-      // Loop calling processEvents until callbacks is finished and sets enabled_ false.
-      while (callbacks.enabled_) {
-        face.processEvents();
-
-        // We need to sleep for a few milliseconds so we don't use 100% of
-        //   the CPU.
-        Thread.sleep(5);
-      }
-    }
-    catch (Exception e) {
-       System.out.println("exception: " + e.getMessage());
     }
   }
 }
