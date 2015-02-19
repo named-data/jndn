@@ -6,7 +6,7 @@
 	<packaging>jar</packaging>
 	<version>test</version>
 	<name>jndn-examples</name>
-	<description>Examples using jNDN; use with 'mvn -q test -P [example-name]'.</description>
+	<description>Examples using jNDN; use with 'mvn -q test -DclassName=...'.</description>
 	<url>http://github.com/named-data/jndn</url>
 	<licenses>
 		<license>
