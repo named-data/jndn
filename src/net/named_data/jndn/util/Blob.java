@@ -157,10 +157,13 @@ public class Blob {
   getImmutableArray()
   {
     if (buffer_ != null) {
-      byte[] array =  buffer_.array();
-      if (array.length == buffer_.remaining())
-        // Assume the buffer_ covers the entire backing array, so just return.
-        return array;
+      // We can't call array() on a read only ByteBuffer.
+      if (!buffer_.isReadOnly()) {
+        byte[] array =  buffer_.array();
+        if (array.length == buffer_.remaining())
+          // Assume the buffer_ covers the entire backing array, so just return.
+          return array;
+      }
 
       // We have to copy to a new byte array.
       ByteBuffer tempBuffer = ByteBuffer.allocate(buffer_.remaining());

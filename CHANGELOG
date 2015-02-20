@@ -1,3 +1,9 @@
+Interim changes since jNDN v0.3 (2015-02-20)
+--------------------------------------------
+
+Bug fixes
+* Blob: Fix bug for getImmutableArray() when the ByteBuffer is read only.
+
 jNDN v0.3 (2015-02-18)
 ----------------------
 
