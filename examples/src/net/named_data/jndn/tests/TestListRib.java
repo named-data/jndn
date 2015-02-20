@@ -174,14 +174,14 @@ public class TestListRib {
       // The default Face connects to the local NFD.
       Face face = new Face();
 
-      FetchSegmentsCallbacks callbacks = new FetchSegmentsCallbacks
-        (face, new FetchSegmentsCallbacks.OnComplete() {
-           public void onComplete(Blob content) { printRibEntry(content); }});
-
       Interest interest = new Interest(new Name("/localhost/nfd/rib/list"));
       interest.setChildSelector(1);
       interest.setInterestLifetimeMilliseconds(4000);
       System.out.println("Express interest " + interest.getName().toUri());
+
+      FetchSegmentsCallbacks callbacks = new FetchSegmentsCallbacks
+        (face, new FetchSegmentsCallbacks.OnComplete() {
+           public void onComplete(Blob content) { printRibEntry(content); }});
       face.expressInterest(interest, callbacks, callbacks);
 
       // Loop calling processEvents until callbacks is finished and sets enabled_ false.
