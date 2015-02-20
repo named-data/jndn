@@ -213,7 +213,9 @@ public class ProtobufTlv {
       return ByteString.copyFrom(decoder.readBlobTlv(tlvType));
     else if (field.getType() == Type.STRING) {
       try {
-        return new String(decoder.readBlobTlv(tlvType).array(), "UTF-8");
+        ByteBuffer byteBuffer = decoder.readBlobTlv(tlvType);
+        // Use Blob to get the byte array.
+        return new String(new Blob(byteBuffer, false).getImmutableArray(), "UTF-8");
       } catch (UnsupportedEncodingException ex) {
         // We don't expect this to happen.
         throw new Error("UTF-8 decoder not supported: " + ex.getMessage());
