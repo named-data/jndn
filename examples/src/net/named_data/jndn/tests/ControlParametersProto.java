@@ -2463,27 +2463,27 @@ public final class ControlParametersProto {
       com.google.protobuf.ByteString
           getStatusTextBytes();
 
-      // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;
+      // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       java.util.List<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> 
           getControlParametersList();
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters getControlParameters(int index);
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       int getControlParametersCount();
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       java.util.List<? extends net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder> 
           getControlParametersOrBuilderList();
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder getControlParametersOrBuilder(
           int index);
@@ -2554,7 +2554,7 @@ public final class ControlParametersProto {
                 statusText_ = input.readBytes();
                 break;
               }
-              case 1026: {
+              case 834: {
                 if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
                   controlParameters_ = new java.util.ArrayList<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters>();
                   mutable_bitField0_ |= 0x00000004;
@@ -2664,36 +2664,36 @@ public final class ControlParametersProto {
         }
       }
 
-      // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;
-      public static final int CONTROL_PARAMETERS_FIELD_NUMBER = 128;
+      // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
+      public static final int CONTROL_PARAMETERS_FIELD_NUMBER = 104;
       private java.util.List<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> controlParameters_;
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       public java.util.List<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> getControlParametersList() {
         return controlParameters_;
       }
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       public java.util.List<? extends net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder> 
           getControlParametersOrBuilderList() {
         return controlParameters_;
       }
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       public int getControlParametersCount() {
         return controlParameters_.size();
       }
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       public net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters getControlParameters(int index) {
         return controlParameters_.get(index);
       }
       /**
-       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
       public net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder getControlParametersOrBuilder(
           int index) {
@@ -2738,7 +2738,7 @@ public final class ControlParametersProto {
           output.writeBytes(103, getStatusTextBytes());
         }
         for (int i = 0; i < controlParameters_.size(); i++) {
-          output.writeMessage(128, controlParameters_.get(i));
+          output.writeMessage(104, controlParameters_.get(i));
         }
         getUnknownFields().writeTo(output);
       }
@@ -2759,7 +2759,7 @@ public final class ControlParametersProto {
         }
         for (int i = 0; i < controlParameters_.size(); i++) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(128, controlParameters_.get(i));
+            .computeMessageSize(104, controlParameters_.get(i));
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -3136,7 +3136,7 @@ public final class ControlParametersProto {
           return this;
         }
 
-        // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;
+        // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
         private java.util.List<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> controlParameters_ =
           java.util.Collections.emptyList();
         private void ensureControlParametersIsMutable() {
@@ -3150,7 +3150,7 @@ public final class ControlParametersProto {
             net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder> controlParametersBuilder_;
 
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public java.util.List<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> getControlParametersList() {
           if (controlParametersBuilder_ == null) {
@@ -3160,7 +3160,7 @@ public final class ControlParametersProto {
           }
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public int getControlParametersCount() {
           if (controlParametersBuilder_ == null) {
@@ -3170,7 +3170,7 @@ public final class ControlParametersProto {
           }
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters getControlParameters(int index) {
           if (controlParametersBuilder_ == null) {
@@ -3180,7 +3180,7 @@ public final class ControlParametersProto {
           }
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder setControlParameters(
             int index, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters value) {
@@ -3197,7 +3197,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder setControlParameters(
             int index, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder builderForValue) {
@@ -3211,7 +3211,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder addControlParameters(net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters value) {
           if (controlParametersBuilder_ == null) {
@@ -3227,7 +3227,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder addControlParameters(
             int index, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters value) {
@@ -3244,7 +3244,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder addControlParameters(
             net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder builderForValue) {
@@ -3258,7 +3258,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder addControlParameters(
             int index, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder builderForValue) {
@@ -3272,7 +3272,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder addAllControlParameters(
             java.lang.Iterable<? extends net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> values) {
@@ -3286,7 +3286,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder clearControlParameters() {
           if (controlParametersBuilder_ == null) {
@@ -3299,7 +3299,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public Builder removeControlParameters(int index) {
           if (controlParametersBuilder_ == null) {
@@ -3312,14 +3312,14 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder getControlParametersBuilder(
             int index) {
           return getControlParametersFieldBuilder().getBuilder(index);
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder getControlParametersOrBuilder(
             int index) {
@@ -3329,7 +3329,7 @@ public final class ControlParametersProto {
           }
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public java.util.List<? extends net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder> 
              getControlParametersOrBuilderList() {
@@ -3340,14 +3340,14 @@ public final class ControlParametersProto {
           }
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder addControlParametersBuilder() {
           return getControlParametersFieldBuilder().addBuilder(
               net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.getDefaultInstance());
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder addControlParametersBuilder(
             int index) {
@@ -3355,7 +3355,7 @@ public final class ControlParametersProto {
               index, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.getDefaultInstance());
         }
         /**
-         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          */
         public java.util.List<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder> 
              getControlParametersBuilderList() {
@@ -3390,9 +3390,9 @@ public final class ControlParametersProto {
     public interface ControlParametersMessageOrBuilder
         extends com.google.protobuf.MessageOrBuilder {
 
-      // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;
+      // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
       /**
-       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        *
        * <pre>
        * A ControlParametersMessage has one ControlParameters.
@@ -3400,7 +3400,7 @@ public final class ControlParametersProto {
        */
       boolean hasControlParameters();
       /**
-       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        *
        * <pre>
        * A ControlParametersMessage has one ControlParameters.
@@ -3408,7 +3408,7 @@ public final class ControlParametersProto {
        */
       net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters getControlParameters();
       /**
-       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        *
        * <pre>
        * A ControlParametersMessage has one ControlParameters.
@@ -3472,7 +3472,7 @@ public final class ControlParametersProto {
                 }
                 break;
               }
-              case 1026: {
+              case 834: {
                 net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder subBuilder = null;
                 if (((bitField0_ & 0x00000001) == 0x00000001)) {
                   subBuilder = controlParameters_.toBuilder();
@@ -3525,11 +3525,11 @@ public final class ControlParametersProto {
       }
 
       private int bitField0_;
-      // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;
-      public static final int CONTROL_PARAMETERS_FIELD_NUMBER = 128;
+      // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
+      public static final int CONTROL_PARAMETERS_FIELD_NUMBER = 104;
       private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters controlParameters_;
       /**
-       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        *
        * <pre>
        * A ControlParametersMessage has one ControlParameters.
@@ -3539,7 +3539,7 @@ public final class ControlParametersProto {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        *
        * <pre>
        * A ControlParametersMessage has one ControlParameters.
@@ -3549,7 +3549,7 @@ public final class ControlParametersProto {
         return controlParameters_;
       }
       /**
-       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+       * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        *
        * <pre>
        * A ControlParametersMessage has one ControlParameters.
@@ -3583,7 +3583,7 @@ public final class ControlParametersProto {
                           throws java.io.IOException {
         getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeMessage(128, controlParameters_);
+          output.writeMessage(104, controlParameters_);
         }
         getUnknownFields().writeTo(output);
       }
@@ -3596,7 +3596,7 @@ public final class ControlParametersProto {
         size = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(128, controlParameters_);
+            .computeMessageSize(104, controlParameters_);
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -3816,12 +3816,12 @@ public final class ControlParametersProto {
         }
         private int bitField0_;
 
-        // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;
+        // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
         private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters controlParameters_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
             net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder> controlParametersBuilder_;
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -3831,7 +3831,7 @@ public final class ControlParametersProto {
           return ((bitField0_ & 0x00000001) == 0x00000001);
         }
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -3845,7 +3845,7 @@ public final class ControlParametersProto {
           }
         }
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -3865,7 +3865,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -3883,7 +3883,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -3906,7 +3906,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -3923,7 +3923,7 @@ public final class ControlParametersProto {
           return this;
         }
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -3935,7 +3935,7 @@ public final class ControlParametersProto {
           return getControlParametersFieldBuilder().getBuilder();
         }
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -3949,7 +3949,7 @@ public final class ControlParametersProto {
           }
         }
         /**
-         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 128;</code>
+         * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
          *
          * <pre>
          * A ControlParametersMessage has one ControlParameters.
@@ -4830,7 +4830,7 @@ public final class ControlParametersProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\036control-parameters-proto.proto\022\031net.na" +
-      "med_data.jndn.tests\"\350\006\n\026ControlParameter" +
+      "med_data.jndn.tests\"\346\006\n\026ControlParameter" +
       "sTypes\032\031\n\004Name\022\021\n\tcomponent\030\010 \003(\014\032P\n\010Str" +
       "ategy\022D\n\004name\030\007 \002(\01326.net.named_data.jnd" +
       "n.tests.ControlParametersTypes.Name\032\254\002\n\021" +
@@ -4841,18 +4841,18 @@ public final class ControlParametersProto {
       " \001(\004\022\014\n\004cost\030j \001(\004\022\r\n\005flags\030l \001(\004\022L\n\010str",
       "ategy\030k \001(\0132:.net.named_data.jndn.tests." +
       "ControlParametersTypes.Strategy\022\031\n\021expir" +
-      "ation_period\030m \001(\004\032\247\001\n\031ControlParameters" +
+      "ation_period\030m \001(\004\032\246\001\n\031ControlParameters" +
       "Response\022\023\n\013status_code\030f \002(\004\022\023\n\013status_" +
-      "text\030g \002(\t\022`\n\022control_parameters\030\200\001 \003(\0132" +
-      "C.net.named_data.jndn.tests.ControlParam" +
-      "etersTypes.ControlParameters\032|\n\030ControlP" +
-      "arametersMessage\022`\n\022control_parameters\030\200" +
-      "\001 \002(\0132C.net.named_data.jndn.tests.Contro" +
-      "lParametersTypes.ControlParameters\032\211\001\n C",
-      "ontrolParametersResponseMessage\022e\n\020contr" +
-      "ol_response\030e \002(\0132K.net.named_data.jndn." +
-      "tests.ControlParametersTypes.ControlPara" +
-      "metersResponse"
+      "text\030g \002(\t\022_\n\022control_parameters\030h \003(\0132C" +
+      ".net.named_data.jndn.tests.ControlParame" +
+      "tersTypes.ControlParameters\032{\n\030ControlPa" +
+      "rametersMessage\022_\n\022control_parameters\030h " +
+      "\002(\0132C.net.named_data.jndn.tests.ControlP" +
+      "arametersTypes.ControlParameters\032\211\001\n Con",
+      "trolParametersResponseMessage\022e\n\020control" +
+      "_response\030e \002(\0132K.net.named_data.jndn.te" +
+      "sts.ControlParametersTypes.ControlParame" +
+      "tersResponse"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

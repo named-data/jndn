@@ -31,14 +31,14 @@ message ControlParametersTypes {
   message ControlParametersResponse {
     required uint64 status_code = 102;
     required string status_text = 103;
-    repeated ControlParameters control_parameters = 128;
+    repeated ControlParameters control_parameters = 104;
   }
 
   // Protobuf has no "outer" message type, so we need to put the TLV ControlParameters
   // message inside an outer "typeless" ControlParametersMessage.
   message ControlParametersMessage {
     // A ControlParametersMessage has one ControlParameters.
-    required ControlParameters control_parameters = 128;
+    required ControlParameters control_parameters = 104;
   }
 
   message ControlParametersResponseMessage {
