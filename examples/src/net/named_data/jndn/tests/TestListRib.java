@@ -35,42 +35,58 @@ import net.named_data.jndn.util.Blob;
 
 /**
  * FetchSegmentsCallbacks handles the onData event to fetch multiple segments.
- * When the final segment is fetched, call onComplete.
+ * When the final segment is fetched, call the OnComplete, or call the OnError
+ * callback.
  */
 class FetchSegmentsCallbacks implements OnData, OnTimeout {
   public interface OnComplete {
     void onComplete(Blob content);
   }
 
+  public interface OnError {
+    void onError(String message);
+  }
+
   /**
-   * Create a new FetchSegmentsCallbacks to use the Face.
+   * Create a new FetchSegmentsCallbacks to use the Face.  Then call startFetch().
    * @param face This calls face.expressInterest to fetch more segments.
    * @param onComplete When all segments are received, call
    * onComplete.onComplete(content) where content is the concatenation of the
    * content of all the segments.
+   * @param onError Call onError.onError(message) for timeout or an error
+   * processing segments.
    */
-  FetchSegmentsCallbacks(Face face, OnComplete onComplete)
+  FetchSegmentsCallbacks(Face face, OnComplete onComplete, OnError onError)
   {
     face_ = face;
     onComplete_ = onComplete;
+    onError_ = onError;
+  }
+
+  /**
+   * Express the interest with the Face given to the constructor. When processing
+   * is finished call the OnComplete or OnError callback given to the constructor.
+   * @param interest The interest to express.
+   * @throws IOException
+   */
+  void startFetch(Interest interest) throws IOException
+  {
+    face_.expressInterest(interest, this, this);
   }
 
   public void
   onData(Interest interest, Data data)
   {
-    if (!endsWithSegmentNumber(data.getName())) {
+    if (!endsWithSegmentNumber(data.getName()))
       // We don't expect a name without a segment number.  Treat it as a bad packet.
-      System.out.println("Got an unexpected packet without a segment number");
-      enabled_ = false;
-    }
+      onError_.onError("Got an unexpected packet without a segment number");
     else {
       long segmentNumber;
       try {
         segmentNumber = data.getName().get(-1).toSegment();
       }
       catch (EncodingException ex) {
-        System.out.println("Error decoding the name segment number " + ex);
-        enabled_ = false;
+        onError_.onError("Error decoding the name segment number " + ex);
         return;
       }
 
@@ -84,8 +100,7 @@ class FetchSegmentsCallbacks implements OnData, OnTimeout {
              this, this);
         }
         catch (IOException ex) {
-          System.out.println("I/O error in expressInterest " + ex);
-          enabled_ = false;
+          onError_.onError("I/O error in expressInterest " + ex);
         }
       }
       else {
@@ -98,14 +113,12 @@ class FetchSegmentsCallbacks implements OnData, OnTimeout {
             finalSegmentNumber = data.getMetaInfo().getFinalBlockId().toSegment();
           }
           catch (EncodingException ex) {
-            System.out.println("Error decoding the FinalBlockId segment number " + ex);
-            enabled_ = false;
+            onError_.onError("Error decoding the FinalBlockId segment number " + ex);
             return;
           }
 
           if (segmentNumber == finalSegmentNumber) {
             // We are finished.
-            enabled_ = false;
 
             // Get the total size and concatenate to get content.
             int totalSize = 0;
@@ -128,8 +141,7 @@ class FetchSegmentsCallbacks implements OnData, OnTimeout {
              this, this);
         }
         catch (IOException ex) {
-          System.out.println("I/O error in expressInterest " + ex);
-          enabled_ = false;
+          onError_.onError("I/O error in expressInterest " + ex);
         }
       }
     }
@@ -138,8 +150,7 @@ class FetchSegmentsCallbacks implements OnData, OnTimeout {
   public void
   onTimeout(Interest interest)
   {
-    enabled_ = false;
-    System.out.println("Time out for interest " + interest.getName().toUri());
+    onError_.onError("Time out for interest " + interest.getName().toUri());
   }
 
   /**
@@ -155,11 +166,11 @@ class FetchSegmentsCallbacks implements OnData, OnTimeout {
            name.get(-1).getValue().buf().get(0) == 0;
   }
 
-  public boolean enabled_ = true;
   // Use a non-template ArrayList so it works with older Java compilers.
   private final ArrayList contentParts_ = new ArrayList(); // of Blob
   private final Face face_;
-  private OnComplete onComplete_;
+  private final OnComplete onComplete_;
+  private final OnError onError_;
 }
 
 /**
@@ -179,13 +190,23 @@ public class TestListRib {
       interest.setInterestLifetimeMilliseconds(4000);
       System.out.println("Express interest " + interest.getName().toUri());
 
-      FetchSegmentsCallbacks callbacks = new FetchSegmentsCallbacks
-        (face, new FetchSegmentsCallbacks.OnComplete() {
-           public void onComplete(Blob content) { printRibEntry(content); }});
-      face.expressInterest(interest, callbacks, callbacks);
+      final boolean[] enabled = new boolean[] { true };
+      new FetchSegmentsCallbacks
+        (face,
+         new FetchSegmentsCallbacks.OnComplete() {
+           public void onComplete(Blob content) {
+             enabled[0] = false;
+             printRibEntry(content);
+           }},
+         new FetchSegmentsCallbacks.OnError() {
+           public void onError(String message) {
+             enabled[0] = false;
+             System.out.println(message);
+           }})
+        .startFetch(interest);
 
-      // Loop calling processEvents until callbacks is finished and sets enabled_ false.
-      while (callbacks.enabled_) {
+      // Loop calling processEvents until a callback sets enabled[0] = false.
+      while (enabled[0]) {
         face.processEvents();
 
         // We need to sleep for a few milliseconds so we don't use 100% of
