@@ -37,6 +37,7 @@ import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.tests.FaceQueryFilterProto.FaceQueryFilterMessage;
+import net.named_data.jndn.tests.FaceStatusProto.FaceStatusMessage;
 import net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes;
 import net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersMessage;
 import net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponseMessage;
@@ -285,8 +286,13 @@ public class TestRegisterRoute {
              }});
       }
       else {
-        System.out.println("TODO: Decode the FaceStatus.");
-        enabled[0] = false;
+        FaceStatusMessage.Builder decodedFaceStatus = FaceStatusMessage.newBuilder();
+        ProtobufTlv.decode(decodedFaceStatus, encodedFaceStatus);
+
+        long faceId = decodedFaceStatus.getFaceStatus(0).getFaceId();
+
+        System.out.println("Found face ID " + faceId);
+        registerRoute(prefix, faceId, face, enabled);
       }
     }
     catch (Exception e) {
