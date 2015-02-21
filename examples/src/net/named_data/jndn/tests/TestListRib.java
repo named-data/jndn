@@ -176,6 +176,7 @@ class FetchSegmentsCallbacks implements OnData, OnTimeout {
 /**
  * This sends a rib list request to the local NFD and prints the response.
  * This is equivalent to the NFD command line command "nfd-status -r".
+ * See http://redmine.named-data.net/projects/nfd/wiki/Management .
  */
 public class TestListRib {
   public static void

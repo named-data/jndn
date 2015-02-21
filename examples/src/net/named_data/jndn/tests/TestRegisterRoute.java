@@ -48,6 +48,7 @@ import net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.C
  * face ID for a face url, and creates the face if it doesn't exist. Then this sends
  * a /localhost/nfd/rib/register command to register a prefix to the face ID.
  * This is equivalent to the NFD command line command "nfdc register".
+ * See http://redmine.named-data.net/projects/nfd/wiki/Management .
  */
 public class TestRegisterRoute {
   // Convert the int array to a ByteBuffer.
