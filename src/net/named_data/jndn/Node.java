@@ -999,7 +999,7 @@ public class Node implements ElementListener {
     ControlParameters controlParameters = new ControlParameters();
     controlParameters.setName(prefix);
 
-    Interest commandInterest = new Interest(new Name("/localhost/nfd/rib/register"));
+    Interest commandInterest = new Interest(new Name("/localhop/nfd/rib/register"));
     // NFD only accepts TlvWireFormat packets.
     commandInterest.getName().append(controlParameters.wireEncode(TlvWireFormat.get()));
     makeCommandInterest

@@ -2,8 +2,7 @@
 *.class
 /build
 /dist
-/target
-examples/target
+target
 
 # JUnit output
 /TEST*.xml
@@ -22,3 +21,4 @@ nb-configuration.xml
 
 # unit_test temporary files
 examples/src/net/named_data/jndn/tests/unit_tests/policy_config/test-public-info.db
+/integration-tests/target/
