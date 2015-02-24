@@ -22,6 +22,8 @@ package net.named_data.jndn.transport;
 import java.nio.channels.SocketChannel;
 import java.net.InetSocketAddress;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.ElementReader;
@@ -72,6 +74,27 @@ public class TcpTransport extends Transport {
 
     private final String host_;
     private final int port_;
+  }
+  
+  /**
+   * Determine whether the current transport is to a node on the current
+   * machine. According to
+   * http://redmine.named-data.net/projects/nfd/wiki/ScopeControl#local-face,
+   * TCP transports with a loopback address are local.
+   *
+   * @param connectionInfo
+   * @return 
+   */
+  @Override
+  public boolean isLocal(Transport.ConnectionInfo connectionInfo) {
+    try{
+      InetAddress address = InetAddress.getByName(
+        ((ConnectionInfo) connectionInfo).getHost());
+      return address.isLoopbackAddress();
+    }
+    catch(UnknownHostException e){
+      throw new Error("...", e);
+    }
   }
 
   /**

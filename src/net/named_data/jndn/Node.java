@@ -999,7 +999,14 @@ public class Node implements ElementListener {
     ControlParameters controlParameters = new ControlParameters();
     controlParameters.setName(prefix);
 
-    Interest commandInterest = new Interest(new Name("/localhop/nfd/rib/register"));
+    Interest commandInterest = new Interest();
+    
+    // determine whether to use remote prefix registration
+    if(transport_.isLocal(connectionInfo_))
+      commandInterest.setName(new Name("/localhost/nfd/rib/register"));
+    else
+      commandInterest.setName(new Name("/localhop/nfd/rib/register"));
+    
     // NFD only accepts TlvWireFormat packets.
     commandInterest.getName().append(controlParameters.wireEncode(TlvWireFormat.get()));
     makeCommandInterest

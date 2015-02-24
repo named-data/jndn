@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2015 Regents of the University of California.
  *
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * @author: Andrew Brown <andrew.brown@intel.com>
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -21,7 +21,6 @@ package net.named_data.jndn.tests.integration_tests;
 
 import java.util.logging.Logger;
 import java.io.IOException;
-import java.security.Key;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
@@ -31,61 +30,92 @@ import net.named_data.jndn.OnInterest;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.identity.IdentityManager;
+import net.named_data.jndn.security.identity.MemoryIdentityStorage;
+import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.transport.Transport;
 import net.named_data.jndn.util.Blob;
 
 /**
- * Common static methods and package classes for integration tests.
+ * Integration test for remote prefix registration
  */
 public class TestRemotePrefixRegistration {
 
-	private static Logger logger = Logger.getLogger(TestRemotePrefixRegistration.class.getName());
+  /**
+   * Ensure remote NFD has localhop configuration enabled for any certificate;
+   * inside the integration-tests directory, run with `mvn -q test
+   * -DclassName=TestRemotePrefixRegistration -Dip=[IP address to remote NFD]`.
+   *
+   * @param args
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    Face face = new Face(System.getProperty("ip"));
+    KeyChain keyChain = buildTestKeyChain();
+    face.setCommandSigningInfo(keyChain, keyChain.getDefaultCertificateName());
 
-	public static void main(String[] args) throws Exception {
-		Face face = new Face("192.168.1.8");
-		KeyChain keyChain = new KeyChain();
-		face.setCommandSigningInfo(keyChain, keyChain.getDefaultCertificateName());
+    // test connection
+    Interest interest = new Interest(new Name("/localhop/nfd/rib/list"));
+    interest.setInterestLifetimeMilliseconds(1000);
+    face.expressInterest(interest, new OnData() {
+      @Override
+      public void onData(Interest interest, Data data) {
+        logger.info("Data received (bytes): " + data.getContent().size());
+      }
+    }, new OnTimeout() {
+      @Override
+      public void onTimeout(Interest interest) {
+        logger.severe("Failed to retrieve localhop data from NFD: " + interest.toUri());
+        System.exit(1);
+      }
+    });
 
-		// test connection
-		Interest interest = new Interest(new Name("/localhop/nfd/rib/list"));
-		interest.setInterestLifetimeMilliseconds(1000);
-		face.expressInterest(interest, new OnData() {
-			@Override
-			public void onData(Interest interest, Data data) {
-				logger.info("Data received (bytes): " + data.getContent().size());
-			}
-		}, new OnTimeout() {
-			@Override
-			public void onTimeout(Interest interest) {
-				logger.severe("Failed to retrieve localhop data from NFD: " + interest.toUri());
-				System.exit(1);
-			}
-		});
+    // register remotely
+    face.registerPrefix(new Name("/remote-prefix"), new OnInterest() {
+      @Override
+      public void onInterest(Name prefix, Interest interest, Transport transport, long registeredPrefixId) {
+        Data data = new Data(interest.getName());
+        data.setContent(new Blob("..."));
+        try {
+          transport.send(data.wireEncode().buf());
+        } catch (IOException e) {
+          logger.severe("Failed to send data: " + e.getMessage());
+          System.exit(1);
+        }
+      }
+    }, new OnRegisterFailed() {
+      @Override
+      public void onRegisterFailed(Name prefix) {
+        logger.severe("Failed to register the external forwarder: " + prefix.toUri());
+        System.exit(1);
+      }
+    });
 
-		// register remotely
-		face.registerPrefix(new Name("/remote-prefix"), new OnInterest() {
-			@Override
-			public void onInterest(Name prefix, Interest interest, Transport transport, long registeredPrefixId) {
-				Data data = new Data(interest.getName());
-				data.setContent(new Blob("..."));
-				try {
-					transport.send(data.wireEncode().buf());
-				} catch (IOException e) {
-					logger.severe("Failed to send data: " + e.getMessage());
-					System.exit(1);
-				}
-			}
-		}, new OnRegisterFailed() {
-			@Override
-			public void onRegisterFailed(Name prefix) {
-				logger.severe("Failed to register the external forwarder: " + prefix.toUri());
-				System.exit(1);
-			}
-		});
+    // process events until process is killed
+    while (true) {
+      face.processEvents();
+    }
+  }
 
-		// process events until 
-		while (true) {
-			face.processEvents();
-		}
-	}
+  /**
+   * Setup an in-memory KeyChain with a default identity.
+   *
+   * @return
+   * @throws net.named_data.jndn.security.SecurityException
+   */
+  public static KeyChain buildTestKeyChain() throws net.named_data.jndn.security.SecurityException {
+    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
+    MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+    IdentityManager identityManager = new IdentityManager(identityStorage, privateKeyStorage);
+    KeyChain keyChain = new KeyChain(identityManager);
+    try {
+      keyChain.getDefaultCertificateName();
+    } catch (net.named_data.jndn.security.SecurityException e) {
+      keyChain.createIdentity(new Name("/test/identity"));
+      keyChain.getIdentityManager().setDefaultIdentity(new Name("/test/identity"));
+    }
+    return keyChain;
+  }
+
+  private static final Logger logger = Logger.getLogger(TestRemotePrefixRegistration.class.getName());
 }

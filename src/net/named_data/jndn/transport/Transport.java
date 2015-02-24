@@ -31,6 +31,18 @@ public abstract class Transport {
    */
   public static class ConnectionInfo {
   }
+  
+	/**
+	 * Determine whether the current transport is to a node on the current
+	 * machine. this affects the processing of Face.registerPrefix(): if the NFD
+	 * is local, registration occurs with the '/localhost/nfd...' prefix; if
+	 * non-local, the library will attempt to use remote prefix registration
+	 * using '/localhop/nfd...'
+	 *
+   * @param connectionInfo
+	 * @return
+	 */
+	public abstract boolean isLocal(Transport.ConnectionInfo connectionInfo);
 
   /**
    * Connect according to the info in ConnectionInfo, and use elementListener.
