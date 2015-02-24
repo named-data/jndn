@@ -44,7 +44,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   public boolean
   doesIdentityExist(Name identityName)
   {
-    return identityStore_.contains(identityName.toUri());
+    return identityStore_.containsKey(identityName.toUri());
   }
 
   /**
@@ -55,10 +55,10 @@ public class MemoryIdentityStorage extends IdentityStorage {
   addIdentity(Name identityName) throws SecurityException
   {
     String identityUri = identityName.toUri();
-    if (identityStore_.contains(identityUri))
+    if (identityStore_.containsKey(identityUri))
       return;
 
-    identityStore_.add(identityUri);
+    identityStore_.put(identityUri, new IdentityRecord());
   }
 
   /**
@@ -80,7 +80,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   public boolean
   doesKeyExist(Name keyName) throws SecurityException
   {
-    return keyStore_.containsKey(keyName);
+    return keyStore_.containsKey(keyName.toUri());
   }
 
   /**
@@ -164,9 +164,6 @@ public class MemoryIdentityStorage extends IdentityStorage {
   public void
   addCertificate(IdentityCertificate certificate) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("MemoryIdentityStorage.addCertificate not implemented");
-    /*
     Name certificateName = certificate.getName();
     Name keyName = certificate.getPublicKeyName();
 
@@ -187,7 +184,6 @@ public class MemoryIdentityStorage extends IdentityStorage {
 
     // Insert the certificate.
     certificateStore_.put(certificateName.toUri(), certificate.wireEncode());
-    */
   }
 
   /**
@@ -243,8 +239,18 @@ public class MemoryIdentityStorage extends IdentityStorage {
   public Name
   getDefaultKeyNameForIdentity(Name identityName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("MemoryIdentityStorage.getDefaultKeyNameForIdentity not implemented");
+    String identity = identityName.toUri();
+    if(identityStore_.containsKey(identity)){
+      if(((IdentityRecord)identityStore_.get(identity)).hasDefaultKey()){
+        return ((IdentityRecord)identityStore_.get(identity)).getDefaultKey();
+      }
+      else{
+        throw new SecurityException("No default key set.");
+      }
+    }
+    else{
+      throw new SecurityException("Identity not found.");
+    }
   }
 
   /**
@@ -257,8 +263,18 @@ public class MemoryIdentityStorage extends IdentityStorage {
   public Name
   getDefaultCertificateNameForKey(Name keyName) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("MemoryIdentityStorage.getDefaultCertificateNameForKey not implemented");
+    String key = keyName.toUri();
+    if(keyStore_.containsKey(key)){
+      if(((KeyRecord)keyStore_.get(key)).hasDefaultCertificate()){
+        return ((KeyRecord)keyStore_.get(key)).getDefaultCertificate();
+      }
+      else{
+        throw new SecurityException("No default certificate set.");
+      }
+    }
+    else{
+      throw new SecurityException("Key not found.");
+    }
   }
 
   /**
@@ -285,7 +301,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   setDefaultIdentity(Name identityName)
   {
     String identityUri = identityName.toUri();
-    if (identityStore_.contains(identityUri))
+    if (identityStore_.containsKey(identityUri))
       defaultIdentity_ = identityUri;
     else
       // The identity doesn't exist, so clear the default.
@@ -300,8 +316,10 @@ public class MemoryIdentityStorage extends IdentityStorage {
   public void
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
   {
-    throw new UnsupportedOperationException
-      ("MemoryIdentityStorage.setDefaultKeyNameForIdentity not implemented");
+    String identity = identityNameCheck.toUri();
+    if(identityStore_.containsKey(identity)){
+      ((IdentityRecord)identityStore_.get(identity)).setDefaultKey(keyName);
+    }
   }
 
   /**
@@ -312,8 +330,10 @@ public class MemoryIdentityStorage extends IdentityStorage {
   public void
   setDefaultCertificateNameForKey(Name keyName, Name certificateName)
   {
-    throw new UnsupportedOperationException
-      ("MemoryIdentityStorage.setDefaultCertificateNameForKey not implemented");
+    String key = keyName.toUri();
+    if(keyStore_.containsKey(key)){
+      ((KeyRecord)keyStore_.get(key)).setDefaultCertificate(certificateName);
+    }
   }
 
   /*****************************************
@@ -352,6 +372,17 @@ public class MemoryIdentityStorage extends IdentityStorage {
     throw new UnsupportedOperationException
       ("MemoryIdentityStorage.deleteIdentityInfo is not implemented");
   }
+  
+  private static class IdentityRecord {
+    
+    void setDefaultKey(Name key){ defaultKey_ = key; }
+    
+    boolean hasDefaultKey(){ return defaultKey_ != null; }
+    
+    Name getDefaultKey(){ return defaultKey_; }
+
+    private Name defaultKey_;
+  };
 
   private static class KeyRecord {
     public KeyRecord(KeyType keyType, Blob keyDer)
@@ -363,13 +394,22 @@ public class MemoryIdentityStorage extends IdentityStorage {
     KeyType getKeyType() { return keyType_; }
 
     Blob getKeyDer() { return keyDer_; }
+    
+    void setDefaultCertificate(Name certificate){ defaultCertificate_ = 
+            certificate; }
+    
+    boolean hasDefaultCertificate(){ return defaultCertificate_ != null; }
+    
+    Name getDefaultCertificate(){ return defaultCertificate_; }
 
     private KeyType keyType_;
     private Blob keyDer_;
+    private Name defaultCertificate_;
   };
 
-  private final ArrayList identityStore_ =
-    new ArrayList(); /**< A list of String name URI. */
+ // Use HashMap without generics so it works with older Java compilers.
+  private final HashMap identityStore_ =
+    new HashMap(); /**< The map key is the identityName.toUri(). The value is an IdentityRecord. */
   private String defaultIdentity_ =
     ""; /**< The default identity in identityStore_, or "" if not defined. */
   private final HashMap keyStore_ =
