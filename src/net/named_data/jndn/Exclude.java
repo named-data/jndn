@@ -236,6 +236,7 @@ public class Exclude implements ChangeCountable {
   public final long
   getChangeCount() { return changeCount_; }
 
+  // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList entries_;
   private long changeCount_ = 0;
 }

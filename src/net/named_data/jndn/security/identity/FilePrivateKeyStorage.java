@@ -501,6 +501,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   static private String EC_ENCRYPTION_OID = "1.2.840.10045.2.1";
 
   private final File keyStorePath_;
+  // Use HashMap without generics so it works with older Java compilers.
   private static final HashMap keyTypeMap_;
   static{
     keyTypeMap_ = new HashMap();

@@ -91,5 +91,6 @@ public class CertificateCache {
   }
 
   // The key is the certificate name URI. The value is the wire encoding Blob.
+  // Use HashMap without generics so it works with older Java compilers.
   private final HashMap cache_ = new HashMap();
 }

@@ -233,6 +233,7 @@ public class BoostInfoTree {
 
   // subtrees_ is a list of TreeEntry.
   // We can't use a map for subtrees_ because we want the keys to be in order.
+  // Use ArrayList without generics so it works with older Java compilers.
   private ArrayList subtrees_ = new ArrayList();
   private String value_ = "";
   private BoostInfoTree parent_ = null;

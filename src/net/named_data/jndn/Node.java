@@ -1029,6 +1029,7 @@ public class Node implements ElementListener {
 
   private final Transport transport_;
   private final Transport.ConnectionInfo connectionInfo_;
+  // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList pendingInterestTable_ = new ArrayList();  // PendingInterest
   private final ArrayList registeredPrefixTable_ = new ArrayList(); // RegisteredPrefix
   private final Interest ndndIdFetcherInterest_;

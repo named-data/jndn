@@ -404,7 +404,7 @@ public class DerNode {
     }
 
     private boolean childChanged_ = false;
-    // Use a non-template ArrayList so it works with older Java compilers.
+    // Use ArrayList without generics so it works with older Java compilers.
     private final ArrayList nodeList_ = new ArrayList(); // Of DerNode.
     private int size_ = 0;
   }

@@ -50,7 +50,7 @@ import net.named_data.jndn.util.MemoryContentCache;
  * http://named-data.net/doc/ndn-ccl-api/chrono-sync2013.html .
  */
 public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
-  // Use a non-template ArrayList so it works with older Java compilers.
+  // Use ArrayList without generics so it works with older Java compilers.
   public interface OnReceivedSyncState {
     void onReceivedSyncState(List syncStates /* of SyncState */, boolean isRecovery);
   }
@@ -268,7 +268,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     getData() { return data_; }
 
     private final String digest_;
-    // Use a non-template ArrayList so it works with older Java compilers.
+  // Use List without generics so it works with older Java compilers.
     List data_; // of SyncStateProto.SyncState
   }
 
@@ -938,7 +938,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   double syncLifetime_;
   OnReceivedSyncState onReceivedSyncState_;
   OnInitialized onInitialized_;
-  // Use a non-template ArrayList so it works with older Java compilers.
+  // Use ArrayList without generics so it works with older Java compilers.
   ArrayList digestLog_ = new ArrayList(); // of DigestLogEntry
   DigestTree digestTree_ = new DigestTree();
   String applicationDataPrefixUri_;

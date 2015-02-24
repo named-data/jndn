@@ -1035,6 +1035,7 @@ public class Name implements ChangeCountable, Comparable {
     return result;
   }
 
+  // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList components_;
   private long changeCount_ = 0;
 }

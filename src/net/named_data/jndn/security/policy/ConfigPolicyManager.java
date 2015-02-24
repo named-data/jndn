@@ -407,6 +407,7 @@ public class ConfigPolicyManager extends PolicyManager {
         throw new SecurityException
           ("Cannot find files in directory " + directoryName);
 
+      // Use ArrayList without generics so it works with older Java compilers.
       ArrayList certificateNames = new ArrayList();
       for (int i = 0; i < allFiles.length; ++i) {
         File file = allFiles[i];
@@ -477,6 +478,7 @@ public class ConfigPolicyManager extends PolicyManager {
     // refreshDirectories_ maps the directory name to a DirectoryInfo of
     // the certificate names so they can be deleted when necessary, and the
     // next refresh time.
+    // Use HashMap without generics so it works with older Java compilers.
     private final HashMap refreshDirectories_ = new HashMap();
   };
 
@@ -852,6 +854,7 @@ public class ConfigPolicyManager extends PolicyManager {
       String oldestKey = "";
 
       // Get the keys to erase without disturbing the map.
+      // Use ArrayList without generics so it works with older Java compilers.
       ArrayList keysToErase = new ArrayList();
 
       Object[] keys = keyTimestamps_.keySet().toArray();
@@ -1173,6 +1176,7 @@ public class ConfigPolicyManager extends PolicyManager {
   private int maxTrackedKeys_ = 1000;
   // fixedCertificateCache_ stores the fixed-signer certificate name associated with
   //    validation rules so we don't keep loading from files.
+  // Use HashMap without generics so it works with older Java compilers.
   private final HashMap fixedCertificateCache_ = new HashMap();
   // keyTimestamps_ stores the timestamps for each public key used in command
   //   interests to avoid replay attacks.

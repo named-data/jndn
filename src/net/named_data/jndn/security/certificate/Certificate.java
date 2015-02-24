@@ -309,7 +309,7 @@ public class Certificate extends Data {
     return s;
   }
 
-  // Use a non-template ArrayList so it works with older Java compilers.
+  // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList subjectDescriptionList_ = new ArrayList(); // of CertificateSubjectDescription
   private final ArrayList extensionList_ = new ArrayList();          // of CertificateExtension
   private double notBefore_ = Double.MAX_VALUE; // MillisecondsSince1970

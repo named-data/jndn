@@ -373,6 +373,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     private java.security.PrivateKey privateKey_;
   }
 
+  // Use HashMap without generics so it works with older Java compilers.
   private final HashMap publicKeyStore_ =
     new HashMap(); /**< The map key is the keyName.toUri().
                       * The value is security.certificate.PublicKey. */

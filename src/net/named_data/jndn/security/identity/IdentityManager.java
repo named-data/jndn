@@ -155,6 +155,7 @@ public class IdentityManager {
       // There is no default identity to check.
     }
 
+    // Use ArrayList without generics so it works with older Java compilers.
     ArrayList keysToDelete = new ArrayList();
     identityStorage_.getAllKeyNamesOfIdentity(identityName, keysToDelete, true);
     identityStorage_.getAllKeyNamesOfIdentity(identityName, keysToDelete, false);

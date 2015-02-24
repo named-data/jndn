@@ -185,6 +185,7 @@ public class BoostInfoParser {
       return context;
 
     // Usually we are expecting key and optional value.
+    // Use ArrayList without generics so it works with older Java compilers.
     ArrayList strings = new ArrayList();
     shlex_split(line, strings);
     boolean isSectionStart = false;

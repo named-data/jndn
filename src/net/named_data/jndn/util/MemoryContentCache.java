@@ -397,10 +397,11 @@ public class MemoryContentCache implements OnInterest {
   private final Face face_;
   private final double cleanupIntervalMilliseconds_;
   private double nextCleanupTime_;
+  // Use HashMap without generics so it works with older Java compilers.
   private final HashMap onDataNotFoundForPrefix_ =
-    new HashMap(); /**< The map key is the prefix.toUri().
-                      * The value is the OnInterest callback. */
-  // Use a non-template ArrayList so it works with older Java compilers.
+  new HashMap(); /**< The map key is the prefix.toUri().
+                    * The value is the OnInterest callback. */
+  // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList registeredPrefixIdList_ = new ArrayList(); // of long
   private final ArrayList noStaleTimeCache_ = new ArrayList(); // of Content
   private final ArrayList staleTimeCache_ = new ArrayList(); // of StaleTimeContent

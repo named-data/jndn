@@ -279,7 +279,7 @@ public class DigestTree {
       "update root to: {0}", root_);
   }
 
-  // Use a non-template ArrayList so it works with older Java compilers.
+  // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList digestNode_ = new ArrayList(); // of DigestTree.Node
   private String root_;
 }
