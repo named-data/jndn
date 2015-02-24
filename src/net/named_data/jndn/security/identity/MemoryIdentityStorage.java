@@ -241,8 +241,8 @@ public class MemoryIdentityStorage extends IdentityStorage {
   {
     String identity = identityName.toUri();
     if(identityStore_.containsKey(identity)){
-      if(identityStore_.get(identity).hasDefaultKey()){
-        return identityStore_.get(identity).getDefaultKey();
+      if(((IdentityRecord)identityStore_.get(identity)).hasDefaultKey()){
+        return ((IdentityRecord)identityStore_.get(identity)).getDefaultKey();
       }
       else{
         throw new SecurityException("No default key set.");
@@ -265,8 +265,8 @@ public class MemoryIdentityStorage extends IdentityStorage {
   {
     String key = keyName.toUri();
     if(keyStore_.containsKey(key)){
-      if(keyStore_.get(key).hasDefaultCertificate()){
-        return keyStore_.get(key).getDefaultCertificate();
+      if(((KeyRecord)keyStore_.get(key)).hasDefaultCertificate()){
+        return ((KeyRecord)keyStore_.get(key)).getDefaultCertificate();
       }
       else{
         throw new SecurityException("No default certificate set.");
@@ -318,7 +318,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   {
     String identity = identityNameCheck.toUri();
     if(identityStore_.containsKey(identity)){
-      identityStore_.get(identity).setDefaultKey(keyName);
+      ((IdentityRecord)identityStore_.get(identity)).setDefaultKey(keyName);
     }
   }
 
@@ -332,7 +332,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
   {
     String key = keyName.toUri();
     if(keyStore_.containsKey(key)){
-      keyStore_.get(key).setDefaultCertificate(certificateName);
+      ((KeyRecord)keyStore_.get(key)).setDefaultCertificate(certificateName);
     }
   }
 
@@ -407,12 +407,13 @@ public class MemoryIdentityStorage extends IdentityStorage {
     private Name defaultCertificate_;
   };
 
-  private final HashMap<String, IdentityRecord> identityStore_ = 
+ // Use HashMap without generics so it works with older Java compilers.
+  private final HashMap identityStore_ =
     new HashMap(); /**< The map key is the identityName.toUri(). The value is an IdentityRecord. */
   private String defaultIdentity_ =
     ""; /**< The default identity in identityStore_, or "" if not defined. */
-  private final HashMap<String, KeyRecord> keyStore_ =
+  private final HashMap keyStore_ =
     new HashMap(); /**< The map key is the keyName.toUri(). The value is a KeyRecord. */
-  private final HashMap<String, Blob> certificateStore_ =
+  private final HashMap certificateStore_ =
     new HashMap(); /**< The map key is the certificateName.toUri(). The value is the certificate Blob. */
 }
