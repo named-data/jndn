@@ -706,7 +706,8 @@ public class Name implements ChangeCountable, Comparable {
     if (components_.size() != name.components_.size())
       return false;
 
-    for (int i = 0; i < components_.size(); ++i) {
+    // Check from last to first since the last components are more likely to differ.
+    for (int i = components_.size() - 1; i >= 0; --i) {
       if (!get(i).getValue().equals(name.get(i).getValue()))
         return false;
     }
