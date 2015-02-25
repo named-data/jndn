@@ -240,17 +240,8 @@ public class Blob {
       return other.buffer_ == null;
     else if (other.isNull())
       return false;
-    else {
-      if (buffer_.remaining() != other.buffer_.remaining())
-        return false;
-      else {
-        if (buffer_.hashCode() != other.buffer_.hashCode())
-          return false;
-        else
-          // The hash codes are the same but do a byte comparison to be sure.
-          return buffer_.equals(other.buffer_);
-      }
-    }
+    else
+      return buffer_.equals(other.buffer_);
   }
 
   public boolean equals(Object other)
