@@ -79,21 +79,14 @@ public class UdpTransport extends Transport {
   /**
    * Determine whether the current transport is to a node on the current
    * machine. According to
-   * http://redmine.named-data.net/projects/nfd/wiki/ScopeControl#local-face,
-   * TCP transports with a loopback address are local.
+   * http://redmine.named-data.net/issues/2532#note-8, UDP transports are always
+   * non-local.
    *
    * @return
    */
   @Override
   public boolean isLocal(Transport.ConnectionInfo connectionInfo) {
-    try{
-      InetAddress address = InetAddress.getByName(
-        ((TcpTransport.ConnectionInfo) connectionInfo).getHost());
-      return address.isLoopbackAddress();
-    }
-    catch(UnknownHostException e){
-      throw new Error("...", e);
-    }
+    return false;
   }
 
   /**
