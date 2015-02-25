@@ -240,8 +240,17 @@ public class Blob {
       return other.buffer_ == null;
     else if (other.isNull())
       return false;
-    else
-      return buffer_.equals(other.buffer_);
+    else {
+      if (buffer_.remaining() != other.buffer_.remaining())
+        return false;
+      else {
+        if (buffer_.hashCode() != other.buffer_.hashCode())
+          return false;
+        else
+          // The hash codes are the same but do a byte comparison to be sure.
+          return buffer_.equals(other.buffer_);
+      }
+    }
   }
 
   public boolean equals(Object other)
@@ -250,6 +259,32 @@ public class Blob {
       return false;
 
     return equals((Blob)other);
+  }
+
+  /**
+   * If the hash code is already computed then return it, otherwise compute and
+   * return the hash code.
+   * @return The hash code for the buffer, or 0 if the buffer is null.
+   */
+  public int hashCode()
+  {
+    if (!haveHashCode_) {
+      if (buffer_ == null)
+        hashCode_ = 0;
+      else {
+        int hashCode = 0;
+        int limit = buffer_.limit();
+        // Use the same hash code algorithm as String.
+        for (int i = buffer_.position(); i < limit; ++i)
+          hashCode = 31 * hashCode + buffer_.get(i);
+
+        hashCode_ = hashCode;
+      }
+
+      haveHashCode_ = true;
+    }
+
+    return hashCode_;
   }
 
   /**
@@ -272,4 +307,6 @@ public class Blob {
   }
 
   private final ByteBuffer buffer_;
+  private boolean haveHashCode_ = false;
+  private int hashCode_;
 }
