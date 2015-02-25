@@ -166,4 +166,32 @@ public class TestNameMethods {
     assertFalse("Name should not match shorter name", name.match(name2));
     assertTrue("Empty name should always match another", new Name().match(name));
   }
+
+  @Test
+  public void
+  testHashCode()
+  {
+    Name foo1 = new Name("/ndn/foo");
+    Name foo2 = new Name("/ndn/foo");
+
+    assertEquals
+      ("Hash codes for same Name value are not equal",
+       foo1.hashCode(), foo2.hashCode());
+
+    Name bar1 = new Name("/ndn/bar");
+    // Strictly speaking, it is possible for a hash collision, but unlikely.
+    assertTrue
+      ("Hash codes for different Name values are not different",
+       foo1.hashCode() != bar1.hashCode());
+
+    Name bar2 = new Name("/ndn");
+    int beforeHashCode = bar2.hashCode();
+    bar2.append("bar");
+    assertTrue
+      ("Hash code did not change when changing the Name object",
+       beforeHashCode != bar2.hashCode());
+    assertEquals
+      ("Hash codes for same Name value after changes are not equal",
+       bar1.hashCode(), bar2.hashCode());
+  }
 }

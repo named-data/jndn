@@ -22,6 +22,7 @@ package net.named_data.jndn.tests.unit_tests;
 
 import net.named_data.jndn.Name;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -33,6 +34,24 @@ public class TestNameComponentMethods {
     Name.Component comp1 = new Name.Component("entr\u00E9e");
     String expected = "entr%C3%A9e";
     assertEquals("Unicode URI not decoded correctly", comp1.toEscapedString(), expected);
+  }
+
+  @Test
+  public void
+  testHashCode()
+  {
+    Name.Component foo1 = new Name.Component("foo");
+    Name.Component foo2 = new Name.Component("foo");
+
+    assertEquals
+      ("Hash codes for same strings are not equal",
+       foo1.hashCode(), foo2.hashCode());
+
+    Name.Component bar = new Name.Component("bar");
+    // Strictly speaking, it is possible for a hash collision, but unlikely.
+    assertTrue
+      ("Hash codes for different strings are not different",
+       foo1.hashCode() != bar.hashCode());
   }
 
   // Many more component methods to be tested!
