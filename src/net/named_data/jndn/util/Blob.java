@@ -253,6 +253,32 @@ public class Blob {
   }
 
   /**
+   * If the hash code is already computed then return it, otherwise compute and
+   * return the hash code.
+   * @return The hash code for the buffer, or 0 if the buffer is null.
+   */
+  public int hashCode()
+  {
+    if (!haveHashCode_) {
+      if (buffer_ == null)
+        hashCode_ = 0;
+      else {
+        int hashCode = 0;
+        int limit = buffer_.limit();
+        // Use the same hash code algorithm as String.
+        for (int i = buffer_.position(); i < limit; ++i)
+          hashCode = 31 * hashCode + buffer_.get(i);
+
+        hashCode_ = hashCode;
+      }
+
+      haveHashCode_ = true;
+    }
+
+    return hashCode_;
+  }
+
+  /**
    * Decode the byte array as UTF8 and return the Unicode string.
    * @return A unicode string, or "" if the buffer is null.
    */
@@ -272,4 +298,6 @@ public class Blob {
   }
 
   private final ByteBuffer buffer_;
+  private boolean haveHashCode_ = false;
+  private int hashCode_;
 }

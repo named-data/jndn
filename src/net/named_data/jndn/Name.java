@@ -291,6 +291,11 @@ public class Name implements ChangeCountable, Comparable {
       return equals((Component)other);
     }
 
+    public int hashCode()
+    {
+      return value_.hashCode();
+    }
+
     /**
      * Compare this to the other Component using NDN canonical ordering.
      * @param other The other Component to compare with.
@@ -706,12 +711,34 @@ public class Name implements ChangeCountable, Comparable {
     if (components_.size() != name.components_.size())
       return false;
 
-    for (int i = 0; i < components_.size(); ++i) {
+    // Check from last to first since the last components are more likely to differ.
+    for (int i = components_.size() - 1; i >= 0; --i) {
       if (!get(i).getValue().equals(name.get(i).getValue()))
         return false;
     }
 
     return true;
+  }
+
+  public int hashCode()
+  {
+    if (hashCodeChangeCount_ != getChangeCount()) {
+      // The values have changed, so the previous hash code is invalidated.
+      haveHashCode_ = false;
+      hashCodeChangeCount_ = getChangeCount();
+    }
+
+    if (!haveHashCode_) {
+      int hashCode = 0;
+      // Use a similar hash code algorithm as String.
+      for (int i = 0; i < components_.size(); ++i)
+        hashCode = 37 * hashCode + ((Component)components_.get(i)).hashCode();
+
+      hashCode_ = hashCode;
+      haveHashCode_ = true;
+    }
+
+    return hashCode_;
   }
 
   /**
@@ -1038,4 +1065,7 @@ public class Name implements ChangeCountable, Comparable {
   // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList components_;
   private long changeCount_ = 0;
+  private boolean haveHashCode_ = false;
+  private int hashCode_;
+  private long hashCodeChangeCount_ = 0;
 }
