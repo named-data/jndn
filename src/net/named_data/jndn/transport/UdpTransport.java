@@ -20,9 +20,7 @@
 package net.named_data.jndn.transport;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import net.named_data.jndn.encoding.ElementListener;
@@ -78,13 +76,11 @@ public class UdpTransport extends Transport {
   
   /**
    * Determine whether the current transport is to a node on the current
-   * machine. According to
-   * http://redmine.named-data.net/issues/2532#note-8, UDP transports are always
-   * non-local.
+   * machine. According to http://redmine.named-data.net/issues/2532#note-8, UDP
+   * transports are always non-local.
    *
    * @return
    */
-  @Override
   public boolean isLocal(Transport.ConnectionInfo connectionInfo) {
     return false;
   }

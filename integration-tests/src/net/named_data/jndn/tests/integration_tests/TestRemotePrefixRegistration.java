@@ -69,6 +69,9 @@ public class TestRemotePrefixRegistration {
         System.exit(1);
       }
     });
+	
+	// check if face is local
+	logger.info("Face is local: " + face.isLocal());
 
     // register remotely
     face.registerPrefix(new Name("/remote-prefix"), new OnInterest() {

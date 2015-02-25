@@ -311,7 +311,21 @@ public class Node implements ElementListener {
       }
     }
   }
+  
+  /**
+   * Check if the face is local; some Transport that may cause network IO (e.g.
+   * an IPv4 host name lookup).
+   * 
+   * @return
+   * @throws IOException 
+   */
+  public final boolean isLocal() throws IOException{
+    return transport_.isLocal(connectionInfo_);
+  }
 
+  /**
+   * Shut down by closing the transport
+   */
   public final void
   shutdown()
   {
@@ -1002,10 +1016,16 @@ public class Node implements ElementListener {
     Interest commandInterest = new Interest();
     
     // determine whether to use remote prefix registration
-    if(transport_.isLocal(connectionInfo_))
-      commandInterest.setName(new Name("/localhost/nfd/rib/register"));
-    else
-      commandInterest.setName(new Name("/localhop/nfd/rib/register"));
+    try {
+      if (this.isLocal())
+        commandInterest.setName(new Name("/localhost/nfd/rib/register"));
+      else
+        commandInterest.setName(new Name("/localhop/nfd/rib/register"));
+    } catch (IOException ex) {
+      Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        "Register prefix failed: Error attempting to determine if the face is local: {0}", ex);
+      onRegisterFailed.onRegisterFailed(prefix);
+    }
     
     // NFD only accepts TlvWireFormat packets.
     commandInterest.getName().append(controlParameters.wireEncode(TlvWireFormat.get()));
@@ -1033,7 +1053,7 @@ public class Node implements ElementListener {
       onRegisterFailed.onRegisterFailed(prefix);
     }
   }
-
+    
   private final Transport transport_;
   private final Transport.ConnectionInfo connectionInfo_;
   // Use ArrayList without generics so it works with older Java compilers.

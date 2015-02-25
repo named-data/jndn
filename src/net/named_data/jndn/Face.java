@@ -40,7 +40,7 @@ public class Face {
    */
   public Face(Transport transport, Transport.ConnectionInfo connectionInfo)
   {
-    node_ =new Node(transport, connectionInfo);
+    node_ = new Node(transport, connectionInfo);
   }
 
   /**
@@ -623,6 +623,19 @@ public class Face {
   {
     // Just call Node's processEvents.
     node_.processEvents();
+  }
+  
+  /**
+   * Check if the face is local; some Transport that may cause network IO (e.g.
+   * an IP host name lookup).
+   * 
+   * @return
+   * @throws IOException 
+   */
+  public boolean
+  isLocal() throws IOException
+  {
+    return node_.isLocal();
   }
 
   /**

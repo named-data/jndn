@@ -78,23 +78,26 @@ public class TcpTransport extends Transport {
   
   /**
    * Determine whether the current transport is to a node on the current
-   * machine. According to
+   * machine; results are cached. According to
    * http://redmine.named-data.net/projects/nfd/wiki/ScopeControl#local-face,
-   * TCP transports with a loopback address are local.
+   * TCP transports with a loopback address are local. If connectionInfo 
+   * contains a host name, InetAddress will do a blocking DNS lookup; otherwise
+   * it will parse the IP address and examine the first octet to determine if
+   * it is a loopback address (e.g. first octet == 127).
    *
    * @param connectionInfo
    * @return 
+   * @throws java.io.IOException 
    */
-  @Override
-  public boolean isLocal(Transport.ConnectionInfo connectionInfo) {
-    try{
-      InetAddress address = InetAddress.getByName(
-        ((ConnectionInfo) connectionInfo).getHost());
-      return address.isLoopbackAddress();
+  public boolean isLocal(Transport.ConnectionInfo connectionInfo) 
+    throws IOException
+  {
+    if(connectionInfo != connectionInfo_){
+      connectionInfo_ = (ConnectionInfo) connectionInfo;
+      InetAddress address = InetAddress.getByName(connectionInfo_.getHost());
+      isLocal_ = address.isLoopbackAddress();
     }
-    catch(UnknownHostException e){
-      throw new Error("...", e);
-    }
+    return isLocal_;
   }
 
   /**
@@ -203,4 +206,6 @@ public class TcpTransport extends Transport {
   ByteBuffer inputBuffer_ = ByteBuffer.allocate(8000);
   // TODO: This belongs in the socket listener.
   private ElementReader elementReader_;
+  private ConnectionInfo connectionInfo_;
+  private boolean isLocal_;
 }

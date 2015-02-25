@@ -41,8 +41,10 @@ public abstract class Transport {
 	 *
    * @param connectionInfo
 	 * @return
+   * @throws java.io.IOException
 	 */
-	public abstract boolean isLocal(Transport.ConnectionInfo connectionInfo);
+	public abstract boolean isLocal(Transport.ConnectionInfo connectionInfo) 
+    throws IOException;
 
   /**
    * Connect according to the info in ConnectionInfo, and use elementListener.
