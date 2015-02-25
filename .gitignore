@@ -2,7 +2,9 @@
 *.class
 /build
 /dist
-target
+/target
+/integration-tests/target
+/examples/target
 
 # JUnit output
 /TEST*.xml
