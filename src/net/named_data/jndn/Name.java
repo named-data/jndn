@@ -291,6 +291,11 @@ public class Name implements ChangeCountable, Comparable {
       return equals((Component)other);
     }
 
+    public int hashCode()
+    {
+      return value_.hashCode();
+    }
+
     /**
      * Compare this to the other Component using NDN canonical ordering.
      * @param other The other Component to compare with.
