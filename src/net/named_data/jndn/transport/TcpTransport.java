@@ -23,7 +23,6 @@ import java.nio.channels.SocketChannel;
 import java.net.InetSocketAddress;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.ElementReader;
