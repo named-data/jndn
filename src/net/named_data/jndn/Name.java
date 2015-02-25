@@ -720,6 +720,27 @@ public class Name implements ChangeCountable, Comparable {
     return true;
   }
 
+  public int hashCode()
+  {
+    if (hashCodeChangeCount_ != getChangeCount()) {
+      // The values have changed, so the previous hash code is invalidated.
+      haveHashCode_ = false;
+      hashCodeChangeCount_ = getChangeCount();
+    }
+
+    if (!haveHashCode_) {
+      int hashCode = 0;
+      // Use a similar hash code algorithm as String.
+      for (int i = 0; i < components_.size(); ++i)
+        hashCode = 37 * hashCode + ((Component)components_.get(i)).hashCode();
+
+      hashCode_ = hashCode;
+      haveHashCode_ = true;
+    }
+
+    return hashCode_;
+  }
+
   /**
    * Check if the N components of this name are the same as the first N
    * components of the given name.
@@ -1044,4 +1065,7 @@ public class Name implements ChangeCountable, Comparable {
   // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList components_;
   private long changeCount_ = 0;
+  private boolean haveHashCode_ = false;
+  private int hashCode_;
+  private long hashCodeChangeCount_ = 0;
 }
