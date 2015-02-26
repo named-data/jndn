@@ -91,7 +91,9 @@ public class TcpTransport extends Transport {
   public boolean isLocal(Transport.ConnectionInfo connectionInfo) 
     throws IOException
   {
-    if(connectionInfo != connectionInfo_){
+    if(connectionInfo_ == null || !((ConnectionInfo) connectionInfo).getHost()
+      .equals(connectionInfo_.getHost()))
+    {
       connectionInfo_ = (ConnectionInfo) connectionInfo;
       InetAddress address = InetAddress.getByName(connectionInfo_.getHost());
       isLocal_ = address.isLoopbackAddress();
