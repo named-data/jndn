@@ -262,15 +262,8 @@ public class Blob {
     if (!haveHashCode_) {
       if (buffer_ == null)
         hashCode_ = 0;
-      else {
-        int hashCode = 0;
-        int limit = buffer_.limit();
-        // Use the same hash code algorithm as String.
-        for (int i = buffer_.position(); i < limit; ++i)
-          hashCode = 31 * hashCode + buffer_.get(i);
-
-        hashCode_ = hashCode;
-      }
+      else
+        hashCode_ = buffer_.hashCode();
 
       haveHashCode_ = true;
     }
