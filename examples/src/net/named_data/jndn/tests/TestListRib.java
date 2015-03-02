@@ -222,7 +222,7 @@ public class TestListRib {
 
   /**
    * This is called when all the segments are received to decode the
-   * encodedMessage as a TLV RibEntry message and display the values.
+   * encodedMessage as a sequence of TLV RibEntry messages and display the values.
    * @param encodedMessage The TLV-encoded RibEntry.
    */
   public static void
