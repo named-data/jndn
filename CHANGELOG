@@ -1,9 +1,10 @@
-Interim changes since jNDN v0.3 (2015-02-25)
+Interim changes since jNDN v0.3 (2015-03-02)
 --------------------------------------------
 
 Changes
 * In MemoryIdentityStorage, implemented support to get/set the default identity/key, etc. Thanks to Andrew Brown.
 * http://redmine.named-data.net/issues/2545 In Blob and Name, added hashCode().
+* Examples: Added TestListFaces to query NFD the same as "nfd-status -f".
 * Unit tests: In TestNameComponents, etc. added testHashCode().
 
 Bug fixes
@@ -16,7 +17,7 @@ Changes
 * http://redmine.named-data.net/issues/2374 Changed from Ant to the Maven build system. Thanks to Andrew Brown!
 * http://redmine.named-data.net/issues/2388 Moved example programs from "tests" to "examples".
 * In KeyChain.createIdentity, added an optional KeyParams argument.
-* Examples: Added test-list-rib to query NFD.
+* Examples: Added TestListRib to query NFD the same as "nfd-status -r".
 * Unit tests: Added test-der-encode-decode tests for CertificateExtension.
 * Unit tests: Moved unit tests that depend on the file system to integration-tests.
 
