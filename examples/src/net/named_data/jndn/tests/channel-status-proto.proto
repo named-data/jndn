@@ -1,0 +1,15 @@
+// Compile this file using:
+// protoc --java_out=. channel-status-proto.proto
+
+package net.named_data.jndn.tests;
+
+// Protobuf has no "outer" message type, so we need to put the TLV ChannelStatus
+// message inside an outer "typeless" ChannelStatusMessage.
+message ChannelStatusMessage {
+  message ChannelStatus {
+    required string local_uri = 129;
+  }
+
+  // A ChannelStatusMessage has repeated ChannelStatus.
+  repeated ChannelStatus channel_status = 130;
+}
