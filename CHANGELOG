@@ -5,6 +5,7 @@ Changes
 * In MemoryIdentityStorage, implemented support to get/set the default identity/key, etc. Thanks to Andrew Brown.
 * http://redmine.named-data.net/issues/2545 In Blob and Name, added hashCode().
 * Examples: Added TestListFaces to query NFD the same as "nfd-status -f".
+* Examples: Added TestListChannels to query NFD the same as "nfd-status -c".
 * Unit tests: In TestNameComponents, etc. added testHashCode().
 
 Bug fixes
