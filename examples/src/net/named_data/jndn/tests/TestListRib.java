@@ -197,7 +197,7 @@ public class TestListRib {
          new FetchSegmentsCallbacks.OnComplete() {
            public void onComplete(Blob content) {
              enabled[0] = false;
-             printRibEntry(content);
+             printRibEntries(content);
            }},
          new FetchSegmentsCallbacks.OnError() {
            public void onError(String message) {
@@ -226,7 +226,7 @@ public class TestListRib {
    * @param encodedMessage The TLV-encoded RibEntry.
    */
   public static void
-  printRibEntry(Blob encodedMessage)
+  printRibEntries(Blob encodedMessage)
   {
     RibEntryMessage.Builder ribEntryMessage = RibEntryMessage.newBuilder();
     try {
