@@ -83,9 +83,8 @@ public class TcpTransport extends Transport {
    * contains a host name, InetAddress will do a blocking DNS lookup; otherwise
    * it will parse the IP address and examine the first octet to determine if
    * it is a loopback address (e.g. first octet == 127).
-   *
-   * @param connectionInfo
-   * @return 
+   * @param connectionInfo A TcpTransport.ConnectionInfo with the host to check.
+   * @return True if the host is local, false if not.
    * @throws java.io.IOException 
    */
   public boolean isLocal(Transport.ConnectionInfo connectionInfo) 
