@@ -265,6 +265,16 @@ public class Node implements ElementListener {
 
   public final void onReceivedElement(ByteBuffer element) throws EncodingException
   {
+    LocalControlHeader localControlHeader = null;
+    if (element.get(0) == Tlv.LocalControlHeader_LocalControlHeader) {
+      // Decode the LocalControlHeader and replace element with the payload.
+      localControlHeader = new LocalControlHeader();
+      System.out.println("Debug decode localControlHeader");
+      localControlHeader.wireDecode(element, TlvWireFormat.get());
+      element = localControlHeader.getPayloadWireEncoding().buf();
+      System.out.println("Debug new element " + new Blob(element, false).toHex());
+    }
+
     // First, decode as Interest or Data.
     Interest interest = null;
     Data data = null;
