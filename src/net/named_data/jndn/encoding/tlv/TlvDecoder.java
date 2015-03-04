@@ -150,7 +150,7 @@ public class TlvDecoder {
       int newPosition = input_.position() + length;
       // Check newPosition before updating input_position since it would
       //   throw its own exception.
-      if (newPosition > input_.remaining())
+      if (newPosition > input_.limit())
         throw new EncodingException("TLV length exceeds the buffer length");
       input_.position(newPosition);
     }
