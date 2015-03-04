@@ -313,10 +313,9 @@ public class Node implements ElementListener {
   }
   
   /**
-   * Check if the face is local; some Transport that may cause network IO (e.g.
-   * an IPv4 host name lookup).
-   * 
-   * @return
+   * Check if the face is local based on the current connection through the
+   * Transport; some Transport may cause network IO (e.g. an IP host name lookup).
+   * @return True if the face is local, false if not.
    * @throws IOException 
    */
   public final boolean isLocal() throws IOException{
