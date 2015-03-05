@@ -110,15 +110,17 @@ public class Sha256WithRsaSignature extends Signature {
   public final void
   setPublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest)
   {
-    publisherPublicKeyDigest_.set((publisherPublicKeyDigest == null ?
-      new PublisherPublicKeyDigest() : publisherPublicKeyDigest));
+    publisherPublicKeyDigest_.set
+      (publisherPublicKeyDigest == null ? new PublisherPublicKeyDigest()
+      : new PublisherPublicKeyDigest(publisherPublicKeyDigest));
     ++changeCount_;
   }
 
   public final void
   setKeyLocator(KeyLocator keyLocator)
   {
-    keyLocator_.set((keyLocator == null ? new KeyLocator() : keyLocator));
+    keyLocator_.set
+      ((keyLocator == null ? new KeyLocator() : new KeyLocator(keyLocator)));
     ++changeCount_;
   }
 
