@@ -42,6 +42,7 @@ import net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes;
 import net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersMessage;
 import net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponseMessage;
 import net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponse;
+import net.named_data.jndn.util.SegmentFetcher;
 
 /**
  * This sends a /localhost/nfd/faces/query command to the local NFD to get the
@@ -212,22 +213,19 @@ public class TestRegisterRoute {
 
       Interest interest = new Interest(new Name("/localhost/nfd/faces/query"));
       interest.getName().append(encodedFilter);
-      interest.setChildSelector(1);
 
       final boolean[] enabled = new boolean[] { true };
-      // Use the FetchSegmentsCallbacks defined in TestListRib in this package.
-      new FetchSegmentsCallbacks
-        (face,
-         new FetchSegmentsCallbacks.OnComplete() {
+      SegmentFetcher.fetch
+        (face, interest, SegmentFetcher.DontVerifySegment,
+         new SegmentFetcher.OnComplete() {
            public void onComplete(Blob content) {
              processFaceStatus(content, prefix, uri, face, enabled);
            }},
-         new FetchSegmentsCallbacks.OnError() {
-           public void onError(String message) {
+         new SegmentFetcher.OnError() {
+           public void onError(SegmentFetcher.ErrorCode errorCode, String message) {
              enabled[0] = false;
              System.out.println(message);
-           }})
-        .startFetch(interest);
+           }});
 
       // Loop calling processEvents until a callback sets enabled[0] = false.
       while (enabled[0]) {
