@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>. A copy
  * of the GNU Lesser General Public License is in the file COPYING.
  */
-package net.named_data.jndn.tests.integration_tests;
+package net.named_data.jndn.tests;
 
 import java.util.logging.Logger;
 import java.io.IOException;
@@ -43,8 +43,8 @@ public class TestRemotePrefixRegistration {
 
   /**
    * Ensure remote NFD has localhop configuration enabled for any certificate;
-   * inside the integration-tests directory, run with `mvn -q test
-   * -DclassName=TestRemotePrefixRegistration -Dip=[IP address to remote NFD]`.
+   * inside the integration-tests directory, run with 
+   * `mvn -q test -DclassName=TestRemotePrefixRegistration -Dip=[IP address to remote NFD]`.
    *
    * @param args
    * @throws Exception
