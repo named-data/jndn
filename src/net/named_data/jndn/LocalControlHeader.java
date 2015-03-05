@@ -31,6 +31,22 @@ import net.named_data.jndn.util.Blob;
  */
 public class LocalControlHeader {
   /**
+   * Create a LocalControlHeader where all fields are not specified.
+   */
+  public LocalControlHeader() {}
+
+  /**
+   * Create a LocalControlHeader with a copy of the fields in localControlHeader.
+   * @param localControlHeader The LocalControlHeader to copy.
+   */
+  public LocalControlHeader(LocalControlHeader localControlHeader)
+  {
+    incomingFaceId_ = localControlHeader.incomingFaceId_;
+    nextHopFaceId_ = localControlHeader.nextHopFaceId_;
+    payloadWireEncoding_ = localControlHeader.payloadWireEncoding_;
+  }
+
+  /**
    * Get the incoming face ID.
    * @return The incoming face ID. If not specified, return -1.
    */
