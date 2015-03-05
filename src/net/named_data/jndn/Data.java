@@ -192,6 +192,14 @@ public class Data implements ChangeCountable, SignatureHolder {
   getContent() { return content_; }
 
   /**
+   * Get the incoming face ID of the local control header.
+   * @return The incoming face ID. If not specified, return -1.
+   * @note This is an experimental feature. This API may change in the future.
+   */
+  long
+  getIncomingFaceId() { return localControlHeader_.getIncomingFaceId(); }
+
+  /**
    * Return a pointer to the defaultWireEncoding, which was encoded with
    * getDefaultWireEncodingFormat().
    * @return The default wire encoding. Its pointer may be null.
@@ -276,6 +284,22 @@ public class Data implements ChangeCountable, SignatureHolder {
   }
 
   /**
+   * Set localControlHeader to a copy of the given LocalControlHeader.
+   * @param localControlHeader The LocalControlHeader which is copied.
+   * @return This Data so that you can chain calls to update values.
+   * @note This is an experimental feature. This API may change in the future.
+   */
+  public final Data
+  setLocalControlHeader(LocalControlHeader localControlHeader)
+  {
+    localControlHeader_ =
+      (localControlHeader == null ?
+       new LocalControlHeader() : new LocalControlHeader(localControlHeader));
+    // Don't update changeCount_ since this doesn't affect the wire encoding.
+    return this;
+  }
+
+  /**
    * Get the change count, which is incremented each time this object
    * (or a child object) is changed.
    * @return The change count.
@@ -311,6 +335,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   private final ChangeCounter metaInfo_ =
     new ChangeCounter(new MetaInfo());
   private Blob content_ = new Blob();
+  private LocalControlHeader localControlHeader_ = new LocalControlHeader();
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
   private WireFormat defaultWireEncodingFormat_;
   private long getDefaultWireEncodingChangeCount_ = 0;
