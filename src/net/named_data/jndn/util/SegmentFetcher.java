@@ -215,7 +215,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
       // We don't expect a name without a segment number.  Treat it as a bad packet.
       onError_.onError
         (ErrorCode.DATA_HAS_NO_SEGMENT,
-         "Got an unexpected packet without a segment number");
+         "Got an unexpected packet without a segment number: " + data.getName().toUri());
     else {
       long currentSegment;
       try {
@@ -224,7 +224,8 @@ public class SegmentFetcher implements OnData, OnTimeout {
       catch (EncodingException ex) {
         onError_.onError
           (ErrorCode.DATA_HAS_NO_SEGMENT,
-           "Error decoding the name segment number " + ex);
+           "Error decoding the name segment number " +
+           data.getName().get(-1).toEscapedString() + ": " + ex);
         return;
       }
 
@@ -246,7 +247,8 @@ public class SegmentFetcher implements OnData, OnTimeout {
           catch (EncodingException ex) {
             onError_.onError
               (ErrorCode.DATA_HAS_NO_SEGMENT,
-               "Error decoding the FinalBlockId segment number " + ex);
+               "Error decoding the FinalBlockId segment number " +
+               data.getMetaInfo().getFinalBlockId().toEscapedString() + ": " + ex);
             return;
           }
 
