@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.3 (2015-03-02)
+Interim changes since jNDN v0.3 (2015-03-05)
 --------------------------------------------
 
 Changes
@@ -9,6 +9,7 @@ Changes
 * Unit tests: In TestNameComponents, etc. added testHashCode().
 
 Bug fixes
+* http://redmine.named-data.net/issues/2619: Data.setName, etc. should copy the object.
 * Blob: Fix bug for getImmutableArray() when the ByteBuffer is read only.
 
 jNDN v0.3 (2015-02-18)

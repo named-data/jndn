@@ -72,7 +72,7 @@ public class KeyLocator implements ChangeCountable {
   public final void
   setKeyName(Name keyName)
   {
-    keyName_.set((keyName == null ? new Name() : keyName));
+    keyName_.set(keyName == null ? new Name() : new Name(keyName));
     ++changeCount_;
   }
 
