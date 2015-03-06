@@ -40,7 +40,7 @@ public class Face {
    */
   public Face(Transport transport, Transport.ConnectionInfo connectionInfo)
   {
-    node_ =new Node(transport, connectionInfo);
+    node_ = new Node(transport, connectionInfo);
   }
 
   /**
@@ -623,6 +623,19 @@ public class Face {
   {
     // Just call Node's processEvents.
     node_.processEvents();
+  }
+  
+  /**
+   * Check if the face is local based on the current connection through the
+   * Transport; some Transport may cause network IO (e.g. an IP host name lookup).
+   * @return True if the face is local, false if not.
+   * @throws IOException 
+   * @note This is an experimental feature. This API may change in the future.
+   */
+  public boolean
+  isLocal() throws IOException
+  {
+    return node_.isLocal();
   }
 
   /**

@@ -73,6 +73,17 @@ public class UdpTransport extends Transport {
     private final String host_;
     private final int port_;
   }
+  
+  /**
+   * Determine whether the current transport is to a node on the current
+   * machine. According to http://redmine.named-data.net/issues/2532#note-8, UDP
+   * transports are always non-local.
+   * @param connectionInfo This is ignored.
+   * @return False because UDP transports are always non-local.
+   */
+  public boolean isLocal(Transport.ConnectionInfo connectionInfo) {
+    return false;
+  }
 
   /**
    * Connect according to the info in ConnectionInfo, and use elementListener.
@@ -87,7 +98,7 @@ public class UdpTransport extends Transport {
     throws IOException
   {
     close();
-
+    
     channel_ = DatagramChannel.open();
     channel_.connect(new InetSocketAddress
       (((ConnectionInfo)connectionInfo).getHost(),
