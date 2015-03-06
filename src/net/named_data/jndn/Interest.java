@@ -465,40 +465,18 @@ public class Interest implements ChangeCountable {
   }
 
   /**
-   * Set localControlHeader to a copy of the given LocalControlHeader.
+   * An internal library method to set localControlHeader to a copy of the given
+   * LocalControlHeader for an incoming packet. The application should not call
+   * this.
    * @param localControlHeader The LocalControlHeader which is copied.
    * @note This is an experimental feature. This API may change in the future.
    */
-  public final void
+  final void
   setLocalControlHeader(LocalControlHeader localControlHeader)
   {
     localControlHeader_ =
       (localControlHeader == null ?
        new LocalControlHeader() : new LocalControlHeader(localControlHeader));
-    // Don't update changeCount_ since this doesn't affect the wire encoding.
-  }
-
-  /**
-   * Set the incoming face ID for the local control header.
-   * @param incomingFaceId The incoming face ID. If not specified, set to -1.
-   * @note This is an experimental feature. This API may change in the future.
-   */
-  public final void
-  setIncomingFaceId(long incomingFaceId)
-  {
-    localControlHeader_.setIncomingFaceId(incomingFaceId);
-    // Don't update changeCount_ since this doesn't affect the wire encoding.
-  }
-
-  /**
-   * Set the next hop face ID for the local control header.
-   * @param nextHopFaceId The next hop face ID. If not specified, set to -1.
-   * @note This is an experimental feature. This API may change in the future.
-   */
-  public final void
-  setNextHopFaceId(long nextHopFaceId)
-  {
-    localControlHeader_.setNextHopFaceId(nextHopFaceId);
     // Don't update changeCount_ since this doesn't affect the wire encoding.
   }
 
