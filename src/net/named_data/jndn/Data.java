@@ -196,7 +196,7 @@ public class Data implements ChangeCountable, SignatureHolder {
    * @return The incoming face ID. If not specified, return -1.
    * @note This is an experimental feature. This API may change in the future.
    */
-  long
+  public final long
   getIncomingFaceId() { return localControlHeader_.getIncomingFaceId(); }
 
   /**
