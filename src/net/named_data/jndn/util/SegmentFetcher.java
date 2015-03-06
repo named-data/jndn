@@ -151,7 +151,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
   }
     
   /**
-   * Create a new SegmentFetcher to use the Face.  Then call startFetch().
+   * Create a new SegmentFetcher to use the Face.
    * @param face This calls face.expressInterest to fetch more segments.
    * @param verifySegment When a Data packet is received this calls
    * verifySegment.verifySegment(data). If it returns false then abort fetching
