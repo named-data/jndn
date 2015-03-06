@@ -3,6 +3,10 @@ Interim changes since jNDN v0.3 (2015-03-05)
 
 Changes
 * In MemoryIdentityStorage, implemented support to get/set the default identity/key, etc. Thanks to Andrew Brown.
+* http://redmine.named-data.net/issues/2532#change-8836 In Face.registerPrefix, if connected to a remote
+  NFD then use localhop to do remote registration. (For remote registration, the remote NFD must be configured
+  for localhop_security.) Added the optional method Face.isLocal() for the application to check if the
+  connection is local. Thanks again to Andrew Brown!
 * http://redmine.named-data.net/issues/2545 In Blob and Name, added hashCode().
 * Added class util/SegmentFetcher, ported from ndn-cxx. Use it in examples TestListRib, etc.
 * Examples: Added TestListFaces to query NFD the same as "nfd-status -f".
