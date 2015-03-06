@@ -257,7 +257,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   public Data
   setName(Name name)
   {
-    name_.set((name == null ? new Name() : name));
+    name_.set(name == null ? new Name() : new Name(name));
     ++changeCount_;
     return this;
   }
@@ -270,7 +270,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   public final Data
   setMetaInfo(MetaInfo metaInfo)
   {
-    metaInfo_.set(metaInfo == null ? new MetaInfo(metaInfo) : metaInfo);
+    metaInfo_.set(metaInfo == null ? new MetaInfo() : new MetaInfo(metaInfo));
     ++changeCount_;
     return this;
   }

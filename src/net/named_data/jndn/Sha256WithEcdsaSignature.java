@@ -79,7 +79,7 @@ public class Sha256WithEcdsaSignature extends Signature {
   public final void
   setKeyLocator(KeyLocator keyLocator)
   {
-    keyLocator_.set((keyLocator == null ? new KeyLocator() : keyLocator));
+    keyLocator_.set(keyLocator == null ? new KeyLocator() : new KeyLocator(keyLocator));
     ++changeCount_;
   }
 

@@ -19,6 +19,7 @@
 
 package net.named_data.jndn.tests;
 
+import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
@@ -26,6 +27,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.ProtobufTlv;
 import net.named_data.jndn.tests.ChannelStatusProto.ChannelStatusMessage;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.SegmentFetcher;
 
 /**
  * This sends a faces channels request to the local NFD and prints the response.
@@ -41,25 +43,22 @@ public class TestListChannels {
       Face face = new Face();
 
       Interest interest = new Interest(new Name("/localhost/nfd/faces/channels"));
-      interest.setChildSelector(1);
       interest.setInterestLifetimeMilliseconds(4000);
       System.out.println("Express interest " + interest.getName().toUri());
 
       final boolean[] enabled = new boolean[] { true };
-      // Re-use FetchSegmentsCallbacks from TestListRib in this package.
-      new FetchSegmentsCallbacks
-        (face,
-         new FetchSegmentsCallbacks.OnComplete() {
+      SegmentFetcher.fetch
+        (face, interest, SegmentFetcher.DontVerifySegment,
+         new SegmentFetcher.OnComplete() {
            public void onComplete(Blob content) {
              enabled[0] = false;
              printChannelStatuses(content);
            }},
-         new FetchSegmentsCallbacks.OnError() {
-           public void onError(String message) {
+         new SegmentFetcher.OnError() {
+           public void onError(SegmentFetcher.ErrorCode errorCode, String message) {
              enabled[0] = false;
              System.out.println(message);
-           }})
-        .startFetch(interest);
+           }});
 
       // Loop calling processEvents until a callback sets enabled[0] = false.
       while (enabled[0]) {
