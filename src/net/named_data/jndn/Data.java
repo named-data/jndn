@@ -284,12 +284,14 @@ public class Data implements ChangeCountable, SignatureHolder {
   }
 
   /**
-   * Set localControlHeader to a copy of the given LocalControlHeader.
+   * An internal library method to set localControlHeader to a copy of the given
+   * LocalControlHeader for an incoming packet. The application should not call
+   * this.
    * @param localControlHeader The LocalControlHeader which is copied.
    * @return This Data so that you can chain calls to update values.
    * @note This is an experimental feature. This API may change in the future.
    */
-  public final Data
+  final Data
   setLocalControlHeader(LocalControlHeader localControlHeader)
   {
     localControlHeader_ =
