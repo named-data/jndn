@@ -111,7 +111,9 @@
       <classpath refid="classpath.test" />
 
       <batchtest>
-        <fileset dir="${tests-build}" includes="**/unit_tests/Test*" />
+        <!-- Exclude the inner classes which have "*$*" -->
+        <fileset dir="${tests-build}" includes="**/unit_tests/Test*"
+           excludes="**/unit_tests/*$*" />
       </batchtest>
     </junit>
   </target>
@@ -124,7 +126,9 @@
       <classpath refid="classpath.integration.test" />
 
       <batchtest>
-        <fileset dir="${integration-tests-build}" includes="**/integration_tests/Test*" />
+        <!-- Exclude the inner classes which have "*$*" -->
+        <fileset dir="${integration-tests-build}" includes="**/integration_tests/Test*"
+           excludes="**/integration_tests/*$*"/>
       </batchtest>
     </junit>
   </target>
