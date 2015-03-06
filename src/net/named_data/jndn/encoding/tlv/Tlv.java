@@ -83,4 +83,10 @@ public class Tlv {
   public static final int ControlParameters_Flags =               108;
   public static final int ControlParameters_Strategy =            107;
   public static final int ControlParameters_ExpirationPeriod =    109;
+
+  public static final int LocalControlHeader_LocalControlHeader = 80;
+  public static final int LocalControlHeader_IncomingFaceId = 81;
+  public static final int LocalControlHeader_NextHopFaceId = 82;
+  public static final int LocalControlHeader_CachingPolicy = 83;
+  public static final int LocalControlHeader_NoCache = 96;
 }

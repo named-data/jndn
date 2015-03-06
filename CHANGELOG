@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.3 (2015-03-05)
+Interim changes since jNDN v0.3 (2015-03-06)
 --------------------------------------------
 
 Changes
@@ -9,9 +9,12 @@ Changes
   connection is local. Thanks again to Andrew Brown!
 * http://redmine.named-data.net/issues/2545 In Blob and Name, added hashCode().
 * Added class util/SegmentFetcher, ported from ndn-cxx. Use it in examples TestListRib, etc.
+* http://redmine.named-data.net/issues/2531 Handle an incoming NFD LocalControlHeader
+  packet and return it in the packet getIncomingFaceId().
 * Examples: Added TestListFaces to query NFD the same as "nfd-status -f".
 * Examples: Added TestListChannels to query NFD the same as "nfd-status -c".
 * Unit tests: In TestNameComponents, etc. added testHashCode().
+* Integration tests: Added TestLocalControlHeader.
 
 Bug fixes
 * http://redmine.named-data.net/issues/2619: Data.setName, etc. should copy the object.

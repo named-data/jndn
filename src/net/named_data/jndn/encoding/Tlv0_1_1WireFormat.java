@@ -30,6 +30,7 @@ import net.named_data.jndn.ForwardingFlags;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
+import net.named_data.jndn.LocalControlHeader;
 import net.named_data.jndn.MetaInfo;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
@@ -329,14 +330,18 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
   
   /**
-   * Decode controlParameters in NDN-TLV and return the encoding.
-   * @param controlParameters The ControlParameters object to encode.
-   * @param input
+   * Decode input as a command parameters in NDN-TLV and set the fields of the
+   * controlParameters object.
+   * @param controlParameters The ControlParameters object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
    * @throws EncodingException For invalid encoding
    */
   public void
-  decodeControlParameters(ControlParameters controlParameters,
-	ByteBuffer input) throws EncodingException
+  decodeControlParameters
+    (ControlParameters controlParameters, ByteBuffer input)
+    throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
     int endOffset = decoder.
@@ -458,6 +463,74 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     encoder.writeBlobTlv(Tlv.SignatureValue, signature.getSignature().buf());
 
     return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Encode the LocalControlHeader in NDN-TLV and return the encoding.
+   * @param localControlHeader The LocalControlHeader object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeLocalControlHeader(LocalControlHeader localControlHeader)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    // Encode the entire payload as is.
+    encoder.writeBuffer(localControlHeader.getPayloadWireEncoding().buf());
+
+    // TODO: Encode CachingPolicy when we want to include it for an outgoing Data.
+    encoder.writeOptionalNonNegativeIntegerTlv(
+      Tlv.LocalControlHeader_NextHopFaceId, localControlHeader.getNextHopFaceId());
+    encoder.writeOptionalNonNegativeIntegerTlv(
+      Tlv.LocalControlHeader_IncomingFaceId, localControlHeader.getIncomingFaceId());
+
+    encoder.writeTypeAndLength
+      (Tlv.LocalControlHeader_LocalControlHeader, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as a LocalControlHeader in NDN-TLV and set the fields of the
+   * localControlHeader object.
+   * @param localControlHeader The LocalControlHeader object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding
+   */
+  public void
+  decodeLocalControlHeader
+    (LocalControlHeader localControlHeader, ByteBuffer input)
+    throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = decoder.
+      readNestedTlvsStart(Tlv.LocalControlHeader_LocalControlHeader);
+
+    localControlHeader.setIncomingFaceId(decoder.readOptionalNonNegativeIntegerTlv(
+      Tlv.LocalControlHeader_IncomingFaceId, endOffset));
+    localControlHeader.setNextHopFaceId(decoder.readOptionalNonNegativeIntegerTlv(
+      Tlv.LocalControlHeader_NextHopFaceId, endOffset));
+
+    // Ignore CachingPolicy. // TODO: Process CachingPolicy when we want the
+    // client library to receive it for an incoming Data.
+    if (decoder.peekType(Tlv.LocalControlHeader_CachingPolicy, endOffset)) {
+      int cachingPolicyEndOffset = decoder.readNestedTlvsStart
+        (Tlv.LocalControlHeader_CachingPolicy);
+      decoder.finishNestedTlvs(cachingPolicyEndOffset);
+    }
+
+    // Set the payload to a slice of the remaining input.
+    ByteBuffer payload = input.duplicate();
+    payload.limit(endOffset);
+    payload.position(decoder.getOffset());
+    localControlHeader.setPayloadWireEncoding(new Blob(payload, false));
+
+    // Don't call finishNestedTlvs since we got the payload and don't want to
+    // decode any of it now.
   }
 
   /**

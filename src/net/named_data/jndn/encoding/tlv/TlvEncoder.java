@@ -205,6 +205,30 @@ public class TlvEncoder {
   }
 
   /**
+   * Write the buffer from its position() to limit() to the output just
+   * before getLength() from the back. Advance getLength() of the output. This
+   * does NOT change value.position(). Note that this does not encode a type
+   * and length; for that see writeBlobTlv.
+   * @param buffer The byte buffer with the bytes to write. If buffer is null,
+   * then do nothing.
+   */
+  public final void
+  writeBuffer(ByteBuffer buffer)
+  {
+    if (buffer == null)
+      return;
+
+    // Write backwards.
+    int position = output_.setRemainingFromBack
+      (output_.remaining() + buffer.remaining());
+    int saveBufferValuePosition = buffer.position();
+    output_.buffer().put(buffer);
+    // Restore positions after put.
+    output_.position(position);
+    buffer.position(saveBufferValuePosition);
+  }
+
+  /**
    * Write the type, then the length of the buffer then the buffer value from
    * its position() to limit() to the output just before getLength() from the
    * back. Advance getLength() of the output. This does NOT change
@@ -222,15 +246,8 @@ public class TlvEncoder {
       return;
     }
 
-    // Write backwards, starting with the blob buffer.
-    int position = output_.setRemainingFromBack
-      (output_.remaining() + value.remaining());
-    int saveValuePosition = value.position();
-    output_.buffer().put(value);
-    // Restore positions after put.
-    output_.position(position);
-    value.position(saveValuePosition);
-
+    // Write backwards.
+    writeBuffer(value);
     writeTypeAndLength(type, value.remaining());
   }
 

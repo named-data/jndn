@@ -265,6 +265,14 @@ public class Node implements ElementListener {
 
   public final void onReceivedElement(ByteBuffer element) throws EncodingException
   {
+    LocalControlHeader localControlHeader = null;
+    if (element.get(0) == Tlv.LocalControlHeader_LocalControlHeader) {
+      // Decode the LocalControlHeader and replace element with the payload.
+      localControlHeader = new LocalControlHeader();
+      localControlHeader.wireDecode(element, TlvWireFormat.get());
+      element = localControlHeader.getPayloadWireEncoding().buf();
+    }
+
     // First, decode as Interest or Data.
     Interest interest = null;
     Data data = null;
@@ -276,10 +284,16 @@ public class Node implements ElementListener {
       if (decoder.peekType(Tlv.Interest, element.remaining())) {
         interest = new Interest();
         interest.wireDecode(element, TlvWireFormat.get());
+
+        if (localControlHeader != null)
+          interest.setLocalControlHeader(localControlHeader);
       }
       else if (decoder.peekType(Tlv.Data, element.remaining())) {
         data = new Data();
         data.wireDecode(element, TlvWireFormat.get());
+
+        if (localControlHeader != null)
+          data.setLocalControlHeader(localControlHeader);
       }
     }
     else {

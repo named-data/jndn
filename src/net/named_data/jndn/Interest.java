@@ -336,6 +336,28 @@ public class Interest implements ChangeCountable {
     return nonce_;
   }
 
+  /**
+   * Get the incoming face ID of the local control header.
+   * @return The incoming face ID. If not specified, return -1.
+   * @note This is an experimental feature. This API may change in the future.
+   */
+  public final long
+  getIncomingFaceId()
+  {
+    return localControlHeader_.getIncomingFaceId();
+  }
+
+  /**
+   * Get the next hop face ID.
+   * @return The next hop face ID. If not specified, return -1.
+   * @note This is an experimental feature. This API may change in the future.
+   */
+  public final long
+  getNextHopFaceId()
+  {
+    return localControlHeader_.getNextHopFaceId();
+  }
+
   public final void
   setName(Name name)
   {
@@ -443,6 +465,22 @@ public class Interest implements ChangeCountable {
   }
 
   /**
+   * An internal library method to set localControlHeader to a copy of the given
+   * LocalControlHeader for an incoming packet. The application should not call
+   * this.
+   * @param localControlHeader The LocalControlHeader which is copied.
+   * @note This is an experimental feature. This API may change in the future.
+   */
+  final void
+  setLocalControlHeader(LocalControlHeader localControlHeader)
+  {
+    localControlHeader_ =
+      (localControlHeader == null ?
+       new LocalControlHeader() : new LocalControlHeader(localControlHeader));
+    // Don't update changeCount_ since this doesn't affect the wire encoding.
+  }
+
+  /**
    * Check if this Interest's name matches the given name (using Name.match)
    * and the given name also conforms to the interest selectors.
    * @param name The name to check.
@@ -542,6 +580,7 @@ public class Interest implements ChangeCountable {
   private double interestLifetimeMilliseconds_ = -1;
   private Blob nonce_ = new Blob();
   private long getNonceChangeCount_ = 0;
+  private LocalControlHeader localControlHeader_ = new LocalControlHeader();
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
   private WireFormat defaultWireEncodingFormat_;
   private long getDefaultWireEncodingChangeCount_ = 0;

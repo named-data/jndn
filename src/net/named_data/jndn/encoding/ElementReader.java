@@ -71,7 +71,7 @@ public class ElementReader {
         //   just look at the first byte.
         int firstByte = (int)data.get(0) & 0xff;
         if (firstByte == Tlv.Interest || firstByte == Tlv.Data ||
-            firstByte == 0x80)
+            firstByte == Tlv.LocalControlHeader_LocalControlHeader)
           useTlv_ = true;
         else
           // Binary XML.
