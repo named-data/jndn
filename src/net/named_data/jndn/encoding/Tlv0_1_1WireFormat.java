@@ -330,7 +330,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
   
   /**
-   * Decode input as a command parameters in NDN-TLV and set the fields of the
+   * Decode input as a control parameters in NDN-TLV and set the fields of the
    * controlParameters object.
    * @param controlParameters The ControlParameters object whose fields are
    * updated.
@@ -343,6 +343,8 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     (ControlParameters controlParameters, ByteBuffer input)
     throws EncodingException
   {
+    controlParameters.clear();
+    
     TlvDecoder decoder = new TlvDecoder(input);
     int endOffset = decoder.
       readNestedTlvsStart(Tlv.ControlParameters_ControlParameters);

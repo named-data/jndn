@@ -274,7 +274,7 @@ public class WireFormat {
   }
 
   /**
-   * Decode input as a command parameters and set the fields of the
+   * Decode input as a control parameters and set the fields of the
    * controlParameters object.  Your derived class should override.
    * @param controlParameters The ControlParameters object whose fields are
    * updated.
