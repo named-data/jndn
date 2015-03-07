@@ -195,7 +195,24 @@ public class ControlParameters {
     expirationPeriod_ = expirationPeriod;
     return this;
   }
-  
+
+  /**
+   * Clear fields and reset to default values.
+   */
+  public final void
+  clear()
+  {
+    name_ = new Name();
+    faceId_ = -1;
+    uri_ = "";
+    localControlFeature_ = -1;
+    origin_ = -1;
+    cost_ = -1;
+    flags_ = new ForwardingFlags();
+    strategy_ = new Name();
+    expirationPeriod_ = -1.0;
+  }
+
   public final boolean
   equals(Object other)
   {
