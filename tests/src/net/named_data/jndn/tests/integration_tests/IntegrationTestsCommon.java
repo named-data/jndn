@@ -17,8 +17,9 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
-package net.named_data.jndn.tests.integration_tests;
+package src.net.named_data.jndn.tests.integration_tests;
 
+import src.net.named_data.jndn.tests.integration_tests.*;
 import java.io.File;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.security.OnVerified;

@@ -3,7 +3,6 @@
 /build
 /dist
 /target
-/integration-tests/target
 /examples/target
 
 # JUnit output
@@ -24,3 +23,5 @@ nb-configuration.xml
 # unit_test temporary files
 examples/src/net/named_data/jndn/tests/unit_tests/policy_config/test-public-info.db
 /integration-tests/target/
+integration-tests/src/net/named_data/jndn/tests/integration_tests/policy_config/test-public-info.db
+tests/src/net/named_data/jndn/tests/integration_tests/policy_config/test-public-info.db
