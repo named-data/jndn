@@ -18,7 +18,6 @@
  */
 package src.net.named_data.jndn.tests.integration_tests;
 
-import src.net.named_data.jndn.tests.integration_tests.*;
 import java.io.File;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.Name;

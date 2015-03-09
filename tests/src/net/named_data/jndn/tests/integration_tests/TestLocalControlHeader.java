@@ -19,7 +19,6 @@
 
 package src.net.named_data.jndn.tests.integration_tests;
 
-import src.net.named_data.jndn.tests.integration_tests.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;

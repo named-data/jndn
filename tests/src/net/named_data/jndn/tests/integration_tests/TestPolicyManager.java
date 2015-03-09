@@ -20,7 +20,6 @@
 
 package src.net.named_data.jndn.tests.integration_tests;
 
-import src.net.named_data.jndn.tests.integration_tests.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
