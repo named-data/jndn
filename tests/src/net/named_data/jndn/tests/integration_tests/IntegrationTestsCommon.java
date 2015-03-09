@@ -38,7 +38,7 @@ public class IntegrationTestsCommon {
   {
     File result = new File(System.getProperty("user.dir"));
     String[] path =
-      {"integration-tests", "src", "net", "named_data", "jndn", "tests", "integration_tests", "policy_config"};
+      {"tests", "src", "net", "named_data", "jndn", "tests", "integration_tests", "policy_config"};
     for (int i = 0; i < path.length; ++i)
       result = new File(result, path[i]);
 

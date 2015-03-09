@@ -13,7 +13,7 @@
   <property name="examples-build" location="examples/build"/>
   <property name="tests-src" location="tests/src"/>
   <property name="tests-build" location="tests/build"/>
-  <property name="integration-tests-src" location="integration-tests/src"/>
+  <property name="integration-tests-src" location="tests/src"/>
   <property name="integration-tests-build" location="integration-tests/build"/>
   <property name="dist"  location="dist"/>
   <condition property="protobuf.available">
