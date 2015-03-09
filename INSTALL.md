@@ -64,7 +64,7 @@ To build without this dependency, enter:
 Building 'package' automatically runs the unit tests in the folder 'tests'. To also
 run the integration tests (you must be running NFD), in a terminal enter:
 
-    mvn integration-test
+    mvn verify -P with-integration-tests
 
 To run the examples, you must first install the jar file. In the jNDN root directory, enter:
 
