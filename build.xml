@@ -13,8 +13,6 @@
   <property name="examples-build" location="examples/build"/>
   <property name="tests-src" location="tests/src"/>
   <property name="tests-build" location="tests/build"/>
-  <property name="integration-tests-src" location="tests/src"/>
-  <property name="integration-tests-build" location="integration-tests/build"/>
   <property name="dist"  location="dist"/>
   <condition property="protobuf.available">
     <available classname="com.google.protobuf.Message"/>
@@ -27,7 +25,6 @@
     <mkdir dir="${build}"/>
     <mkdir dir="${examples-build}"/>
     <mkdir dir="${tests-build}"/>
-    <mkdir dir="${integration-tests-build}"/>
   </target>
 
   <path id="classpath.lib">
@@ -44,13 +41,6 @@
     <pathelement location="./contrib/junit-4.11.jar"/>
     <pathelement location="./contrib/sqlite-jdbc-3.8.7.jar"/>
     <pathelement location="${tests-build}" />
-  </path>
-
-  <path id="classpath.integration.test">
-    <pathelement location="./contrib/hamcrest-core-1.3.jar"/>
-    <pathelement location="./contrib/junit-4.11.jar"/>
-    <pathelement location="./contrib/sqlite-jdbc-3.8.7.jar"/>
-    <pathelement location="${integration-tests-build}" />
   </path>
 
   <target name="compile" depends="init" description="compile the library source" >
@@ -82,14 +72,6 @@
     </javac>
   </target>
 
-  <target name="compile-integration-tests" depends="compile" description="compile the integration tests source" >
-    <!-- Compile the java code from ${integration-tests-src} into ${integration-tests-build} -->
-    <javac srcdir="${integration-tests-src}" destdir="${integration-tests-build}" includeantruntime="true">
-      <classpath refid="classpath.lib" />
-      <classpath refid="classpath.integration.test"/>
-    </javac>
-  </target>
-
   <target name="dist" depends="compile"
         description="generate the distribution" >
     <!-- Create the distribution directory -->
@@ -118,16 +100,16 @@
     </junit>
   </target>
 
-  <target name="integration-test" depends="compile-integration-tests" description="run the JUnit integration tests">
+  <target name="integration-test" depends="compile-tests" description="run the JUnit integration tests">
     <junit fork="no" haltonfailure="no">
       <formatter type="plain" usefile="false" />
       <formatter type="xml" />
       <classpath refid="classpath.lib" />
-      <classpath refid="classpath.integration.test" />
+      <classpath refid="classpath.test" />
 
       <batchtest>
         <!-- Exclude the inner classes which have "*$*" -->
-        <fileset dir="${integration-tests-build}" includes="**/integration_tests/Test*"
+        <fileset dir="${tests-build}" includes="**/integration_tests/Test*"
            excludes="**/integration_tests/*$*"/>
       </batchtest>
     </junit>
@@ -137,7 +119,6 @@
     <delete dir="${build}"/>
     <delete dir="${examples-build}"/>
     <delete dir="${tests-build}"/>
-    <delete dir="${integration-tests-build}"/>
     <delete dir="${dist}"/>
   </target>
 </project>
