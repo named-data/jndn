@@ -609,21 +609,38 @@ public class Name implements ChangeCountable, Comparable {
 
   /**
    * Encode this name as a URI according to the NDN URI Scheme.
+   * @param includeScheme If true, include the "ndn:" scheme in the URI, e.g.
+   * "ndn:/example/name". If false, just return the path, e.g. "/example/name",
+   * which is normally the case where toUri() is used for display.
    * @return The URI string.
    */
   public final String
-  toUri()
+  toUri(boolean includeScheme)
   {
     if (components_.isEmpty())
-      return "/";
+      return includeScheme ? "ndn:/" : "/";
 
     StringBuffer result = new StringBuffer();
+    if (includeScheme)
+      result.append("ndn:");
     for (int i = 0; i < components_.size(); ++i) {
       result.append("/");
       toEscapedString(get(i).getValue().buf(), result);
     }
 
     return result.toString();
+  }
+
+  /**
+   * Encode this name as a URI according to the NDN URI Scheme. Just return the
+   * path, e.g. "/example/name" which is the default case where toUri() is used
+   * for display.
+   * @return The URI string.
+   */
+  public final String
+  toUri()
+  {
+    return toUri(false);
   }
 
   /**
