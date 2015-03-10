@@ -357,7 +357,7 @@ public class Node implements ElementListener {
    * is larger than this, the library or application MAY drop it.
    * @return The maximum NDN packet size.
    */
-  static int
+  public static int
   getMaxNdnPacketSize() { return Common.MAX_NDN_PACKET_SIZE; }
 
   private static class PendingInterest {
