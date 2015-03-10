@@ -26,6 +26,7 @@ import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.transport.TcpTransport;
 import net.named_data.jndn.transport.Transport;
+import net.named_data.jndn.util.Common;
 
 /**
  * The Face class provides the main methods for NDN communication.
@@ -92,6 +93,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -117,6 +119,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -138,6 +141,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -158,6 +162,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest(Interest interest, OnData onData) throws IOException
@@ -185,6 +190,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -228,6 +234,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -254,6 +261,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -282,6 +290,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -309,6 +318,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -336,6 +346,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -360,6 +371,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest
@@ -383,6 +395,7 @@ public class Face {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public long
   expressInterest(Name name, OnData onData) throws IOException
@@ -646,6 +659,14 @@ public class Face {
   {
     node_.shutdown();
   }
+
+  /**
+   * Get the practical limit of the size of a network-layer packet. If a packet
+   * is larger than this, the library or application MAY drop it.
+   * @return The maximum NDN packet size.
+   */
+  static int
+  getMaxNdnPacketSize() { return Common.MAX_NDN_PACKET_SIZE; }
 
   private Node node_;
   KeyChain commandKeyChain_ = null;
