@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.ElementReader;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.util.Common;
 
 public class TcpTransport extends Transport {
   /**
@@ -203,7 +204,7 @@ public class TcpTransport extends Transport {
   }
 
   SocketChannel channel_;
-  ByteBuffer inputBuffer_ = ByteBuffer.allocate(8000);
+  ByteBuffer inputBuffer_ = ByteBuffer.allocate(Common.MAX_NDN_PACKET_SIZE);
   // TODO: This belongs in the socket listener.
   private ElementReader elementReader_;
   private ConnectionInfo connectionInfo_;

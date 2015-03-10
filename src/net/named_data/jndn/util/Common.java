@@ -132,6 +132,15 @@ public class Common {
     }
   }
 
+  /**
+   * The practical limit of the size of a network-layer packet. If a packet is
+   * larger than this, the library or application MAY drop it. This constant is
+   * defined in this low-level class so that internal code can use it, but
+   * applications should use the static API method
+   * Face.getMaxNdnPacketSize() which is equivalent.
+   */
+  public static final int MAX_NDN_PACKET_SIZE = 8800;
+
   private enum Base64ConverterType {
     UNINITIALIZED, JAVAX, ANDROID, UNSUPPORTED
   }
