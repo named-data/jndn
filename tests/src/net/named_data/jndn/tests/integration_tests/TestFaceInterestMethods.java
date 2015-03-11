@@ -215,4 +215,28 @@ public class TestFaceInterestMethods {
     assertTrue("Should not have called timeout callback after interest was removed",
                counter.onTimeoutCallCount_ == 0);
   }
+
+  @Test
+  public void
+  testMaxNdnPacketSize() throws IOException
+  {    
+    // Construct an interest whose encoding is one byte larger than getMaxNdnPacketSize.
+    int targetSize = Face.getMaxNdnPacketSize() + 1;
+    // Start with an interest which is almost the right size.
+    Interest interest = new Interest();
+    interest.getName().append(new byte[targetSize]);
+    int initialSize = interest.wireEncode().size();
+    // Now replace the component with the desired size which trims off the extra encoding.
+    interest.setName
+      (new Name().append(new byte[targetSize - (initialSize - targetSize)]));
+    int interestSize = interest.wireEncode().size();
+    assertEquals("Wrong interest size for MaxNdnPacketSize",
+                 targetSize, interestSize);
+
+    CallbackCounter counter = new CallbackCounter();
+    try {
+      face.expressInterest(interest, counter, counter);
+      fail("expressInterest didn't throw an exception when the interest size exceeds getMaxNdnPacketSize()");
+    } catch (Error ex) {}
+  }
 }

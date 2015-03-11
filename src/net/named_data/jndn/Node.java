@@ -80,6 +80,7 @@ public class Node implements ElementListener {
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
    */
   public final long
   expressInterest
@@ -97,6 +98,9 @@ public class Node implements ElementListener {
     // Special case: For timeoutPrefix_ we don't actually send the interest.
     if (!timeoutPrefix_.match(interest.getName())) {
       Blob encoding = interest.wireEncode(wireFormat);
+      if (encoding.size() > getMaxNdnPacketSize())
+        throw new Error
+          ("The encoded interest size exceeds the maximum limit getMaxNdnPacketSize()");
       transport_.send(encoding.buf());
     }
     
@@ -347,6 +351,14 @@ public class Node implements ElementListener {
     }
     catch (IOException e) {}
   }
+
+  /**
+   * Get the practical limit of the size of a network-layer packet. If a packet
+   * is larger than this, the library or application MAY drop it.
+   * @return The maximum NDN packet size.
+   */
+  public static int
+  getMaxNdnPacketSize() { return Common.MAX_NDN_PACKET_SIZE; }
 
   private static class PendingInterest {
     public PendingInterest
