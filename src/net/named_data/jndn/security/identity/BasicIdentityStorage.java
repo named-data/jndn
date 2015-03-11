@@ -39,14 +39,14 @@ import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.util.Blob;
 
 /**
- * BasicIdentityStorage extends IdentityStorage to implement basic storage of 
+ * BasicIdentityStorage extends IdentityStorage to implement basic storage of
  * identity, public keys and certificates using the org.sqlite.JDBC SQLite
  * provider.
  */
 public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   /**
-   * Create a new BasicIdentityStorage to use the SQLite in the default
-   * location.
+   * Create a new BasicIdentityStorage to use the SQLite3 file in the
+   * default location.
    */
   public BasicIdentityStorage() throws SecurityException
   {
@@ -58,9 +58,8 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   }
 
   /**
-   * Create a new BasicIdentityStorage to work with the given SQLite file.
-   * @param databaseFilePath The path of the SQLite file. If
-      omitted, use the default location.
+   * Create a new BasicIdentityStorage to use the given SQLite3 file.
+   * @param databaseFilePath The path of the SQLite file.
    */
   public BasicIdentityStorage(String databaseFilePath) throws SecurityException
   {
