@@ -130,7 +130,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT count(*) FROM Identity WHERE identity_name=?");
+        (SELECT_doesIdentityExist);
       statement.setString(1, identityName.toUri());
 
       try {
@@ -197,7 +197,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT count(*) FROM Key WHERE identity_name=? AND key_identifier=?");
+        (SELECT_doesKeyExist);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -271,8 +271,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     Name identityName = keyName.getPrefix(-1);
 
     try {
-      PreparedStatement statement = database_.prepareStatement
-        ("SELECT public_key FROM Key WHERE identity_name=? AND key_identifier=?");
+      PreparedStatement statement = database_.prepareStatement(SELECT_getKey);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -346,7 +345,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT count(*) FROM Certificate WHERE cert_name=?");
+        (SELECT_doesCertificateExist);
       statement.setString(1, certificateName.toUri());
 
       try {
@@ -453,8 +452,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
           */
         }
         else {
-          statement = database_.prepareStatement
-            ("SELECT certificate_data FROM Certificate WHERE cert_name=?");
+          statement = database_.prepareStatement(SELECT_getCertificate);
           statement.setString(1, certificateName.toUri());
         }
 
@@ -498,8 +496,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     try {
       Statement statement = database_.createStatement();
       try {
-        ResultSet result = statement.executeQuery
-          ("SELECT identity_name FROM Identity WHERE default_identity=1");
+        ResultSet result = statement.executeQuery(SELECT_getDefaultIdentity);
 
         if (result.next())
           return new Name(result.getString("identity_name"));
@@ -525,7 +522,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT key_identifier FROM Key WHERE identity_name=? AND default_key=1");
+        (SELECT_getDefaultKeyNameForIdentity);
       statement.setString(1, identityName.toUri());
 
       try {
@@ -559,7 +556,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT cert_name FROM Certificate WHERE identity_name=? AND key_identifier=? AND default_cert=1");
+        (SELECT_getDefaultCertificateNameForKey);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -591,8 +588,8 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     (Name identityName, ArrayList nameList, boolean isDefault) throws SecurityException
   {
     try {
-      String sql = "SELECT key_identifier FROM Key WHERE default_key=" +
-        (isDefault ? "1" : "0") + " and identity_name=?";
+      String sql = isDefault ? SELECT_getAllKeyNamesOfIdentity_default_true
+        : SELECT_getAllKeyNamesOfIdentity_default_false;
       PreparedStatement statement = database_.prepareStatement(sql);
       statement.setString(1, identityName.toUri());
 

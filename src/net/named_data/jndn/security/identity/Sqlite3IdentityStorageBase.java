@@ -79,4 +79,24 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
 "CREATE INDEX cert_index ON Certificate(cert_name);           \n" +
 "CREATE INDEX subject ON Certificate(identity_name);          \n";
 
+  protected static final String SELECT_doesIdentityExist =
+    "SELECT count(*) FROM Identity WHERE identity_name=?";
+  protected static final String SELECT_doesKeyExist =
+    "SELECT count(*) FROM Key WHERE identity_name=? AND key_identifier=?";
+  protected static final String SELECT_getKey =
+    "SELECT public_key FROM Key WHERE identity_name=? AND key_identifier=?";
+  protected static final String SELECT_doesCertificateExist =
+    "SELECT count(*) FROM Certificate WHERE cert_name=?";
+  protected static final String SELECT_getCertificate =
+    "SELECT certificate_data FROM Certificate WHERE cert_name=?";
+  protected static final String SELECT_getDefaultIdentity =
+    "SELECT identity_name FROM Identity WHERE default_identity=1";
+  protected static final String SELECT_getDefaultKeyNameForIdentity =
+    "SELECT key_identifier FROM Key WHERE identity_name=? AND default_key=1";
+  protected static final String SELECT_getDefaultCertificateNameForKey =
+    "SELECT cert_name FROM Certificate WHERE identity_name=? AND key_identifier=? AND default_cert=1";
+  protected static final String SELECT_getAllKeyNamesOfIdentity_default_true =
+    "SELECT key_identifier FROM Key WHERE default_key=1 and identity_name=?";
+  protected static final String SELECT_getAllKeyNamesOfIdentity_default_false =
+    "SELECT key_identifier FROM Key WHERE default_key=0 and identity_name=?";
 }
