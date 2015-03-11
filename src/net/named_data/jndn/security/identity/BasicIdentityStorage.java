@@ -39,12 +39,13 @@ import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.util.Blob;
 
 /**
- * BasicIdentityStorage extends IdentityStorage to implement a basic storage of
- * identity, public keys and certificates using SQLite.
+ * BasicIdentityStorage extends IdentityStorage to implement basic storage of 
+ * identity, public keys and certificates using the org.sqlite.JDBC SQLite
+ * provider.
  */
-public class BasicIdentityStorage extends IdentityStorage {
+public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   /**
-   * Create a new BasicIdentityStorage to work the SQLite in the default
+   * Create a new BasicIdentityStorage to use the SQLite in the default
    * location.
    */
   public BasicIdentityStorage() throws SecurityException
@@ -84,8 +85,7 @@ public class BasicIdentityStorage extends IdentityStorage {
       // Use "try/finally instead of "try-with-resources" or "using" which are not supported before Java 7.
       try {
         //Check if the ID table exists.
-        ResultSet result = statement.executeQuery
-          ("SELECT name FROM sqlite_master WHERE type='table' And name='Identity'");
+        ResultSet result = statement.executeQuery(SELECT_MASTER_ID_TABLE);
         boolean idTableExists = false;
         if (result.next())
           idTableExists = true;
@@ -95,8 +95,7 @@ public class BasicIdentityStorage extends IdentityStorage {
           statement.executeUpdate(INIT_ID_TABLE);
 
         //Check if the Key table exists.
-        result = statement.executeQuery
-          ("SELECT name FROM sqlite_master WHERE type='table' And name='Key'");
+        result = statement.executeQuery(SELECT_MASTER_KEY_TABLE);
         idTableExists = false;
         if (result.next())
           idTableExists = true;
@@ -106,8 +105,7 @@ public class BasicIdentityStorage extends IdentityStorage {
           statement.executeUpdate(INIT_KEY_TABLE);
 
         //Check if the Certificate table exists.
-        result = statement.executeQuery
-          ("SELECT name FROM sqlite_master WHERE type='table' And name='Certificate'");
+        result = statement.executeQuery(SELECT_MASTER_CERT_TABLE);
         idTableExists = false;
         if (result.next())
           idTableExists = true;
@@ -838,51 +836,6 @@ public class BasicIdentityStorage extends IdentityStorage {
       throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
   }
-
-  private static final String INIT_ID_TABLE =
-"CREATE TABLE IF NOT EXISTS                                           \n" +
-"  Identity(                                                          \n" +
-"      identity_name     BLOB NOT NULL,                               \n" +
-"      default_identity  INTEGER DEFAULT 0,                           \n" +
-"                                                                     \n" +
-"      PRIMARY KEY (identity_name)                                    \n" +
-"  );                                                                 \n" +
-"                                                                     \n" +
-"CREATE INDEX identity_index ON Identity(identity_name);              \n";
-
-  private static final String INIT_KEY_TABLE =
-"CREATE TABLE IF NOT EXISTS                                           \n" +
-"  Key(                                                               \n" +
-"      identity_name     BLOB NOT NULL,                               \n" +
-"      key_identifier    BLOB NOT NULL,                               \n" +
-"      key_type          INTEGER,                                     \n" +
-"      public_key        BLOB,                                        \n" +
-"      default_key       INTEGER DEFAULT 0,                           \n" +
-"      active            INTEGER DEFAULT 0,                           \n" +
-"                                                                     \n" +
-"      PRIMARY KEY (identity_name, key_identifier)                    \n" +
-"  );                                                                 \n" +
-"                                                                     \n" +
-"CREATE INDEX key_index ON Key(identity_name);                        \n";
-
-  private static final String INIT_CERT_TABLE =
-"CREATE TABLE IF NOT EXISTS                                           \n" +
-"  Certificate(                                                       \n" +
-"      cert_name         BLOB NOT NULL,                               \n" +
-"      cert_issuer       BLOB NOT NULL,                               \n" +
-"      identity_name     BLOB NOT NULL,                               \n" +
-"      key_identifier    BLOB NOT NULL,                               \n" +
-"      not_before        TIMESTAMP,                                   \n" +
-"      not_after         TIMESTAMP,                                   \n" +
-"      certificate_data  BLOB NOT NULL,                               \n" +
-"      valid_flag        INTEGER DEFAULT 1,                           \n" +
-"      default_cert      INTEGER DEFAULT 0,                           \n" +
-"                                                                     \n" +
-"      PRIMARY KEY (cert_name)                                        \n" +
-"  );                                                                 \n" +
-"                                                                     \n" +
-"CREATE INDEX cert_index ON Certificate(cert_name);           \n" +
-"CREATE INDEX subject ON Certificate(identity_name);          \n";
 
   Connection database_ = null;
 }
