@@ -5,6 +5,10 @@ Changes
 * http://redmine.named-data.net/issues/1921 In Face, added getMaxNdnPacketSize().
   expressInterest throws an exception if the encoded interest size exceeds it.
 
+Bug fixes
+* http://redmine.named-data.net/issues/2549 Added AndroidSqlite3IdentityStorage
+  to use instead of BasicIdentityStorage.
+
 jNDN v0.4 (2015-03-09)
 ----------------------
 
