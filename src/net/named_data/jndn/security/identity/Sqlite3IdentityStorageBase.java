@@ -20,6 +20,9 @@
 
 package net.named_data.jndn.security.identity;
 
+import net.named_data.jndn.Name;
+import net.named_data.jndn.security.SecurityException;
+
 /**
  * SqliteIdentityStorageBase is an abstract base class for the storage of
  * identity, public keys and certificates using SQLite. This base class has
@@ -27,6 +30,36 @@ package net.named_data.jndn.security.identity;
  * tables using their own SQLite libraries.
  */
 public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
+  /**
+   * Activate a key.  If a key is marked as inactive, its private part will not
+   * be used in packet signing.
+   * @param keyName The name of the key.
+   */
+  public final void
+  activateKey(Name keyName) throws SecurityException
+  {
+    updateKeyStatus(keyName, true);
+  }
+
+  /**
+   * Deactivate a key. If a key is marked as inactive, its private part will not
+   * be used in packet signing.
+   * @param keyName The name of the key.
+   */
+  public final void
+  deactivateKey(Name keyName) throws SecurityException
+  {
+    updateKeyStatus(keyName, false);
+  }
+
+  /**
+   * In table Key, set 'active' to isActive for the keyName.
+   * @param keyName The name of the key.
+   * @param isActive The value for the 'active' field.
+   */
+  protected abstract void
+  updateKeyStatus(Name keyName, boolean isActive) throws SecurityException;
+
   protected static final String SELECT_MASTER_ID_TABLE =
     "SELECT name FROM sqlite_master WHERE type='table' And name='Identity'";
   protected static final String SELECT_MASTER_KEY_TABLE =
@@ -99,4 +132,25 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
     "SELECT key_identifier FROM Key WHERE default_key=1 and identity_name=?";
   protected static final String SELECT_getAllKeyNamesOfIdentity_default_false =
     "SELECT key_identifier FROM Key WHERE default_key=0 and identity_name=?";
+
+  protected static final String WHERE_updateKeyStatus =
+    "identity_name=? AND key_identifier=?";
+  protected static final String WHERE_setDefaultIdentity_reset =
+    "default_identity=1";
+  protected static final String WHERE_setDefaultIdentity_set =
+    "identity_name=?";
+  protected static final String WHERE_setDefaultKeyNameForIdentity_reset =
+    "default_key=1 and identity_name=?";
+  protected static final String WHERE_setDefaultKeyNameForIdentity_set =
+    "identity_name=? AND key_identifier=?";
+  protected static final String WHERE_setDefaultCertificateNameForKey_reset =
+    "default_cert=1 AND identity_name=? AND key_identifier=?";
+  protected static final String WHERE_setDefaultCertificateNameForKey_set =
+    "identity_name=? AND key_identifier=? AND cert_name=?";
+  protected static final String WHERE_deleteCertificateInfo =
+    "cert_name=?";
+  protected static final String WHERE_deletePublicKeyInfo =
+    "identity_name=? and key_identifier=?";
+  protected static final String WHERE_deleteIdentityInfo =
+    "identity_name=?";
 }

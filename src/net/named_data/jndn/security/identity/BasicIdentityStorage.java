@@ -291,28 +291,11 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   }
 
   /**
-   * Activate a key.  If a key is marked as inactive, its private part will not
-   * be used in packet signing.
+   * In table Key, set 'active' to isActive for the keyName.
    * @param keyName The name of the key.
+   * @param isActive The value for the 'active' field.
    */
-  public final void
-  activateKey(Name keyName) throws SecurityException
-  {
-    updateKeyStatus(keyName, true);
-  }
-
-  /**
-   * Deactivate a key. If a key is marked as inactive, its private part will not
-   * be used in packet signing.
-   * @param keyName The name of the key.
-   */
-  public final void
-  deactivateKey(Name keyName) throws SecurityException
-  {
-    updateKeyStatus(keyName, false);
-  }
-
-  private void
+  protected void
   updateKeyStatus(Name keyName, boolean isActive) throws SecurityException
   {
     String keyId = keyName.get(-1).toEscapedString();
@@ -320,7 +303,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE Key SET active=? WHERE identity_name=? AND key_identifier=?");
+        ("UPDATE Key SET active=? WHERE " + WHERE_updateKeyStatus);
       statement.setInt(1, (isActive ? 1 : 0));
       statement.setString(2, identityName.toUri());
       statement.setString(3, keyId);
@@ -618,7 +601,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     try {
       // Reset the previous default identity.
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE Identity SET default_identity=0 WHERE default_identity=1");
+        ("UPDATE Identity SET default_identity=0 WHERE " + WHERE_setDefaultIdentity_reset);
       try {
         statement.executeUpdate();
       } finally {
@@ -627,7 +610,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
       // Set the current default identity.
       statement = database_.prepareStatement
-        ("UPDATE Identity SET default_identity=1 WHERE identity_name=?");
+        ("UPDATE Identity SET default_identity=1 WHERE " + WHERE_setDefaultIdentity_set);
       statement.setString(1, identityName.toUri());
       try {
         statement.executeUpdate();
@@ -657,7 +640,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     try {
       // Reset the previous default Key.
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE Key SET default_key=0 WHERE default_key=1 and identity_name=?");
+        ("UPDATE Key SET default_key=0 WHERE " + WHERE_setDefaultKeyNameForIdentity_reset);
       statement.setString(1, identityName.toUri());
       try {
         statement.executeUpdate();
@@ -667,7 +650,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
       // Set the current default Key.
       statement = database_.prepareStatement
-        ("UPDATE Key SET default_key=1 WHERE identity_name=? AND key_identifier=?");
+        ("UPDATE Key SET default_key=1 WHERE " + WHERE_setDefaultKeyNameForIdentity_set);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
       try {
@@ -695,7 +678,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     try {
       // Reset the previous default Certificate.
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE Certificate SET default_cert=0 WHERE default_cert=1 AND identity_name=? AND key_identifier=?");
+        ("UPDATE Certificate SET default_cert=0 WHERE " + WHERE_setDefaultCertificateNameForKey_reset);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
       try {
@@ -706,7 +689,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
       // Set the current default Certificate.
       statement = database_.prepareStatement
-        ("UPDATE Certificate SET default_cert=1 WHERE identity_name=? AND key_identifier=? AND cert_name=?");
+        ("UPDATE Certificate SET default_cert=1 WHERE " + WHERE_setDefaultCertificateNameForKey_set);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
       statement.setString(3, certificateName.toUri());
@@ -736,7 +719,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM Certificate WHERE cert_name=?");
+        ("DELETE FROM Certificate WHERE " + WHERE_deleteCertificateInfo);
       statement.setString(1, certificateName.toUri());
 
       try {
@@ -764,7 +747,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM Certificate WHERE identity_name=? and key_identifier=?");
+        ("DELETE FROM Certificate WHERE " + WHERE_deletePublicKeyInfo);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -775,7 +758,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
       }
 
       statement = database_.prepareStatement
-        ("DELETE FROM Key WHERE identity_name=? and key_identifier=?");
+        ("DELETE FROM Key WHERE " + WHERE_deletePublicKeyInfo);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -800,7 +783,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM Certificate WHERE identity_name=?");
+        ("DELETE FROM Certificate WHERE " + WHERE_deleteIdentityInfo);
       statement.setString(1, identity);
 
       try {
@@ -810,7 +793,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
       }
 
       statement = database_.prepareStatement
-        ("DELETE FROM Key WHERE identity_name=?");
+        ("DELETE FROM Key WHERE " + WHERE_deleteIdentityInfo);
       statement.setString(1, identity);
 
       try {
@@ -820,7 +803,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
       }
 
       statement = database_.prepareStatement
-        ("DELETE FROM Identity WHERE identity_name=?");
+        ("DELETE FROM Identity WHERE " + WHERE_deleteIdentityInfo);
       statement.setString(1, identity);
 
       try {
