@@ -139,7 +139,7 @@
 			</build>
 		</profile>
     
-		<!-- protobuf will be included by default -->
+		<!-- protobuf will be included and Android classes excluded by default -->
 		<profile>
 			<id>with-protobuf</id>
 			<activation>
@@ -170,7 +170,7 @@
 			</build>
 		</profile>
     
-		<!-- protobuf and related files can be excluded with this profile -->
+		<!-- protobuf and related files can be excluded (along with Android classes) with this profile -->
 		<profile>
 			<id>without-protobuf</id>
 			<build>
@@ -193,7 +193,22 @@
 				</plugins>
 			</build>
 		</profile>
-		
+
+		<!-- Android classes as well as protobuf can be included with this profile -->
+		<profile>
+			<id>with-android-and-protobuf</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>com.google.protobuf</groupId>
+					<artifactId>protobuf-java</artifactId>
+					<version>2.6.1</version>
+				</dependency>
+			</dependencies>
+		</profile>
+
 		<!-- use this profile to run integration tests on systems with NFD installed; e.g. mvn verify -P with-integration-tests -->
 		<profile>
 			<id>with-integration-tests</id>
