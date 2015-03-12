@@ -44,7 +44,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
   /**
    * Create a new AndroidSqlite3IdentityStorage to use the given full path of
    * the SQLite3 file. This constructor takes the full path instead of just a
-   * directory to be more flexible. You can get the a default file path from an
+   * directory to be more flexible. You can get the default file path from an
    * Android files directory with getDefaultFilePath(context.getFilesDir()).
    * @param databaseFilePath The path of the SQLite file.
    *
@@ -58,7 +58,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
    * Get the default database file path based on the files root. This creates
    * the directory of the default database if it doesn't exist. For example if
    * filesRoot is "/data/data/org.example/files", this returns
-   * "/data/data/org.example/files/.ndn/ndnsec-public-info.db";
+   * "/data/data/org.example/files/.ndn/ndnsec-public-info.db".
    * @param filesRoot The root file directory. An Android app can use
    * context.getFilesDir()
    * @return The default file path.
@@ -69,6 +69,12 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
     return getDefaultFilePath(filesRoot.getAbsolutePath());
   }
   
+  /**
+   * Get the default database file path based on the files root. This creates
+   * the directory of the default database if it doesn't exist.
+   * @param filesRoot The root file directory.
+   * @return The default file path.
+   */
   public static String
   getDefaultFilePath(String filesRoot)
   {
@@ -201,8 +207,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
     if (keyName.size() == 0)
       return;
 
-    if (doesKeyExist(keyName))
-      throw new SecurityException("a key with the same name already exists!");
+    checkAddKey(keyName);
 
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
@@ -291,27 +296,10 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
   public final void
   addCertificate(IdentityCertificate certificate) throws SecurityException
   {
+    checkAddCertificate(certificate);
+
     Name certificateName = certificate.getName();
     Name keyName = certificate.getPublicKeyName();
-
-    if (!doesKeyExist(keyName))
-      throw new SecurityException
-        ("No corresponding Key record for certificate!" + keyName.toUri() +
-         " " + certificateName.toUri());
-
-    // Check if the certificate already exists.
-    if (doesCertificateExist(certificateName))
-      throw new SecurityException("Certificate has already been installed!");
-
-    String keyId = keyName.get(-1).toEscapedString();
-    Name identity = keyName.getPrefix(-1);
-
-    // Check if the public key of the certificate is the same as the key record.
-
-    Blob keyBlob = getKey(keyName);
-
-    if (keyBlob.isNull() || !keyBlob.equals(certificate.getPublicKeyInfo().getKeyDer()))
-      throw new SecurityException("Certificate does not match the public key!");
 
     // Insert the certificate.
     ContentValues values = new ContentValues();
@@ -319,6 +307,8 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
     Name signerName = KeyLocator.getFromSignature
       (certificate.getSignature()).getKeyName();
     values.put("cert_issuer", signerName.toUri());
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identity = keyName.getPrefix(-1);
     values.put("identity_name", identity.toUri());
     values.put("key_identifier", keyId);
     values.put
@@ -503,11 +493,10 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
     throws SecurityException
   {
+    checkSetDefaultKeyNameForIdentity(keyName, identityNameCheck);
+
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
-
-    if (identityNameCheck.size() > 0 && !identityNameCheck.equals(identityName))
-      throw new SecurityException("Specified identity name does not match the key name");
 
     // Reset the previous default Key.
     ContentValues values = new ContentValues();

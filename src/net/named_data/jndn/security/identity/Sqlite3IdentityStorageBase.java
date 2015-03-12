@@ -22,6 +22,8 @@ package net.named_data.jndn.security.identity;
 
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.certificate.IdentityCertificate;
+import net.named_data.jndn.util.Blob;
 
 /**
  * SqliteIdentityStorageBase is an abstract base class for the storage of
@@ -59,6 +61,68 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
    */
   protected abstract void
   updateKeyStatus(Name keyName, boolean isActive) throws SecurityException;
+
+  /**
+   * Throw an exception if it is an error for addKey to add the key.
+   * @param keyName The name of the public key to be added.
+   * @throws SecurityException if the key already exists or other problem.
+   */
+  protected void
+  checkAddKey(Name keyName) throws SecurityException
+  {
+    if (doesKeyExist(keyName))
+      throw new SecurityException("a key with the same name already exists!");
+  }
+
+  /**
+   * Throw an exception if it is an error for addCertificate to add the certificate.
+   * @param certificate The certificate to be added.  This makes a copy of the
+   * certificate.
+   * @throws SecurityException if the certificate is already installed or other
+   * problem.
+   */
+  protected void
+  checkAddCertificate(IdentityCertificate certificate) throws SecurityException
+  {
+    Name certificateName = certificate.getName();
+    Name keyName = certificate.getPublicKeyName();
+
+    if (!doesKeyExist(keyName))
+      throw new SecurityException
+        ("No corresponding Key record for certificate!" + keyName.toUri() +
+         " " + certificateName.toUri());
+
+    // Check if the certificate already exists.
+    if (doesCertificateExist(certificateName))
+      throw new SecurityException("Certificate has already been installed!");
+
+    // Check if the public key of the certificate is the same as the key record.
+
+    Blob keyBlob = getKey(keyName);
+
+    if (keyBlob.isNull() || !keyBlob.equals(certificate.getPublicKeyInfo().getKeyDer()))
+      throw new SecurityException("Certificate does not match the public key!");
+  }
+
+  /**
+   * Throw an exception if it is an error for setDefaultKeyNameForIdentity to
+   * set it.
+   * @param keyName The key name.
+   * @param identityNameCheck The identity name to check the keyName.
+   * @throws SecurityException if the identity name does not match the key name
+   * or other problem.
+   */
+  protected void
+  checkSetDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
+    throws SecurityException
+  {
+    String keyId = keyName.get(-1).toEscapedString();
+    Name identityName = keyName.getPrefix(-1);
+
+    if (identityNameCheck.size() > 0 && !identityNameCheck.equals(identityName))
+      throw new SecurityException
+        ("The specified identity name does not match the key name");
+  }
 
   protected static final String SELECT_MASTER_ID_TABLE =
     "SELECT name FROM sqlite_master WHERE type='table' And name='Identity'";

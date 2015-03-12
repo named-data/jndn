@@ -230,8 +230,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     if (keyName.size() == 0)
       return;
 
-    if (doesKeyExist(keyName))
-      throw new SecurityException("a key with the same name already exists!");
+    checkAddKey(keyName);
 
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
@@ -355,27 +354,10 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   public final void
   addCertificate(IdentityCertificate certificate) throws SecurityException
   {
+    checkAddCertificate(certificate);
+
     Name certificateName = certificate.getName();
     Name keyName = certificate.getPublicKeyName();
-
-    if (!doesKeyExist(keyName))
-      throw new SecurityException
-        ("No corresponding Key record for certificate!" + keyName.toUri() +
-         " " + certificateName.toUri());
-
-    // Check if the certificate already exists.
-    if (doesCertificateExist(certificateName))
-      throw new SecurityException("Certificate has already been installed!");
-
-    String keyId = keyName.get(-1).toEscapedString();
-    Name identity = keyName.getPrefix(-1);
-
-    // Check if the public key of the certificate is the same as the key record.
-
-    Blob keyBlob = getKey(keyName);
-
-    if (keyBlob.isNull() || !keyBlob.equals(certificate.getPublicKeyInfo().getKeyDer()))
-      throw new SecurityException("Certificate does not match the public key!");
 
     // Insert the certificate.
     try {
@@ -388,6 +370,8 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
         (certificate.getSignature()).getKeyName();
       statement.setString(2, signerName.toUri());
 
+      String keyId = keyName.get(-1).toEscapedString();
+      Name identity = keyName.getPrefix(-1);
       statement.setString(3, identity.toUri());
       statement.setString(4, keyId);
 
@@ -631,11 +615,10 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
     throws SecurityException
   {
+    checkSetDefaultKeyNameForIdentity(keyName, identityNameCheck);
+
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
-
-    if (identityNameCheck.size() > 0 && !identityNameCheck.equals(identityName))
-      throw new SecurityException("Specified identity name does not match the key name");
 
     try {
       // Reset the previous default Key.
