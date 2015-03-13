@@ -209,6 +209,9 @@
 							<includes>
 								<include>**/AndroidSqlite3IdentityStorage.java</include>
 							</includes>
+                            <excludes>
+                                <exclude>**/integration_tests/*.java</exclude>
+                            </excludes>
 						</configuration>
 					</plugin>
 				</plugins>
