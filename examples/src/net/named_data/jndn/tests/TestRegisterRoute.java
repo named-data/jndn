@@ -392,7 +392,7 @@ public class TestRegisterRoute {
          new OnTimeout() {
            public void onTimeout(Interest interest) {
              enabled[0] = false;
-             System.out.println("Face create command timed out.");
+             System.out.println("Register route command timed out.");
            }});
     }
     catch (Exception e) {
