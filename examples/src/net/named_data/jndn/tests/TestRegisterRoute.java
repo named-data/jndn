@@ -403,14 +403,10 @@ public class TestRegisterRoute {
 
   /**
    * This is called when the register route command responds to decode the
-   * encodedControlResonse as a TLV ControlResponse message containing one
-   * ControlParameters. On success, print the ControlParameters values which
-   * should be the same as requested.
-   * @param encodedControlResponse The TLV-encoded ControlResponse.
-   * @param prefix The prefix name to register.
-   * @param face The Face which is used to sign the command interest and call
-   * expressInterest.
-   * @param enabled On success or error, set enabled[0] = false;
+   * encodedControlResponse as a TLV ControlParametersResponse message
+   * containing one ControlParameters. On success, print the ControlParameters
+   * values which should be the same as requested.
+   * @param encodedControlResponse The TLV-encoded ControlParametersResponse.
    */
   private static void
   processRegisterResponse(Blob encodedControlResponse)
