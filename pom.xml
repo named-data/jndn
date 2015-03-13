@@ -54,6 +54,18 @@
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>tests</testSourceDirectory>
 		<plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <excludes>
+                        <!-- Assume that an Android project does not use Maven -->
+                        <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
 			<!-- do not run integration tests by default -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -152,22 +164,6 @@
 					<version>2.6.1</version>
 				</dependency>
 			</dependencies>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.2</version>
-						<configuration>
-							<source>1.7</source>
-							<target>1.7</target>
-							<excludes>
-                                <!-- Assume that an Android project does not use Maven -->
-								<exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
     
 		<!-- protobuf and related files can be excluded (along with Android classes) with this profile -->
@@ -185,8 +181,6 @@
 								<exclude>**/ProtobufTlv.java</exclude>
 								<exclude>**/ChronoSync2013.java</exclude>
 								<exclude>**/SyncStateProto.java</exclude>
-                                <!-- Assume that an Android project does not use Maven -->
-								<exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -197,21 +191,6 @@
 		<!-- Android classes as well as protobuf can be included with this profile -->
 		<profile>
 			<id>with-android-and-protobuf</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>com.google.protobuf</groupId>
-					<artifactId>protobuf-java</artifactId>
-					<version>2.6.1</version>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<!-- use this profile to run integration tests on systems with NFD installed; e.g. mvn verify -P with-integration-tests -->
-		<profile>
-			<id>with-integration-tests</id>
 			<dependencies>
 				<dependency>
 					<groupId>com.google.protobuf</groupId>
@@ -227,12 +206,27 @@
 						<configuration>
 							<source>1.7</source>
 							<target>1.7</target>
-							<excludes>
-                                <!-- Assume that an Android project does not use Maven -->
-								<exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
-							</excludes>
+							<includes>
+								<include>**/AndroidSqlite3IdentityStorage.java</include>
+							</includes>
 						</configuration>
 					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<!-- use this profile to run integration tests on systems with NFD installed; e.g. mvn verify -P with-integration-tests -->
+		<profile>
+			<id>with-integration-tests</id>
+			<dependencies>
+				<dependency>
+					<groupId>com.google.protobuf</groupId>
+					<artifactId>protobuf-java</artifactId>
+					<version>2.6.1</version>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-failsafe-plugin</artifactId>
