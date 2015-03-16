@@ -209,7 +209,7 @@
 							<includes>
 								<include>**/AndroidSqlite3IdentityStorage.java</include>
 							</includes>
-                            <excludes>
+                            <excludes combine.self="override">
                                 <exclude>**/integration_tests/*.java</exclude>
                             </excludes>
 						</configuration>
