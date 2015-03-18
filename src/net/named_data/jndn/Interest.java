@@ -358,49 +358,79 @@ public class Interest implements ChangeCountable {
     return localControlHeader_.getNextHopFaceId();
   }
 
-  public final void
+  /**
+   * Set the interest name.
+   * @note You can also call getName and change the name values directly.
+   * @param name The interest name. This makes a copy of the name.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
   setName(Name name)
   {
     name_.set(name == null ? new Name() : new Name(name));
     ++changeCount_;
+    return this;
   }
 
-  public final void
+  /**
+   * Set the min suffix components count.
+   * @param minSuffixComponents The min suffix components count. If not
+   * specified, set to -1.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
   setMinSuffixComponents(int minSuffixComponents)
   {
     minSuffixComponents_ = minSuffixComponents;
     ++changeCount_;
+    return this;
   }
 
-  public final void
+  /**
+   * Set the max suffix components count.
+   * @param maxSuffixComponents The max suffix components count. If not
+   * specified, set to -1.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
   setMaxSuffixComponents(int maxSuffixComponents)
   {
     maxSuffixComponents_ = maxSuffixComponents;
     ++changeCount_;
+    return this;
   }
 
-  public final void
+  /**
+   * Set the child selector.
+   * @param childSelector The child selector. If not specified, set to -1.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
   setChildSelector(int childSelector)
   {
     childSelector_ = childSelector;
     ++changeCount_;
+    return this;
   }
 
   /**
    * @deprecated Use setMustBeFresh.
    */
-  public final void
+  public final Interest
   setAnswerOriginKind(int answerOriginKind)
   {
     answerOriginKind_ = answerOriginKind;
     ++changeCount_;
+    return this;
   }
 
   /**
    * Set the MustBeFresh flag.
-   * @param mustBeFresh True if the content must be fresh, otherwise false.
+   * @param mustBeFresh True if the content must be fresh, otherwise false. If
+   * you do not set this flag, the default value is true.
+   * @return This Interest so that you can chain calls to update values.
    */
-  public final void
+  public final Interest
   setMustBeFresh(boolean mustBeFresh)
   {
     if (answerOriginKind_ < 0) {
@@ -420,27 +450,41 @@ public class Interest implements ChangeCountable {
         answerOriginKind_ |= ANSWER_STALE;
       ++changeCount_;
     }
+    return this;
   }
 
-  public final void
+  /**
+   * Set the interest scope.
+   * @param scope The interest scope. If not specified, set to -1.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
   setScope(int scope)
   {
     scope_ = scope;
     ++changeCount_;
+    return this;
   }
 
-  public final void
+  /**
+   * Set the interest lifetime.
+   * @param interestLifetimeMilliseconds The interest lifetime in milliseconds.
+   * If not specified, set to -1.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
   setInterestLifetimeMilliseconds(double interestLifetimeMilliseconds)
   {
     interestLifetimeMilliseconds_ = interestLifetimeMilliseconds;
     ++changeCount_;
+    return this;
   }
 
   /**
    * @deprecated You should let the wire encoder generate a random nonce
    * internally before sending the interest.
    */
-  public final void
+  public final Interest
   setNonce(Blob nonce)
   {
     nonce_ = (nonce == null ? new Blob() : nonce);
@@ -448,20 +492,39 @@ public class Interest implements ChangeCountable {
     //   clear nonce_.
     ++changeCount_;
     getNonceChangeCount_ = getChangeCount();
+    return this;
   }
 
-  public final void
+  /**
+   * Set this interest to use a copy of the given KeyLocator object.
+   * @note ou can also call getKeyLocator and change the key locator directly.
+   * @param keyLocator The KeyLocator object. This makes a copy of the object.
+   * If no key locator is specified, set to a new default KeyLocator(), or to a
+   * KeyLocator with an unspecified type.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
   setKeyLocator(KeyLocator keyLocator)
   {
     keyLocator_.set(keyLocator == null ? new KeyLocator() : new KeyLocator(keyLocator));
     ++changeCount_;
+    return this;
   }
 
-  public final void
+  /**
+   * Set this interest to use a copy of the given Exclude object.
+   * @note You can also call getExclude and change the exclude entries directly.
+   * @param exclude The Exclude object. This makes a copy of the object. If no
+   * exclude is specified, set to a new default Exclude(), or to an Exclude with
+   * size() 0.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
   setExclude(Exclude exclude)
   {
     exclude_.set(exclude == null ? new Exclude() : new Exclude(exclude));
     ++changeCount_;
+    return this;
   }
 
   /**

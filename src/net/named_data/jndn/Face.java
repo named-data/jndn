@@ -617,6 +617,31 @@ public class Face {
   {
     node_.removeRegisteredPrefix(registeredPrefixId);
   }
+  
+  /**
+   * The OnInterestCallback calls this to put a Data packet which satisfies an
+   * Interest.
+   * @param data The Data packet which satisfies the interest.
+   * @param wireFormat A WireFormat object used to encode the Data packet.
+   * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  putData(Data data, WireFormat wireFormat) throws IOException
+  {
+    node_.putData(data, wireFormat);
+  }
+
+  /**
+   * The OnInterestCallback calls this to put a Data packet which satisfies an
+   * Interest.
+   * This uses the default WireFormat.getDefaultWireFormat() to encode data.
+   * @param data The Data packet which satisfies the interest.
+   * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void putData(Data data) throws IOException
+  {
+    node_.putData(data, WireFormat.getDefaultWireFormat());
+  }
 
   /**
    * Process any packets to receive and call callbacks such as onData,

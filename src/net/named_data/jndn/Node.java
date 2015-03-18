@@ -226,6 +226,24 @@ public class Node implements ElementListener {
   }
 
   /**
+   * The OnInterestCallback calls this to put a Data packet which satisfies an
+   * Interest.
+   * @param data The Data packet which satisfies the interest.
+   * @param wireFormat A WireFormat object used to encode the Data packet.
+   * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  putData(Data data, WireFormat wireFormat) throws IOException
+  {
+    Blob encoding = data.wireEncode(wireFormat);
+    if (encoding.size() > getMaxNdnPacketSize())
+      throw new Error
+        ("The encoded Data packet size exceeds the maximum limit getMaxNdnPacketSize()");
+
+    transport_.send(encoding.buf());
+  }
+
+  /**
    * Process any packets to receive and call callbacks such as onData,
    * onInterest or onTimeout. This returns immediately if there is no data to
    * receive. This blocks while calling the callbacks. You should repeatedly

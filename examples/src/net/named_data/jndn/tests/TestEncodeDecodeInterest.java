@@ -24,7 +24,6 @@ import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
-import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.KeyChain;
@@ -273,19 +272,19 @@ public class TestEncodeDecodeInterest {
       System.out.println("Re-decoded Interest:");
       dumpInterest(reDecodedInterest);
 
-      Interest freshInterest = new Interest(new Name("/ndn/abc"));
-      freshInterest.setMinSuffixComponents(4);
-      freshInterest.setMaxSuffixComponents(6);
+      Interest freshInterest = new Interest(new Name("/ndn/abc"))
+        .setMinSuffixComponents(4)
+        .setMaxSuffixComponents(6)
+        .setInterestLifetimeMilliseconds(30000)
+        .setChildSelector(1)
+        .setMustBeFresh(true)
+        .setScope(2);
       freshInterest.getKeyLocator().setType(KeyLocatorType.KEY_LOCATOR_DIGEST);
       freshInterest.getKeyLocator().setKeyData
         (new Blob(new byte[] {
          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
          0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F }));
       freshInterest.getExclude().appendComponent(new Name("abc").get(0)).appendAny();
-      freshInterest.setInterestLifetimeMilliseconds(30000);
-      freshInterest.setChildSelector(1);
-      freshInterest.setMustBeFresh(true);
-      freshInterest.setScope(2);
 
       MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
       MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
