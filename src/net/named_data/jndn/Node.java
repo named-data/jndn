@@ -117,13 +117,21 @@ public class Node implements ElementListener {
   public final void
   removePendingInterest(long pendingInterestId)
   {
+    int count = 0;
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though pendingInterestId should be unique.
     for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
       if (((PendingInterest)pendingInterestTable_.get(i)).getPendingInterestId
-           () == pendingInterestId)
+           () == pendingInterestId) {
+        ++count;
         pendingInterestTable_.remove(i);
+      }
     }
+
+    if (count == 0)
+      Logger.getLogger(Node.class.getName()).log
+        (Level.WARNING, "removePendingInterest: Didn't find pendingInterestId {0}",
+         pendingInterestId);
   }
 
   /**
@@ -216,13 +224,21 @@ public class Node implements ElementListener {
   public final void
   removeRegisteredPrefix(long registeredPrefixId)
   {
+    int count = 0;
     // Go backwards through the list so we can remove entries.
-    // Remove all entries even though pendingInterestId should be unique.
+    // Remove all entries even though registeredPrefixId should be unique.
     for (int i = (int)registeredPrefixTable_.size() - 1; i >= 0; --i) {
       if (((RegisteredPrefix)registeredPrefixTable_.get(i)).getRegisteredPrefixId
-            () == registeredPrefixId)
+            () == registeredPrefixId) {
+        ++count;
         registeredPrefixTable_.remove(i);
+      }
     }
+
+    if (count == 0)
+      Logger.getLogger(Node.class.getName()).log
+        (Level.WARNING, "removeRegisteredPrefix: Didn't find registeredPrefixId {0}",
+         registeredPrefixId);
   }
 
   /**
