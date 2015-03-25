@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
@@ -310,5 +311,27 @@ public class TestInterestMethods {
       ("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
     assertEquals
       ("Verification callback was not used", counter.onVerifiedCallCount_, 1);
+  }
+
+  @Test
+  public void
+  testInterestFilterMatching()
+  {
+    // From ndn-cxx interest.t.cpp.
+    assertEquals(true,  new InterestFilter("/a").doesMatch(new Name("/a/b")));
+    assertEquals(true,  new InterestFilter("/a/b").doesMatch(new Name("/a/b")));
+    assertEquals(false, new InterestFilter("/a/b/c").doesMatch(new Name("/a/b")));
+
+    assertEquals(true,  new InterestFilter("/a", "<b>").doesMatch(new Name("/a/b")));
+    assertEquals(false, new InterestFilter("/a/b", "<b>").doesMatch(new Name("/a/b")));
+
+    assertEquals(false, new InterestFilter("/a/b", "<b>").doesMatch(new Name("/a/b/c/b")));
+    assertEquals(true,  new InterestFilter("/a/b", "<>*<b>").doesMatch(new Name("/a/b/c/b")));
+
+    assertEquals(false, new InterestFilter("/a", "<b>").doesMatch(new Name("/a/b/c/d")));
+    assertEquals(true,  new InterestFilter("/a", "<b><>*").doesMatch(new Name("/a/b/c/d")));
+    assertEquals(true,  new InterestFilter("/a", "<b><>*").doesMatch(new Name("/a/b")));
+    assertEquals(false, new InterestFilter("/a", "<b><>+").doesMatch(new Name("/a/b")));
+    assertEquals(true,  new InterestFilter("/a", "<b><>+").doesMatch(new Name("/a/b/c")));
   }
 }
