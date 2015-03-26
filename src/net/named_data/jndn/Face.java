@@ -494,11 +494,13 @@ public class Face {
    * that times out then this sends an NDNx registration request. If you need to
    * register a prefix with NFD, you must first call setCommandSigningInfo.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest When an interest is received which matches the name
-   * prefix, this calls
-   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId).
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
    * NOTE: You must not change the prefix object - if you need to change it then
    * make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param flags The flags for finer control of which interests are forwarded
@@ -525,11 +527,13 @@ public class Face {
    * matching interest is received.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest When an interest is received which matches the name
-   * prefix, this calls
-   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId).
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
    * NOTE: You must not change the prefix object - if you need to change it then
    * make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param flags The flags for finer control of which interests are forwarded
@@ -553,11 +557,13 @@ public class Face {
    * matching interest is received.
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest When an interest is received which matches the name
-   * prefix, this calls
-   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId).
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
    * NOTE: You must not change the prefix object - if you need to change it then
    * make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param wireFormat A WireFormat object used to encode the message.
@@ -582,11 +588,13 @@ public class Face {
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest When an interest is received which matches the name
-   * prefix, this calls
-   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId).
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
    * NOTE: You must not change the prefix object - if you need to change it then
    * make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @return The registered prefix ID which can be used with
@@ -627,8 +635,9 @@ public class Face {
    * use registerPrefix.
    * @param filter The InterestFilter with a prefix an optional regex filter
    * used to match the name of an incoming Interest.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest, ...)
-   * when a matching interest is received.
+   * @param onInterest When an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
    * @return The interest filter ID which can be used with unsetInterestFilter.
    */
   public final long
@@ -645,8 +654,9 @@ public class Face {
    * use registerPrefix.
    * @param prefix The Name prefix used to match the name of an incoming
    * Interest.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest, ...)
-   * when a matching interest is received.
+   * @param onInterest This creates an interest filter from prefix so that when
+   * an Interest is received which matches the filter, this calls
+   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
    * @return The interest filter ID which can be used with unsetInterestFilter.
    */
   public final long

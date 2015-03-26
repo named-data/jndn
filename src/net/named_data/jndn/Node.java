@@ -159,8 +159,11 @@ public class Node implements ElementListener {
    * Register prefix with the connected NDN hub and call onInterest when a
    * matching interest is received.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest) when
-   * a matching interest is received.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix)
    * if failed to retrieve the connected hub's ID or failed to register the
    * prefix.
@@ -256,8 +259,9 @@ public class Node implements ElementListener {
    * use registerPrefix.
    * @param filter The InterestFilter with a prefix an optional regex filter
    * used to match the name of an incoming Interest.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest, ...)
-   * when a matching interest is received.
+   * @param onInterest When an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
    * @return The interest filter ID which can be used with unsetInterestFilter.
    */
   public final long
