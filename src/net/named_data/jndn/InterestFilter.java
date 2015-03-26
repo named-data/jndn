@@ -96,6 +96,18 @@ public class InterestFilter {
   }
 
   /**
+   * Create an InterestFilter which is a copy of the given interestFilter.
+   * @param interestFilter The InterestFilter with values to copy from.
+   */
+  public InterestFilter(InterestFilter interestFilter)
+  {
+    // Make a deep copy of the Name.
+    prefix_ = new Name(interestFilter.prefix_);
+    regexFilter_ = interestFilter.regexFilter_;
+    regexFilterPattern_ = interestFilter.regexFilterPattern_;
+  }
+
+  /**
    * Check if the given name matches this filter.
    * @param name The name to check against this filter.
    * @return True if name matches this filter, otherwise false.
