@@ -79,7 +79,7 @@ public class MemoryContentCache implements OnInterest {
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onDataNotFound If a data packet is not found in the cache, this
-   * calls onDataNotFound.onInterest(prefix, interest, transport, registeredPrefixId)
+   * calls onDataNotFound.onInterest(prefix, interest, transport, interestFilterId)
    * to forward the OnInterest message. If onDataNotFound is null, this does not
    * use it.
    * @param flags See Face.registerPrefix.
@@ -125,7 +125,7 @@ public class MemoryContentCache implements OnInterest {
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onDataNotFound If a data packet is not found in the cache, this
-   * calls onDataNotFound.onInterest(prefix, interest, transport, registeredPrefixId)
+   * calls onDataNotFound.onInterest(prefix, interest, transport, interestFilterId)
    * to forward the OnInterest message. If onDataNotFound is null, this does not
    * use it.
    * @param flags See Face.registerPrefix.
@@ -152,7 +152,7 @@ public class MemoryContentCache implements OnInterest {
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onDataNotFound If a data packet is not found in the cache, this
-   * calls onDataNotFound.onInterest(prefix, interest, transport, registeredPrefixId)
+   * calls onDataNotFound.onInterest(prefix, interest, transport, interestFilterId)
    * to forward the OnInterest message. If onDataNotFound is null, this does not
    * use it.
    * @throws IOException For I/O error in sending the registration request.
@@ -229,7 +229,7 @@ public class MemoryContentCache implements OnInterest {
 
   public final void
   onInterest(Name prefix, Interest interest, Transport transport,
-    long registeredPrefixId)
+    long interestFilterId)
   {
     doCleanup();
 
@@ -301,7 +301,7 @@ public class MemoryContentCache implements OnInterest {
       Object onDataNotFound = onDataNotFoundForPrefix_.get(prefix.toUri());
       if (onDataNotFound != null)
         ((OnInterest)onDataNotFound).onInterest
-          (prefix, interest, transport, registeredPrefixId);
+          (prefix, interest, transport, interestFilterId);
     }
   }
 

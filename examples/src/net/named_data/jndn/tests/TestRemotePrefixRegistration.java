@@ -76,7 +76,7 @@ public class TestRemotePrefixRegistration {
     // register remotely
     face.registerPrefix(new Name("/remote-prefix"), new OnInterest() {
       @Override
-      public void onInterest(Name prefix, Interest interest, Transport transport, long registeredPrefixId) {
+      public void onInterest(Name prefix, Interest interest, Transport transport, long interestFilterId) {
         Data data = new Data(interest.getName());
         data.setContent(new Blob("..."));
         try {

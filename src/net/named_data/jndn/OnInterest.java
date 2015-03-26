@@ -35,10 +35,10 @@ public interface OnInterest {
    * @param transport The Transport with the connection which received the
    * interest.
    * You must encode a signed Data packet and send it using transport.send().
-   * @param registeredPrefixId The registered prefix ID which can be used with
-   * Face.removeRegisteredPrefix.
+   * @param interestFilterId The interest filter ID which can be used with
+   * Face.unsetInterestFilter.
    */
   void onInterest
     (Name prefix, Interest interest, Transport transport,
-     long registeredPrefixId);
+     long interestFilterId);
 }

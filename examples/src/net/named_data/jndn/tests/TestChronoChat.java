@@ -199,7 +199,7 @@ class Chat implements ChronoSync2013.OnInitialized,
   // (Do not call this. It is only public to implement the interface.)
   public final void
   onInterest
-    (Name prefix, Interest interest, Transport transport, long registeredPrefixId)
+    (Name prefix, Interest interest, Transport transport, long interestFilterId)
   {
     ChatMessage.Builder builder = ChatMessage.newBuilder();
     long sequenceNo = Long.parseLong(interest.getName().get(chatPrefix_.size() + 1).toEscapedString());

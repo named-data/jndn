@@ -161,7 +161,7 @@ public class TestPublishAsyncNdnx {
     }
 
     public void
-    onInterest(Name prefix, Interest interest, Transport transport, long registeredPrefixId)
+    onInterest(Name prefix, Interest interest, Transport transport, long interestFilterId)
     {
       ++responseCount_;
 
