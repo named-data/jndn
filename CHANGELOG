@@ -1,11 +1,22 @@
-Interim changes since jNDN v0.4 (2015-03-12)
+Interim changes since jNDN v0.4 (2015-03-26)
 --------------------------------------------
 
 Changes
 * http://redmine.named-data.net/issues/1921 In Face, added getMaxNdnPacketSize().
-  expressInterest throws an exception if the encoded interest size exceeds it.
+  expressInterest and putData throw an exception if the encoded packet size exceeds it.
+* http://redmine.named-data.net/issues/2566 In Face, added setInterestFilter. In
+  registerPrefix, make the onInterest callback optional.
+* http://redmine.named-data.net/issues/2579 Added callback type OnInterestCallback
+  to use in registerPrefix and setInterest filter instead of OnInterest. The new
+  callback is passed the Face so that you can supply the Data with face.putData().
 * Face: Changed the OnInterest callback to pass interestFilterId instead of registeredPrefixId.
+  (You should use OnInterestCallback instead of the deprecated OnInterest.)
 * In Interest setter methods, return this so that you can chain calls to update values.
+* examples: Changed examples to use OnInterestCallback instead of OnInterest.
+
+Deprecated
+* In Face, deprecated registerPrefix where onInterest is type OnInterest. Use the
+  registerPrefix where onInterest is OnInterestCallback so you can call face.putData().
 
 jNDN v0.4 (2015-03-09)
 ----------------------
