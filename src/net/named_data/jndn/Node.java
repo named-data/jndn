@@ -258,7 +258,7 @@ public class Node implements ElementListener {
    * forwarder. It will always succeed. To register a prefix with the forwarder,
    * use registerPrefix.
    * @param filter The InterestFilter with a prefix an optional regex filter
-   * used to match the name of an incoming Interest.
+   * used to match the name of an incoming Interest. This makes a copy of filter.
    * @param onInterest When an Interest is received which matches the filter,
    * this calls
    * onInterest.onInterest(prefix, interest, transport, interestFilterId).
@@ -269,7 +269,8 @@ public class Node implements ElementListener {
   {
     long interestFilterId = InterestFilterEntry.getNextInterestFilterId();
     interestFilterTable_.add
-      (new InterestFilterEntry(interestFilterId, filter, onInterest));
+      (new InterestFilterEntry
+       (interestFilterId, new InterestFilter(filter), onInterest));
 
     return interestFilterId;
   }
