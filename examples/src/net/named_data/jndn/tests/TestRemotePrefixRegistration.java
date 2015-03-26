@@ -24,16 +24,16 @@ import java.io.IOException;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
-import net.named_data.jndn.OnInterest;
+import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
-import net.named_data.jndn.transport.Transport;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -58,12 +58,10 @@ public class TestRemotePrefixRegistration {
     Interest interest = new Interest(new Name("/localhop/nfd/rib/list"));
     interest.setInterestLifetimeMilliseconds(1000);
     face.expressInterest(interest, new OnData() {
-      @Override
       public void onData(Interest interest, Data data) {
         logger.info("Data received (bytes): " + data.getContent().size());
       }
     }, new OnTimeout() {
-      @Override
       public void onTimeout(Interest interest) {
         logger.severe("Failed to retrieve localhop data from NFD: " + interest.toUri());
         System.exit(1);
@@ -74,20 +72,20 @@ public class TestRemotePrefixRegistration {
 	logger.info("Face is local: " + face.isLocal());
 
     // register remotely
-    face.registerPrefix(new Name("/remote-prefix"), new OnInterest() {
-      @Override
-      public void onInterest(Name prefix, Interest interest, Transport transport, long interestFilterId) {
+    face.registerPrefix(new Name("/remote-prefix"), new OnInterestCallback() {
+      public void onInterest
+          (Name prefix, Interest interest, Face face, long interestFilterId,
+           InterestFilter filter) {
         Data data = new Data(interest.getName());
         data.setContent(new Blob("..."));
         try {
-          transport.send(data.wireEncode().buf());
+          face.putData(data);
         } catch (IOException e) {
           logger.severe("Failed to send data: " + e.getMessage());
           System.exit(1);
         }
       }
     }, new OnRegisterFailed() {
-      @Override
       public void onRegisterFailed(Name prefix) {
         logger.severe("Failed to register the external forwarder: " + prefix.toUri());
         System.exit(1);

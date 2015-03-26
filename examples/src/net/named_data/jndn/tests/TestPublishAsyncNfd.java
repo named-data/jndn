@@ -24,8 +24,9 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
-import net.named_data.jndn.OnInterest;
+import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
@@ -34,7 +35,6 @@ import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
-import net.named_data.jndn.transport.Transport;
 import net.named_data.jndn.util.Blob;
 
 public class TestPublishAsyncNfd {
@@ -153,7 +153,7 @@ public class TestPublishAsyncNfd {
     0xcb, 0xea, 0x8f
   });
 
-  private static class Echo implements OnInterest, OnRegisterFailed {
+  private static class Echo implements OnInterestCallback, OnRegisterFailed {
     public Echo(KeyChain keyChain, Name certificateName)
     {
       keyChain_ = keyChain;
@@ -161,7 +161,9 @@ public class TestPublishAsyncNfd {
     }
 
     public void
-    onInterest(Name prefix, Interest interest, Transport transport, long interestFilterId)
+    onInterest
+      (Name prefix, Interest interest, Face face, long interestFilterId,
+       InterestFilter filter)
     {
       ++responseCount_;
 
@@ -179,11 +181,10 @@ public class TestPublishAsyncNfd {
         throw new Error
           ("SecurityException in sign: " + exception.getMessage());
       }
-      Blob encodedData = data.wireEncode();
 
       System.out.println("Sent content " + content);
       try {
-        transport.send(encodedData.buf());
+        face.putData(data);
       } catch (IOException ex) {
         System.out.println("Echo: IOException in sending data " + ex.getMessage());
       }

@@ -33,9 +33,10 @@ import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
-import net.named_data.jndn.OnInterest;
+import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.security.KeyChain;
@@ -47,13 +48,12 @@ import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.sync.ChronoSync2013;
 import net.named_data.jndn.tests.ChatbufProto.ChatMessage;
-import net.named_data.jndn.transport.Transport;
 import net.named_data.jndn.util.Blob;
 
 // Define the Chat class here so that the ChronoChat demo is self-contained.
 
 class Chat implements ChronoSync2013.OnInitialized,
-    ChronoSync2013.OnReceivedSyncState, OnData, OnInterest {
+    ChronoSync2013.OnReceivedSyncState, OnData, OnInterestCallback {
   public Chat
     (String screenName, String chatRoom, Name hubPrefix, Face face,
      KeyChain keyChain, Name certificateName)
@@ -199,7 +199,8 @@ class Chat implements ChronoSync2013.OnInitialized,
   // (Do not call this. It is only public to implement the interface.)
   public final void
   onInterest
-    (Name prefix, Interest interest, Transport transport, long interestFilterId)
+    (Name prefix, Interest interest, Face face, long interestFilterId,
+     InterestFilter filter)
   {
     ChatMessage.Builder builder = ChatMessage.newBuilder();
     long sequenceNo = Long.parseLong(interest.getName().get(chatPrefix_.size() + 1).toEscapedString());
@@ -237,7 +238,7 @@ class Chat implements ChronoSync2013.OnInitialized,
         return;
       }
       try {
-        transport.send(data.wireEncode().buf());
+        face.putData(data);
       } catch (IOException ex) {
         Logger.getLogger(Chat.class.getName()).log(Level.SEVERE, null, ex);
       }
