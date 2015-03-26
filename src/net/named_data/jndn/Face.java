@@ -608,7 +608,8 @@ public class Face {
   /**
    * Remove the registered prefix entry with the registeredPrefixId from the
    * registered prefix table. This does not affect another registered prefix with
-   * a different registeredPrefixId, even if it has the same prefix name.
+   * a different registeredPrefixId, even if it has the same prefix name. If an
+   * interest filter was automatically created by registerPrefix, also remove it.
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
@@ -616,6 +617,55 @@ public class Face {
   removeRegisteredPrefix(long registeredPrefixId)
   {
     node_.removeRegisteredPrefix(registeredPrefixId);
+  }
+
+  /**
+   * Add an entry to the local interest filter table to call the onInterest
+   * callback for a matching incoming Interest. This method only modifies the
+   * library's local callback table and does not register the prefix with the
+   * forwarder. It will always succeed. To register a prefix with the forwarder,
+   * use registerPrefix.
+   * @param filter The InterestFilter with a prefix an optional regex filter
+   * used to match the name of an incoming Interest.
+   * @param onInterest This calls onInterest.onInterest(prefix, interest, ...)
+   * when a matching interest is received.
+   * @return The interest filter ID which can be used with unsetInterestFilter.
+   */
+  public final long
+  setInterestFilter(InterestFilter filter, OnInterest onInterest)
+  {
+    return node_.setInterestFilter(filter, onInterest);
+  }
+
+  /**
+   * Add an entry to the local interest filter table to call the onInterest
+   * callback for a matching incoming Interest. This method only modifies the
+   * library's local callback table and does not register the prefix with the
+   * forwarder. It will always succeed. To register a prefix with the forwarder,
+   * use registerPrefix.
+   * @param prefix The Name prefix used to match the name of an incoming
+   * Interest.
+   * @param onInterest This calls onInterest.onInterest(prefix, interest, ...)
+   * when a matching interest is received.
+   * @return The interest filter ID which can be used with unsetInterestFilter.
+   */
+  public final long
+  setInterestFilter(Name prefix, OnInterest onInterest)
+  {
+    return node_.setInterestFilter(new InterestFilter(prefix), onInterest);
+  }
+
+  /**
+   * Remove the interest filter entry which has the interestFilterId from the
+   * interest filter table. This does not affect another interest filter with
+   * a different interestFilterId, even if it has the same prefix name.
+   * If there is no entry with the interestFilterId, do nothing.
+   * @param interestFilterId The ID returned from setInterestFilter.
+   */
+  public final void
+  unsetInterestFilter(long interestFilterId)
+  {
+    node_.unsetInterestFilter(interestFilterId);
   }
   
   /**
