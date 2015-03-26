@@ -217,7 +217,8 @@ public class Node implements ElementListener {
   /**
    * Remove the registered prefix entry with the registeredPrefixId from the
    * registered prefix table. This does not affect another registered prefix with
-   * a different registeredPrefixId, even if it has the same prefix name.
+   * a different registeredPrefixId, even if it has the same prefix name. If an
+   * interest filter was automatically created by registerPrefix, also remove it.
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
@@ -228,9 +229,15 @@ public class Node implements ElementListener {
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though registeredPrefixId should be unique.
     for (int i = (int)registeredPrefixTable_.size() - 1; i >= 0; --i) {
-      if (((RegisteredPrefix)registeredPrefixTable_.get(i)).getRegisteredPrefixId
-            () == registeredPrefixId) {
+      RegisteredPrefix entry = (RegisteredPrefix)registeredPrefixTable_.get(i);
+
+      if (entry.getRegisteredPrefixId() == registeredPrefixId) {
         ++count;
+
+        if (entry.getRelatedInterestFilterId() > 0)
+          // Remove the related interest filter.
+          unsetInterestFilter(entry.getRelatedInterestFilterId());
+
         registeredPrefixTable_.remove(i);
       }
     }
@@ -242,7 +249,56 @@ public class Node implements ElementListener {
   }
 
   /**
-   * The OnInterestCallback calls this to put a Data packet which satisfies an
+   * Add an entry to the local interest filter table to call the onInterest
+   * callback for a matching incoming Interest. This method only modifies the
+   * library's local callback table and does not register the prefix with the
+   * forwarder. It will always succeed. To register a prefix with the forwarder,
+   * use registerPrefix.
+   * @param filter The InterestFilter with a prefix an optional regex filter
+   * used to match the name of an incoming Interest.
+   * @param onInterest This calls onInterest.onInterest(prefix, interest, ...)
+   * when a matching interest is received.
+   * @return The interest filter ID which can be used with unsetInterestFilter.
+   */
+  public final long
+  setInterestFilter(InterestFilter filter, OnInterest onInterest)
+  {
+    long interestFilterId = InterestFilterEntry.getNextInterestFilterId();
+    interestFilterTable_.add
+      (new InterestFilterEntry(interestFilterId, filter, onInterest));
+
+    return interestFilterId;
+  }
+
+  /**
+   * Remove the interest filter entry which has the interestFilterId from the
+   * interest filter table. This does not affect another interest filter with
+   * a different interestFilterId, even if it has the same prefix name.
+   * If there is no entry with the interestFilterId, do nothing.
+   * @param interestFilterId The ID returned from setInterestFilter.
+   */
+  public final void
+  unsetInterestFilter(long interestFilterId)
+  {
+    int count = 0;
+    // Go backwards through the list so we can remove entries.
+    // Remove all entries even though interestFilterId should be unique.
+    for (int i = (int)interestFilterTable_.size() - 1; i >= 0; --i) {
+      if (((InterestFilterEntry)interestFilterTable_.get(i)).getInterestFilterId()
+            == interestFilterId) {
+        ++count;
+        interestFilterTable_.remove(i);
+      }
+    }
+
+    if (count == 0)
+      Logger.getLogger(Node.class.getName()).log
+        (Level.WARNING, "unsetInterestFilter: Didn't find interestFilterId {0}",
+         interestFilterId);
+  }
+
+  /**
+   * The OnInterest callback calls this to put a Data packet which satisfies an
    * Interest.
    * @param data The Data packet which satisfies the interest.
    * @param wireFormat A WireFormat object used to encode the Data packet.
@@ -349,10 +405,15 @@ public class Node implements ElementListener {
 
     // Now process as Interest or Data.
     if (interest != null) {
-      RegisteredPrefix entry = getEntryForRegisteredPrefix(interest.getName());
-      if (entry != null)
-        entry.getOnInterest().onInterest
-          (entry.getPrefix(), interest, transport_, entry.getRegisteredPrefixId());
+      // Call all interest filter callbacks which match.
+      for (int i = 0; i < interestFilterTable_.size(); ++i) {
+        InterestFilterEntry entry =
+          (InterestFilterEntry)interestFilterTable_.get(i);
+        if (entry.doesMatch(interest.getName()))
+          entry.getOnInterest().onInterest
+           (entry.getFilter().getPrefix(), interest, transport_,
+            entry.getInterestFilterId());
+      }
     }
     else if (data != null) {
       ArrayList pitEntries = new ArrayList();
@@ -462,23 +523,37 @@ public class Node implements ElementListener {
       }
     }
 
-    private Interest interest_;
+    private final Interest interest_;
     private static long lastPendingInterestId_; /**< A class variable used to get the next unique ID. */
-    private long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
-    private OnData onData_;
-    private OnTimeout onTimeout_;
-    private double timeoutTimeMilliseconds_; /**< The time when the interest
+    private final long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
+    private final OnData onData_;
+    private final OnTimeout onTimeout_;
+    private final double timeoutTimeMilliseconds_; /**< The time when the interest
      * times out in milliseconds according to Common.getNowMilliseconds, or -1
      * for no timeout. */
   }
 
+  /**
+   * A RegisteredPrefix holds a registeredPrefixId and information necessary
+   * to remove the registration later. It optionally holds a related
+   * interestFilterId if the InterestFilter was set in the same
+   * registerPrefix operation.
+   */
   private static class RegisteredPrefix {
+    /**
+     * Create a RegisteredPrefix with the given values.
+     * @param registeredPrefixId The ID from getNextRegisteredPrefixId().
+     * @param prefix The name prefix.
+     * @param relatedInterestFilterId (optional) The related interestFilterId
+     * for the filter set in the same registerPrefix operation. If omitted, set
+     * to 0.
+     */
     public RegisteredPrefix
-      (long registeredPrefixId, Name prefix, OnInterest onInterest)
+      (long registeredPrefixId, Name prefix, long relatedInterestFilterId)
     {
       registeredPrefixId_ = registeredPrefixId;
       prefix_ = prefix;
-      onInterest_ = onInterest;
+      relatedInterestFilterId_ = relatedInterestFilterId;
     }
 
     /**
@@ -492,19 +567,84 @@ public class Node implements ElementListener {
      * Get the registeredPrefixId given to the constructor.
      * @return The registeredPrefixId.
      */
-    public long
+    public final long
     getRegisteredPrefixId() { return registeredPrefixId_; }
 
-    public Name
+    /**
+     * Get the name prefix given to the constructor.
+     * @return The name prefix.
+     */
+    public final Name
     getPrefix() { return prefix_; }
 
-    public OnInterest
-    getOnInterest() { return onInterest_; }
+    /**
+     * Get the related interestFilterId given to the constructor.
+     * @return The related interestFilterId.
+     */
+    public final long
+    getRelatedInterestFilterId() { return relatedInterestFilterId_; }
 
     private static long lastRegisteredPrefixId_; /**< A class variable used to get the next unique ID. */
-    private long registeredPrefixId_; /**< A unique identifier for this entry so it can be deleted */
-    private Name prefix_;
-    private OnInterest onInterest_;
+    private final long registeredPrefixId_; /**< A unique identifier for this entry so it can be deleted */
+    private final Name prefix_;
+    private final long relatedInterestFilterId_;
+  }
+
+  /**
+   * An InterestFilterEntry holds an interestFilterId, an InterestFilter and
+   * and the OnInterest callback.
+   */
+  private static class InterestFilterEntry {
+    public InterestFilterEntry
+      (long interestFilterId, InterestFilter filter, OnInterest onInterest)
+    {
+      interestFilterId_ = interestFilterId;
+      filter_ = filter;
+      onInterest_ = onInterest;
+    }
+
+    /**
+     * Get the next interest filter ID. This just calls
+     * RegisteredPrefix.getNextRegisteredPrefixId() so that IDs come from the
+     * same pool and won't be confused when removing entries from the two tables.
+     * @return The next ID.
+     */
+    public static long
+    getNextInterestFilterId() { return RegisteredPrefix.getNextRegisteredPrefixId(); }
+
+    /**
+     * Get the interestFilterId given to the constructor.
+     * @return The interestFilterId.
+     */
+    public final long
+    getInterestFilterId() { return interestFilterId_; }
+
+    /**
+     * Get the InterestFilter given to the constructor.
+     * @return The InterestFilter.
+     */
+    public final InterestFilter
+    getFilter() { return filter_; }
+
+    /**
+     * Get the OnInterest callback given to the constructor.
+     * @return The OnInterest callback.
+     */
+    public final OnInterest
+    getOnInterest() { return onInterest_; }
+
+    /**
+     * Call getFilter().doesMatch to check if name matches the prefix and
+     * optional regex filter.
+     * @param name The name to check against this filter.
+     * @return True if name matches this filter, otherwise false.
+     */
+    public final boolean
+    doesMatch(Name name) { return filter_.doesMatch(name); }
+
+    private final long interestFilterId_; /**< A unique identifier for this entry so it can be deleted */
+    private final InterestFilter filter_;
+    private final OnInterest onInterest_;
   }
 
   private static class NdndIdFetcher implements OnData, OnTimeout
@@ -943,36 +1083,6 @@ public class Node implements ElementListener {
   }
 
   /**
-   * Find the first entry from the registeredPrefixTable_ where the entry prefix
-   * is the longest that matches name.
-   * @param name The name to find the RegisteredPrefix for (from the incoming
-   * interest packet).
-   * @return The entry, or null if not found.
-   */
-  private RegisteredPrefix
-  getEntryForRegisteredPrefix(Name name)
-  {
-    int iResult = -1;
-
-    for (int i = 0; i < registeredPrefixTable_.size(); ++i) {
-      RegisteredPrefix registeredPrefix =
-        (RegisteredPrefix)registeredPrefixTable_.get(i);
-      if (registeredPrefix.getPrefix().match(name)) {
-        if (iResult < 0 ||
-            registeredPrefix.getPrefix().size() >
-            ((RegisteredPrefix)registeredPrefixTable_.get(iResult)).getPrefix().size())
-          // Update to the longer match.
-          iResult = i;
-      }
-    }
-
-    if (iResult >= 0)
-      return (RegisteredPrefix)registeredPrefixTable_.get(iResult);
-    else
-      return null;
-  }
-
-  /**
    * Do the work of registerPrefix once we know we are connected with an ndndId_.
    * @param registeredPrefixId The RegisteredPrefix.getNextRegisteredPrefixId()
    * which registerPrefix got so it could return it to the caller. If this
@@ -1020,11 +1130,19 @@ public class Node implements ElementListener {
     interest.setInterestLifetimeMilliseconds(4000.0);
     interest.setScope(1);
 
-    if (registeredPrefixId != 0)
-      // Save the onInterest callback and send the registration interest.
+    if (registeredPrefixId != 0) {
+      long interestFilterId = 0;
+      if (onInterest != null)
+        // registerPrefix was call with the "combined" form that includes the
+        // callback, so add an InterestFilterEntry.
+        interestFilterId = setInterestFilter
+          (new InterestFilter(prefix), onInterest);
+      
       registeredPrefixTable_.add
-        (new RegisteredPrefix(registeredPrefixId, prefix, onInterest));
+        (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
+    }
 
+    // send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
        (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, false));
@@ -1102,11 +1220,19 @@ public class Node implements ElementListener {
       (commandInterest, commandKeyChain, commandCertificateName,
        TlvWireFormat.get());
 
-    if (registeredPrefixId != 0)
-      // Save the onInterest callback and send the registration interest.
-      registeredPrefixTable_.add
-        (new RegisteredPrefix(registeredPrefixId, prefix, onInterest));
+    if (registeredPrefixId != 0) {
+      long interestFilterId = 0;
+      if (onInterest != null)
+        // registerPrefix was call with the "combined" form that includes the
+        // callback, so add an InterestFilterEntry.
+        interestFilterId = setInterestFilter
+          (new InterestFilter(prefix), onInterest);
 
+      registeredPrefixTable_.add
+        (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
+    }
+
+    // Send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
        (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, true));
@@ -1126,6 +1252,7 @@ public class Node implements ElementListener {
   // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList pendingInterestTable_ = new ArrayList();  // PendingInterest
   private final ArrayList registeredPrefixTable_ = new ArrayList(); // RegisteredPrefix
+  private final ArrayList interestFilterTable_ = new ArrayList(); // InterestFilterEntry
   private final Interest ndndIdFetcherInterest_;
   private Blob ndndId_ = new Blob();
   private static final SecureRandom random_ = new SecureRandom();
