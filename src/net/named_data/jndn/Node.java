@@ -1074,25 +1074,33 @@ public class Node implements ElementListener {
 
     Interest commandInterest = new Interest();
     
-    // determine whether to use remote prefix registration
+    // Determine whether to use remote prefix registration.
+    boolean faceIsLocal;
     try {
-      if (this.isLocal())
-        commandInterest.setName(new Name("/localhost/nfd/rib/register"));
-      else
-        commandInterest.setName(new Name("/localhop/nfd/rib/register"));
+      faceIsLocal = isLocal();
     } catch (IOException ex) {
       Logger.getLogger(Node.class.getName()).log(Level.INFO,
         "Register prefix failed: Error attempting to determine if the face is local: {0}", ex);
       onRegisterFailed.onRegisterFailed(prefix);
+      return;
     }
     
+    if (faceIsLocal) {
+      commandInterest.setName(new Name("/localhost/nfd/rib/register"));
+      // The interest is answered by the local host, so set a short timeout.
+      commandInterest.setInterestLifetimeMilliseconds(2000.0);
+    }
+    else {
+      commandInterest.setName(new Name("/localhop/nfd/rib/register"));
+      // The host is remote, so set a longer timeout.
+      commandInterest.setInterestLifetimeMilliseconds(4000.0);
+    }
+
     // NFD only accepts TlvWireFormat packets.
     commandInterest.getName().append(controlParameters.wireEncode(TlvWireFormat.get()));
     makeCommandInterest
       (commandInterest, commandKeyChain, commandCertificateName,
        TlvWireFormat.get());
-    // The interest is answered by the local host, so set a short timeout.
-    commandInterest.setInterestLifetimeMilliseconds(2000.0);
 
     if (registeredPrefixId != 0)
       // Save the onInterest callback and send the registration interest.
