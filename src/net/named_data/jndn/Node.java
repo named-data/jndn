@@ -162,7 +162,7 @@ public class Node implements ElementListener {
    * @param onInterest (optional) If not null, this creates an interest filter
    * from prefix so that when an Interest is received which matches the filter,
    * this calls
-   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix)
    * if failed to retrieve the connected hub's ID or failed to register the
@@ -175,15 +175,17 @@ public class Node implements ElementListener {
    * @param commandKeyChain The KeyChain object for signing interests.  If null,
    * assume we are connected to a legacy NDNx forwarder.
    * @param commandCertificateName The certificate name for signing interests.
+   * @param face The face which is passed to the onInterest callback. If
+   * onInterest is null, this is ignored.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
   public final long
   registerPrefix
-    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
+    (Name prefix, OnInterestCallback onInterest, OnRegisterFailed onRegisterFailed,
      ForwardingFlags flags, WireFormat wireFormat, KeyChain commandKeyChain,
-     Name commandCertificateName) throws IOException, SecurityException
+     Name commandCertificateName, Face face) throws IOException, SecurityException
   {
     // Get the registeredPrefixId now so we can return it to the caller.
     long registeredPrefixId = RegisteredPrefix.getNextRegisteredPrefixId();
@@ -197,7 +199,7 @@ public class Node implements ElementListener {
         NdndIdFetcher fetcher = new NdndIdFetcher
           (new NdndIdFetcher.Info
             (this, registeredPrefixId, prefix, onInterest, onRegisterFailed,
-             flags, wireFormat));
+             flags, wireFormat, face));
         // We send the interest using the given wire format so that the hub
         //   receives (and sends) in the application's desired wire format.
         expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat);
@@ -205,14 +207,14 @@ public class Node implements ElementListener {
       else
         registerPrefixHelper
           (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed,
-           flags, wireFormat);
+           flags, wireFormat, face);
     }
     else
       // The application set the KeyChain for signing NFD interests.
       nfdRegisterPrefix
         (registeredPrefixId, new Name(prefix), onInterest,
          onRegisterFailed, flags, commandKeyChain, commandCertificateName,
-         wireFormat);
+         wireFormat, face);
 
     return registeredPrefixId;
   }
@@ -261,16 +263,18 @@ public class Node implements ElementListener {
    * used to match the name of an incoming Interest. This makes a copy of filter.
    * @param onInterest When an Interest is received which matches the filter,
    * this calls
-   * onInterest.onInterest(prefix, interest, transport, interestFilterId).
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * @param face The face which is passed to the onInterest callback.
    * @return The interest filter ID which can be used with unsetInterestFilter.
    */
   public final long
-  setInterestFilter(InterestFilter filter, OnInterest onInterest)
+  setInterestFilter
+    (InterestFilter filter, OnInterestCallback onInterest, Face face)
   {
     long interestFilterId = InterestFilterEntry.getNextInterestFilterId();
     interestFilterTable_.add
       (new InterestFilterEntry
-       (interestFilterId, new InterestFilter(filter), onInterest));
+       (interestFilterId, new InterestFilter(filter), onInterest, face));
 
     return interestFilterId;
   }
@@ -303,8 +307,8 @@ public class Node implements ElementListener {
   }
 
   /**
-   * The OnInterest callback calls this to put a Data packet which satisfies an
-   * Interest.
+   * The OnInterestCallback calls this to put a Data packet which
+   * satisfies an Interest.
    * @param data The Data packet which satisfies the interest.
    * @param wireFormat A WireFormat object used to encode the Data packet.
    * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
@@ -416,8 +420,8 @@ public class Node implements ElementListener {
           (InterestFilterEntry)interestFilterTable_.get(i);
         if (entry.doesMatch(interest.getName()))
           entry.getOnInterest().onInterest
-           (entry.getFilter().getPrefix(), interest, transport_,
-            entry.getInterestFilterId());
+           (entry.getFilter().getPrefix(), interest, entry.getFace(),
+            entry.getInterestFilterId(), entry.getFilter());
       }
     }
     else if (data != null) {
@@ -597,15 +601,25 @@ public class Node implements ElementListener {
 
   /**
    * An InterestFilterEntry holds an interestFilterId, an InterestFilter and
-   * and the OnInterest callback.
+   * and the OnInterestCallback.
    */
   private static class InterestFilterEntry {
+    /**
+     * Create a new InterestFilterEntry with the given values.
+     * @param interestFilterId The ID from getNextInterestFilterId().
+     * @param filter The InterestFilter for this entry.
+     * @param onInterest The callback to call.
+     * @param face The face on which was called registerPrefix or
+     * setInterestFilter which is passed to the onInterset callback.
+     */
     public InterestFilterEntry
-      (long interestFilterId, InterestFilter filter, OnInterest onInterest)
+      (long interestFilterId, InterestFilter filter, 
+       OnInterestCallback onInterest, Face face)
     {
       interestFilterId_ = interestFilterId;
       filter_ = filter;
       onInterest_ = onInterest;
+      face_ = face;
     }
 
     /**
@@ -632,11 +646,18 @@ public class Node implements ElementListener {
     getFilter() { return filter_; }
 
     /**
-     * Get the OnInterest callback given to the constructor.
-     * @return The OnInterest callback.
+     * Get the OnInterestCallback given to the constructor.
+     * @return The OnInterestCallback.
      */
-    public final OnInterest
+    public final OnInterestCallback
     getOnInterest() { return onInterest_; }
+
+    /**
+     * Get the Face given to the constructor.
+     * @return The Face.
+     */
+    public final Face
+    getFace() { return face_; }
 
     /**
      * Call getFilter().doesMatch to check if name matches the prefix and
@@ -649,7 +670,8 @@ public class Node implements ElementListener {
 
     private final long interestFilterId_; /**< A unique identifier for this entry so it can be deleted */
     private final InterestFilter filter_;
-    private final OnInterest onInterest_;
+    private final OnInterestCallback onInterest_;
+    private final Face face_;
   }
 
   private static class NdndIdFetcher implements OnData, OnTimeout
@@ -686,7 +708,8 @@ public class Node implements ElementListener {
       info_.node_.ndndId_ = new Blob(digest);
       info_.node_.registerPrefixHelper
         (info_.registeredPrefixId_, info_.prefix_, info_.onInterest_,
-         info_.onRegisterFailed_, info_.flags_, info_.wireFormat_);
+         info_.onRegisterFailed_, info_.flags_, info_.wireFormat_,
+         info_.face_);
     }
 
     /**
@@ -714,11 +737,13 @@ public class Node implements ElementListener {
        * @param onRegisterFailed
        * @param flags
        * @param wireFormat
+       * @param face The face which is passed to the onInterest callback. If
+       * onInterest is null, this is ignored.
        */
       public Info
-        (Node node, long registeredPrefixId, Name prefix, OnInterest onInterest,
+        (Node node, long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
          OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
-         WireFormat wireFormat)
+         WireFormat wireFormat, Face face)
       {
         node_ = node;
         registeredPrefixId_ = registeredPrefixId;
@@ -727,15 +752,17 @@ public class Node implements ElementListener {
         onRegisterFailed_ = onRegisterFailed;
         flags_ = flags;
         wireFormat_ = wireFormat;
+        face_ = face;
       }
 
-      public Node node_;
-      public long registeredPrefixId_;
-      public Name prefix_;
-      public OnInterest onInterest_;
-      public OnRegisterFailed onRegisterFailed_;
-      public ForwardingFlags flags_;
-      public WireFormat wireFormat_;
+      public final Node node_;
+      public final long registeredPrefixId_;
+      public final Name prefix_;
+      public final OnInterestCallback onInterest_;
+      public final OnRegisterFailed onRegisterFailed_;
+      public final ForwardingFlags flags_;
+      public final WireFormat wireFormat_;
+      public final Face face_;
     };
 
     private Info info_;
@@ -820,7 +847,8 @@ public class Node implements ElementListener {
           NdndIdFetcher fetcher = new NdndIdFetcher
             (new NdndIdFetcher.Info
               (info_.node_, 0, info_.prefix_, info_.onInterest_,
-               info_.onRegisterFailed_, info_.flags_, info_.wireFormat_));
+               info_.onRegisterFailed_, info_.flags_, info_.wireFormat_,
+               info_.face_));
           // We send the interest using the given wire format so that the hub
           // receives (and sends) in the application's desired wire format.
           try {
@@ -841,7 +869,7 @@ public class Node implements ElementListener {
           //   registeredPrefixTable_ on the first try.
           info_.node_.registerPrefixHelper
             (0, new Name(info_.prefix_), info_.onInterest_, info_.onRegisterFailed_,
-             info_.flags_, info_.wireFormat_);
+             info_.flags_, info_.wireFormat_, info_.face_);
       }
       else {
         // An NDNx command was sent because there is no commandKeyChain, so we
@@ -855,10 +883,23 @@ public class Node implements ElementListener {
     }
 
     public static class Info {
+      /**
+       *
+       * @param node
+       * @param prefix
+       * @param onInterest
+       * @param onRegisterFailed
+       * @param flags
+       * @param wireFormat
+       * @param isNfdCommand
+       * @param face The face which is passed to the onInterest callback. If
+       * onInterest is null, this is ignored. TODO: This is not needed after
+       * we remove NdndIdFetcher.
+       */
       public Info
-        (Node node, Name prefix, OnInterest onInterest,
+        (Node node, Name prefix, OnInterestCallback onInterest,
          OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
-         WireFormat wireFormat, boolean isNfdCommand)
+         WireFormat wireFormat, boolean isNfdCommand, Face face)
       {
         node_ = node;
         prefix_ = prefix;
@@ -867,15 +908,17 @@ public class Node implements ElementListener {
         flags_ = flags;
         wireFormat_ = wireFormat;
         isNfdCommand_ = isNfdCommand;
+        face_ = face;
       }
 
       public final Node node_;
       public final Name prefix_;
-      public final OnInterest onInterest_;
+      public final OnInterestCallback onInterest_;
       public final OnRegisterFailed onRegisterFailed_;
       public final ForwardingFlags flags_;
       public final WireFormat wireFormat_;
       public final boolean isNfdCommand_;
+      public final Face face_;
     }
 
     private final Info info_;
@@ -1098,12 +1141,14 @@ public class Node implements ElementListener {
    * @param onRegisterFailed
    * @param flags
    * @param wireFormat
+   * @param face The face which is passed to the onInterest callback. If
+   * onInterest is null, this is ignored.
    */
   private void
   registerPrefixHelper
-    (long registeredPrefixId, Name prefix, OnInterest onInterest,
+    (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
-     WireFormat wireFormat)
+     WireFormat wireFormat, Face face)
   {
     // Create a ForwardingEntry.
     // Note: ndnd ignores any freshness that is larger than 3600 seconds and
@@ -1141,7 +1186,7 @@ public class Node implements ElementListener {
         // registerPrefix was call with the "combined" form that includes the
         // callback, so add an InterestFilterEntry.
         interestFilterId = setInterestFilter
-          (new InterestFilter(prefix), onInterest);
+          (new InterestFilter(prefix), onInterest, face);
       
       registeredPrefixTable_.add
         (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
@@ -1150,7 +1195,8 @@ public class Node implements ElementListener {
     // send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
-       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, false));
+       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, false,
+        face));
     try {
       expressInterest(interest, response, response, wireFormat);
     }
@@ -1175,15 +1221,17 @@ public class Node implements ElementListener {
    * @param commandKeyChain
    * @param commandCertificateName
    * @param wireFormat
+   * @param face The face which is passed to the onInterest callback. If
+   * onInterest is null, this is ignored.
    * @throws SecurityException If cannot find the private key for the
    * certificateName.
    */
   private void
   nfdRegisterPrefix
-    (long registeredPrefixId, Name prefix, OnInterest onInterest, 
+    (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
      KeyChain commandKeyChain, Name commandCertificateName,
-     WireFormat wireFormat) throws SecurityException
+     WireFormat wireFormat, Face face) throws SecurityException
   {
     if (commandKeyChain == null)
       throw new Error
@@ -1231,7 +1279,7 @@ public class Node implements ElementListener {
         // registerPrefix was call with the "combined" form that includes the
         // callback, so add an InterestFilterEntry.
         interestFilterId = setInterestFilter
-          (new InterestFilter(prefix), onInterest);
+          (new InterestFilter(prefix), onInterest, face);
 
       registeredPrefixTable_.add
         (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
@@ -1240,7 +1288,8 @@ public class Node implements ElementListener {
     // Send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
-       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, true));
+       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, true,
+        face));
     try {
       expressInterest(commandInterest, response, response, wireFormat);
     }
