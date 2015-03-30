@@ -20,12 +20,14 @@
 package net.named_data.jndn;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.transport.TcpTransport;
 import net.named_data.jndn.transport.Transport;
+import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
 /**
@@ -776,9 +778,33 @@ public class Face {
    * @param data The Data packet which satisfies the interest.
    * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
    */
-  public final void putData(Data data) throws IOException
+  public final void
+  putData(Data data) throws IOException
   {
     node_.putData(data, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Send the encoded packet out through the face.
+   * @param encoding The blob with the the encoded packet to send.
+   * @throws Error If the encoded packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  send(Blob encoding) throws IOException
+  {
+    node_.send(encoding.buf());
+  }
+
+  /**
+   * Send the encoded packet out through the face.
+   * @param encoding The array of bytes for the encoded packet to send.  This
+   * reads from position() to limit(), but does not change the position.
+   * @throws Error If the encoded packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  send(ByteBuffer encoding) throws IOException
+  {
+    node_.send(encoding);
   }
 
   /**

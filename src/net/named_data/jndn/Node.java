@@ -325,6 +325,22 @@ public class Node implements ElementListener {
   }
 
   /**
+   * Send the encoded packet out through the transport.
+   * @param encoding The array of bytes for the encoded packet to send.  This
+   * reads from position() to limit(), but does not change the position.
+   * @throws Error If the encoded packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  send(ByteBuffer encoding) throws IOException
+  {
+    if (encoding.remaining() > getMaxNdnPacketSize())
+      throw new Error
+        ("The encoded packet size exceeds the maximum limit getMaxNdnPacketSize()");
+
+    transport_.send(encoding);
+  }
+
+  /**
    * Process any packets to receive and call callbacks such as onData,
    * onInterest or onTimeout. This returns immediately if there is no data to
    * receive. This blocks while calling the callbacks. You should repeatedly
