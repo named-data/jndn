@@ -11,6 +11,8 @@ Changes
   callback is passed the Face so that you can supply the Data with face.putData().
 * Face: Changed the OnInterest callback to pass interestFilterId instead of registeredPrefixId.
   (You should use OnInterestCallback instead of the deprecated OnInterest.)
+* MemoryContentCache: In registerPrefix, changed the onDataNotFound to OnInterestCallback.
+  If your application uses onDataNotFound, you must update your callback function.
 * In Interest setter methods, return this so that you can chain calls to update values.
 * examples: Changed examples to use OnInterestCallback instead of OnInterest.
 
