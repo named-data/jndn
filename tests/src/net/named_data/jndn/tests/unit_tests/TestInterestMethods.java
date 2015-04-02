@@ -325,6 +325,7 @@ public class TestInterestMethods {
     assertEquals(true,  new InterestFilter("/a", "<b>").doesMatch(new Name("/a/b")));
     assertEquals(false, new InterestFilter("/a/b", "<b>").doesMatch(new Name("/a/b")));
 
+    assertEquals(false, new InterestFilter("/a/b", "<c>").doesMatch(new Name("/a/b/c/d")));
     assertEquals(false, new InterestFilter("/a/b", "<b>").doesMatch(new Name("/a/b/c/b")));
     assertEquals(true,  new InterestFilter("/a/b", "<>*<b>").doesMatch(new Name("/a/b/c/b")));
 
