@@ -148,7 +148,7 @@ public class InterestFilter {
   hasRegexFilter() { return regexFilter_ != null; }
 
   /**
-   * Get the regex filter. This is only valid if hasRegexFilter()is true.
+   * Get the regex filter. This is only valid if hasRegexFilter() is true.
    * @return The regular expression for matching the remaining name components.
    */
   public final String
