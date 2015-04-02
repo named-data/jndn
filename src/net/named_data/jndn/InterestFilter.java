@@ -125,8 +125,7 @@ public class InterestFilter {
         return false;
 
       return null != NdnRegexMatcher.match
-        (regexFilterPattern_,
-         name.getSubName(prefix_.size(), name.size() - prefix_.size()));
+        (regexFilterPattern_, name.getSubName(prefix_.size()));
     }
     else
       // Just perform a prefix match.
