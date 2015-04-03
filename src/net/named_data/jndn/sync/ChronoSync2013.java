@@ -29,14 +29,14 @@ import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
-import net.named_data.jndn.OnInterest;
+import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
-import net.named_data.jndn.transport.Transport;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.MemoryContentCache;
@@ -49,7 +49,7 @@ import net.named_data.jndn.util.MemoryContentCache;
  * See the API docs for more detail at
  * http://named-data.net/doc/ndn-ccl-api/chrono-sync2013.html .
  */
-public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
+public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
   // Use ArrayList without generics so it works with older Java compilers.
   public interface OnReceivedSyncState {
     void onReceivedSyncState(List syncStates /* of SyncState */, boolean isRecovery);
@@ -299,14 +299,14 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
      * Create a new PendingInterest and set the timeoutTime_ based on the current
      * time and the interest lifetime.
      * @param interest The interest.
-     * @param transport The transport from the onInterest callback. If the
+     * @param face The face from the onInterest callback. If the
      * interest is satisfied later by a new data packet, we will send the data
-     * packet to the transport.
+     * packet to the face.
      */
-    public PendingInterest(Interest interest, Transport transport)
+    public PendingInterest(Interest interest, Face face)
     {
       interest_ = interest;
-      transport_ = transport;
+      face_ = face;
 
       // Set up timeoutTime_.
       if (interest_.getInterestLifetimeMilliseconds() >= 0.0)
@@ -324,10 +324,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     getInterest() { return interest_; }
 
     /**
-     * Return the transport given to the constructor.
+     * Return the face given to the constructor.
      */
-    public final Transport
-    getTransport() { return transport_; }
+    public final Face
+    getFace() { return face_; }
 
     /**
      * Check if this interest is timed out.
@@ -341,7 +341,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     }
 
     private final Interest interest_;
-    private final Transport transport_;
+    private final Face face_;
     private final double timeoutTimeMilliseconds_; /**< The time when the
       * interest times out in milliseconds according to ndn_getNowMilliseconds,
       * or -1 for no timeout. */
@@ -418,7 +418,8 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
    */
   public final void
   onInterest
-    (Name prefix, Interest interest, Transport transport, long registerPrefixId)
+    (Name prefix, Interest interest, Face face, long interestFilterId,
+     InterestFilter filter)
   {
     if (!enabled_)
       // Ignore callbacks after the application calls shutdown().
@@ -441,10 +442,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     if (interest.getName().size() == applicationBroadcastPrefix_.size() + 2 ||
         syncDigest.equals("00"))
       // Recovery interest or newcomer interest.
-      processRecoveryInterest(interest, syncDigest, transport);
+      processRecoveryInterest(interest, syncDigest, face);
     else {
       // Save the unanswered interest in our local pending interest table.
-      pendingInterestTable_.add(new PendingInterest(interest, transport));
+      pendingInterestTable_.add(new PendingInterest(interest, face));
 
       if (!syncDigest.equals(digestTree_.getRoot())) {
         int index = logFind(syncDigest);
@@ -457,7 +458,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
           try {
             face_.expressInterest
               (timeout, DummyOnData.onData_,
-               this.new JudgeRecovery(syncDigest, transport));
+               this.new JudgeRecovery(syncDigest, face));
           } catch (IOException ex) {
             Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
             return;
@@ -468,7 +469,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
         else {
           try {
             // common interest processing
-            processSyncInterest(index, syncDigest, transport);
+            processSyncInterest(index, syncDigest, face);
           } catch (SecurityException ex) {
             Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
           }
@@ -598,7 +599,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   }
 
   private void
-  processRecoveryInterest(Interest interest, String syncDigest, Transport transport)
+  processRecoveryInterest(Interest interest, String syncDigest, Face face)
   {
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
       "processRecoveryInterest");
@@ -625,7 +626,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
           return;
         }
         try {
-          transport.send(data.wireEncode().buf());
+          face.send(data.wireEncode());
         } catch (IOException ex) {
           Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE,
             ex.getMessage());
@@ -645,7 +646,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
    * otherwise false.
    */
   private boolean
-  processSyncInterest(int index, String syncDigest, Transport transport) throws SecurityException
+  processSyncInterest(int index, String syncDigest, Face face) throws SecurityException
   {
     ArrayList nameList = new ArrayList(); // of String
     ArrayList sequenceNoList = new ArrayList();  // of long
@@ -701,7 +702,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       keyChain_.sign(data, certificateName_);
 
       try {
-        transport.send(data.wireEncode().buf());
+        face.send(data.wireEncode());
       } catch (IOException ex) {
         Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE,
           ex.getMessage());
@@ -738,10 +739,10 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   // This is called by onInterest after a timeout to check if a recovery is needed.
   // We make this an inner class because onTimeout is already used for syncTimeout.
   private class JudgeRecovery implements OnTimeout {
-    public JudgeRecovery(String syncDigest, Transport transport)
+    public JudgeRecovery(String syncDigest, Face face)
     {
       syncDigest_ = syncDigest;
-      transport_ = transport;
+      face_ = face;
     }
 
     public final void
@@ -755,7 +756,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
       if (index2 != -1) {
         if (!syncDigest_.equals(digestTree_.getRoot())) {
           try {
-            processSyncInterest(index2, syncDigest_, transport_);
+            processSyncInterest(index2, syncDigest_, face_);
           } catch (SecurityException ex) {
             Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
             return;
@@ -773,7 +774,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
     }
 
     private final String syncDigest_;
-    private final Transport transport_;
+    private final Face face_;
   }
 
   // Sync interest time out, if the interest is the static one send again.
@@ -885,7 +886,7 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
   /**
    * Add the data packet to the contentCache_. Remove timed-out entries
    * from pendingInterestTable_. If the data packet satisfies any pending
-   * interest, then send the data packet to the pending interest's transport
+   * interest, then send the data packet to the pending interest's face
    * and remove from the pendingInterestTable_.
    * @param data
    */
@@ -908,9 +909,9 @@ public class ChronoSync2013 implements OnInterest, OnData, OnTimeout {
 
       if (pendingInterest.getInterest().matchesName(data.getName())) {
         try {
-          // Send to the same transport from the original call to onInterest.
+          // Send to the same face from the original call to onInterest.
           // wireEncode returns the cached encoding if available.
-          pendingInterest.getTransport().send(data.wireEncode().buf());
+          pendingInterest.getFace().send(data.wireEncode());
         } catch (IOException ex) {
           Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE,
             ex.getMessage());

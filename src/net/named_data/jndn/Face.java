@@ -20,12 +20,14 @@
 package net.named_data.jndn;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.transport.TcpTransport;
 import net.named_data.jndn.transport.Transport;
+import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
 /**
@@ -494,11 +496,14 @@ public class Face {
    * that times out then this sends an NDNx registration request. If you need to
    * register a prefix with NFD, you must first call setCommandSigningInfo.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest When an interest is received which matches the name
-   * prefix, this calls
-   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId).
-   * NOTE: You must not change the prefix object - if you need to change it then
-   * make a copy.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * The onInterest callback should supply the Data with face.putData().
+   * NOTE: You must not change the prefix or filter objects - if you need to
+   * change them then make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param flags The flags for finer control of which interests are forwarded
@@ -512,12 +517,13 @@ public class Face {
    */
   public long
   registerPrefix
-    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
-     ForwardingFlags flags, WireFormat wireFormat) throws IOException, SecurityException
+    (Name prefix, OnInterestCallback onInterest,
+     OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
+     WireFormat wireFormat) throws IOException, SecurityException
   {
     return node_.registerPrefix
-      (prefix, onInterest, onRegisterFailed, flags, wireFormat, commandKeyChain_,
-     commandCertificateName_);
+      (prefix, onInterest, onRegisterFailed, flags, wireFormat,
+       commandKeyChain_, commandCertificateName_, this);
   }
 
   /**
@@ -525,11 +531,14 @@ public class Face {
    * matching interest is received.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest When an interest is received which matches the name
-   * prefix, this calls
-   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId).
-   * NOTE: You must not change the prefix object - if you need to change it then
-   * make a copy.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * The onInterest callback should supply the Data with face.putData().
+   * NOTE: You must not change the prefix or filter objects - if you need to
+   * change them then make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param flags The flags for finer control of which interests are forwarded
@@ -540,7 +549,7 @@ public class Face {
    */
   public long
   registerPrefix
-    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
+    (Name prefix, OnInterestCallback onInterest, OnRegisterFailed onRegisterFailed,
      ForwardingFlags flags) throws IOException, SecurityException
   {
     return registerPrefix
@@ -553,11 +562,14 @@ public class Face {
    * matching interest is received.
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest When an interest is received which matches the name
-   * prefix, this calls
-   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId).
-   * NOTE: You must not change the prefix object - if you need to change it then
-   * make a copy.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * The onInterest callback should supply the Data with face.putData().
+   * NOTE: You must not change the prefix or filter objects - if you need to
+   * change them then make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param wireFormat A WireFormat object used to encode the message.
@@ -569,7 +581,7 @@ public class Face {
    */
   public long
   registerPrefix
-    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
+    (Name prefix, OnInterestCallback onInterest, OnRegisterFailed onRegisterFailed,
      WireFormat wireFormat) throws IOException, SecurityException
   {
     return registerPrefix
@@ -582,11 +594,14 @@ public class Face {
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest When an interest is received which matches the name
-   * prefix, this calls
-   * onInterest.onInterest(prefix, interest, transport, registeredPrefixId).
-   * NOTE: You must not change the prefix object - if you need to change it then
-   * make a copy.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * The onInterest callback should supply the Data with face.putData().
+   * NOTE: You must not change the prefix or filter objects - if you need to
+   * change them then make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @return The registered prefix ID which can be used with
@@ -597,8 +612,81 @@ public class Face {
    */
   public long
   registerPrefix
-    (Name prefix, OnInterest onInterest,
+    (Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed) throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, new ForwardingFlags(),
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * @deprecated Use registerPrefix where onInterest is an OnInterestCallback
+   * (which is passed this Face for calling putData) instead of the deprecated
+   * OnInterest (which is passed a Transport object).
+   */
+  public long
+  registerPrefix
+    (Name prefix, final OnInterest onInterest,
+     OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
+     WireFormat wireFormat) throws IOException, SecurityException
+  {
+    // Wrap the deprecated OnInterest in an OnInterestCallback.
+    OnInterestCallback onInterestCallback = null;
+    if (onInterest != null)
+      onInterestCallback = new OnInterestCallback() {
+        public void onInterest
+          (Name localPrefix, Interest interest, Face face,
+           long interestFilterId, InterestFilter filter)
+        {
+          onInterest.onInterest
+            (localPrefix, interest, face.node_.getTransport(), interestFilterId);
+        }
+      };
+
+    return node_.registerPrefix
+      (prefix, onInterestCallback, onRegisterFailed, flags, wireFormat,
+       commandKeyChain_, commandCertificateName_, this);
+  }
+
+  /**
+   * @deprecated Use registerPrefix where onInterest is an OnInterestCallback
+   * (which is passed this Face for calling putData) instead of the deprecated
+   * OnInterest (which is passed a Transport object).
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
+     ForwardingFlags flags) throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, flags,
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * @deprecated Use registerPrefix where onInterest is an OnInterestCallback
+   * (which is passed this Face for calling putData) instead of the deprecated
+   * OnInterest (which is passed a Transport object).
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
+     WireFormat wireFormat) throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, new ForwardingFlags(), wireFormat);
+  }
+
+  /**
+   * @deprecated Use registerPrefix where onInterest is an OnInterestCallback
+   * (which is passed this Face for calling putData) instead of the deprecated
+   * OnInterest (which is passed a Transport object).
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed)
+     throws IOException, SecurityException
   {
     return registerPrefix
       (prefix, onInterest, onRegisterFailed, new ForwardingFlags(),
@@ -608,7 +696,8 @@ public class Face {
   /**
    * Remove the registered prefix entry with the registeredPrefixId from the
    * registered prefix table. This does not affect another registered prefix with
-   * a different registeredPrefixId, even if it has the same prefix name.
+   * a different registeredPrefixId, even if it has the same prefix name. If an
+   * interest filter was automatically created by registerPrefix, also remove it.
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
@@ -616,6 +705,57 @@ public class Face {
   removeRegisteredPrefix(long registeredPrefixId)
   {
     node_.removeRegisteredPrefix(registeredPrefixId);
+  }
+
+  /**
+   * Add an entry to the local interest filter table to call the onInterest
+   * callback for a matching incoming Interest. This method only modifies the
+   * library's local callback table and does not register the prefix with the
+   * forwarder. It will always succeed. To register a prefix with the forwarder,
+   * use registerPrefix.
+   * @param filter The InterestFilter with a prefix an optional regex filter
+   * used to match the name of an incoming Interest. This makes a copy of filter.
+   * @param onInterest When an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * @return The interest filter ID which can be used with unsetInterestFilter.
+   */
+  public final long
+  setInterestFilter(InterestFilter filter, OnInterestCallback onInterest)
+  {
+    return node_.setInterestFilter(filter, onInterest, this);
+  }
+
+  /**
+   * Add an entry to the local interest filter table to call the onInterest
+   * callback for a matching incoming Interest. This method only modifies the
+   * library's local callback table and does not register the prefix with the
+   * forwarder. It will always succeed. To register a prefix with the forwarder,
+   * use registerPrefix.
+   * @param prefix The Name prefix used to match the name of an incoming
+   * Interest.
+   * @param onInterest This creates an interest filter from prefix so that when
+   * an Interest is received which matches the filter, this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * @return The interest filter ID which can be used with unsetInterestFilter.
+   */
+  public final long
+  setInterestFilter(Name prefix, OnInterestCallback onInterest)
+  {
+    return node_.setInterestFilter(new InterestFilter(prefix), onInterest, this);
+  }
+
+  /**
+   * Remove the interest filter entry which has the interestFilterId from the
+   * interest filter table. This does not affect another interest filter with
+   * a different interestFilterId, even if it has the same prefix name.
+   * If there is no entry with the interestFilterId, do nothing.
+   * @param interestFilterId The ID returned from setInterestFilter.
+   */
+  public final void
+  unsetInterestFilter(long interestFilterId)
+  {
+    node_.unsetInterestFilter(interestFilterId);
   }
   
   /**
@@ -638,9 +778,33 @@ public class Face {
    * @param data The Data packet which satisfies the interest.
    * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
    */
-  public final void putData(Data data) throws IOException
+  public final void
+  putData(Data data) throws IOException
   {
     node_.putData(data, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Send the encoded packet out through the face.
+   * @param encoding The blob with the the encoded packet to send.
+   * @throws Error If the encoded packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  send(Blob encoding) throws IOException
+  {
+    node_.send(encoding.buf());
+  }
+
+  /**
+   * Send the encoded packet out through the face.
+   * @param encoding The array of bytes for the encoded packet to send.  This
+   * reads from position() to limit(), but does not change the position.
+   * @throws Error If the encoded packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  send(ByteBuffer encoding) throws IOException
+  {
+    node_.send(encoding);
   }
 
   /**

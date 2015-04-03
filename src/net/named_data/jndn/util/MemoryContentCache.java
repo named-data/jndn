@@ -28,8 +28,9 @@ import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.ForwardingFlags;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
-import net.named_data.jndn.OnInterest;
+import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.SecurityException;
@@ -42,7 +43,7 @@ import net.named_data.jndn.transport.Transport;
  * @note This class is an experimental feature.  See the API docs for more detail at
  * http://named-data.net/doc/ndn-ccl-api/memory-content-cache.html .
  */
-public class MemoryContentCache implements OnInterest {
+public class MemoryContentCache implements OnInterestCallback {
   /**
    * Create a new MemoryContentCache to use the given Face.
    * @param face The Face to use to call registerPrefix and which will call
@@ -78,8 +79,8 @@ public class MemoryContentCache implements OnInterest {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
-   * @param onDataNotFound If a data packet is not found in the cache, this
-   * calls onDataNotFound.onInterest(prefix, interest, transport, registeredPrefixId)
+   * @param onDataNotFound If a data packet is not found in the cache, this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter)
    * to forward the OnInterest message. If onDataNotFound is null, this does not
    * use it.
    * @param flags See Face.registerPrefix.
@@ -90,7 +91,7 @@ public class MemoryContentCache implements OnInterest {
    */
   public final void
   registerPrefix
-    (Name prefix, OnRegisterFailed onRegisterFailed, OnInterest onDataNotFound,
+    (Name prefix, OnRegisterFailed onRegisterFailed, OnInterestCallback onDataNotFound,
      ForwardingFlags flags, WireFormat wireFormat) throws IOException, SecurityException
   {
     if (onDataNotFound != null)
@@ -101,31 +102,14 @@ public class MemoryContentCache implements OnInterest {
   }
 
   /**
-   * Call Face.removeRegisteredPrefix for all the prefixes given to the
-   * registerPrefix method on this MemoryContentCache object so that it will not
-   * receive interests any more. You can call this if you want to "shut down"
-   * this MemoryContentCache while your application is still running.
-   */
-  public final void
-  unregisterAll()
-  {
-    for (int i = 0; i < registeredPrefixIdList_.size(); ++i)
-      face_.removeRegisteredPrefix((long)(Long)registeredPrefixIdList_.get(i));
-    registeredPrefixIdList_.clear();
-
-    // Also clear each onDataNotFoundForPrefix given to registerPrefix.
-    onDataNotFoundForPrefix_.clear();
-  }
-
-  /**
    * Call registerPrefix on the Face given to the constructor so that this
    * MemoryContentCache will answer interests whose name has the prefix.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
-   * @param onDataNotFound If a data packet is not found in the cache, this
-   * calls onDataNotFound.onInterest(prefix, interest, transport, registeredPrefixId)
+   * @param onDataNotFound If a data packet is not found in the cache, this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter)
    * to forward the OnInterest message. If onDataNotFound is null, this does not
    * use it.
    * @param flags See Face.registerPrefix.
@@ -135,7 +119,7 @@ public class MemoryContentCache implements OnInterest {
    */
   public final void
   registerPrefix
-    (Name prefix, OnRegisterFailed onRegisterFailed, OnInterest onDataNotFound,
+    (Name prefix, OnRegisterFailed onRegisterFailed, OnInterestCallback onDataNotFound,
      ForwardingFlags flags) throws IOException, SecurityException
   {
     registerPrefix
@@ -151,8 +135,8 @@ public class MemoryContentCache implements OnInterest {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
-   * @param onDataNotFound If a data packet is not found in the cache, this
-   * calls onDataNotFound.onInterest(prefix, interest, transport, registeredPrefixId)
+   * @param onDataNotFound If a data packet is not found in the cache, this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter)
    * to forward the OnInterest message. If onDataNotFound is null, this does not
    * use it.
    * @throws IOException For I/O error in sending the registration request.
@@ -161,7 +145,7 @@ public class MemoryContentCache implements OnInterest {
    */
   public final void
   registerPrefix
-    (Name prefix, OnRegisterFailed onRegisterFailed, OnInterest onDataNotFound)
+    (Name prefix, OnRegisterFailed onRegisterFailed, OnInterestCallback onDataNotFound)
     throws IOException, SecurityException
   {
     registerPrefix
@@ -189,6 +173,23 @@ public class MemoryContentCache implements OnInterest {
     registerPrefix
       (prefix, onRegisterFailed, null, new ForwardingFlags(),
        WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Call Face.removeRegisteredPrefix for all the prefixes given to the
+   * registerPrefix method on this MemoryContentCache object so that it will not
+   * receive interests any more. You can call this if you want to "shut down"
+   * this MemoryContentCache while your application is still running.
+   */
+  public final void
+  unregisterAll()
+  {
+    for (int i = 0; i < registeredPrefixIdList_.size(); ++i)
+      face_.removeRegisteredPrefix((long)(Long)registeredPrefixIdList_.get(i));
+    registeredPrefixIdList_.clear();
+
+    // Also clear each onDataNotFoundForPrefix given to registerPrefix.
+    onDataNotFoundForPrefix_.clear();
   }
 
   /**
@@ -228,8 +229,9 @@ public class MemoryContentCache implements OnInterest {
   }
 
   public final void
-  onInterest(Name prefix, Interest interest, Transport transport,
-    long registeredPrefixId)
+  onInterest
+    (Name prefix, Interest interest, Face face, long interestFilterId,
+     InterestFilter filter)
   {
     doCleanup();
 
@@ -249,7 +251,7 @@ public class MemoryContentCache implements OnInterest {
         if (interest.getChildSelector() < 0) {
           // No child selector, so send the first match that we have found.
           try {
-            transport.send(content.getDataEncoding().buf());
+            face.send(content.getDataEncoding());
           } catch (IOException ex) {
             Logger.getLogger(MemoryContentCache.class.getName()).log(Level.SEVERE, null, ex);
           }
@@ -291,7 +293,7 @@ public class MemoryContentCache implements OnInterest {
     if (selectedEncoding != null) {
       // We found the leftmost or rightmost child.
       try {
-        transport.send(selectedEncoding.buf());
+        face.send(selectedEncoding);
       } catch (IOException ex) {
         Logger.getLogger(MemoryContentCache.class.getName()).log(Level.SEVERE, null, ex);
       }
@@ -300,8 +302,8 @@ public class MemoryContentCache implements OnInterest {
       // Call the onDataNotFound callback (if defined).
       Object onDataNotFound = onDataNotFoundForPrefix_.get(prefix.toUri());
       if (onDataNotFound != null)
-        ((OnInterest)onDataNotFound).onInterest
-          (prefix, interest, transport, registeredPrefixId);
+        ((OnInterestCallback)onDataNotFound).onInterest
+          (prefix, interest, face, interestFilterId, filter);
     }
   }
 

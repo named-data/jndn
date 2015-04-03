@@ -159,8 +159,11 @@ public class Node implements ElementListener {
    * Register prefix with the connected NDN hub and call onInterest when a
    * matching interest is received.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest This calls onInterest.onInterest(prefix, interest) when
-   * a matching interest is received.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix)
    * if failed to retrieve the connected hub's ID or failed to register the
    * prefix.
@@ -172,15 +175,17 @@ public class Node implements ElementListener {
    * @param commandKeyChain The KeyChain object for signing interests.  If null,
    * assume we are connected to a legacy NDNx forwarder.
    * @param commandCertificateName The certificate name for signing interests.
+   * @param face The face which is passed to the onInterest callback. If
+   * onInterest is null, this is ignored.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
    */
   public final long
   registerPrefix
-    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
+    (Name prefix, OnInterestCallback onInterest, OnRegisterFailed onRegisterFailed,
      ForwardingFlags flags, WireFormat wireFormat, KeyChain commandKeyChain,
-     Name commandCertificateName) throws IOException, SecurityException
+     Name commandCertificateName, Face face) throws IOException, SecurityException
   {
     // Get the registeredPrefixId now so we can return it to the caller.
     long registeredPrefixId = RegisteredPrefix.getNextRegisteredPrefixId();
@@ -194,7 +199,7 @@ public class Node implements ElementListener {
         NdndIdFetcher fetcher = new NdndIdFetcher
           (new NdndIdFetcher.Info
             (this, registeredPrefixId, prefix, onInterest, onRegisterFailed,
-             flags, wireFormat));
+             flags, wireFormat, face));
         // We send the interest using the given wire format so that the hub
         //   receives (and sends) in the application's desired wire format.
         expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat);
@@ -202,14 +207,14 @@ public class Node implements ElementListener {
       else
         registerPrefixHelper
           (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed,
-           flags, wireFormat);
+           flags, wireFormat, face);
     }
     else
       // The application set the KeyChain for signing NFD interests.
       nfdRegisterPrefix
         (registeredPrefixId, new Name(prefix), onInterest,
          onRegisterFailed, flags, commandKeyChain, commandCertificateName,
-         wireFormat);
+         wireFormat, face);
 
     return registeredPrefixId;
   }
@@ -217,7 +222,8 @@ public class Node implements ElementListener {
   /**
    * Remove the registered prefix entry with the registeredPrefixId from the
    * registered prefix table. This does not affect another registered prefix with
-   * a different registeredPrefixId, even if it has the same prefix name.
+   * a different registeredPrefixId, even if it has the same prefix name. If an
+   * interest filter was automatically created by registerPrefix, also remove it.
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
@@ -228,9 +234,15 @@ public class Node implements ElementListener {
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though registeredPrefixId should be unique.
     for (int i = (int)registeredPrefixTable_.size() - 1; i >= 0; --i) {
-      if (((RegisteredPrefix)registeredPrefixTable_.get(i)).getRegisteredPrefixId
-            () == registeredPrefixId) {
+      RegisteredPrefix entry = (RegisteredPrefix)registeredPrefixTable_.get(i);
+
+      if (entry.getRegisteredPrefixId() == registeredPrefixId) {
         ++count;
+
+        if (entry.getRelatedInterestFilterId() > 0)
+          // Remove the related interest filter.
+          unsetInterestFilter(entry.getRelatedInterestFilterId());
+
         registeredPrefixTable_.remove(i);
       }
     }
@@ -242,8 +254,61 @@ public class Node implements ElementListener {
   }
 
   /**
-   * The OnInterestCallback calls this to put a Data packet which satisfies an
-   * Interest.
+   * Add an entry to the local interest filter table to call the onInterest
+   * callback for a matching incoming Interest. This method only modifies the
+   * library's local callback table and does not register the prefix with the
+   * forwarder. It will always succeed. To register a prefix with the forwarder,
+   * use registerPrefix.
+   * @param filter The InterestFilter with a prefix an optional regex filter
+   * used to match the name of an incoming Interest. This makes a copy of filter.
+   * @param onInterest When an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * @param face The face which is passed to the onInterest callback.
+   * @return The interest filter ID which can be used with unsetInterestFilter.
+   */
+  public final long
+  setInterestFilter
+    (InterestFilter filter, OnInterestCallback onInterest, Face face)
+  {
+    long interestFilterId = InterestFilterEntry.getNextInterestFilterId();
+    interestFilterTable_.add
+      (new InterestFilterEntry
+       (interestFilterId, new InterestFilter(filter), onInterest, face));
+
+    return interestFilterId;
+  }
+
+  /**
+   * Remove the interest filter entry which has the interestFilterId from the
+   * interest filter table. This does not affect another interest filter with
+   * a different interestFilterId, even if it has the same prefix name.
+   * If there is no entry with the interestFilterId, do nothing.
+   * @param interestFilterId The ID returned from setInterestFilter.
+   */
+  public final void
+  unsetInterestFilter(long interestFilterId)
+  {
+    int count = 0;
+    // Go backwards through the list so we can remove entries.
+    // Remove all entries even though interestFilterId should be unique.
+    for (int i = (int)interestFilterTable_.size() - 1; i >= 0; --i) {
+      if (((InterestFilterEntry)interestFilterTable_.get(i)).getInterestFilterId()
+            == interestFilterId) {
+        ++count;
+        interestFilterTable_.remove(i);
+      }
+    }
+
+    if (count == 0)
+      Logger.getLogger(Node.class.getName()).log
+        (Level.WARNING, "unsetInterestFilter: Didn't find interestFilterId {0}",
+         interestFilterId);
+  }
+
+  /**
+   * The OnInterestCallback calls this to put a Data packet which
+   * satisfies an Interest.
    * @param data The Data packet which satisfies the interest.
    * @param wireFormat A WireFormat object used to encode the Data packet.
    * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
@@ -257,6 +322,22 @@ public class Node implements ElementListener {
         ("The encoded Data packet size exceeds the maximum limit getMaxNdnPacketSize()");
 
     transport_.send(encoding.buf());
+  }
+
+  /**
+   * Send the encoded packet out through the transport.
+   * @param encoding The array of bytes for the encoded packet to send.  This
+   * reads from position() to limit(), but does not change the position.
+   * @throws Error If the encoded packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  send(ByteBuffer encoding) throws IOException
+  {
+    if (encoding.remaining() > getMaxNdnPacketSize())
+      throw new Error
+        ("The encoded packet size exceeds the maximum limit getMaxNdnPacketSize()");
+
+    transport_.send(encoding);
   }
 
   /**
@@ -349,10 +430,15 @@ public class Node implements ElementListener {
 
     // Now process as Interest or Data.
     if (interest != null) {
-      RegisteredPrefix entry = getEntryForRegisteredPrefix(interest.getName());
-      if (entry != null)
-        entry.getOnInterest().onInterest
-          (entry.getPrefix(), interest, transport_, entry.getRegisteredPrefixId());
+      // Call all interest filter callbacks which match.
+      for (int i = 0; i < interestFilterTable_.size(); ++i) {
+        InterestFilterEntry entry =
+          (InterestFilterEntry)interestFilterTable_.get(i);
+        if (entry.doesMatch(interest.getName()))
+          entry.getOnInterest().onInterest
+           (entry.getFilter().getPrefix(), interest, entry.getFace(),
+            entry.getInterestFilterId(), entry.getFilter());
+      }
     }
     else if (data != null) {
       ArrayList pitEntries = new ArrayList();
@@ -462,23 +548,37 @@ public class Node implements ElementListener {
       }
     }
 
-    private Interest interest_;
+    private final Interest interest_;
     private static long lastPendingInterestId_; /**< A class variable used to get the next unique ID. */
-    private long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
-    private OnData onData_;
-    private OnTimeout onTimeout_;
-    private double timeoutTimeMilliseconds_; /**< The time when the interest
+    private final long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
+    private final OnData onData_;
+    private final OnTimeout onTimeout_;
+    private final double timeoutTimeMilliseconds_; /**< The time when the interest
      * times out in milliseconds according to Common.getNowMilliseconds, or -1
      * for no timeout. */
   }
 
+  /**
+   * A RegisteredPrefix holds a registeredPrefixId and information necessary
+   * to remove the registration later. It optionally holds a related
+   * interestFilterId if the InterestFilter was set in the same
+   * registerPrefix operation.
+   */
   private static class RegisteredPrefix {
+    /**
+     * Create a RegisteredPrefix with the given values.
+     * @param registeredPrefixId The ID from getNextRegisteredPrefixId().
+     * @param prefix The name prefix.
+     * @param relatedInterestFilterId (optional) The related interestFilterId
+     * for the filter set in the same registerPrefix operation. If omitted, set
+     * to 0.
+     */
     public RegisteredPrefix
-      (long registeredPrefixId, Name prefix, OnInterest onInterest)
+      (long registeredPrefixId, Name prefix, long relatedInterestFilterId)
     {
       registeredPrefixId_ = registeredPrefixId;
       prefix_ = prefix;
-      onInterest_ = onInterest;
+      relatedInterestFilterId_ = relatedInterestFilterId;
     }
 
     /**
@@ -492,19 +592,102 @@ public class Node implements ElementListener {
      * Get the registeredPrefixId given to the constructor.
      * @return The registeredPrefixId.
      */
-    public long
+    public final long
     getRegisteredPrefixId() { return registeredPrefixId_; }
 
-    public Name
+    /**
+     * Get the name prefix given to the constructor.
+     * @return The name prefix.
+     */
+    public final Name
     getPrefix() { return prefix_; }
 
-    public OnInterest
-    getOnInterest() { return onInterest_; }
+    /**
+     * Get the related interestFilterId given to the constructor.
+     * @return The related interestFilterId.
+     */
+    public final long
+    getRelatedInterestFilterId() { return relatedInterestFilterId_; }
 
     private static long lastRegisteredPrefixId_; /**< A class variable used to get the next unique ID. */
-    private long registeredPrefixId_; /**< A unique identifier for this entry so it can be deleted */
-    private Name prefix_;
-    private OnInterest onInterest_;
+    private final long registeredPrefixId_; /**< A unique identifier for this entry so it can be deleted */
+    private final Name prefix_;
+    private final long relatedInterestFilterId_;
+  }
+
+  /**
+   * An InterestFilterEntry holds an interestFilterId, an InterestFilter and
+   * and the OnInterestCallback.
+   */
+  private static class InterestFilterEntry {
+    /**
+     * Create a new InterestFilterEntry with the given values.
+     * @param interestFilterId The ID from getNextInterestFilterId().
+     * @param filter The InterestFilter for this entry.
+     * @param onInterest The callback to call.
+     * @param face The face on which was called registerPrefix or
+     * setInterestFilter which is passed to the onInterset callback.
+     */
+    public InterestFilterEntry
+      (long interestFilterId, InterestFilter filter, 
+       OnInterestCallback onInterest, Face face)
+    {
+      interestFilterId_ = interestFilterId;
+      filter_ = filter;
+      onInterest_ = onInterest;
+      face_ = face;
+    }
+
+    /**
+     * Get the next interest filter ID. This just calls
+     * RegisteredPrefix.getNextRegisteredPrefixId() so that IDs come from the
+     * same pool and won't be confused when removing entries from the two tables.
+     * @return The next ID.
+     */
+    public static long
+    getNextInterestFilterId() { return RegisteredPrefix.getNextRegisteredPrefixId(); }
+
+    /**
+     * Get the interestFilterId given to the constructor.
+     * @return The interestFilterId.
+     */
+    public final long
+    getInterestFilterId() { return interestFilterId_; }
+
+    /**
+     * Get the InterestFilter given to the constructor.
+     * @return The InterestFilter.
+     */
+    public final InterestFilter
+    getFilter() { return filter_; }
+
+    /**
+     * Get the OnInterestCallback given to the constructor.
+     * @return The OnInterestCallback.
+     */
+    public final OnInterestCallback
+    getOnInterest() { return onInterest_; }
+
+    /**
+     * Get the Face given to the constructor.
+     * @return The Face.
+     */
+    public final Face
+    getFace() { return face_; }
+
+    /**
+     * Call getFilter().doesMatch to check if name matches the prefix and
+     * optional regex filter.
+     * @param name The name to check against this filter.
+     * @return True if name matches this filter, otherwise false.
+     */
+    public final boolean
+    doesMatch(Name name) { return filter_.doesMatch(name); }
+
+    private final long interestFilterId_; /**< A unique identifier for this entry so it can be deleted */
+    private final InterestFilter filter_;
+    private final OnInterestCallback onInterest_;
+    private final Face face_;
   }
 
   private static class NdndIdFetcher implements OnData, OnTimeout
@@ -541,7 +724,8 @@ public class Node implements ElementListener {
       info_.node_.ndndId_ = new Blob(digest);
       info_.node_.registerPrefixHelper
         (info_.registeredPrefixId_, info_.prefix_, info_.onInterest_,
-         info_.onRegisterFailed_, info_.flags_, info_.wireFormat_);
+         info_.onRegisterFailed_, info_.flags_, info_.wireFormat_,
+         info_.face_);
     }
 
     /**
@@ -569,11 +753,13 @@ public class Node implements ElementListener {
        * @param onRegisterFailed
        * @param flags
        * @param wireFormat
+       * @param face The face which is passed to the onInterest callback. If
+       * onInterest is null, this is ignored.
        */
       public Info
-        (Node node, long registeredPrefixId, Name prefix, OnInterest onInterest,
+        (Node node, long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
          OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
-         WireFormat wireFormat)
+         WireFormat wireFormat, Face face)
       {
         node_ = node;
         registeredPrefixId_ = registeredPrefixId;
@@ -582,15 +768,17 @@ public class Node implements ElementListener {
         onRegisterFailed_ = onRegisterFailed;
         flags_ = flags;
         wireFormat_ = wireFormat;
+        face_ = face;
       }
 
-      public Node node_;
-      public long registeredPrefixId_;
-      public Name prefix_;
-      public OnInterest onInterest_;
-      public OnRegisterFailed onRegisterFailed_;
-      public ForwardingFlags flags_;
-      public WireFormat wireFormat_;
+      public final Node node_;
+      public final long registeredPrefixId_;
+      public final Name prefix_;
+      public final OnInterestCallback onInterest_;
+      public final OnRegisterFailed onRegisterFailed_;
+      public final ForwardingFlags flags_;
+      public final WireFormat wireFormat_;
+      public final Face face_;
     };
 
     private Info info_;
@@ -675,7 +863,8 @@ public class Node implements ElementListener {
           NdndIdFetcher fetcher = new NdndIdFetcher
             (new NdndIdFetcher.Info
               (info_.node_, 0, info_.prefix_, info_.onInterest_,
-               info_.onRegisterFailed_, info_.flags_, info_.wireFormat_));
+               info_.onRegisterFailed_, info_.flags_, info_.wireFormat_,
+               info_.face_));
           // We send the interest using the given wire format so that the hub
           // receives (and sends) in the application's desired wire format.
           try {
@@ -696,7 +885,7 @@ public class Node implements ElementListener {
           //   registeredPrefixTable_ on the first try.
           info_.node_.registerPrefixHelper
             (0, new Name(info_.prefix_), info_.onInterest_, info_.onRegisterFailed_,
-             info_.flags_, info_.wireFormat_);
+             info_.flags_, info_.wireFormat_, info_.face_);
       }
       else {
         // An NDNx command was sent because there is no commandKeyChain, so we
@@ -710,10 +899,23 @@ public class Node implements ElementListener {
     }
 
     public static class Info {
+      /**
+       *
+       * @param node
+       * @param prefix
+       * @param onInterest
+       * @param onRegisterFailed
+       * @param flags
+       * @param wireFormat
+       * @param isNfdCommand
+       * @param face The face which is passed to the onInterest callback. If
+       * onInterest is null, this is ignored. TODO: This is not needed after
+       * we remove NdndIdFetcher.
+       */
       public Info
-        (Node node, Name prefix, OnInterest onInterest,
+        (Node node, Name prefix, OnInterestCallback onInterest,
          OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
-         WireFormat wireFormat, boolean isNfdCommand)
+         WireFormat wireFormat, boolean isNfdCommand, Face face)
       {
         node_ = node;
         prefix_ = prefix;
@@ -722,15 +924,17 @@ public class Node implements ElementListener {
         flags_ = flags;
         wireFormat_ = wireFormat;
         isNfdCommand_ = isNfdCommand;
+        face_ = face;
       }
 
       public final Node node_;
       public final Name prefix_;
-      public final OnInterest onInterest_;
+      public final OnInterestCallback onInterest_;
       public final OnRegisterFailed onRegisterFailed_;
       public final ForwardingFlags flags_;
       public final WireFormat wireFormat_;
       public final boolean isNfdCommand_;
+      public final Face face_;
     }
 
     private final Info info_;
@@ -943,36 +1147,6 @@ public class Node implements ElementListener {
   }
 
   /**
-   * Find the first entry from the registeredPrefixTable_ where the entry prefix
-   * is the longest that matches name.
-   * @param name The name to find the RegisteredPrefix for (from the incoming
-   * interest packet).
-   * @return The entry, or null if not found.
-   */
-  private RegisteredPrefix
-  getEntryForRegisteredPrefix(Name name)
-  {
-    int iResult = -1;
-
-    for (int i = 0; i < registeredPrefixTable_.size(); ++i) {
-      RegisteredPrefix registeredPrefix =
-        (RegisteredPrefix)registeredPrefixTable_.get(i);
-      if (registeredPrefix.getPrefix().match(name)) {
-        if (iResult < 0 ||
-            registeredPrefix.getPrefix().size() >
-            ((RegisteredPrefix)registeredPrefixTable_.get(iResult)).getPrefix().size())
-          // Update to the longer match.
-          iResult = i;
-      }
-    }
-
-    if (iResult >= 0)
-      return (RegisteredPrefix)registeredPrefixTable_.get(iResult);
-    else
-      return null;
-  }
-
-  /**
    * Do the work of registerPrefix once we know we are connected with an ndndId_.
    * @param registeredPrefixId The RegisteredPrefix.getNextRegisteredPrefixId()
    * which registerPrefix got so it could return it to the caller. If this
@@ -983,12 +1157,14 @@ public class Node implements ElementListener {
    * @param onRegisterFailed
    * @param flags
    * @param wireFormat
+   * @param face The face which is passed to the onInterest callback. If
+   * onInterest is null, this is ignored.
    */
   private void
   registerPrefixHelper
-    (long registeredPrefixId, Name prefix, OnInterest onInterest,
+    (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
-     WireFormat wireFormat)
+     WireFormat wireFormat, Face face)
   {
     // Create a ForwardingEntry.
     // Note: ndnd ignores any freshness that is larger than 3600 seconds and
@@ -1020,14 +1196,23 @@ public class Node implements ElementListener {
     interest.setInterestLifetimeMilliseconds(4000.0);
     interest.setScope(1);
 
-    if (registeredPrefixId != 0)
-      // Save the onInterest callback and send the registration interest.
+    if (registeredPrefixId != 0) {
+      long interestFilterId = 0;
+      if (onInterest != null)
+        // registerPrefix was call with the "combined" form that includes the
+        // callback, so add an InterestFilterEntry.
+        interestFilterId = setInterestFilter
+          (new InterestFilter(prefix), onInterest, face);
+      
       registeredPrefixTable_.add
-        (new RegisteredPrefix(registeredPrefixId, prefix, onInterest));
+        (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
+    }
 
+    // send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
-       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, false));
+       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, false,
+        face));
     try {
       expressInterest(interest, response, response, wireFormat);
     }
@@ -1052,15 +1237,17 @@ public class Node implements ElementListener {
    * @param commandKeyChain
    * @param commandCertificateName
    * @param wireFormat
+   * @param face The face which is passed to the onInterest callback. If
+   * onInterest is null, this is ignored.
    * @throws SecurityException If cannot find the private key for the
    * certificateName.
    */
   private void
   nfdRegisterPrefix
-    (long registeredPrefixId, Name prefix, OnInterest onInterest, 
+    (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
      KeyChain commandKeyChain, Name commandCertificateName,
-     WireFormat wireFormat) throws SecurityException
+     WireFormat wireFormat, Face face) throws SecurityException
   {
     if (commandKeyChain == null)
       throw new Error
@@ -1074,34 +1261,51 @@ public class Node implements ElementListener {
 
     Interest commandInterest = new Interest();
     
-    // determine whether to use remote prefix registration
+    // Determine whether to use remote prefix registration.
+    boolean faceIsLocal;
     try {
-      if (this.isLocal())
-        commandInterest.setName(new Name("/localhost/nfd/rib/register"));
-      else
-        commandInterest.setName(new Name("/localhop/nfd/rib/register"));
+      faceIsLocal = isLocal();
     } catch (IOException ex) {
       Logger.getLogger(Node.class.getName()).log(Level.INFO,
         "Register prefix failed: Error attempting to determine if the face is local: {0}", ex);
       onRegisterFailed.onRegisterFailed(prefix);
+      return;
     }
     
+    if (faceIsLocal) {
+      commandInterest.setName(new Name("/localhost/nfd/rib/register"));
+      // The interest is answered by the local host, so set a short timeout.
+      commandInterest.setInterestLifetimeMilliseconds(2000.0);
+    }
+    else {
+      commandInterest.setName(new Name("/localhop/nfd/rib/register"));
+      // The host is remote, so set a longer timeout.
+      commandInterest.setInterestLifetimeMilliseconds(4000.0);
+    }
+
     // NFD only accepts TlvWireFormat packets.
     commandInterest.getName().append(controlParameters.wireEncode(TlvWireFormat.get()));
     makeCommandInterest
       (commandInterest, commandKeyChain, commandCertificateName,
        TlvWireFormat.get());
-    // The interest is answered by the local host, so set a short timeout.
-    commandInterest.setInterestLifetimeMilliseconds(2000.0);
 
-    if (registeredPrefixId != 0)
-      // Save the onInterest callback and send the registration interest.
+    if (registeredPrefixId != 0) {
+      long interestFilterId = 0;
+      if (onInterest != null)
+        // registerPrefix was call with the "combined" form that includes the
+        // callback, so add an InterestFilterEntry.
+        interestFilterId = setInterestFilter
+          (new InterestFilter(prefix), onInterest, face);
+
       registeredPrefixTable_.add
-        (new RegisteredPrefix(registeredPrefixId, prefix, onInterest));
+        (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
+    }
 
+    // Send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
-       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, true));
+       (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, true,
+        face));
     try {
       expressInterest(commandInterest, response, response, wireFormat);
     }
@@ -1118,6 +1322,7 @@ public class Node implements ElementListener {
   // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList pendingInterestTable_ = new ArrayList();  // PendingInterest
   private final ArrayList registeredPrefixTable_ = new ArrayList(); // RegisteredPrefix
+  private final ArrayList interestFilterTable_ = new ArrayList(); // InterestFilterEntry
   private final Interest ndndIdFetcherInterest_;
   private Blob ndndId_ = new Blob();
   private static final SecureRandom random_ = new SecureRandom();

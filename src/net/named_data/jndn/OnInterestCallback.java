@@ -1,7 +1,7 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,26 +19,29 @@
 
 package net.named_data.jndn;
 
-import net.named_data.jndn.transport.Transport;
-
 /**
- * A class implements OnInterest if it has onInterest, used to pass a callback
- * to Face.registerPrefix.
+ * A class implements OnInterestCallback if it has onInterest, used to pass a
+ * callback to Face.registerPrefix or Face.setInterestFilter.
  */
-public interface OnInterest {
+public interface OnInterestCallback {
   /**
-   * When an interest is received which matches the name prefix, onInterest is
-   * called.
-   * @param prefix The prefix given to registerPrefix. NOTE: You must not change
+   * When an interest is received which matches the interest filter, onInterest
+   * is called.
+   * @param prefix The Name prefix given to registerPrefix or setInterestFilter
+   * (or directly to the InterestFilter constructor). NOTE: You must not change
    * the prefix object - if you need to change it then make a copy.
    * @param interest The received interest.
-   * @param transport The Transport with the connection which received the
-   * interest.
-   * You must encode a signed Data packet and send it using transport.send().
+   * @param face You should call face.putData to supply a Data packet which
+   * satisfies the Interest.
    * @param interestFilterId The interest filter ID which can be used with
    * Face.unsetInterestFilter.
+   * @param filter The InterestFilter given to registerPrefix or
+   * setInterestFilter, or the InterestFilter created from the Name prefix. The
+   * first argument, prefix, is provided for convenience and is the same as
+   * filter.getPrefix(). NOTE: You must not change the filter object - if you
+   * need to change it then make a copy.
    */
   void onInterest
-    (Name prefix, Interest interest, Transport transport,
-     long interestFilterId);
+    (Name prefix, Interest interest, Face face, long interestFilterId,
+     InterestFilter filter);
 }
