@@ -28,7 +28,6 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.KeyNameType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
-import net.named_data.jndn.encoding.BinaryXmlWireFormat;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
@@ -363,9 +362,7 @@ public class TestEncodeDecodeBenchmark {
   benchmarkEncodeDecodeData
     (boolean useComplex, boolean useCrypto, KeyType keyType) throws EncodingException
   {
-    String format =
-      (WireFormat.getDefaultWireFormat() == BinaryXmlWireFormat.get() ?
-       "ndnb" : "TLV ");
+    String format = "TLV";
     Blob[] encoding = new Blob[1];
     {
       int nIterations = useCrypto ? 2000 : 5000000;
@@ -394,19 +391,11 @@ public class TestEncodeDecodeBenchmark {
   {
     Logger.getLogger("").setLevel(Level.OFF);
     try {
-      // Make two passes, one for each wire format.
-      for (int i = 1; i <= 2; ++i) {
-        if (i == 1)
-          WireFormat.setDefaultWireFormat(BinaryXmlWireFormat.get());
-        else
-          WireFormat.setDefaultWireFormat(TlvWireFormat.get());
-
-        KeyType keyType = KeyType.RSA;
-        benchmarkEncodeDecodeData(false, false, keyType);
-        benchmarkEncodeDecodeData(true, false, keyType);
-        benchmarkEncodeDecodeData(false, true, keyType);
-        benchmarkEncodeDecodeData(true, true, keyType);
-      }
+      KeyType keyType = KeyType.RSA;
+      benchmarkEncodeDecodeData(false, false, keyType);
+      benchmarkEncodeDecodeData(true, false, keyType);
+      benchmarkEncodeDecodeData(false, true, keyType);
+      benchmarkEncodeDecodeData(true, true, keyType);
     } catch (EncodingException e) {}
   }
 }
