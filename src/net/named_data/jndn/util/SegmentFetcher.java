@@ -32,7 +32,7 @@ import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 
 /**
- * SegmentFetcher is a utility class to fetch latest version of segmented data.
+ * SegmentFetcher is a utility class to fetch the latest version of segmented data.
  *
  * SegmentFetcher assumes that the data is named /<prefix>/<version>/<segment>,
  * where:
