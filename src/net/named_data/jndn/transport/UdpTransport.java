@@ -76,9 +76,10 @@ public class UdpTransport extends Transport {
   }
   
   /**
-   * Determine whether the current transport is to a node on the current
-   * machine. According to http://redmine.named-data.net/issues/2532#note-8, UDP
-   * transports are always non-local.
+   * Determine whether this transport connecting according to connectionInfo is
+   * to a node on the current machine. According to
+   * http://redmine.named-data.net/issues/2532#note-8, UDP transports are always
+   * non-local.
    * @param connectionInfo This is ignored.
    * @return False because UDP transports are always non-local.
    */

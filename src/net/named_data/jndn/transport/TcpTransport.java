@@ -77,8 +77,8 @@ public class TcpTransport extends Transport {
   }
   
   /**
-   * Determine whether the current transport is to a node on the current
-   * machine; results are cached. According to
+   * Determine whether this transport connecting according to connectionInfo is
+   * to a node on the current machine; results are cached. According to
    * http://redmine.named-data.net/projects/nfd/wiki/ScopeControl#local-face,
    * TCP transports with a loopback address are local. If connectionInfo 
    * contains a host name, InetAddress will do a blocking DNS lookup; otherwise

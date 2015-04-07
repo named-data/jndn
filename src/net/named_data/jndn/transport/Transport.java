@@ -32,18 +32,17 @@ public abstract class Transport {
   public static class ConnectionInfo {
   }
   
-	/**
-	 * Determine whether the current transport is to a node on the current
-	 * machine. this affects the processing of Face.registerPrefix(): if the NFD
-	 * is local, registration occurs with the '/localhost/nfd...' prefix; if
-	 * non-local, the library will attempt to use remote prefix registration
-	 * using '/localhop/nfd...'
-	 *
-   * @param connectionInfo
-	 * @return
+  /**
+   * Determine whether this transport connecting according to connectionInfo is
+   * to a node on the current machine. This affects the processing of
+   * Face.registerPrefix(): if the NFD is local, registration occurs with the
+   * '/localhost/nfd...' prefix; if non-local, the library will attempt to use
+   * remote prefix registration using '/localhop/nfd...'
+   * @param connectionInfo A ConnectionInfo with the host to check.
+   * @return True if the host is local, false if not.
    * @throws java.io.IOException
-	 */
-	public abstract boolean isLocal(Transport.ConnectionInfo connectionInfo) 
+   */
+  public abstract boolean isLocal(Transport.ConnectionInfo connectionInfo) 
     throws IOException;
 
   /**
