@@ -251,7 +251,7 @@ public class TestRegisterRoute {
    * @param uri The remote URI in case we need to tell NFD to create a face.
    * @param face The Face which is used to sign the command interest and call
    * expressInterest.
-   * @param enabled On success or error, set enabled[0] = false;
+   * @param enabled On success or error, set enabled[0] = false.
    */
   private static void
   processFaceStatus
@@ -308,7 +308,7 @@ public class TestRegisterRoute {
    * @param prefix The prefix name to register.
    * @param face The Face which is used to sign the command interest and call
    * expressInterest.
-   * @param enabled On success or error, set enabled[0] = false;
+   * @param enabled On success or error, set enabled[0] = false.
    */
   private static void
   processCreateFaceResponse
@@ -353,7 +353,7 @@ public class TestRegisterRoute {
    * @param faceId The face ID.
    * @param face The Face which is used to sign the command interest and call
    * expressInterest.
-   * @param enabled On success or error, set enabled[0] = false;
+   * @param enabled On success or error, set enabled[0] = false.
    */
   private static void
   registerRoute(Name prefix, long faceId, Face face, final boolean[] enabled)
