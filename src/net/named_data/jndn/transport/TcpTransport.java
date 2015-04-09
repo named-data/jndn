@@ -94,8 +94,9 @@ public class TcpTransport extends Transport {
     if(connectionInfo_ == null || !((ConnectionInfo) connectionInfo).getHost()
       .equals(connectionInfo_.getHost()))
     {
-      InetAddress address = InetAddress.getByName(connectionInfo_.getHost());
-      connectionInfo_ = (ConnectionInfo) connectionInfo;
+      InetAddress address = InetAddress.getByName
+        (((ConnectionInfo)connectionInfo).getHost());
+      connectionInfo_ = (ConnectionInfo)connectionInfo;
       isLocal_ = address.isLoopbackAddress();
     }
     return isLocal_;
