@@ -34,11 +34,10 @@ import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.SecurityException;
-import net.named_data.jndn.transport.Transport;
 
 /**
  * A MemoryContentCache holds a set of Data packets and answers an Interest to
- * return the correct Data packet. The cached is periodically cleaned up to
+ * return the correct Data packet. The cache is periodically cleaned up to
  * remove each stale Data packet based on its FreshnessPeriod (if it has one).
  * @note This class is an experimental feature.  See the API docs for more detail at
  * http://named-data.net/doc/ndn-ccl-api/memory-content-cache.html .
