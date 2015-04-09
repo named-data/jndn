@@ -37,13 +37,13 @@ import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.util.Blob;
 
 /**
- * Integration test for remote prefix registration
+ * Remote prefix registration example.
  */
 public class TestRemotePrefixRegistration {
 
   /**
    * Ensure remote NFD has localhop configuration enabled for any certificate;
-   * inside the integration-tests directory, run with 
+   * inside the examples directory, run with
    * `mvn -q test -DclassName=TestRemotePrefixRegistration -Dip=[IP address to remote NFD]`.
    *
    * @param args
