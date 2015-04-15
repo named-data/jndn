@@ -413,7 +413,7 @@ public class Face {
    * If there is no entry with the pendingInterestId, do nothing.
    * @param pendingInterestId The ID returned from expressInterest.
    */
-  public final void
+  public void
   removePendingInterest(long pendingInterestId)
   {
     node_.removePendingInterest(pendingInterestId);
@@ -430,7 +430,7 @@ public class Face {
    * This makes a copy of the Name. You can get the default certificate name
    * with keyChain.getDefaultCertificateName() .
    */
-  public final void
+  public void
   setCommandSigningInfo(KeyChain keyChain, Name certificateName)
   {
     commandKeyChain_ = keyChain;
@@ -443,7 +443,7 @@ public class Face {
    * @param certificateName The certificate name for signing interest.
    * This makes a copy of the Name.
    */
-  public final void
+  public void
   setCommandCertificateName(Name certificateName)
   {
     commandCertificateName_ = new Name(certificateName);
@@ -461,7 +461,7 @@ public class Face {
    * @note This method is an experimental feature. See the API docs for more detail at
    * http://named-data.net/doc/ndn-ccl-api/face.html#face-makecommandinterest-method .
    */
-  public final void
+  public void
   makeCommandInterest(Interest interest, WireFormat wireFormat) throws SecurityException
   {
     node_.makeCommandInterest
@@ -480,7 +480,7 @@ public class Face {
    * @note This method is an experimental feature. See the API docs for more detail at
    * http://named-data.net/doc/ndn-ccl-api/face.html#face-makecommandinterest-method .
    */
-  public final void
+  public void
   makeCommandInterest(Interest interest) throws SecurityException
   {
     node_.makeCommandInterest
@@ -701,7 +701,7 @@ public class Face {
    * If there is no entry with the registeredPrefixId, do nothing.
    * @param registeredPrefixId The ID returned from registerPrefix.
    */
-  public final void
+  public void
   removeRegisteredPrefix(long registeredPrefixId)
   {
     node_.removeRegisteredPrefix(registeredPrefixId);
@@ -720,7 +720,7 @@ public class Face {
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * @return The interest filter ID which can be used with unsetInterestFilter.
    */
-  public final long
+  public long
   setInterestFilter(InterestFilter filter, OnInterestCallback onInterest)
   {
     return node_.setInterestFilter(filter, onInterest, this);
@@ -739,7 +739,7 @@ public class Face {
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * @return The interest filter ID which can be used with unsetInterestFilter.
    */
-  public final long
+  public long
   setInterestFilter(Name prefix, OnInterestCallback onInterest)
   {
     return node_.setInterestFilter(new InterestFilter(prefix), onInterest, this);
@@ -752,7 +752,7 @@ public class Face {
    * If there is no entry with the interestFilterId, do nothing.
    * @param interestFilterId The ID returned from setInterestFilter.
    */
-  public final void
+  public void
   unsetInterestFilter(long interestFilterId)
   {
     node_.unsetInterestFilter(interestFilterId);
@@ -765,7 +765,7 @@ public class Face {
    * @param wireFormat A WireFormat object used to encode the Data packet.
    * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
    */
-  public final void
+  public void
   putData(Data data, WireFormat wireFormat) throws IOException
   {
     node_.putData(data, wireFormat);
@@ -778,7 +778,7 @@ public class Face {
    * @param data The Data packet which satisfies the interest.
    * @throws Error If the encoded Data packet size exceeds getMaxNdnPacketSize().
    */
-  public final void
+  public void
   putData(Data data) throws IOException
   {
     node_.putData(data, WireFormat.getDefaultWireFormat());
@@ -789,7 +789,7 @@ public class Face {
    * @param encoding The blob with the the encoded packet to send.
    * @throws Error If the encoded packet size exceeds getMaxNdnPacketSize().
    */
-  public final void
+  public void
   send(Blob encoding) throws IOException
   {
     node_.send(encoding.buf());
@@ -801,7 +801,7 @@ public class Face {
    * reads from position() to limit(), but does not change the position.
    * @throws Error If the encoded packet size exceeds getMaxNdnPacketSize().
    */
-  public final void
+  public void
   send(ByteBuffer encoding) throws IOException
   {
     node_.send(encoding);
