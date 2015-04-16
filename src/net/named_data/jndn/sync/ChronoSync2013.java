@@ -290,64 +290,6 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
   }
 
   /**
-   * A PendingInterest holds an interest which onInterest received but could
-   * not satisfy. When we add a new data packet to the contentCache_, we will
-   * also check if it satisfies a pending interest.
-   */
-  private static class PendingInterest {
-    /**
-     * Create a new PendingInterest and set the timeoutTime_ based on the current
-     * time and the interest lifetime.
-     * @param interest The interest.
-     * @param face The face from the onInterest callback. If the
-     * interest is satisfied later by a new data packet, we will send the data
-     * packet to the face.
-     */
-    public PendingInterest(Interest interest, Face face)
-    {
-      interest_ = interest;
-      face_ = face;
-
-      // Set up timeoutTime_.
-      if (interest_.getInterestLifetimeMilliseconds() >= 0.0)
-        timeoutTimeMilliseconds_ = Common.getNowMilliseconds() +
-          interest_.getInterestLifetimeMilliseconds();
-      else
-        // No timeout.
-        timeoutTimeMilliseconds_ = -1.0;
-    }
-
-    /**
-     * Return the interest given to the constructor.
-     */
-    public final Interest
-    getInterest() { return interest_; }
-
-    /**
-     * Return the face given to the constructor.
-     */
-    public final Face
-    getFace() { return face_; }
-
-    /**
-     * Check if this interest is timed out.
-     * @param nowMilliseconds The current time in milliseconds from Common.getNowMilliseconds.
-     * @return true if this interest timed out, otherwise false.
-     */
-    public final boolean
-    isTimedOut(double nowMilliseconds)
-    {
-      return timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_;
-    }
-
-    private final Interest interest_;
-    private final Face face_;
-    private final double timeoutTimeMilliseconds_; /**< The time when the
-      * interest times out in milliseconds according to ndn_getNowMilliseconds,
-      * or -1 for no timeout. */
-  }
-
-  /**
    * Make a data packet with the syncMessage and with name
    * applicationBroadcastPrefix_ + digest. Sign and send.
    * @param digest The root digest as a hex string for the data packet name.
@@ -362,7 +304,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
     data.getName().append(digest);
     data.setContent(new Blob(syncMessage.toByteArray()));
     keyChain_.sign(data, certificateName_);
-    contentCacheAdd(data);
+    contentCache_.add(data);
   }
 
   /**
@@ -412,8 +354,8 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
 
   /**
    * Process the sync interest from the applicationBroadcastPrefix. If we can't
-   * satisfy the interest, add it to the pendingInterestTable_ so that a
-   * future call to contentCacheAdd may satisfy it.
+   * satisfy the interest, add it to the pending interest table in the
+   * contentCache_ so that a future call to add may satisfy it.
    * (Do not call this. It is only public to implement the interface.)
    */
   public final void
@@ -444,8 +386,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
       // Recovery interest or newcomer interest.
       processRecoveryInterest(interest, syncDigest, face);
     else {
-      // Save the unanswered interest in our local pending interest table.
-      pendingInterestTable_.add(new PendingInterest(interest, face));
+      contentCache_.storePendingInterest(interest, face);
 
       if (!syncDigest.equals(digestTree_.getRoot())) {
         int index = logFind(syncDigest);
@@ -883,47 +824,6 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
     }
   }
 
-  /**
-   * Add the data packet to the contentCache_. Remove timed-out entries
-   * from pendingInterestTable_. If the data packet satisfies any pending
-   * interest, then send the data packet to the pending interest's face
-   * and remove from the pendingInterestTable_.
-   * @param data
-   */
-  private void
-  contentCacheAdd(Data data)
-  {
-    contentCache_.add(data);
-
-    // Remove timed-out interests and check if the data packet matches any pending
-    // interest.
-    // Go backwards through the list so we can erase entries.
-    double nowMilliseconds = Common.getNowMilliseconds();
-    for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
-      PendingInterest pendingInterest =
-        (PendingInterest)pendingInterestTable_.get(i);
-      if (pendingInterest.isTimedOut(nowMilliseconds)) {
-        pendingInterestTable_.remove(i);
-        continue;
-      }
-
-      if (pendingInterest.getInterest().matchesName(data.getName())) {
-        try {
-          // Send to the same face from the original call to onInterest.
-          // wireEncode returns the cached encoding if available.
-          pendingInterest.getFace().send(data.wireEncode());
-        } catch (IOException ex) {
-          Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE,
-            ex.getMessage());
-          return;
-        }
-
-        // The pending interest is satisfied, so remove it.
-        pendingInterestTable_.remove(i);
-      }
-    }
-  }
-
   // This is a do-nothing onData for using expressInterest for timeouts.
   // This should never be called.
   private static class DummyOnData implements OnData {
@@ -947,6 +847,5 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
   long sessionNo_;
   long sequenceNo_ = -1;
   MemoryContentCache contentCache_;
-  ArrayList pendingInterestTable_ = new ArrayList(); // of PendingInterest
   boolean enabled_ = true;
 }
