@@ -56,7 +56,7 @@ public class MemoryContentCache implements OnInterestCallback {
   {
     face_ = face;
     cleanupIntervalMilliseconds_ = cleanupIntervalMilliseconds;
-    nextCleanupTime_ = Common.getNowMilliseconds() + cleanupIntervalMilliseconds_;
+    construct();
   }
 
   /**
@@ -69,7 +69,22 @@ public class MemoryContentCache implements OnInterestCallback {
   {
     face_ = face;
     cleanupIntervalMilliseconds_ = 1000.0;
+    construct();
+  }
+
+  private void
+  construct()
+  {
     nextCleanupTime_ = Common.getNowMilliseconds() + cleanupIntervalMilliseconds_;
+
+    storePendingInterestCallback_ = new OnInterestCallback() {
+      public void onInterest
+        (Name localPrefix, Interest localInterest, Face localFace,
+         long localInterestFilterId, InterestFilter localFilter)
+      {
+        storePendingInterest(localInterest, localFace);
+      }
+    };
   }
 
   /**
@@ -78,10 +93,16 @@ public class MemoryContentCache implements OnInterestCallback {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
-   * @param onDataNotFound If a data packet is not found in the cache, this calls
-   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter)
-   * to forward the OnInterest message. If onDataNotFound is null, this does not
-   * use it.
+   * @param onDataNotFound If a data packet for an interest is not found in the
+   * cache, this forwards the interest by calling
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * Your callback can find the Data packet for the interest and call
+   * face.putData(data).  If your callback cannot find the Data packet, it can
+   * optionally call storePendingInterest(interest, face) to store the pending
+   * interest in this object to be satisfied by a later call to add(data). If
+   * you want to automatically store all pending interests, you can simply use
+   * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
+   * this does not use it.
    * @param flags See Face.registerPrefix.
    * @param wireFormat See Face.registerPrefix.
    * @throws IOException For I/O error in sending the registration request.
@@ -107,10 +128,16 @@ public class MemoryContentCache implements OnInterestCallback {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
-   * @param onDataNotFound If a data packet is not found in the cache, this calls
-   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter)
-   * to forward the OnInterest message. If onDataNotFound is null, this does not
-   * use it.
+   * @param onDataNotFound If a data packet for an interest is not found in the
+   * cache, this forwards the interest by calling
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * Your callback can find the Data packet for the interest and call
+   * face.putData(data).  If your callback cannot find the Data packet, it can
+   * optionally call storePendingInterest(interest, face) to store the pending
+   * interest in this object to be satisfied by a later call to add(data). If
+   * you want to automatically store all pending interests, you can simply use
+   * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
+   * this does not use it.
    * @param flags See Face.registerPrefix.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
@@ -134,10 +161,16 @@ public class MemoryContentCache implements OnInterestCallback {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
-   * @param onDataNotFound If a data packet is not found in the cache, this calls
-   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter)
-   * to forward the OnInterest message. If onDataNotFound is null, this does not
-   * use it.
+   * @param onDataNotFound If a data packet for an interest is not found in the
+   * cache, this forwards the interest by calling
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * Your callback can find the Data packet for the interest and call
+   * face.putData(data).  If your callback cannot find the Data packet, it can
+   * optionally call storePendingInterest(interest, face) to store the pending
+   * interest in this object to be satisfied by a later call to add(data). If
+   * you want to automatically store all pending interests, you can simply use
+   * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
+   * this does not use it.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
@@ -197,7 +230,10 @@ public class MemoryContentCache implements OnInterestCallback {
    * staleness time to now plus data.getFreshnessPeriod(), which is checked
    * during cleanup to remove stale content. This also checks if
    * cleanupIntervalMilliseconds milliseconds have passed and removes stale
-   * content from the cache.
+   * content from the cache. After removing stale content, remove timed-out
+   * pending interests from storePendingInterest(), then if the added Data
+   * packet satisfies any interest, send it through the face and remove the
+   * interest from the pending interest table.
    * @param data The Data packet object to put in the cache. This copies the
    * fields from the object.
    */
@@ -225,6 +261,63 @@ public class MemoryContentCache implements OnInterestCallback {
     else
       // The data does not go stale, so use noStaleTimeCache_.
       noStaleTimeCache_.add(new Content(data));
+
+    // Remove timed-out interests and check if the data packet matches any
+    // pending interest.
+    // Go backwards through the list so we can erase entries.
+    double nowMilliseconds = Common.getNowMilliseconds();
+    for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
+      PendingInterest pendingInterest =
+        (PendingInterest)pendingInterestTable_.get(i);
+      if (pendingInterest.isTimedOut(nowMilliseconds)) {
+        pendingInterestTable_.remove(i);
+        continue;
+      }
+
+      if (pendingInterest.getInterest().matchesName(data.getName())) {
+        try {
+          // Send to the same face from the original call to onInterest.
+          // wireEncode returns the cached encoding if available.
+          pendingInterest.getFace().send(data.wireEncode());
+        } catch (IOException ex) {
+          Logger.getLogger(MemoryContentCache.class.getName()).log(Level.SEVERE,
+            ex.getMessage());
+          return;
+        }
+
+        // The pending interest is satisfied, so remove it.
+        pendingInterestTable_.remove(i);
+      }
+    }
+  }
+
+  /**
+   * Store an interest from an OnInterest callback in the internal pending
+   * interest table (normally because there is no Data packet available yet to
+   * satisfy the interest). add(data) will check if the added Data packet
+   * satisfies any pending interest and send it through the face.
+   * @param interest The Interest for which we don't have a Data packet yet. You
+   * should not modify the interest after calling this.
+   * @param face The Face with the connection which received the interest. This
+   * comes from the OnInterest callback.
+   */
+  public final void
+  storePendingInterest(Interest interest, Face face)
+  {
+    pendingInterestTable_.add(new PendingInterest(interest, face));
+  }
+
+  /**
+   * Return a callback to use for onDataNotFound in registerPrefix which simply
+   * calls storePendingInterest() to store the interest that doesn't match a
+   * Data packet. add(data) will check if the added Data packet satisfies any
+   * pending interest and send it.
+   * @return A callback to use for onDataNotFound in registerPrefix().
+   */
+  public final OnInterestCallback
+  getStorePendingInterest()
+  {
+    return storePendingInterestCallback_;
   }
 
   public final void
@@ -374,6 +467,65 @@ public class MemoryContentCache implements OnInterestCallback {
   }
 
   /**
+   * A PendingInterest holds an interest which onInterest received but could
+   * not satisfy. When we add a new data packet to the cache, we will also check
+   * if it satisfies a pending interest.
+   */
+  private static class PendingInterest {
+    /**
+     * Create a new PendingInterest and set the timeoutTime_ based on the current
+     * time and the interest lifetime.
+     * @param interest The interest.
+     * @param face The face from the onInterest callback. If the
+     * interest is satisfied later by a new data packet, we will send the data
+     * packet to the face.
+     */
+    public PendingInterest(Interest interest, Face face)
+    {
+      interest_ = interest;
+      face_ = face;
+
+      // Set up timeoutTimeMilliseconds_.
+      if (interest_.getInterestLifetimeMilliseconds() >= 0.0)
+        timeoutTimeMilliseconds_ = Common.getNowMilliseconds() +
+          interest_.getInterestLifetimeMilliseconds();
+      else
+        // No timeout.
+        timeoutTimeMilliseconds_ = -1.0;
+    }
+
+    /**
+     * Return the interest given to the constructor.
+     */
+    public final Interest
+    getInterest() { return interest_; }
+
+    /**
+     * Return the face given to the constructor.
+     */
+    public final Face
+    getFace() { return face_; }
+
+    /**
+     * Check if this interest is timed out.
+     * @param nowMilliseconds The current time in milliseconds from
+     *   Common.getNowMilliseconds.
+     * @return True if this interest timed out, otherwise false.
+     */
+    public final boolean
+    isTimedOut(double nowMilliseconds)
+    {
+      return timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_;
+    }
+
+    private final Interest interest_;
+    private final Face face_;
+    private final double timeoutTimeMilliseconds_; /**< The time when the
+      * interest times out in milliseconds according to ndn_getNowMilliseconds,
+      * or -1 for no timeout. */
+  }
+
+  /**
    * Check if now is greater than nextCleanupTime_ and, if so, remove stale
    * content from staleTimeCache_ and reset nextCleanupTime_ based on
    * cleanupIntervalMilliseconds_. Since add(Data) does a sorted insert into
@@ -407,4 +559,6 @@ public class MemoryContentCache implements OnInterestCallback {
   private final ArrayList noStaleTimeCache_ = new ArrayList(); // of Content
   private final ArrayList staleTimeCache_ = new ArrayList(); // of StaleTimeContent
   private final Name.Component emptyComponent_ = new Name.Component();
+  ArrayList pendingInterestTable_ = new ArrayList(); // of PendingInterest
+  OnInterestCallback storePendingInterestCallback_;
 }

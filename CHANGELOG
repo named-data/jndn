@@ -1,5 +1,13 @@
-jNDN v0.5 (2015-04-15)
+Interim changes since jNDN v0.5 (2015-04-16)
 --------------------------------------------
+
+Changes
+* In MemoryContentCache, added support for storePendingInterest. add(data) will
+  check if the added Data packet satisfies any pending interest. You can use
+  getStorePendingInterest() for onDataNotFound in registerPrefix().
+
+jNDN v0.5 (2015-04-15)
+----------------------
 
 Changes
 * http://redmine.named-data.net/issues/1921 In Face, added getMaxNdnPacketSize().
