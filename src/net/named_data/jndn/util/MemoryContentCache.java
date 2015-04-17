@@ -95,7 +95,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onDataNotFound If a data packet for an interest is not found in the
    * cache, this forwards the interest by calling
-   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
    * Your callback can find the Data packet for the interest and call
    * face.putData(data).  If your callback cannot find the Data packet, it can
    * optionally call storePendingInterest(interest, face) to store the pending
@@ -226,14 +226,15 @@ public class MemoryContentCache implements OnInterestCallback {
 
   /**
    * Add the Data packet to the cache so that it is available to use to
-   * answer interests. If data.getFreshnessPeriod() is not negative, set the
-   * staleness time to now plus data.getFreshnessPeriod(), which is checked
-   * during cleanup to remove stale content. This also checks if
-   * cleanupIntervalMilliseconds milliseconds have passed and removes stale
-   * content from the cache. After removing stale content, remove timed-out
-   * pending interests from storePendingInterest(), then if the added Data
-   * packet satisfies any interest, send it through the face and remove the
-   * interest from the pending interest table.
+   * answer interests. If data.getMetaInfo().getFreshnessPeriod() is not 
+   * negative, set the staleness time to now plus
+   * data.getMetaInfo().getFreshnessPeriod(), which is checked during cleanup to
+   * remove stale content. This also checks if cleanupIntervalMilliseconds
+   * milliseconds have passed and removes stale content from the cache. After
+   * removing stale content, remove timed-out pending interests from
+   * storePendingInterest(), then if the added Data packet satisfies any
+   * interest, send it through the face and remove the interest from the pending
+   * interest table.
    * @param data The Data packet object to put in the cache. This copies the
    * fields from the object.
    */
