@@ -626,7 +626,7 @@ public class Node implements ElementListener {
      * @param filter The InterestFilter for this entry.
      * @param onInterest The callback to call.
      * @param face The face on which was called registerPrefix or
-     * setInterestFilter which is passed to the onInterset callback.
+     * setInterestFilter which is passed to the onInterest callback.
      */
     public InterestFilterEntry
       (long interestFilterId, InterestFilter filter, 
