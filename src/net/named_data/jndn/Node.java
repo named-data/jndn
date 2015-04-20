@@ -434,7 +434,7 @@ public class Node implements ElementListener {
       for (int i = 0; i < interestFilterTable_.size(); ++i) {
         InterestFilterEntry entry =
           (InterestFilterEntry)interestFilterTable_.get(i);
-        if (entry.doesMatch(interest.getName()))
+        if (entry.getFilter().doesMatch(interest.getName()))
           entry.getOnInterest().onInterest
            (entry.getFilter().getPrefix(), interest, entry.getFace(),
             entry.getInterestFilterId(), entry.getFilter());
@@ -617,7 +617,7 @@ public class Node implements ElementListener {
 
   /**
    * An InterestFilterEntry holds an interestFilterId, an InterestFilter and
-   * and the OnInterestCallback.
+   * and the OnInterestCallback with its related Face.
    */
   private static class InterestFilterEntry {
     /**
@@ -674,15 +674,6 @@ public class Node implements ElementListener {
      */
     public final Face
     getFace() { return face_; }
-
-    /**
-     * Call getFilter().doesMatch to check if name matches the prefix and
-     * optional regex filter.
-     * @param name The name to check against this filter.
-     * @return True if name matches this filter, otherwise false.
-     */
-    public final boolean
-    doesMatch(Name name) { return filter_.doesMatch(name); }
 
     private final long interestFilterId_; /**< A unique identifier for this entry so it can be deleted */
     private final InterestFilter filter_;
