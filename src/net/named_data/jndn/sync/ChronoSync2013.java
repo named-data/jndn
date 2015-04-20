@@ -567,7 +567,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
           return;
         }
         try {
-          face.send(data.wireEncode());
+          face.putData(data);
         } catch (IOException ex) {
           Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE,
             ex.getMessage());
@@ -643,7 +643,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
       keyChain_.sign(data, certificateName_);
 
       try {
-        face.send(data.wireEncode());
+        face.putData(data);
       } catch (IOException ex) {
         Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE,
           ex.getMessage());
