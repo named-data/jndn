@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.5 (2015-04-17)
+Interim changes since jNDN v0.5 (2015-04-21)
 --------------------------------------------
 
 Changes
@@ -7,6 +7,8 @@ Changes
   getStorePendingInterest() for onDataNotFound in registerPrefix().
 * examples: In repo_ng added BasicInsertion and WatchedInsertion to show
   interaction with the repo-ng repository.
+* examples: Removed TestEncodeDecodeForwardingEntry and
+  TestPublishAsyncNdnx because NDNx support is deprecated.
 
 jNDN v0.5 (2015-04-15)
 ----------------------

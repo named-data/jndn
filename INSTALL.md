@@ -95,12 +95,10 @@ from examples/src/net/named_data/jndn/tests and puts the class files in
 examples/target/classes/net/named_data/jndn/tests:
 
 * TestGetAsync: Connect to one of the NDN testbed hubs, express an interest and display the received data.
-* TestPublishAsyncNdnx: Connect to the local NDNx hub, accept interests with prefix /testecho and echo back a data packet. See test-echo-consumer.
 * TestPublishAsyncNfd: Connect to the local NFD hub, accept interests with prefix /testecho and echo back a data packet. See test-echo-consumer.
 * TestEchoConsumer: Prompt for a word, send the interest /testecho/word to the local hub which is echoed by test-publish-async-nfd (or test-publish-async-ndnx).
 * TestEncodeDecodeInterest: Encode and decode an interest, testing interest selectors and the name URI.
 * TestEncodeDecodeData: Encode and decode a data packet, including signing the data packet.
-* TestEncodeDecodeForwardingEntry: Encode and decode an NDNx forwarding entry.
 * TestEncodeDecodeFibEntry: Encode and decode a sample Protobuf message using ProtobufTlv.
 * TestChronoChat: A command-line chat application using the ChronoSync2013 API, compatible with ChronoChat-js.
 
