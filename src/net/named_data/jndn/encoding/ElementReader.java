@@ -95,26 +95,29 @@ public class ElementReader {
 
       if (gotElementEnd) {
         // Got the remainder of an element.  Report to the caller.
+        ByteBuffer element;
         if (usePartialData_) {
           // We have partial data from a previous call, so append this data and point to partialData.
           partialData_.ensuredPut(data, 0, offset);
 
-          elementListener_.onReceivedElement(partialData_.flippedBuffer());
+          element = partialData_.flippedBuffer();
           // Assume we don't need to use partialData anymore until needed.
           usePartialData_ = false;
         }
         else {
           // We are not using partialData, so just point to the input data buffer.
-          ByteBuffer dataDuplicate = data.duplicate();
-          dataDuplicate.limit(offset);
-          elementListener_.onReceivedElement(dataDuplicate);
+          element = data.duplicate();
+          element.limit(offset);
         }
 
-        // Need to read a new object.
+        // Reset to read a new object. Do this before calling onReceivedElement
+        // in case it throws an exception.
         data.position(offset);
         data = data.slice();
         binaryXmlStructureDecoder_ = new BinaryXmlStructureDecoder();
         tlvStructureDecoder_ = new TlvStructureDecoder();
+
+        elementListener_.onReceivedElement(element);
         if (data.remaining() <= 0)
           // No more data in the packet.
           return;
