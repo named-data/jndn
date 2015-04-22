@@ -100,7 +100,7 @@ public class DynamicByteBuffer {
   /**
    * Call ensureCapacity to ensure there is capacity for buffer.remaining() more
    * bytes and use buffer().put to copy.
-   * This increments the position by (limit - position).
+   * This increments the position by buffer.remaining().
    * This does update buffer's position to its limit.
    * @param buffer The buffer to copy from.  This does not change
    * buffer.position() or buffer.limit().
