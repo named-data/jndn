@@ -59,38 +59,48 @@ public class ElementReader {
 
     // Process multiple objects in the data.
     while(true) {
-      if (!usePartialData_) {
-        // This is the beginning of an element. Check whether it is binaryXML or
-        //   TLV.
-        if (data.remaining() <= 0)
-          // Wait for more data.
-          return;
-
-        // The type codes for TLV Interest and Data packets are chosen to not
-        //   conflict with the first byte of a binary XML packet, so we can
-        //   just look at the first byte.
-        int firstByte = (int)data.get(0) & 0xff;
-        if (firstByte == Tlv.Interest || firstByte == Tlv.Data ||
-            firstByte == Tlv.LocalControlHeader_LocalControlHeader)
-          useTlv_ = true;
-        else
-          // Binary XML.
-          useTlv_ = false;
-      }
-
       boolean gotElementEnd;
       int offset;
-      if (useTlv_) {
-        // Scan the input to check if a whole TLV object has been read.
-        tlvStructureDecoder_.seek(0);
-        gotElementEnd = tlvStructureDecoder_.findElementEnd(data);
-        offset = tlvStructureDecoder_.getOffset();
-      }
-      else {
-        // Scan the input to check if a whole binary XML object has been read.
-        binaryXmlStructureDecoder_.seek(0);
-        gotElementEnd = binaryXmlStructureDecoder_.findElementEnd(data);
-        offset = binaryXmlStructureDecoder_.getOffset();
+
+      try {
+        if (!usePartialData_) {
+          // This is the beginning of an element. Check whether it is binaryXML or
+          //   TLV.
+          if (data.remaining() <= 0)
+            // Wait for more data.
+            return;
+
+          // The type codes for TLV Interest and Data packets are chosen to not
+          //   conflict with the first byte of a binary XML packet, so we can
+          //   just look at the first byte.
+          int firstByte = (int)data.get(0) & 0xff;
+          if (firstByte == Tlv.Interest || firstByte == Tlv.Data ||
+              firstByte == Tlv.LocalControlHeader_LocalControlHeader)
+            useTlv_ = true;
+          else
+            // Binary XML.
+            useTlv_ = false;
+        }
+
+        if (useTlv_) {
+          // Scan the input to check if a whole TLV object has been read.
+          tlvStructureDecoder_.seek(0);
+          gotElementEnd = tlvStructureDecoder_.findElementEnd(data);
+          offset = tlvStructureDecoder_.getOffset();
+        }
+        else {
+          // Scan the input to check if a whole binary XML object has been read.
+          binaryXmlStructureDecoder_.seek(0);
+          gotElementEnd = binaryXmlStructureDecoder_.findElementEnd(data);
+          offset = binaryXmlStructureDecoder_.getOffset();
+        }
+      } catch (EncodingException ex) {
+        // Reset to read a new element on the next call.
+        usePartialData_ = false;
+        binaryXmlStructureDecoder_ = new BinaryXmlStructureDecoder();
+        tlvStructureDecoder_ = new TlvStructureDecoder();
+
+        throw ex;
       }
 
       if (gotElementEnd) {
