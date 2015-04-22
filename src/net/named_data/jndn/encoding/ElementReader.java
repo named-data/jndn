@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.util.DynamicByteBuffer;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvStructureDecoder;
+import net.named_data.jndn.util.Common;
 
 /**
  * A ElementReader lets you call onReceivedData multiple times which
@@ -139,6 +140,17 @@ public class ElementReader {
         if (!usePartialData_) {
           usePartialData_ = true;
           partialData_.position(0);
+        }
+
+        if (partialData_.buffer().position() + data.remaining() >
+            Common.MAX_NDN_PACKET_SIZE) {
+          // Reset to read a new element on the next call.
+          usePartialData_ = false;
+          binaryXmlStructureDecoder_ = new BinaryXmlStructureDecoder();
+          tlvStructureDecoder_ = new TlvStructureDecoder();
+
+          throw new EncodingException
+            ("The incoming packet exceeds the maximum limit Face.getMaxNdnPacketSize()");
         }
 
         partialData_.ensuredPut(data);
