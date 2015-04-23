@@ -248,10 +248,6 @@ public class TestEncodeDecodeData {
       System.out.print("signature.keyLocator: ");
       if (keyLocator.getType() == KeyLocatorType.NONE)
         System.out.println("<none>");
-      else if (keyLocator.getType() == KeyLocatorType.KEY)
-        System.out.println("Key: " + keyLocator.getKeyData().toHex());
-      else if (keyLocator.getType() == KeyLocatorType.CERTIFICATE)
-        System.out.println("Certificate: " + keyLocator.getKeyData().toHex());
       else if (keyLocator.getType() ==KeyLocatorType.KEY_LOCATOR_DIGEST)
         System.out.println("KeyLocatorDigest: " + keyLocator.getKeyData().toHex());
       else if (keyLocator.getType() == KeyLocatorType.KEYNAME)

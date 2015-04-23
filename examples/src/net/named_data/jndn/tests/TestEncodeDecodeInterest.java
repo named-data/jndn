@@ -184,10 +184,6 @@ public class TestEncodeDecodeInterest {
     System.out.print("keyLocator: ");
     if (interest.getKeyLocator().getType() == KeyLocatorType.NONE)
       System.out.println("<none>");
-    else if (interest.getKeyLocator().getType() == KeyLocatorType.KEY)
-      System.out.println("Key: " + interest.getKeyLocator().getKeyData().toHex());
-    else if (interest.getKeyLocator().getType() == KeyLocatorType.CERTIFICATE)
-      System.out.println("Certificate: " + interest.getKeyLocator().getKeyData().toHex());
     else if (interest.getKeyLocator().getType() ==KeyLocatorType.KEY_LOCATOR_DIGEST)
       System.out.println("KeyLocatorDigest: " + interest.getKeyLocator().getKeyData().toHex());
     else if (interest.getKeyLocator().getType() == KeyLocatorType.KEYNAME)
