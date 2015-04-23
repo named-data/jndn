@@ -26,6 +26,7 @@ public enum KeyLocatorType {
   NONE(0),
   KEYNAME(1),
   KEY_LOCATOR_DIGEST(2),
+  // KeyLocatorType KEY and CERTIFICATE are not supported in NDN-TLV encoding and are deprecated.
   KEY(3),
   CERTIFICATE(4);
 
