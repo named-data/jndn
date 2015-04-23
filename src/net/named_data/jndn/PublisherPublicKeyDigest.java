@@ -26,10 +26,12 @@ import net.named_data.jndn.util.ChangeCountable;
  * A PublisherPublicKeyDigest holds the publisher public key digest value, if
  * any.
  * We make a separate class since this is used by multiple other classes.
+ * @deprecated
  */
 public class PublisherPublicKeyDigest implements ChangeCountable {
   /**
    * Create a new PublisherPublicKeyDigest with an empty value.
+   * @deprecated
    */
   public PublisherPublicKeyDigest()
   {

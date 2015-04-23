@@ -73,6 +73,11 @@ public class Sha256WithRsaSignature extends Signature {
   public final Blob
   getSignature() { return signature_; }
 
+  /**
+   * @deprecated The Signature publisherPublicKeyDigest is deprecated. If you
+   * need a publisher public key digest, set the keyLocator keyLocatorType to
+   * KEY_LOCATOR_DIGEST and set its key data to the digest.
+   */
   public final PublisherPublicKeyDigest
   getPublisherPublicKeyDigest()
   {
@@ -107,6 +112,11 @@ public class Sha256WithRsaSignature extends Signature {
     ++changeCount_;
   }
 
+  /**
+   * @deprecated The Signature publisherPublicKeyDigest is deprecated. If you
+   * need a publisher public key digest, set the keyLocator keyLocatorType to
+   * KEY_LOCATOR_DIGEST and set its key data to the digest.
+   */
   public final void
   setPublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest)
   {
