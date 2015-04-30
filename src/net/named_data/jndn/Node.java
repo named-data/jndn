@@ -616,8 +616,8 @@ public class Node implements ElementListener {
   }
 
   /**
-   * An InterestFilterEntry holds an interestFilterId, an InterestFilter and
-   * and the OnInterestCallback with its related Face.
+   * An InterestFilterEntry holds an interestFilterId, an InterestFilter and the
+   * OnInterestCallback with its related Face.
    */
   private static class InterestFilterEntry {
     /**
