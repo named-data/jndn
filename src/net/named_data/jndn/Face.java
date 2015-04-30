@@ -713,7 +713,7 @@ public class Face {
    * library's local callback table and does not register the prefix with the
    * forwarder. It will always succeed. To register a prefix with the forwarder,
    * use registerPrefix.
-   * @param filter The InterestFilter with a prefix an optional regex filter
+   * @param filter The InterestFilter with a prefix and optional regex filter
    * used to match the name of an incoming Interest. This makes a copy of filter.
    * @param onInterest When an Interest is received which matches the filter,
    * this calls
