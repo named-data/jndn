@@ -319,7 +319,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       (Tlv.ControlParameters_FaceId, controlParameters.getFaceId());
     
     // Encode name
-    if(controlParameters.getName().size() != 0){
+    if (controlParameters.getName() != null) {
       encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
     }
 

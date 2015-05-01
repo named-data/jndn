@@ -19,7 +19,7 @@ Changes
 * http://redmine.named-data.net/issues/2566 In Face, added setInterestFilter. In
   registerPrefix, make the onInterest callback optional.
 * http://redmine.named-data.net/issues/2579 Added callback type OnInterestCallback
-  to use in registerPrefix and setInterest filter instead of OnInterest. The new
+  to use in registerPrefix and setInterestFilter instead of OnInterest. The new
   callback is passed the Face so that you can supply the Data with face.putData().
 * Face: Changed the OnInterest callback to pass interestFilterId instead of registeredPrefixId.
   (You should use OnInterestCallback instead of the deprecated OnInterest.)
@@ -31,6 +31,9 @@ Changes
 Deprecated
 * In Face, deprecated registerPrefix where onInterest is type OnInterest. Use the
   registerPrefix where onInterest is OnInterestCallback so you can call face.putData().
+
+Bug fixes
+* http://redmine.named-data.net/issues/2758 ControlParameters with empty name not properly encoded.
 
 jNDN v0.4 (2015-03-09)
 ----------------------
