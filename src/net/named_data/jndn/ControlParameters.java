@@ -34,6 +34,31 @@ import net.named_data.jndn.util.Blob;
  */
 public class ControlParameters {
   /**
+   * Create a new ControlParameters where all values are unspecified.
+   */
+  public
+  ControlParameters() {}
+  
+  /**
+   * Create a new ControlParameters as a deep copy of the given controlParameters.
+   * @param controlParameters The ControlParameters to copy.
+   */
+  public
+  ControlParameters(ControlParameters controlParameters)
+  {
+    name_ = controlParameters.name_ == null ?
+      null : new Name(controlParameters.name_);
+    faceId_ = controlParameters.faceId_;
+    uri_ = controlParameters.uri_;
+    localControlFeature_ = controlParameters.localControlFeature_;
+    origin_ = controlParameters.origin_;
+    cost_ = controlParameters.cost_;
+    flags_ = new ForwardingFlags(controlParameters.flags_);
+    strategy_ = new Name(controlParameters.strategy_);
+    expirationPeriod_ = controlParameters.expirationPeriod_;
+  }
+
+  /**
    * Encode this ControlParameters for a particular wire format.
    * @param wireFormat A WireFormat object used to encode this ControlParameters.
    * @return The encoded buffer.
@@ -105,6 +130,10 @@ public class ControlParameters {
     wireDecode(input.buf());
   }
 
+  /**
+   * Get the name.
+   * @return The Name. If not specified, return null.
+   */
   public final Name
   getName() { return name_; }
 
@@ -132,10 +161,16 @@ public class ControlParameters {
   public final double
   getExpirationPeriod() { return expirationPeriod_; }
 
+  /**
+   * Set the name.
+   * @param name The name. If not specified, set to null. If specified, this
+   * makes a copy of the name.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setName(Name name)
   {
-    name_ = name == null ? new Name() : new Name(name);
+    name_ = name == null ? null : new Name(name);
     return this;
   }
 
@@ -202,7 +237,7 @@ public class ControlParameters {
   public final void
   clear()
   {
-    name_ = new Name();
+    name_ = null;
     faceId_ = -1;
     uri_ = "";
     localControlFeature_ = -1;
@@ -219,7 +254,7 @@ public class ControlParameters {
     return false;
   }
 
-  private Name name_ = new Name();
+  private Name name_ = null;
   private int faceId_ = -1;                  /**< -1 for none. */
   private String uri_ = "";
   private int localControlFeature_ = -1;     /**< -1 for none. */
