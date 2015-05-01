@@ -811,6 +811,7 @@ public class Node implements ElementListener {
           Logger.getLogger(Node.class.getName()).log(Level.INFO,
             "Register prefix failed: Expected NFD status code 200, got: {0}", statusCode);
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+          return;
         }
 
         Logger.getLogger(Node.class.getName()).log(Level.INFO, 
