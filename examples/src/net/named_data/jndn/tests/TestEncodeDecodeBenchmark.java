@@ -29,8 +29,6 @@ import net.named_data.jndn.KeyNameType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
-import net.named_data.jndn.encoding.TlvWireFormat;
-import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerified;
@@ -241,9 +239,6 @@ public class TestEncodeDecodeBenchmark {
         ("SecurityException in setKeyPairForKeyName: " + exception.getMessage());
     }
 
-    // Set up publisherPublicKeyDigest and signatureBits in case useCrypto is
-    //   false.
-    Blob publisherPublicKeyDigest = new Blob(new byte[32]);
     Blob signatureBits = new Blob(new byte[256]);
     Blob emptyBlob = new Blob(new byte[0]);
 
@@ -277,8 +272,6 @@ public class TestEncodeDecodeBenchmark {
         Sha256WithRsaSignature sha256Signature =
           (Sha256WithRsaSignature)data.getSignature();
         sha256Signature.setKeyLocator(keyLocator);
-        sha256Signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-          (publisherPublicKeyDigest);
         sha256Signature.setSignature(signatureBits);
       }
 
