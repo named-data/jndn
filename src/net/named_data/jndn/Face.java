@@ -199,21 +199,16 @@ public class Face {
     (Name name, Interest interestTemplate, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
   {
-    Interest interest = new Interest(name);
+    Interest interest;
     if (interestTemplate != null) {
-      interest.setMinSuffixComponents(interestTemplate.getMinSuffixComponents());
-      interest.setMaxSuffixComponents(interestTemplate.getMaxSuffixComponents());
-      interest.setKeyLocator(interestTemplate.getKeyLocator());
-      interest.setExclude(interestTemplate.getExclude());
-      interest.setChildSelector(interestTemplate.getChildSelector());
-      interest.setMustBeFresh(interestTemplate.getMustBeFresh());
-      interest.setScope(interestTemplate.getScope());
-      interest.setInterestLifetimeMilliseconds(
-        interestTemplate.getInterestLifetimeMilliseconds());
-      // Don't copy the nonce.
+      // Copy the interestTemplate.
+      interest = new Interest(interestTemplate);
+      interest.setName(name);
     }
-    else
+    else {
+      interest = new Interest(name);
       interest.setInterestLifetimeMilliseconds(4000.0);
+    }
 
     return node_.expressInterest(interest, onData, onTimeout, wireFormat);
   }
