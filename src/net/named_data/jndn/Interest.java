@@ -298,7 +298,14 @@ public class Interest implements ChangeCountable {
    * @deprecated Use getMustBeFresh.
    */
   public final int
-  getAnswerOriginKind() { return answerOriginKind_; }
+  getAnswerOriginKind()
+  {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("getAnswerOriginKind is for NDNx and is deprecated. To enable while you upgrade your code to use NFD's getMustBeFresh(), set WireFormat.ENABLE_NDNX = true");
+
+    return answerOriginKind_;
+  }
 
   /**
    * Get the must be fresh flag. If not specified, the default is true.
@@ -419,6 +426,10 @@ public class Interest implements ChangeCountable {
   public final Interest
   setAnswerOriginKind(int answerOriginKind)
   {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("setAnswerOriginKind is for NDNx and is deprecated. To enable while you upgrade your code to use NFD's setMustBeFresh(), set WireFormat.ENABLE_NDNX = true");
+
     answerOriginKind_ = answerOriginKind;
     ++changeCount_;
     return this;
