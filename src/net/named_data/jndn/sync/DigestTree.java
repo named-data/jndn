@@ -2,7 +2,7 @@
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * Derived from ChronoChat-js by Qiuhan Ding and Wentao Shang.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -137,7 +137,7 @@ public class DigestTree {
       byte[] nodeDigest = sha256.digest();
       digest_ = Common.toHex(nodeDigest);
     }
-    
+
     private static void
     int32ToLittleEndian(int value, byte[] result)
     {
@@ -169,7 +169,7 @@ public class DigestTree {
     int nodeIndex = find(dataPrefix, sessionNo);
     Logger.getLogger(DigestTree.class.getName()).log(Level.FINE,
       "{0}, {1}",  new Object[]{dataPrefix, sessionNo});
-    Logger.getLogger(DigestTree.class.getName()).log(Level.FINE, 
+    Logger.getLogger(DigestTree.class.getName()).log(Level.FINE,
       "DigestTree.update session {0}, nodeIndex {1}", new Object[]{sessionNo, nodeIndex});
     if (nodeIndex >= 0) {
       // Only update to a  newer status.

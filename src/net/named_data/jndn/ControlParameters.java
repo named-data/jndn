@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,7 +28,7 @@ import net.named_data.jndn.util.Blob;
  * A ControlParameters holds a Name and other fields for a ControlParameters
  * which is used, for example, in the command interest to register a prefix with
  * a forwarder.
- * 
+ *
  * Note: getters will never be null so check for empty Names with something like
  * `controlParameters.getStrategy().size() != 0`
  */
@@ -38,7 +38,7 @@ public class ControlParameters {
    */
   public
   ControlParameters() {}
-  
+
   /**
    * Create a new ControlParameters as a deep copy of the given controlParameters.
    * @param controlParameters The ControlParameters to copy.
@@ -139,7 +139,7 @@ public class ControlParameters {
 
   public final int
   getFaceId() { return faceId_; }
-  
+
   public final String
   getUri() { return uri_; }
 
@@ -157,7 +157,7 @@ public class ControlParameters {
 
   public final Name
   getStrategy() { return strategy_; }
-  
+
   public final double
   getExpirationPeriod() { return expirationPeriod_; }
 
@@ -180,7 +180,7 @@ public class ControlParameters {
     faceId_ = faceId;
     return this;
   }
-  
+
   public final ControlParameters
   setUri(String uri)
   {
@@ -216,7 +216,7 @@ public class ControlParameters {
       new ForwardingFlags() : new ForwardingFlags(forwardingFlags);
     return this;
   }
-  
+
   public final ControlParameters
   setStrategy(Name strategy)
   {

@@ -3,7 +3,7 @@
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN config_policy_manager.py by Adeola Bannis.
  * Originally from Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -94,7 +94,7 @@ public class ConfigPolicyManager extends PolicyManager {
    */
   public ConfigPolicyManager
     (String configFileName, CertificateCache certificateCache, int searchDepth,
-     double graceInterval, double keyTimestampTtl, int maxTrackedKeys) 
+     double graceInterval, double keyTimestampTtl, int maxTrackedKeys)
        throws IOException, SecurityException
   {
     certificateCache_ = certificateCache;
@@ -140,7 +140,7 @@ public class ConfigPolicyManager extends PolicyManager {
   }
 
   public ConfigPolicyManager
-    (String configFileName, CertificateCache certificateCache) 
+    (String configFileName, CertificateCache certificateCache)
       throws IOException, SecurityException
   {
     certificateCache_ = certificateCache;
@@ -231,7 +231,7 @@ public class ConfigPolicyManager extends PolicyManager {
    */
   public final ValidationRequest
   checkVerificationPolicy
-    (Data data, int stepCount, OnVerified onVerified, 
+    (Data data, int stepCount, OnVerified onVerified,
      OnVerifyFailed onVerifyFailed) throws SecurityException
   {
     Interest certificateInterest = getCertificateInterest
@@ -411,7 +411,7 @@ public class ConfigPolicyManager extends PolicyManager {
       ArrayList certificateNames = new ArrayList();
       for (int i = 0; i < allFiles.length; ++i) {
         File file = allFiles[i];
-        
+
         IdentityCertificate cert;
         try {
           cert = loadIdentityCertificateFromFile(file.getPath());
@@ -1084,7 +1084,7 @@ public class ConfigPolicyManager extends PolicyManager {
     private final OnVerifyInterestFailed onVerifyFailed_;
     private final WireFormat wireFormat_;
   }
-  
+
   /**
    * Ignore data and call onVerifyFailed(interest). This is so that an
    * OnVerifyInterestFailed can be passed as an OnVerifyFailed.
@@ -1108,7 +1108,7 @@ public class ConfigPolicyManager extends PolicyManager {
   }
 
   /**
-   * A class implements Friend if it has a method 
+   * A class implements Friend if it has a method
    * setConfigPolicyManagerFriendAccess which setFriendAccess calls to set
    * the FriendAccess object.
    */
@@ -1142,7 +1142,7 @@ public class ConfigPolicyManager extends PolicyManager {
   public abstract static class FriendAccess {
     public abstract BoostInfoTree
     findMatchingRule(ConfigPolicyManager policyManager, Name objName, String matchType);
-    
+
     public abstract boolean
     checkSignatureMatch
       (ConfigPolicyManager policyManager, Name signatureName, Name objectName, BoostInfoTree rule)

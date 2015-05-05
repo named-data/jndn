@@ -35,12 +35,12 @@ import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
 public class PublicKey {
-  public PublicKey() 
+  public PublicKey()
   {
     keyType_ = null;
     keyDer_ = new Blob();
   }
-  
+
   /**
    * Create a new PublicKey by decoding the keyDer. Set the key type from the
    * decoding.

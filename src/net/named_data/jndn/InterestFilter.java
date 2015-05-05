@@ -38,7 +38,7 @@ public class InterestFilter {
     regexFilter_ = null;
     regexFilterPattern_ = null;
   }
-  
+
   /**
    * Create an InterestFilter to match any Interest whose name starts with the
    * given prefix.

@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -59,7 +59,7 @@ public class ProtobufTlv {
     if (!message.isInitialized())
       throw new Error
         ("Message fields are not initialized: " + message.getInitializationErrorString());
-    
+
     TlvEncoder encoder = new TlvEncoder(256);
 
     encodeMessageValue(message, encoder);
@@ -97,7 +97,7 @@ public class ProtobufTlv {
     List fields = descriptor.getFields();
     for (int i = fields.size() - 1; i >= 0; --i) {
       FieldDescriptor field = (FieldDescriptor)fields.get(i);
-      
+
       int tlvType = field.getNumber();
 
       int valueCount = 0;

@@ -82,7 +82,7 @@ public class DerNode {
         n += 1;
       }
       tempBuf.ensuredPutFromBack((byte)(((1<<7) | n) & 0xff));
-      
+
       buffer.ensuredPut(tempBuf.buffer());
     }
 
@@ -219,7 +219,7 @@ public class DerNode {
   {
     return parse(inputBuf, inputBuf.position());
   }
-  
+
   /**
    * Convert the encoded data to a standard representation. Overridden by some
    * subclasses (e.g. DerBoolean).
@@ -271,7 +271,7 @@ public class DerNode {
    */
   public static class DerStructure extends DerNode {
     /**
-     * Create a DerStructure with the given nodeType. This is a private 
+     * Create a DerStructure with the given nodeType. This is a private
      * constructor. To create an object, use DerSequence.
      * @param nodeType The DER node type.
      */
@@ -414,7 +414,7 @@ public class DerNode {
   ////////
 
   /**
-   * A DerByteString extends DerNode to handle byte strings. 
+   * A DerByteString extends DerNode to handle byte strings.
    */
   public static class DerByteString extends DerNode {
     /**
@@ -476,7 +476,7 @@ public class DerNode {
       return val != 0x00;
     }
   }
-  
+
   /**
    * DerInteger extends DerNode to encode an integer value.
    */
@@ -534,7 +534,7 @@ public class DerNode {
      * Create a DerBitString with the given padding and inputBuf.
      * @param inputBuf An input buffer containing the bit octets to encode.  This
      * copies from the buffer's position to limit, but does not change position.
-     * @param paddingLen The number of bits of padding at the end of the bit 
+     * @param paddingLen The number of bits of padding at the end of the bit
      * string.  Should be less than 8.
      */
     public DerBitString(ByteBuffer inputBuf, int paddingLen)
@@ -738,7 +738,7 @@ public class DerNode {
       String result = firstDigit + "." + secondDigit;
       for (int i = 1; i < components.size(); ++i)
         result += "." + (Integer)components.get(i);
-      
+
       return result;
     }
   }

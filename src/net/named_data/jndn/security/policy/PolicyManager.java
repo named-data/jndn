@@ -313,7 +313,7 @@ public abstract class PolicyManager {
   {
     // Set signedPortionDigest to the digest of the signed portion of the signedBlob.
     byte[] signedPortionDigest = Common.digestSha256(signedBlob.signedBuf());
-    
+
     return Arrays.equals(signedPortionDigest, signature.getImmutableArray());
   }
 }

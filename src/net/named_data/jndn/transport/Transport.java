@@ -31,7 +31,7 @@ public abstract class Transport {
    */
   public static class ConnectionInfo {
   }
-  
+
   /**
    * Determine whether this transport connecting according to connectionInfo is
    * to a node on the current machine. This affects the processing of
@@ -42,7 +42,7 @@ public abstract class Transport {
    * @return True if the host is local, false if not.
    * @throws java.io.IOException
    */
-  public abstract boolean isLocal(Transport.ConnectionInfo connectionInfo) 
+  public abstract boolean isLocal(Transport.ConnectionInfo connectionInfo)
     throws IOException;
 
   /**

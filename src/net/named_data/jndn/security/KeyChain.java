@@ -103,7 +103,7 @@ public class KeyChain {
   }
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this 
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
    * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
    * to create the key if needed.
    * @param identityName The name of the identity.
@@ -723,9 +723,9 @@ public class KeyChain {
    * use callback functions because verify may fetch information to check the
    * signature.
    * @param interest The interest with the signature to check.
-   * @param onVerified If the signature is verified, this calls 
+   * @param onVerified If the signature is verified, this calls
    * onVerified.onVerifiedInterest(interest).
-   * @param onVerifyFailed If the signature check fails, this calls 
+   * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed.onVerifyInterestFailed(interest).
    */
   public final void

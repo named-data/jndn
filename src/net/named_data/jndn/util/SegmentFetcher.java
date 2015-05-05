@@ -2,7 +2,7 @@
  * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-cxx util/segment-fetcher https://github.com/named-data/ndn-cxx
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -55,7 +55,7 @@ import net.named_data.jndn.encoding.EncodingException;
  *
  *    >> Interest: /<prefix>/<version>/<segment=0>
  *
- * 5. Keep sending Interests for the next segment while the retrieved Data does 
+ * 5. Keep sending Interests for the next segment while the retrieved Data does
  *    not have a FinalBlockId or the FinalBlockId != Data.getName().get(-1).
  *
  *    >> Interest: /<prefix>/<version>/<segment=(N+1))>
@@ -149,7 +149,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
     new SegmentFetcher(face, verifySegment, onComplete, onError)
       .fetchFirstSegment(baseInterest);
   }
-    
+
   /**
    * Create a new SegmentFetcher to use the Face.
    * @param face This calls face.expressInterest to fetch more segments.

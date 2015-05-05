@@ -372,13 +372,13 @@ public class MemoryIdentityStorage extends IdentityStorage {
     throw new UnsupportedOperationException
       ("MemoryIdentityStorage.deleteIdentityInfo is not implemented");
   }
-  
+
   private static class IdentityRecord {
-    
+
     void setDefaultKey(Name key){ defaultKey_ = key; }
-    
+
     boolean hasDefaultKey(){ return defaultKey_ != null; }
-    
+
     Name getDefaultKey(){ return defaultKey_; }
 
     private Name defaultKey_;
@@ -394,12 +394,12 @@ public class MemoryIdentityStorage extends IdentityStorage {
     KeyType getKeyType() { return keyType_; }
 
     Blob getKeyDer() { return keyDer_; }
-    
-    void setDefaultCertificate(Name certificate){ defaultCertificate_ = 
+
+    void setDefaultCertificate(Name certificate){ defaultCertificate_ =
             certificate; }
-    
+
     boolean hasDefaultCertificate(){ return defaultCertificate_ != null; }
-    
+
     Name getDefaultCertificate(){ return defaultCertificate_; }
 
     private KeyType keyType_;

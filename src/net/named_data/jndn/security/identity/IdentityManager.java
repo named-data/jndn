@@ -588,7 +588,7 @@ public class IdentityManager {
     Signature signature = makeSignatureByCertificate
       (certificateName, digestAlgorithm);
 
-    signature.setSignature(privateKeyStorage_.sign(buffer, 
+    signature.setSignature(privateKeyStorage_.sign(buffer,
       IdentityCertificate.certificateNameToPublicKeyName(certificateName),
       digestAlgorithm[0]));
 
@@ -628,7 +628,7 @@ public class IdentityManager {
     SignedBlob encoding = data.wireEncode(wireFormat);
 
     data.getSignature().setSignature
-      (privateKeyStorage_.sign(encoding.signedBuf(), 
+      (privateKeyStorage_.sign(encoding.signedBuf(),
        IdentityCertificate.certificateNameToPublicKeyName(certificateName),
        digestAlgorithm[0]));
 

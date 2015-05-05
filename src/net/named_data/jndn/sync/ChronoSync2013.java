@@ -2,7 +2,7 @@
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * Derived from ChronoChat-js by Qiuhan Ding and Wentao Shang.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -223,7 +223,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
       .getSeqnoBuilder().setSeq(sequenceNo_)
                         .setSession(sessionNo_);
     SyncStateProto.SyncStateMsg syncMessage = builder.build();
-    
+
     broadcastSyncState(digestTree_.getRoot(), syncMessage);
 
     if (!update(syncMessage.getSsList()))
@@ -378,7 +378,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
       // Assume this is a recovery interest.
       syncDigest = interest.getName().get
         (applicationBroadcastPrefix_.size() + 1).toEscapedString();
-    Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE, 
+    Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
       "syncDigest: {0}", syncDigest);
     if (interest.getName().size() == applicationBroadcastPrefix_.size() + 2 ||
         syncDigest.equals("00"))

@@ -318,9 +318,9 @@ public class WireFormat {
    * Decode signatureInfo as a signature info and signatureValue as the related
    * SignatureValue, and return a new object which is a subclass of Signature.
    * Your derived class should override.
-   * @param signatureInfo The signature info input buffer to decode. This reads 
+   * @param signatureInfo The signature info input buffer to decode. This reads
    * from position() to limit(), but does not change the position.
-   * @param signatureValue The signature value input buffer to decode. This reads 
+   * @param signatureValue The signature value input buffer to decode. This reads
    * from position() to limit(), but does not change the position.
    * @return A new object which is a subclass of Signature.
    * @throws UnsupportedOperationException for unimplemented if the derived

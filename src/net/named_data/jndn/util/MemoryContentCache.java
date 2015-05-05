@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -226,7 +226,7 @@ public class MemoryContentCache implements OnInterestCallback {
 
   /**
    * Add the Data packet to the cache so that it is available to use to
-   * answer interests. If data.getMetaInfo().getFreshnessPeriod() is not 
+   * answer interests. If data.getMetaInfo().getFreshnessPeriod() is not
    * negative, set the staleness time to now plus
    * data.getMetaInfo().getFreshnessPeriod(), which is checked during cleanup to
    * remove stale content. This also checks if cleanupIntervalMilliseconds

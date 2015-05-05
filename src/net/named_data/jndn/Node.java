@@ -103,7 +103,7 @@ public class Node implements ElementListener {
           ("The encoded interest size exceeds the maximum limit getMaxNdnPacketSize()");
       transport_.send(encoding.buf());
     }
-    
+
     return pendingInterestId;
   }
 
@@ -452,12 +452,12 @@ public class Node implements ElementListener {
       }
     }
   }
-  
+
   /**
    * Check if the face is local based on the current connection through the
    * Transport; some Transport may cause network IO (e.g. an IP host name lookup).
    * @return True if the face is local, false if not.
-   * @throws IOException 
+   * @throws IOException
    */
   public final boolean isLocal() throws IOException{
     return transport_.isLocal(connectionInfo_);
@@ -632,7 +632,7 @@ public class Node implements ElementListener {
      * setInterestFilter which is passed to the onInterest callback.
      */
     public InterestFilterEntry
-      (long interestFilterId, InterestFilter filter, 
+      (long interestFilterId, InterestFilter filter,
        OnInterestCallback onInterest, Face face)
     {
       interestFilterId_ = interestFilterId;
@@ -817,7 +817,7 @@ public class Node implements ElementListener {
           return;
         }
 
-        Logger.getLogger(Node.class.getName()).log(Level.INFO, 
+        Logger.getLogger(Node.class.getName()).log(Level.INFO,
           "Register prefix succeeded with the NFD forwarder for prefix {0}",
           info_.prefix_.toUri());
       }
@@ -1203,7 +1203,7 @@ public class Node implements ElementListener {
         // callback, so add an InterestFilterEntry.
         interestFilterId = setInterestFilter
           (new InterestFilter(prefix), onInterest, face);
-      
+
       registeredPrefixTable_.add
         (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
     }
@@ -1260,7 +1260,7 @@ public class Node implements ElementListener {
     controlParameters.setName(prefix);
 
     Interest commandInterest = new Interest();
-    
+
     // Determine whether to use remote prefix registration.
     boolean faceIsLocal;
     try {
@@ -1271,7 +1271,7 @@ public class Node implements ElementListener {
       onRegisterFailed.onRegisterFailed(prefix);
       return;
     }
-    
+
     if (faceIsLocal) {
       commandInterest.setName(new Name("/localhost/nfd/rib/register"));
       // The interest is answered by the local host, so set a short timeout.
@@ -1316,7 +1316,7 @@ public class Node implements ElementListener {
       onRegisterFailed.onRegisterFailed(prefix);
     }
   }
-    
+
   private final Transport transport_;
   private final Transport.ConnectionInfo connectionInfo_;
   // Use ArrayList without generics so it works with older Java compilers.

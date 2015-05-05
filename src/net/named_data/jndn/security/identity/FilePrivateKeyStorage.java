@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -59,7 +59,7 @@ import net.named_data.jndn.util.Common;
  * FilePrivateKeyStorage extends PrivateKeyStorage to implement private key
  * storage using files.
  */
-public class FilePrivateKeyStorage extends PrivateKeyStorage { 
+public class FilePrivateKeyStorage extends PrivateKeyStorage {
   /**
    * Create a new FilePrivateKeyStorage to connect to the default directory.
    */
@@ -106,11 +106,11 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       throw new SecurityException
         ("FilePrivateKeyStorage: Could not create the key generator: " + e.getMessage());
     }
-    
+
     // generate
     generator.initialize(keySize);
     KeyPair pair = generator.generateKeyPair();
-    
+
     // save
     this.write(keyName, KeyClass.PRIVATE, pair.getPrivate().getEncoded());
     this.write(keyName, KeyClass.PUBLIC, pair.getPublic().getEncoded());
@@ -149,13 +149,13 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
 
     return new PublicKey(new Blob(der));
   }
-  
+
   /**
    * Get the private key for this name; internal helper method
    * @param keyName The name of the key.
    * @param keyType Set keyType[0] to the KeyType.
    * @return The java.security.PrivateKey.
-   * @throws SecurityException 
+   * @throws SecurityException
    */
   private PrivateKey
   getPrivateKey(Name keyName, KeyType[] keyType) throws SecurityException
@@ -222,12 +222,12 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       throw new SecurityException
         ("FilePrivateKeyStorage::sign: Unrecognized private key OID: " + oidString);
   }
-  
+
   /**
    * Get the symmetric key for this name; internal helper method
    * @param keyName
    * @return
-   * @throws SecurityException 
+   * @throws SecurityException
    */
   private final SecretKey
   getSymmetricKey(Name keyName) throws SecurityException
@@ -311,7 +311,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
         ("FilePrivateKeyStorage: SignatureException: " + exception.getMessage());
     }
   }
-  
+
   /**
    * Decrypt data.
    * @param keyName The name of the decrypting key.
@@ -360,7 +360,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     throw new UnsupportedOperationException
       ("FilePrivateKeyStorage.generateKey is not implemented");
   }
-  
+
   /**
    * Delete a key by name; checks all KeyClass types
    * @param keyName
@@ -382,7 +382,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       throw new SecurityException("No key files found to delete");
     }
   }
-    
+
   /**
    * Check if a particular key exists.
    * @param keyName The name of the key.
@@ -404,7 +404,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
    * @param keyName
    * @param extension
    * @return
-   * @throws SecurityException 
+   * @throws SecurityException
    */
   private File
   nameTransform(String keyName, String extension) throws SecurityException
@@ -426,14 +426,14 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
 
     return new File(keyStorePath_, digest + extension);
   }
-  
+
   /**
    * Write to a key file
    * @param keyName
    * @param keyClass [PUBLIC, PRIVATE, SYMMETRIC]
    * @param data
    * @throws IOException
-   * @throws SecurityException 
+   * @throws SecurityException
    */
   private void
   write(Name keyName, KeyClass keyClass, byte[] data) throws SecurityException{
@@ -459,14 +459,14 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
         ("FilePrivateKeyStorage: Failed to write key: " + e.getMessage());
     }
   }
-  
+
   /**
    * Read from a key file
    * @param keyName
    * @param keyClass [PUBLIC, PRIVATE, SYMMETRIC]
    * @return
    * @throws IOException
-   * @throws SecurityException 
+   * @throws SecurityException
    */
   private byte[]
   read(Name keyName, KeyClass keyClass) throws SecurityException{
@@ -475,7 +475,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     try{
       BufferedReader reader = new BufferedReader
         (new FileReader(nameTransform(keyName.toUri(), extension)));
-      // Use "try/finally instead of "try-with-resources" or "using" 
+      // Use "try/finally instead of "try-with-resources" or "using"
       // which are not supported before Java 7.
       try {
         String line = null;

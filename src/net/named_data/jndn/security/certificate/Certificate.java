@@ -305,7 +305,7 @@ public class Certificate extends Data {
         s += "  Value: " + ext.getValue().toHex() + "\n" ;
       }
     }
-    
+
     return s;
   }
 

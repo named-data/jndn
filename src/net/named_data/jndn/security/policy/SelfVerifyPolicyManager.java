@@ -158,7 +158,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   public ValidationRequest
   checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat) 
+     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat)
     throws net.named_data.jndn.security.SecurityException
   {
     // Decode the last two name components of the signed interest
@@ -229,7 +229,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       if (publicKeyDer.isNull())
         return false;
     }
-    
+
     return verifySignature(signatureInfo, signedBlob, publicKeyDer);
   }
 

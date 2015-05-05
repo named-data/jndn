@@ -289,9 +289,9 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     // Encode strategy
     if(controlParameters.getStrategy().size() != 0){
       int strategySaveLength = encoder.getLength();
-      encodeName(controlParameters.getStrategy(), new int[1], new int[1], 
+      encodeName(controlParameters.getStrategy(), new int[1], new int[1],
         encoder);
-      encoder.writeTypeAndLength(Tlv.ControlParameters_Strategy, 
+      encoder.writeTypeAndLength(Tlv.ControlParameters_Strategy,
         encoder.getLength() - strategySaveLength);
     }
 
@@ -311,13 +311,13 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
     // Encode URI
     if(!controlParameters.getUri().isEmpty()){
-      encoder.writeBlobTlv(Tlv.ControlParameters_Uri, 
+      encoder.writeBlobTlv(Tlv.ControlParameters_Uri,
         new Blob(controlParameters.getUri()).buf());
     }
 
     encoder.writeOptionalNonNegativeIntegerTlv
       (Tlv.ControlParameters_FaceId, controlParameters.getFaceId());
-    
+
     // Encode name
     if (controlParameters.getName() != null) {
       encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
@@ -328,7 +328,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
     return new Blob(encoder.getOutput(), false);
   }
-  
+
   /**
    * Decode input as a control parameters in NDN-TLV and set the fields of the
    * controlParameters object.
@@ -344,7 +344,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     throws EncodingException
   {
     controlParameters.clear();
-    
+
     TlvDecoder decoder = new TlvDecoder(input);
     int endOffset = decoder.
       readNestedTlvsStart(Tlv.ControlParameters_ControlParameters);
@@ -364,13 +364,13 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       Blob uri = new Blob(decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), true);
       controlParameters.setUri(uri.toString());
     }
-    
+
     // decode integers
     controlParameters.setLocalControlFeature((int) decoder.
       readOptionalNonNegativeIntegerTlv(
         Tlv.ControlParameters_LocalControlFeature, endOffset));
     controlParameters.setOrigin((int) decoder.
-      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Origin, 
+      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Origin,
         endOffset));
     controlParameters.setCost((int) decoder.readOptionalNonNegativeIntegerTlv(
       Tlv.ControlParameters_Cost, endOffset));
@@ -378,7 +378,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     // set forwarding flags
     ForwardingFlags flags = new ForwardingFlags();
     flags.setNfdForwardingFlags((int) decoder.
-      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Flags, 
+      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Flags,
         endOffset));
     controlParameters.setForwardingFlags(flags);
 

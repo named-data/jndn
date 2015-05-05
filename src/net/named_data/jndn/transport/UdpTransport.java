@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -74,7 +74,7 @@ public class UdpTransport extends Transport {
     private final String host_;
     private final int port_;
   }
-  
+
   /**
    * Determine whether this transport connecting according to connectionInfo is
    * to a node on the current machine. According to
@@ -100,7 +100,7 @@ public class UdpTransport extends Transport {
     throws IOException
   {
     close();
-    
+
     channel_ = DatagramChannel.open();
     channel_.connect(new InetSocketAddress
       (((ConnectionInfo)connectionInfo).getHost(),
