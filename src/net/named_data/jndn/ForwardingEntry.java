@@ -29,6 +29,12 @@ import net.named_data.jndn.util.Blob;
  * forwarding entry.
  */
 public class ForwardingEntry {
+  public ForwardingEntry()
+  {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("ForwardingEntry is for NDNx and is deprecated. To enable while you upgrade your code to use NFD, set WireFormat.ENABLE_NDNX = true");
+  }
 
   public final String
   getAction() { return action_; }
