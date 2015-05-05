@@ -19,6 +19,7 @@
 
 package net.named_data.jndn;
 
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCounter;
 
@@ -60,11 +61,31 @@ public class Sha256WithRsaSignature extends Signature {
     return new Sha256WithRsaSignature(this);
   }
 
+  /**
+   * @deprecated This is for the NDNx wire format which is deprecated.
+   */
   public final Blob
-  getDigestAlgorithm() { return digestAlgorithm_; }
+  getDigestAlgorithm()
+  {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("The Digest Algorithm is for the NDNx wire format and is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
 
+    return digestAlgorithm_;
+  }
+
+  /**
+   * @deprecated This is for the NDNx wire format which is deprecated.
+   */
   public final Blob
-  getWitness() { return witness_; }
+  getWitness()
+  {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("The Witness is for the NDNx wire format and is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
+
+    return witness_;
+  }
 
   /**
    * Get the signature bytes.
@@ -87,16 +108,30 @@ public class Sha256WithRsaSignature extends Signature {
   public final KeyLocator
   getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
 
+  /**
+   * @deprecated This is for the NDNx wire format which is deprecated.
+   */
   public final void
   setDigestAlgorithm(Blob digestAlgorithm)
   {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("The Digest Algorithm is for the NDNx wire format and is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
+
     digestAlgorithm_ = (digestAlgorithm == null ? new Blob() : digestAlgorithm);
     ++changeCount_;
   }
 
+  /**
+   * @deprecated This is for the NDNx wire format which is deprecated.
+   */
   public final void
   setWitness(Blob witness)
   {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("The Witness is for the NDNx wire format and is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
+
     witness_ = (witness == null ? new Blob() : witness);
     ++changeCount_;
   }

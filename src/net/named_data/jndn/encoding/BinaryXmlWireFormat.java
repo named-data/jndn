@@ -35,6 +35,13 @@ import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.util.Blob;
 
 public class BinaryXmlWireFormat extends WireFormat {
+  public BinaryXmlWireFormat()
+  {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("BinaryXmlWireFormat (NDNx) is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
+  }
+
   /**
    * Encode name in binary XML and return the encoding.
    * @param name The Name object to encode.

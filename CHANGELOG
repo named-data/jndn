@@ -1,7 +1,11 @@
-Interim changes since jNDN v0.5 (2015-04-21)
+Interim changes since jNDN v0.5 (2015-05-05)
 --------------------------------------------
 
 Changes
+* http://redmine.named-data.net/issues/2624 By default, throw an exception when
+  using the deprecated NDNx and binary XML wire format. To enable support while
+  you upgrade your code to use NFD, in your main application set
+  WireFormat.ENABLE_NDNX = true
 * In MemoryContentCache, added support for storePendingInterest. add(data) will
   check if the added Data packet satisfies any pending interest. You can use
   getStorePendingInterest() for onDataNotFound in registerPrefix().
@@ -9,6 +13,9 @@ Changes
   interaction with the repo-ng repository.
 * examples: Removed TestEncodeDecodeForwardingEntry and
   TestPublishAsyncNdnx because NDNx support is deprecated.
+
+Deprecated
+* Deprecated support for NDNx and binary XML. See WireFormat.ENABLE_NDNX above.
 
 jNDN v0.5 (2015-04-15)
 ----------------------
