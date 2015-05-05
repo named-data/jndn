@@ -129,7 +129,6 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
     Interest interest = new Interest(applicationBroadcastPrefix_);
     interest.getName().append("00");
     interest.setInterestLifetimeMilliseconds(1000);
-    interest.setAnswerOriginKind(Interest.ANSWER_NO_CONTENT_STORE);
     face.expressInterest(interest, this, this.new InitialTimeout());
     Logger.getLogger(ChronoSync2013.class.getName()).log(Level.FINE,
       "initial sync expressed");
