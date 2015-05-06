@@ -226,7 +226,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   /**
    * Get the symmetric key for this name; internal helper method
    * @param keyName
-   * @return
+   * @return The symmetric key.
    * @throws SecurityException
    */
   private final SecretKey
@@ -403,7 +403,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
    * Transform a key name to its hashed file path
    * @param keyName
    * @param extension
-   * @return
+   * @return The hashed file path.
    * @throws SecurityException
    */
   private File
@@ -464,7 +464,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
    * Read from a key file
    * @param keyName
    * @param keyClass [PUBLIC, PRIVATE, SYMMETRIC]
-   * @return
+   * @return The key bytes.
    * @throws IOException
    * @throws SecurityException
    */
