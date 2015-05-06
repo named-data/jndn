@@ -672,7 +672,7 @@ public class ConfigPolicyManager extends PolicyManager {
    * or decoding.
    * @param certID
    * @param isPath
-   * @return
+   * @return The certificate object.
    */
   private IdentityCertificate
   lookupCertificate(String certID, boolean isPath) throws SecurityException
