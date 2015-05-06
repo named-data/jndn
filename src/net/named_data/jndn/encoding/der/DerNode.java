@@ -805,7 +805,7 @@ public class DerNode {
     /**
      * Convert a UNIX timestamp to the internal string representation.
      * @param msSince1970 Timestamp as milliseconds since Jan 1, 1970.
-     * @return
+     * @return The string representation.
      */
     private static String
     toDerTimeString(double msSince1970)
