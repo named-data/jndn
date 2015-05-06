@@ -267,7 +267,7 @@ public class BasicInsertion {
         ("Cannot decode the repo command response " + ex.getMessage());
       onFailed.exec();
     }
-    
+
     RepoCommandResponse response = decodedResponse.getRepoCommandResponse();
     if (response.getStatusCode() == 100)
       onInsertStarted.exec();

@@ -85,7 +85,7 @@ public class TestLocalControlHeader {
    */
   @Test
   public void
-  testIncomingFaceId() 
+  testIncomingFaceId()
     throws SecurityException, IOException, EncodingException, InterruptedException
   {
     final boolean[] enabled = new boolean[] { true };

@@ -2,7 +2,7 @@
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * Derived from ChronoChat-js by Qiuhan Ding and Wentao Shang.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -652,7 +652,7 @@ public class TestChronoChat {
       privateKeyStorage.setKeyPairForKeyName
         (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
       face.setCommandSigningInfo(keyChain, certificateName);
-      
+
       Chat chat = new Chat
         (screenName, chatRoom, new Name(hubPrefix), face, keyChain, certificateName);
 

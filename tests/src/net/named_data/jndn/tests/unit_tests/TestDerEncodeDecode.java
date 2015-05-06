@@ -225,7 +225,7 @@ public class TestDerEncodeDecode {
       ("Wrong number of certificate extensions after decoding",
        1, decodedCert.getExtensionList().size());
 
-    CertificateExtension decodedExtension = 
+    CertificateExtension decodedExtension =
       (CertificateExtension)decodedCert.getExtensionList().get(0);
     assertEquals
       ("Certificate extension has the wrong OID after decoding",

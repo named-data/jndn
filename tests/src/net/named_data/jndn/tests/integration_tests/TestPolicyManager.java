@@ -2,7 +2,7 @@
  * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN unit-tests by Adeola Bannis.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -259,7 +259,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     Logger.getLogger("").setLevel(Level.WARNING);
 
     policyConfigDirectory_ = IntegrationTestsCommon.getPolicyConfigDirectory();
-    
+
     testCertFile_ = new File(new File(policyConfigDirectory_, "certs"), "test.cert");
 
     databaseFilePath_ = new File(policyConfigDirectory_, "test-public-info.db");

@@ -27,11 +27,11 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class TestControlParametersEncodeDecode {
-  
+
   /**
    * Test encoding/decoding
-   * 
-   * @throws EncodingException 
+   *
+   * @throws EncodingException
    */
   @Test
   public void
@@ -51,11 +51,11 @@ public class TestControlParametersEncodeDecode {
     assertEquals(controlParameters.getFaceId(), decodedControlParameters
       .getFaceId());
   }
-  
+
   /**
    * Test encoding/decoding with no name defined
-   * 
-   * @throws EncodingException 
+   *
+   * @throws EncodingException
    */
   @Test
   public void
@@ -71,13 +71,13 @@ public class TestControlParametersEncodeDecode {
     ControlParameters decodedControlParameters = new ControlParameters();
     decodedControlParameters.wireDecode(encoded);
     // compare
-    assertEquals(controlParameters.getStrategy().toUri(), 
+    assertEquals(controlParameters.getStrategy().toUri(),
       decodedControlParameters.getStrategy().toUri());
     assertEquals(controlParameters.getUri(), decodedControlParameters.getUri());
   }
-  
+
   /**
-   * Test that not setting the any properties returns in an (almost) empty Blob 
+   * Test that not setting the any properties returns in an (almost) empty Blob
    */
   @Test
   public void

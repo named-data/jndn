@@ -219,7 +219,7 @@ public class TestFaceInterestMethods {
   @Test
   public void
   testMaxNdnPacketSize() throws IOException
-  {    
+  {
     // Construct an interest whose encoding is one byte larger than getMaxNdnPacketSize.
     int targetSize = Face.getMaxNdnPacketSize() + 1;
     // Start with an interest which is almost the right size.

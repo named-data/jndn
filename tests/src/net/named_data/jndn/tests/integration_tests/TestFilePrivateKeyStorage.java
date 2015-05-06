@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014-2015 Regents of the University of California.
  * @author: Andrew Brown
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -34,15 +34,15 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class TestFilePrivateKeyStorage {
-  
+
   /**
    * Keep a reference to the key storage folder
    */
   private static final File ndnFolder_ = new File (new File(System.getProperty("user.home", "."), ".ndn"), "ndnsec-tpm-file");;
-  
+
   /**
    * Create a few keys before testing
-   * @throws Exception 
+   * @throws Exception
    */
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -50,7 +50,7 @@ public class TestFilePrivateKeyStorage {
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     instance.generateKeyPair(new Name("/test/KEY/123"), new RsaKeyParams(2048));
   }
-  
+
   /**
    * Delete the keys we created
    */
@@ -70,7 +70,7 @@ public class TestFilePrivateKeyStorage {
   /**
    * Convert the int array to a ByteBuffer.
    * @param array
-   * @return 
+   * @return
    */
   private static ByteBuffer toBuffer(int[] array)
   {
@@ -100,7 +100,7 @@ public class TestFilePrivateKeyStorage {
     int deletedfileCount = files.length;
     assertTrue(createdFileCount - 2 == deletedfileCount);
   }
-  
+
   /**
    * Test of doesKeyExist method, of class FilePrivateKeyStorage.
    */

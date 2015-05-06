@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -99,7 +99,7 @@ public class TestListFaces {
         " local=" + faceStatus.getLocalUri());
       if (faceStatus.hasExpirationPeriod())
         // Convert milliseconds to seconds.
-        System.out.print(" expires=" + 
+        System.out.print(" expires=" +
           Math.round((double)faceStatus.getExpirationPeriod() / 1000) + "s");
       System.out.println(" counters={" + "in={" + faceStatus.getNInInterests() +
         "i " + faceStatus.getNInDatas() + "d " + faceStatus.getNInBytes() + "B}" +

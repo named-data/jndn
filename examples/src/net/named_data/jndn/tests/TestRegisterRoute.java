@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -166,7 +166,7 @@ public class TestRegisterRoute {
     0x74, 0xfb, 0xd1, 0xa6, 0x10, 0x20, 0x6c, 0x6e, 0xbe, 0x44, 0x3f, 0xb9, 0xfe, 0xbc, 0x8d, 0xda,
     0xcb, 0xea, 0x8f
   });
-  
+
   public static void
   main(String[] args) throws EncodingException
   {
@@ -203,7 +203,7 @@ public class TestRegisterRoute {
       face.setCommandSigningInfo(keyChain, certificateName);
 
       // Create the /localhost/nfd/faces/query command interest, including the
-      // FaceQueryFilter. Construct the FaceQueryFilter using the structure in 
+      // FaceQueryFilter. Construct the FaceQueryFilter using the structure in
       // FaceQueryFilterProto.java which was produced by protoc.
       FaceQueryFilterMessage.Builder builder = FaceQueryFilterMessage.newBuilder();
       FaceQueryFilterMessage.FaceQueryFilter.Builder filterBuilder =
