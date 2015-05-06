@@ -88,7 +88,6 @@ public class IdentityManager {
    * Create a new IdentityManager to use BasicIdentityStorage and
    * the default PrivateKeyStorage for your system, which is
    * OSXPrivateKeyStorage for OS X, otherwise FilePrivateKeyStorage.
-   * @param identityStorage An object of a subclass of IdentityStorage.
    */
   public IdentityManager() throws SecurityException
   {
