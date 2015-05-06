@@ -50,6 +50,12 @@ public class TestControlParametersEncodeDecode {
       .getName().toUri());
     assertEquals(controlParameters.getFaceId(), decodedControlParameters
       .getFaceId());
+    assertEquals("decoded forwarding flags childInherit is different",
+                 controlParameters.getForwardingFlags().getChildInherit(),
+          decodedControlParameters.getForwardingFlags().getChildInherit());
+    assertEquals("decoded forwarding flags capture is different",
+                 controlParameters.getForwardingFlags().getCapture(),
+          decodedControlParameters.getForwardingFlags().getCapture());
   }
 
   /**
