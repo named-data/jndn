@@ -78,6 +78,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <quiet>true</quiet>
                     <tags>
                         <tag>
                             <name>note</name>
@@ -131,6 +132,7 @@
 							</execution>
 						</executions>
                         <configuration>
+                            <quiet>true</quiet>
                             <tags>
                                 <tag>
                                     <name>note</name>
