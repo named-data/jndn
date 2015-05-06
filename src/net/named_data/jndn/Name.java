@@ -871,7 +871,7 @@ public class Name implements ChangeCountable, Comparable {
    * canonical ordering, or 1 if *this comes after other in the canonical
    * ordering.
    *
-   * @see http://named-data.net/doc/0.2/technical/CanonicalOrder.html
+   * See http://named-data.net/doc/0.2/technical/CanonicalOrder.html
    */
   public final int
   compare(Name other)
