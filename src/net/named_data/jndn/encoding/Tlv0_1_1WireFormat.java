@@ -376,11 +376,12 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       Tlv.ControlParameters_Cost, endOffset));
 
     // set forwarding flags
-    ForwardingFlags flags = new ForwardingFlags();
-    flags.setNfdForwardingFlags((int) decoder.
-      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Flags,
-        endOffset));
-    controlParameters.setForwardingFlags(flags);
+    if (decoder.peekType(Tlv.ControlParameters_Flags, endOffset)) {
+      ForwardingFlags flags = new ForwardingFlags();
+      flags.setNfdForwardingFlags((int) decoder.
+        readNonNegativeIntegerTlv(Tlv.ControlParameters_Flags));
+      controlParameters.setForwardingFlags(flags);
+    }
 
     // decode strategy
     if (decoder.peekType(Tlv.ControlParameters_Strategy, endOffset)) {
