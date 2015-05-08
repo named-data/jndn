@@ -391,7 +391,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     }
 
     // decode expiration period
-    controlParameters.setExpirationPeriod((int) decoder.readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_ExpirationPeriod, endOffset));
+    controlParameters.setExpirationPeriod(decoder.readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_ExpirationPeriod, endOffset));
 
     decoder.finishNestedTlvs(endOffset);
   }
