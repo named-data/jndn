@@ -65,29 +65,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <quiet>true</quiet>
-                    <tags>
-                        <tag>
-                            <name>note</name>
-                            <placement>a</placement>
-                            <head>Note:</head>
-                        </tag>
-                    </tags>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -243,6 +220,45 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--Use this profile to make the javadoc; e.g. mvn javadoc:javadoc -P javadoc -->
+        <profile>
+            <id>javadoc</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                    <version>2.6.1</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <quiet>true</quiet>
+                            <tags>
+                                <tag>
+                                    <name>note</name>
+                                    <placement>a</placement>
+                                    <head>Note:</head>
+                                </tag>
+                            </tags>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

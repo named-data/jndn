@@ -54,10 +54,10 @@ To build in a terminal, change directory to the jNDN root.  Enter:
 
     mvn package
 
-This builds the default profile "with-protobuf" which puts jndn-<version>.jar in the 'target'
-folder, and the javadoc files in 'target/apidocs'. The jar file includes ProtobufTlv and
-other classes so that your deployed application needs the Google Protobuf library.
-To build without this dependency, enter:
+This builds the default profile "with-protobuf" which puts jndn-<version>.jar in
+the 'target' folder. The jar file includes ProtobufTlv and other classes so that
+your deployed application needs the Google Protobuf library. To build without
+this dependency, enter:
 
     mvn package -P without-protobuf
 
@@ -74,6 +74,12 @@ To run an example such as TestEncodeDecodeFibEntry (see the list below), make su
 is installed (see above). Change to the 'examples' directory. In a terminal enter:
 
     mvn -q test -DclassName=TestEncodeDecodeFibEntry
+
+To make documentation, in a terminal enter:
+
+    mvn javadoc:javadoc -P javadoc
+
+The documentation output is in `target/site/apidocs`.
 
 To run the Android samples, install the Android SDK as shown above. The samples
 were tested by installing the following in the Android SDK Manager:
@@ -102,4 +108,4 @@ examples/target/classes/net/named_data/jndn/tests:
 * TestEncodeDecodeFibEntry: Encode and decode a sample Protobuf message using ProtobufTlv.
 * TestChronoChat: A command-line chat application using the ChronoSync2013 API, compatible with ChronoChat-js.
 
-Running `mvn package` puts code documentation in target/apidocs.
+Running `mvn javadoc:javadoc` puts code documentation in target/site/apidocs.
