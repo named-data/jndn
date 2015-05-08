@@ -174,6 +174,11 @@ public class ControlParameters {
     return this;
   }
 
+  /**
+   * Set the Face ID.
+   * @param faceId The new face ID, or -1 for not specified.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setFaceId(int faceId)
   {
@@ -181,6 +186,11 @@ public class ControlParameters {
     return this;
   }
 
+  /**
+   * Set the URI.
+   * @param uri The new uri, or an empty string for not specified.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setUri(String uri)
   {
@@ -188,6 +198,12 @@ public class ControlParameters {
     return this;
   }
 
+  /**
+   * Set the local control feature value.
+   * @param localControlFeature The new local control feature value, or -1 for
+   * not specified.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setLocalControlFeature(int localControlFeature)
   {
@@ -195,6 +211,11 @@ public class ControlParameters {
     return this;
   }
 
+  /**
+   * Set the origin value.
+   * @param origin The new origin value, or -1 for not specified.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setOrigin(int origin)
   {
@@ -202,6 +223,11 @@ public class ControlParameters {
     return this;
   }
 
+  /**
+   * Set the cost value.
+   * @param cost The new cost value, or -1 for not specified.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setCost(int cost)
   {
@@ -209,6 +235,12 @@ public class ControlParameters {
     return this;
   }
 
+  /**
+   * Set the ForwardingFlags object to a copy of forwardingFlags. You can use
+   * getForwardingFlags() and change the existing ForwardingFlags object.
+   * @param forwardingFlags The new cost value, or null for not specified.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setForwardingFlags(ForwardingFlags forwardingFlags)
   {
@@ -217,6 +249,11 @@ public class ControlParameters {
     return this;
   }
 
+  /**
+   * Set the strategy to a copy of the given Name.
+   * @param strategy The Name to copy, or an empty Name if not specified.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setStrategy(Name strategy)
   {
@@ -224,6 +261,12 @@ public class ControlParameters {
     return this;
   }
 
+  /**
+   * Set the expiration period.
+   * @param expirationPeriod The expiration period in milliseconds, or
+   * null for not specified.
+   * @return This ControlParameters so that you can chain calls to update values.
+   */
   public final ControlParameters
   setExpirationPeriod(double expirationPeriod)
   {
