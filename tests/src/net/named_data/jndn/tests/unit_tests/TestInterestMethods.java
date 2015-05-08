@@ -23,6 +23,7 @@ package net.named_data.jndn.tests.unit_tests;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import net.named_data.jndn.Exclude;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.KeyLocatorType;
@@ -290,6 +291,27 @@ public class TestInterestMethods {
     assertTrue("Interest should not have a nonce after changing fields",
                interest.getNonce().isNull());
   }
+
+  @Test
+  public void
+  testExcludeMatches()
+  {
+    Exclude exclude = new Exclude();
+    exclude.appendComponent(new Name("%00%02").get(0));
+    exclude.appendAny();
+    exclude.appendComponent(new Name("%00%20").get(0));
+
+    Name.Component component;
+    component = new Name("%00%01").get(0);
+    assertFalse(component.toEscapedString() + " should not match " + exclude.toUri(),
+                exclude.matches(component));
+    component = new Name("%00%0F").get(0);
+    assertTrue(component.toEscapedString() + " should match " + exclude.toUri(),
+               exclude.matches(component));
+    component = new Name("%00%21").get(0);
+    assertFalse(component.toEscapedString() + " should not match " + exclude.toUri(),
+                exclude.matches(component));
+}
 
   @Test
   public void
