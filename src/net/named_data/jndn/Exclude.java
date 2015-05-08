@@ -173,7 +173,7 @@ public class Exclude implements ChangeCountable {
         if (upperBound != null) {
           if (lowerBound != null) {
             if (component.compare(lowerBound.getComponent()) > 0 &&
-                component.compare(upperBound.getComponent()) > 0)
+                component.compare(upperBound.getComponent()) < 0)
               return true;
           }
           else {
