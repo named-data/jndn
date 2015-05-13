@@ -39,13 +39,14 @@ import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.util.Blob;
 
 /**
- * BasicIdentityStorage extends IdentityStorage to implement a basic storage of
- * identity, public keys and certificates using SQLite.
+ * BasicIdentityStorage extends IdentityStorage to implement basic storage of
+ * identity, public keys and certificates using the org.sqlite.JDBC SQLite
+ * provider.
  */
-public class BasicIdentityStorage extends IdentityStorage {
+public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   /**
-   * Create a new BasicIdentityStorage to work the SQLite in the default
-   * location.
+   * Create a new BasicIdentityStorage to use the SQLite3 file in the
+   * default location.
    */
   public BasicIdentityStorage() throws SecurityException
   {
@@ -57,9 +58,8 @@ public class BasicIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Create a new BasicIdentityStorage to work with the given SQLite file.
-   * @param databaseFilePath The path of the SQLite file. If
-      omitted, use the default location.
+   * Create a new BasicIdentityStorage to use the given SQLite3 file.
+   * @param databaseFilePath The path of the SQLite file.
    */
   public BasicIdentityStorage(String databaseFilePath) throws SecurityException
   {
@@ -84,8 +84,7 @@ public class BasicIdentityStorage extends IdentityStorage {
       // Use "try/finally instead of "try-with-resources" or "using" which are not supported before Java 7.
       try {
         //Check if the ID table exists.
-        ResultSet result = statement.executeQuery
-          ("SELECT name FROM sqlite_master WHERE type='table' And name='Identity'");
+        ResultSet result = statement.executeQuery(SELECT_MASTER_ID_TABLE);
         boolean idTableExists = false;
         if (result.next())
           idTableExists = true;
@@ -95,8 +94,7 @@ public class BasicIdentityStorage extends IdentityStorage {
           statement.executeUpdate(INIT_ID_TABLE);
 
         //Check if the Key table exists.
-        result = statement.executeQuery
-          ("SELECT name FROM sqlite_master WHERE type='table' And name='Key'");
+        result = statement.executeQuery(SELECT_MASTER_KEY_TABLE);
         idTableExists = false;
         if (result.next())
           idTableExists = true;
@@ -106,8 +104,7 @@ public class BasicIdentityStorage extends IdentityStorage {
           statement.executeUpdate(INIT_KEY_TABLE);
 
         //Check if the Certificate table exists.
-        result = statement.executeQuery
-          ("SELECT name FROM sqlite_master WHERE type='table' And name='Certificate'");
+        result = statement.executeQuery(SELECT_MASTER_CERT_TABLE);
         idTableExists = false;
         if (result.next())
           idTableExists = true;
@@ -133,7 +130,7 @@ public class BasicIdentityStorage extends IdentityStorage {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT count(*) FROM Identity WHERE identity_name=?");
+        (SELECT_doesIdentityExist);
       statement.setString(1, identityName.toUri());
 
       try {
@@ -200,7 +197,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT count(*) FROM Key WHERE identity_name=? AND key_identifier=?");
+        (SELECT_doesKeyExist);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -233,8 +230,7 @@ public class BasicIdentityStorage extends IdentityStorage {
     if (keyName.size() == 0)
       return;
 
-    if (doesKeyExist(keyName))
-      throw new SecurityException("a key with the same name already exists!");
+    checkAddKey(keyName);
 
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
@@ -274,8 +270,7 @@ public class BasicIdentityStorage extends IdentityStorage {
     Name identityName = keyName.getPrefix(-1);
 
     try {
-      PreparedStatement statement = database_.prepareStatement
-        ("SELECT public_key FROM Key WHERE identity_name=? AND key_identifier=?");
+      PreparedStatement statement = database_.prepareStatement(SELECT_getKey);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -295,28 +290,11 @@ public class BasicIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Activate a key.  If a key is marked as inactive, its private part will not
-   * be used in packet signing.
+   * In table Key, set 'active' to isActive for the keyName.
    * @param keyName The name of the key.
+   * @param isActive The value for the 'active' field.
    */
-  public final void
-  activateKey(Name keyName) throws SecurityException
-  {
-    updateKeyStatus(keyName, true);
-  }
-
-  /**
-   * Deactivate a key. If a key is marked as inactive, its private part will not
-   * be used in packet signing.
-   * @param keyName The name of the key.
-   */
-  public final void
-  deactivateKey(Name keyName) throws SecurityException
-  {
-    updateKeyStatus(keyName, false);
-  }
-
-  private void
+  protected void
   updateKeyStatus(Name keyName, boolean isActive) throws SecurityException
   {
     String keyId = keyName.get(-1).toEscapedString();
@@ -324,7 +302,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE Key SET active=? WHERE identity_name=? AND key_identifier=?");
+        ("UPDATE Key SET active=? WHERE " + WHERE_updateKeyStatus);
       statement.setInt(1, (isActive ? 1 : 0));
       statement.setString(2, identityName.toUri());
       statement.setString(3, keyId);
@@ -349,7 +327,7 @@ public class BasicIdentityStorage extends IdentityStorage {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT count(*) FROM Certificate WHERE cert_name=?");
+        (SELECT_doesCertificateExist);
       statement.setString(1, certificateName.toUri());
 
       try {
@@ -376,27 +354,10 @@ public class BasicIdentityStorage extends IdentityStorage {
   public final void
   addCertificate(IdentityCertificate certificate) throws SecurityException
   {
+    checkAddCertificate(certificate);
+
     Name certificateName = certificate.getName();
     Name keyName = certificate.getPublicKeyName();
-
-    if (!doesKeyExist(keyName))
-      throw new SecurityException
-        ("No corresponding Key record for certificate!" + keyName.toUri() +
-         " " + certificateName.toUri());
-
-    // Check if the certificate already exists.
-    if (doesCertificateExist(certificateName))
-      throw new SecurityException("Certificate has already been installed!");
-
-    String keyId = keyName.get(-1).toEscapedString();
-    Name identity = keyName.getPrefix(-1);
-
-    // Check if the public key of the certificate is the same as the key record.
-
-    Blob keyBlob = getKey(keyName);
-
-    if (keyBlob.isNull() || !keyBlob.equals(certificate.getPublicKeyInfo().getKeyDer()))
-      throw new SecurityException("Certificate does not match the public key!");
 
     // Insert the certificate.
     try {
@@ -409,6 +370,8 @@ public class BasicIdentityStorage extends IdentityStorage {
         (certificate.getSignature()).getKeyName();
       statement.setString(2, signerName.toUri());
 
+      String keyId = keyName.get(-1).toEscapedString();
+      Name identity = keyName.getPrefix(-1);
       statement.setString(3, identity.toUri());
       statement.setString(4, keyId);
 
@@ -456,8 +419,7 @@ public class BasicIdentityStorage extends IdentityStorage {
           */
         }
         else {
-          statement = database_.prepareStatement
-            ("SELECT certificate_data FROM Certificate WHERE cert_name=?");
+          statement = database_.prepareStatement(SELECT_getCertificate);
           statement.setString(1, certificateName.toUri());
         }
 
@@ -501,8 +463,7 @@ public class BasicIdentityStorage extends IdentityStorage {
     try {
       Statement statement = database_.createStatement();
       try {
-        ResultSet result = statement.executeQuery
-          ("SELECT identity_name FROM Identity WHERE default_identity=1");
+        ResultSet result = statement.executeQuery(SELECT_getDefaultIdentity);
 
         if (result.next())
           return new Name(result.getString("identity_name"));
@@ -528,7 +489,7 @@ public class BasicIdentityStorage extends IdentityStorage {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT key_identifier FROM Key WHERE identity_name=? AND default_key=1");
+        (SELECT_getDefaultKeyNameForIdentity);
       statement.setString(1, identityName.toUri());
 
       try {
@@ -562,7 +523,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT cert_name FROM Certificate WHERE identity_name=? AND key_identifier=? AND default_cert=1");
+        (SELECT_getDefaultCertificateNameForKey);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -594,8 +555,8 @@ public class BasicIdentityStorage extends IdentityStorage {
     (Name identityName, ArrayList nameList, boolean isDefault) throws SecurityException
   {
     try {
-      String sql = "SELECT key_identifier FROM Key WHERE default_key=" +
-        (isDefault ? "1" : "0") + " and identity_name=?";
+      String sql = isDefault ? SELECT_getAllKeyNamesOfIdentity_default_true
+        : SELECT_getAllKeyNamesOfIdentity_default_false;
       PreparedStatement statement = database_.prepareStatement(sql);
       statement.setString(1, identityName.toUri());
 
@@ -624,7 +585,7 @@ public class BasicIdentityStorage extends IdentityStorage {
     try {
       // Reset the previous default identity.
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE Identity SET default_identity=0 WHERE default_identity=1");
+        ("UPDATE Identity SET default_identity=0 WHERE " + WHERE_setDefaultIdentity_reset);
       try {
         statement.executeUpdate();
       } finally {
@@ -633,7 +594,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
       // Set the current default identity.
       statement = database_.prepareStatement
-        ("UPDATE Identity SET default_identity=1 WHERE identity_name=?");
+        ("UPDATE Identity SET default_identity=1 WHERE " + WHERE_setDefaultIdentity_set);
       statement.setString(1, identityName.toUri());
       try {
         statement.executeUpdate();
@@ -654,16 +615,15 @@ public class BasicIdentityStorage extends IdentityStorage {
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
     throws SecurityException
   {
+    checkSetDefaultKeyNameForIdentity(keyName, identityNameCheck);
+
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
-
-    if (identityNameCheck.size() > 0 && !identityNameCheck.equals(identityName))
-      throw new SecurityException("Specified identity name does not match the key name");
 
     try {
       // Reset the previous default Key.
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE Key SET default_key=0 WHERE default_key=1 and identity_name=?");
+        ("UPDATE Key SET default_key=0 WHERE " + WHERE_setDefaultKeyNameForIdentity_reset);
       statement.setString(1, identityName.toUri());
       try {
         statement.executeUpdate();
@@ -673,7 +633,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
       // Set the current default Key.
       statement = database_.prepareStatement
-        ("UPDATE Key SET default_key=1 WHERE identity_name=? AND key_identifier=?");
+        ("UPDATE Key SET default_key=1 WHERE " + WHERE_setDefaultKeyNameForIdentity_set);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
       try {
@@ -701,7 +661,7 @@ public class BasicIdentityStorage extends IdentityStorage {
     try {
       // Reset the previous default Certificate.
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE Certificate SET default_cert=0 WHERE default_cert=1 AND identity_name=? AND key_identifier=?");
+        ("UPDATE Certificate SET default_cert=0 WHERE " + WHERE_setDefaultCertificateNameForKey_reset);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
       try {
@@ -712,7 +672,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
       // Set the current default Certificate.
       statement = database_.prepareStatement
-        ("UPDATE Certificate SET default_cert=1 WHERE identity_name=? AND key_identifier=? AND cert_name=?");
+        ("UPDATE Certificate SET default_cert=1 WHERE " + WHERE_setDefaultCertificateNameForKey_set);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
       statement.setString(3, certificateName.toUri());
@@ -742,7 +702,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM Certificate WHERE cert_name=?");
+        ("DELETE FROM Certificate WHERE " + WHERE_deleteCertificateInfo);
       statement.setString(1, certificateName.toUri());
 
       try {
@@ -770,7 +730,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM Certificate WHERE identity_name=? and key_identifier=?");
+        ("DELETE FROM Certificate WHERE " + WHERE_deletePublicKeyInfo);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -781,7 +741,7 @@ public class BasicIdentityStorage extends IdentityStorage {
       }
 
       statement = database_.prepareStatement
-        ("DELETE FROM Key WHERE identity_name=? and key_identifier=?");
+        ("DELETE FROM Key WHERE " + WHERE_deletePublicKeyInfo);
       statement.setString(1, identityName.toUri());
       statement.setString(2, keyId);
 
@@ -806,7 +766,7 @@ public class BasicIdentityStorage extends IdentityStorage {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM Certificate WHERE identity_name=?");
+        ("DELETE FROM Certificate WHERE " + WHERE_deleteIdentityInfo);
       statement.setString(1, identity);
 
       try {
@@ -816,7 +776,7 @@ public class BasicIdentityStorage extends IdentityStorage {
       }
 
       statement = database_.prepareStatement
-        ("DELETE FROM Key WHERE identity_name=?");
+        ("DELETE FROM Key WHERE " + WHERE_deleteIdentityInfo);
       statement.setString(1, identity);
 
       try {
@@ -826,7 +786,7 @@ public class BasicIdentityStorage extends IdentityStorage {
       }
 
       statement = database_.prepareStatement
-        ("DELETE FROM Identity WHERE identity_name=?");
+        ("DELETE FROM Identity WHERE " + WHERE_deleteIdentityInfo);
       statement.setString(1, identity);
 
       try {
@@ -838,51 +798,6 @@ public class BasicIdentityStorage extends IdentityStorage {
       throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
   }
-
-  private static final String INIT_ID_TABLE =
-"CREATE TABLE IF NOT EXISTS                                           \n" +
-"  Identity(                                                          \n" +
-"      identity_name     BLOB NOT NULL,                               \n" +
-"      default_identity  INTEGER DEFAULT 0,                           \n" +
-"                                                                     \n" +
-"      PRIMARY KEY (identity_name)                                    \n" +
-"  );                                                                 \n" +
-"                                                                     \n" +
-"CREATE INDEX identity_index ON Identity(identity_name);              \n";
-
-  private static final String INIT_KEY_TABLE =
-"CREATE TABLE IF NOT EXISTS                                           \n" +
-"  Key(                                                               \n" +
-"      identity_name     BLOB NOT NULL,                               \n" +
-"      key_identifier    BLOB NOT NULL,                               \n" +
-"      key_type          INTEGER,                                     \n" +
-"      public_key        BLOB,                                        \n" +
-"      default_key       INTEGER DEFAULT 0,                           \n" +
-"      active            INTEGER DEFAULT 0,                           \n" +
-"                                                                     \n" +
-"      PRIMARY KEY (identity_name, key_identifier)                    \n" +
-"  );                                                                 \n" +
-"                                                                     \n" +
-"CREATE INDEX key_index ON Key(identity_name);                        \n";
-
-  private static final String INIT_CERT_TABLE =
-"CREATE TABLE IF NOT EXISTS                                           \n" +
-"  Certificate(                                                       \n" +
-"      cert_name         BLOB NOT NULL,                               \n" +
-"      cert_issuer       BLOB NOT NULL,                               \n" +
-"      identity_name     BLOB NOT NULL,                               \n" +
-"      key_identifier    BLOB NOT NULL,                               \n" +
-"      not_before        TIMESTAMP,                                   \n" +
-"      not_after         TIMESTAMP,                                   \n" +
-"      certificate_data  BLOB NOT NULL,                               \n" +
-"      valid_flag        INTEGER DEFAULT 1,                           \n" +
-"      default_cert      INTEGER DEFAULT 0,                           \n" +
-"                                                                     \n" +
-"      PRIMARY KEY (cert_name)                                        \n" +
-"  );                                                                 \n" +
-"                                                                     \n" +
-"CREATE INDEX cert_index ON Certificate(cert_name);           \n" +
-"CREATE INDEX subject ON Certificate(identity_name);          \n";
 
   Connection database_ = null;
 }
