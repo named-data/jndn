@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.5 (2015-05-13)
---------------------------------------------
+jNDN v0.6 (2015-05-13)
+----------------------
 
 Changes
 * http://redmine.named-data.net/issues/2624 By default, throw an exception when
