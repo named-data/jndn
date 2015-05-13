@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.5 (2015-05-08)
+Interim changes since jNDN v0.5 (2015-05-13)
 --------------------------------------------
 
 Changes
@@ -9,6 +9,8 @@ Changes
 * In MemoryContentCache, added support for storePendingInterest. add(data) will
   check if the added Data packet satisfies any pending interest. You can use
   getStorePendingInterest() for onDataNotFound in registerPrefix().
+* In security, added AndroidSqlite3IdentityStorage to use on Android instead of
+  BasicIdentityStorage so that it uses the Android SQLite services.
 * examples: In repo_ng added BasicInsertion and WatchedInsertion to show
   interaction with the repo-ng repository.
 * examples: Removed TestEncodeDecodeForwardingEntry and
