@@ -69,7 +69,7 @@
     </build>
     <profiles>
 
-        <!-- deployment profile for OSSRH, deploy with 'mvn deploy -P ossrh' -->
+        <!-- Default deployment profile for OSSRH, deploy with 'mvn deploy -P ossrh' -->
         <!-- You may need to temporarily set the password in ~/.m2/settings.xml -->
         <profile>
             <id>ossrh</id>
@@ -160,7 +160,93 @@
                 </plugins>
             </build>
         </profile>
-    
+
+        <!-- Deployment profile for OSSRH for Android, deploy with 'mvn deploy -P ossrh-android' -->
+        <!-- You need to temporarily append '-android' to the version number. -->
+        <!-- You may need to temporarily set the password in ~/.m2/settings.xml -->
+        <profile>
+            <id>ossrh-android</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.android</groupId>
+                    <artifactId>android</artifactId>
+                    <version>4.1.1.4</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                    <version>2.6.1</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <!-- OSSRH-directed plugins (see http://central.sonatype.org/pages/apache-maven.html) -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <quiet>true</quiet>
+                            <tags>
+                                <tag>
+                                    <name>note</name>
+                                    <placement>a</placement>
+                                    <head>Note:</head>
+                                </tag>
+                            </tags>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.3</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <stagingProfileId>a3c371e3f57529</stagingProfileId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <!-- protobuf will be included and Android classes excluded by default -->
         <profile>
             <id>with-protobuf</id>
