@@ -27,6 +27,7 @@ import net.named_data.jndn.Interest;
 import net.named_data.jndn.LocalControlHeader;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Signature;
+import net.named_data.jndn.encrypt.EncryptedContent;
 import net.named_data.jndn.util.Blob;
 
 public class WireFormat {
@@ -353,7 +354,7 @@ public class WireFormat {
   }
 
   /**
-   * Encode the LocalControlHeader in NDN-TLV and return the encoding. Your
+   * Encode the LocalControlHeader and return the encoding. Your
    * derived class should override.
    * @param localControlHeader The LocalControlHeader object to encode.
    * @return A Blob containing the encoding.
@@ -368,7 +369,7 @@ public class WireFormat {
   }
 
   /**
-   * Decode input as a LocalControlHeader in NDN-TLV and set the fields of the
+   * Decode input as a LocalControlHeader and set the fields of the
    * localControlHeader object. Your derived class should override.
    * @param localControlHeader The LocalControlHeader object whose fields are
    * updated.
@@ -385,6 +386,40 @@ public class WireFormat {
   {
     throw new UnsupportedOperationException
       ("decodeLocalControlHeader is not implemented");
+  }
+
+  /**
+   * Encode the EncryptedContent in NDN-TLV and return the encoding.
+   * @param encryptedContent The EncryptedContent object to encode.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public Blob
+  encodeEncryptedContent(EncryptedContent encryptedContent)
+  {
+    throw new UnsupportedOperationException
+      ("encodeEncryptedContent is not implemented");
+  }
+
+  /**
+   * Decode input as a EncryptedContent in NDN-TLV and set the fields of the
+   * localControlHeader object.
+   * @param encryptedContent The EncryptedContent object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public void
+  decodeEncryptedContent
+    (EncryptedContent encryptedContent, ByteBuffer input)
+    throws EncodingException
+  {
+    throw new UnsupportedOperationException
+      ("decodeEncryptedContent is not implemented");
   }
 
   /**

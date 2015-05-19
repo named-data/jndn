@@ -89,4 +89,8 @@ public class Tlv {
   public static final int LocalControlHeader_NextHopFaceId = 82;
   public static final int LocalControlHeader_CachingPolicy = 83;
   public static final int LocalControlHeader_NoCache = 96;
+
+  public static final int EncryptedContent_EncryptedContent = 130;
+  public static final int EncryptedContent_EncryptionAlgorithm = 131;
+  public static final int EncryptedContent_EncryptedPayload = 132;
 }
