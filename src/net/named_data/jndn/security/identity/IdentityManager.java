@@ -105,11 +105,13 @@ public class IdentityManager {
    * identity and a self-signed certificate of the KSK.
    * @param identityName The name of the identity.
    * @param params The key parameters if a key needs to be generated for the identity.
-   * @return The key name of the auto-generated KSK of the identity.
+   * @return The name of the certificate for the auto-generated KSK of the
+   * identity.
    * @throws SecurityException if the identity has already been created.
    */
   public final Name
-  createIdentity(Name identityName, KeyParams params) throws SecurityException
+  createIdentityAndCertificate(Name identityName, KeyParams params)
+    throws SecurityException
   {
     if (!identityStorage_.doesIdentityExist(identityName)) {
       Logger.getLogger(this.getClass().getName()).log
@@ -130,10 +132,29 @@ public class IdentityManager {
 
       addCertificateAsDefault(selfCert);
 
-      return keyName;
+      return selfCert.getName();
     }
     else
       throw new SecurityException("Identity has already been created!");
+  }
+
+  /**
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
+   * identity and a self-signed certificate of the KSK.
+   * @deprecated Use createIdentityAndCertificate which returns the
+   * certificate name instead of the key name. You can use
+   * IdentityCertificate.certificateNameToPublicKeyName to convert the
+   * certificate name to the key name.
+   * @param identityName The name of the identity.
+   * @param params The key parameters if a key needs to be generated for the identity.
+   * @return The key name of the auto-generated KSK of the identity.
+   * @throws SecurityException if the identity has already been created.
+   */
+  public final Name
+  createIdentity(Name identityName, KeyParams params) throws SecurityException
+  {
+    return IdentityCertificate.certificateNameToPublicKeyName
+      (createIdentityAndCertificate(identityName, params));
   }
 
   /**
