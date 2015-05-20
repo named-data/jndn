@@ -90,7 +90,9 @@ public class TestIdentityMethods {
     Name identityName = new Name("/TestIdentityStorage/Identity").appendVersion
       ((long)getNowSeconds());
 
-    Name keyName = keyChain.createIdentity(identityName);
+    Name certificateName = keyChain.createIdentityAndCertificate(identityName);
+    Name keyName = IdentityCertificate.certificateNameToPublicKeyName
+      (certificateName);
 
     assertTrue
       ("Identity was not added to IdentityStorage",
@@ -98,8 +100,6 @@ public class TestIdentityMethods {
     assertTrue
       ("Key was not added to IdentityStorage",
        identityStorage.doesKeyExist(keyName));
-    Name certificateName = identityManager.getDefaultCertificateNameForIdentity
-      (identityName);
 
     keyChain.deleteIdentity(identityName);
     assertFalse
@@ -208,7 +208,7 @@ public class TestIdentityMethods {
     Name identityName = new Name("/TestIdentityStorage/Identity").appendVersion
       ((long)getNowSeconds());
 
-    identityManager.createIdentity(identityName, KeyChain.DEFAULT_KEY_PARAMS);
+    identityManager.createIdentityAndCertificate(identityName, KeyChain.DEFAULT_KEY_PARAMS);
     Name keyName1 = identityManager.getDefaultKeyNameForIdentity(identityName);
     IdentityCertificate cert2 = identityManager.selfSign(keyName1);
     identityStorage.addCertificate(cert2);
@@ -236,8 +236,8 @@ public class TestIdentityMethods {
 
     // ndn-cxx returns the cert name, but the IndentityManager docstring
     // specifies a key.
-    Name keyName1 = keyChain.createIdentity(identityName);
-    Name certName1 = identityStorage.getDefaultCertificateNameForKey(keyName1);
+    Name certName1 = keyChain.createIdentityAndCertificate(identityName);
+    Name keyName1 = IdentityCertificate.certificateNameToPublicKeyName(certName1);
     Name keyName2 = keyChain.generateRSAKeyPairAsDefault(identityName);
 
     IdentityCertificate cert2 = identityManager.selfSign(keyName2);

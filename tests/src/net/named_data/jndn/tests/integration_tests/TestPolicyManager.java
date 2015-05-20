@@ -328,7 +328,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
       ((long)getNowSeconds());
 
     KeyChain keyChain = new KeyChain(identityManager_, policyManager);
-    keyChain.createIdentity(identityName);
+    keyChain.createIdentityAndCertificate(identityName);
     Data data = new Data(new Name(identityName).append("data"));
     keyChain.signByIdentity(data, identityName);
 
@@ -354,7 +354,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     KeyChain keyChain = new KeyChain(identityManager_, policyManager);
 
     Name identityName  = new Name("TestValidator/RsaSignatureVerification");
-    keyChain.createIdentity(identityName);
+    keyChain.createIdentityAndCertificate(identityName);
 
     Data data = new Data(new Name("/TestData/1"));
     keyChain.signByIdentity(data, identityName);
