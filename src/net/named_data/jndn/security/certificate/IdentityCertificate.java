@@ -99,22 +99,39 @@ public class IdentityCertificate extends Certificate {
   public static Name
   certificateNameToPublicKeyName(Name certificateName)
   {
-    int i = certificateName.size() - 1;
     String idString = "ID-CERT";
-    for (; i >= 0; i--) {
-      if (certificateName.get(i).toEscapedString().equals(idString))
+    boolean foundIdString = false;
+    int idCertComponentIndex = certificateName.size() - 1;
+    for (; idCertComponentIndex + 1 > 0; --idCertComponentIndex) {
+      if (certificateName.get(idCertComponentIndex).toEscapedString().equals(idString)) {
+        foundIdString = true;
         break;
+      }
     }
 
-    Name tmpName = certificateName.getSubName(0, i);
+    if (!foundIdString)
+      throw new Error
+        ("Incorrect identity certificate name " + certificateName.toUri());
+
+    Name tempName = certificateName.getSubName(0, idCertComponentIndex);
     String keyString = "KEY";
-    for (i = 0; i < tmpName.size(); i++) {
-      if (tmpName.get(i).toEscapedString().equals(keyString))
+    boolean foundKeyString = false;
+    int keyComponentIndex = 0;
+    for (; keyComponentIndex < tempName.size(); keyComponentIndex++) {
+      if (tempName.get(keyComponentIndex).toEscapedString().equals(keyString)) {
+        foundKeyString = true;
         break;
+      }
     }
 
-    return tmpName.getSubName(0, i).append
-      (tmpName.getSubName(i + 1, tmpName.size() - i - 1));
+    if (!foundKeyString)
+      throw new Error
+        ("Incorrect identity certificate name " + certificateName.toUri());
+
+    return tempName
+      .getSubName(0, keyComponentIndex)
+      .append(tempName.getSubName
+              (keyComponentIndex + 1, tempName.size() - keyComponentIndex - 1));
   }
 
   private static boolean

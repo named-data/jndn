@@ -93,13 +93,15 @@ public class KeyChain {
    * @param identityName The name of the identity.
    * @param params The key parameters if a key needs to be generated for the
    * identity.
-   * @return The key name of the auto-generated KSK of the identity.
+   * @return The name of the certificate for the auto-generated KSK of the
+   * identity.
    * @throws SecurityException if the identity has already been created.
    */
   public final Name
-  createIdentity(Name identityName, KeyParams params) throws SecurityException
+  createIdentityAndCertificate(Name identityName, KeyParams params)
+    throws SecurityException
   {
-    return identityManager_.createIdentity(identityName, params);
+    return identityManager_.createIdentityAndCertificate(identityName, params);
   }
 
   /**
@@ -107,13 +109,49 @@ public class KeyChain {
    * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
    * to create the key if needed.
    * @param identityName The name of the identity.
+   * @return The name of the certificate for the auto-generated KSK of the
+   * identity.
+   * @throws SecurityException if the identity has already been created.
+   */
+  public final Name
+  createIdentityAndCertificate(Name identityName) throws SecurityException
+  {
+    return createIdentityAndCertificate(identityName, DEFAULT_KEY_PARAMS);
+  }
+
+  /**
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
+   * identity and a self-signed certificate of the KSK.
+   * @deprecated Use createIdentityAndCertificate which returns the
+   * certificate name instead of the key name.
+   * @param identityName The name of the identity.
+   * @param params The key parameters if a key needs to be generated for the
+   * identity.
+   * @return The key name of the auto-generated KSK of the identity.
+   * @throws SecurityException if the identity has already been created.
+   */
+  public final Name
+  createIdentity(Name identityName, KeyParams params) throws SecurityException
+  {
+    return IdentityCertificate.certificateNameToPublicKeyName
+      (createIdentityAndCertificate(identityName, params));
+  }
+
+  /**
+   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
+   * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
+   * to create the key if needed.
+   * @deprecated Use createIdentityAndCertificate which returns the
+   * certificate name instead of the key name.
+   * @param identityName The name of the identity.
    * @return The key name of the auto-generated KSK of the identity.
    * @throws SecurityException if the identity has already been created.
    */
   public final Name
   createIdentity(Name identityName) throws SecurityException
   {
-    return createIdentity(identityName, DEFAULT_KEY_PARAMS);
+    return IdentityCertificate.certificateNameToPublicKeyName
+      (createIdentityAndCertificate(identityName));
   }
 
   /**
