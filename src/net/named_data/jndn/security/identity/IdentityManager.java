@@ -102,40 +102,49 @@ public class IdentityManager {
 
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK.
+   * identity and a self-signed certificate of the KSK. If a key pair or
+   * certificate for the identity already exists, use it.
    * @param identityName The name of the identity.
    * @param params The key parameters if a key needs to be generated for the identity.
-   * @return The name of the certificate for the auto-generated KSK of the
-   * identity.
+   * @return The name of the default certificate of the identity.
    * @throws SecurityException if the identity has already been created.
    */
   public final Name
   createIdentityAndCertificate(Name identityName, KeyParams params)
     throws SecurityException
   {
-    if (!identityStorage_.doesIdentityExist(identityName)) {
-      Logger.getLogger(this.getClass().getName()).log
-        (Level.INFO, "Create Identity");
-      identityStorage_.addIdentity(identityName);
+    identityStorage_.addIdentity(identityName);
 
-      Logger.getLogger(this.getClass().getName()).log
-        (Level.INFO, "Create Default RSA key pair");
-      Name keyName = generateKeyPair(identityName, true, params);
+    Name keyName = null;
+    boolean generateKey = true;
+    try {
+      keyName = identityStorage_.getDefaultKeyNameForIdentity(identityName);
+      PublicKey key = new PublicKey(identityStorage_.getKey(keyName));
+      if (key.getKeyType() == params.getKeyType())
+        // The key exists and has the same type, so don't need to generate one.
+        generateKey = false;
+    } catch (SecurityException ex) {}
+
+    if (generateKey) {
+      keyName = generateKeyPair(identityName, true, params);
       identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
-
-      Logger.getLogger(this.getClass().getName()).log
-        (Level.INFO, "Create self-signed certificate");
-      IdentityCertificate selfCert = selfSign(keyName);
-
-      Logger.getLogger(this.getClass().getName()).log
-        (Level.INFO, "Add self-signed certificate as default");
-
-      addCertificateAsDefault(selfCert);
-
-      return selfCert.getName();
     }
-    else
-      throw new SecurityException("Identity has already been created!");
+
+    Name certName = null;
+    boolean makeCert = true;
+    try {
+      certName = identityStorage_.getDefaultCertificateNameForKey(keyName);
+      // The cert exists, so don't need to make it.
+      makeCert = false;
+    } catch (SecurityException ex) {}
+
+    if (makeCert) {
+      IdentityCertificate selfCert = selfSign(keyName);
+      addCertificateAsIdentityDefault(selfCert);
+      certName = selfCert.getName();
+    }
+    
+    return certName;
   }
 
   /**

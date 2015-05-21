@@ -89,12 +89,12 @@ public class KeyChain {
 
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK.
+   * identity and a self-signed certificate of the KSK. If a key pair or
+   * certificate for the identity already exists, use it.
    * @param identityName The name of the identity.
    * @param params The key parameters if a key needs to be generated for the
    * identity.
-   * @return The name of the certificate for the auto-generated KSK of the
-   * identity.
+   * @return The name of the default certificate of the identity.
    * @throws SecurityException if the identity has already been created.
    */
   public final Name
@@ -107,10 +107,10 @@ public class KeyChain {
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
    * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
-   * to create the key if needed.
+   * to create the key if needed. If a key pair or certificate for the identity
+   * already exists, use it.
    * @param identityName The name of the identity.
-   * @return The name of the certificate for the auto-generated KSK of the
-   * identity.
+   * @return The name of the default certificate of the identity.
    * @throws SecurityException if the identity has already been created.
    */
   public final Name
