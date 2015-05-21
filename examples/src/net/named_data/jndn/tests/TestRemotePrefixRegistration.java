@@ -112,7 +112,7 @@ public class TestRemotePrefixRegistration {
     try {
       keyChain.getDefaultCertificateName();
     } catch (net.named_data.jndn.security.SecurityException e) {
-      keyChain.createIdentity(new Name("/test/identity"));
+      keyChain.createIdentityAndCertificate(new Name("/test/identity"));
       keyChain.getIdentityManager().setDefaultIdentity(new Name("/test/identity"));
     }
     return keyChain;
