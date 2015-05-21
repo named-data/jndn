@@ -377,6 +377,21 @@ public class Node implements ElementListener {
         nowMilliseconds = Common.getNowMilliseconds();
       }
     }
+
+    // Check for delayed calls. Since callLater does a sorted insert into
+    // delayedCallTable_, the check for timeouts is quick and does not
+    // require searching the entire table. If callLater is overridden to use
+    // a different mechanism, then processEvents is not needed to check for
+    // delayed calls.
+    double now = Common.getNowMilliseconds();
+    // delayedCallTable_ is sorted on _callTime, so we only need to process
+    // the timed-out entries at the front, then quit.
+    while (delayedCallTable_.size() > 0 &&
+           ((DelayedCall)delayedCallTable_.get(0)).getCallTime() <= now) {
+      DelayedCall delayedCall = (DelayedCall)delayedCallTable_.get(0);
+      delayedCallTable_.remove(0);
+      delayedCall.callCallback();
+    }
   }
 
   public final Transport
@@ -482,6 +497,72 @@ public class Node implements ElementListener {
    */
   public static int
   getMaxNdnPacketSize() { return Common.MAX_NDN_PACKET_SIZE; }
+
+  /**
+   * Node.Callback has callback() which is used in callLater.
+   */
+  public interface Callback {
+    void callback();
+  }
+
+  /**
+   * Call callback.callback() after the given delay. This adds to
+   * delayedCallTable_ which is used by processEvents().
+   * @param delayMilliseconds The delay in milliseconds.
+   * @param callback This calls callback.callback() after the delay.
+   */
+  public final void
+  callLater(double delayMilliseconds, Callback callback)
+  {
+    DelayedCall delayedCall = new DelayedCall(delayMilliseconds, callback);
+    // Insert into delayedCallTable_, sorted on delayedCall.getCallTime().
+    // Search from the back since we expect it to go there.
+    int i = delayedCallTable_.size() - 1;
+    while (i >= 0) {
+      if (((DelayedCall)delayedCallTable_.get(i)).getCallTime() <=
+          delayedCall.getCallTime())
+        break;
+      --i;
+    }
+    // Element i is the greatest less than or equal to
+    // delayedCall.getCallTime(), so insert after it.
+    delayedCallTable_.add(i + 1, delayedCall);
+  }
+
+  /**
+   * DelayedCall is a class for the members of the delayedCallTable_.
+   */
+  private static class DelayedCall {
+    /**
+     * Create a new _DelayedCall and set the call time based on the current
+     * time and the delayMilliseconds.
+     * @param delayMilliseconds The delay in milliseconds.
+     * @param callback This calls callback.callback() after the delay.
+     */
+    public DelayedCall(double delayMilliseconds, Callback callback)
+    {
+      callback_ = callback;
+      callTime_ = Common.getNowMilliseconds() + delayMilliseconds;
+    }
+    
+    /**
+     * Get the time at which the callback should be called.
+     * @return The call time in milliseconds, similar to
+     * Common.getNowMilliseconds().
+     */
+    public final double
+    getCallTime() { return callTime_; }
+
+    /**
+     * Call the callback given to the constructor. This does not catch
+     * exceptions.
+     */
+    public final void
+    callCallback() { callback_.callback(); }
+
+    private Callback callback_;
+    private double callTime_;
+  }
 
   private static class PendingInterest {
     public PendingInterest
@@ -1323,6 +1404,7 @@ public class Node implements ElementListener {
   private final ArrayList pendingInterestTable_ = new ArrayList();  // PendingInterest
   private final ArrayList registeredPrefixTable_ = new ArrayList(); // RegisteredPrefix
   private final ArrayList interestFilterTable_ = new ArrayList(); // InterestFilterEntry
+  private final ArrayList delayedCallTable_ = new ArrayList(); // DelayedCall
   private final Interest ndndIdFetcherInterest_;
   private Blob ndndId_ = new Blob();
   private static final SecureRandom random_ = new SecureRandom();
