@@ -77,6 +77,8 @@ public class Node implements ElementListener {
    * @param onTimeout This calls onTimeout.onTimeout if the interest times out.
    * If onTimeout is null, this does not use it.
    * @param wireFormat A WireFormat object used to encode the message.
+   * @param face The face which has the callLater method, used for interest
+   * timeouts. The callLater method may be overridden in a subclass of Face.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -85,7 +87,7 @@ public class Node implements ElementListener {
   public final long
   expressInterest
     (Interest interest, OnData onData, OnTimeout onTimeout,
-     WireFormat wireFormat) throws IOException
+     WireFormat wireFormat, Face face) throws IOException
   {
     // TODO: Properly check if we are already connected to the expected host.
     if (!transport_.getIsConnected())
@@ -97,7 +99,7 @@ public class Node implements ElementListener {
     pendingInterestTable_.add(pendingInterest);
     if (interest.getInterestLifetimeMilliseconds() >= 0.0)
       // Set up the timeout.
-      callLater
+      face.callLater
         (interest.getInterestLifetimeMilliseconds(),
          new Callback() {
            public void callback() { processInterestTimeout(pendingInterest); }
@@ -216,7 +218,7 @@ public class Node implements ElementListener {
              flags, wireFormat, face));
         // We send the interest using the given wire format so that the hub
         //   receives (and sends) in the application's desired wire format.
-        expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat);
+        expressInterest(ndndIdFetcherInterest_, fetcher, fetcher, wireFormat, face);
       }
       else
         registerPrefixHelper
@@ -958,7 +960,7 @@ public class Node implements ElementListener {
           try {
             info_.node_.expressInterest
               (info_.node_.ndndIdFetcherInterest_, fetcher, fetcher,
-               info_.wireFormat_);
+               info_.wireFormat_, info_.face_);
           }
           catch (IOException ex) {
             // We don't expect this to happen since we already sent data
@@ -1312,7 +1314,7 @@ public class Node implements ElementListener {
        (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, false,
         face));
     try {
-      expressInterest(interest, response, response, wireFormat);
+      expressInterest(interest, response, response, wireFormat, face);
     }
     catch (IOException ex) {
       // Can't send the interest. Call onRegisterFailed.
@@ -1405,7 +1407,7 @@ public class Node implements ElementListener {
        (this, prefix, onInterest, onRegisterFailed, flags, wireFormat, true,
         face));
     try {
-      expressInterest(commandInterest, response, response, wireFormat);
+      expressInterest(commandInterest, response, response, wireFormat, face);
     }
     catch (IOException ex) {
       // Can't send the interest. Call onRegisterFailed.

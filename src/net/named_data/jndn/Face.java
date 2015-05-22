@@ -102,7 +102,7 @@ public class Face {
     (Interest interest, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
   {
-    return node_.expressInterest(interest, onData, onTimeout, wireFormat);
+    return node_.expressInterest(interest, onData, onTimeout, wireFormat, this);
   }
 
   /**
@@ -128,7 +128,7 @@ public class Face {
     (Interest interest, OnData onData, OnTimeout onTimeout) throws IOException
   {
     return node_.expressInterest
-      (interest, onData, onTimeout, WireFormat.getDefaultWireFormat());
+      (interest, onData, onTimeout, WireFormat.getDefaultWireFormat(), this);
   }
 
   /**
@@ -149,7 +149,7 @@ public class Face {
   expressInterest
     (Interest interest, OnData onData, WireFormat wireFormat) throws IOException
   {
-    return node_.expressInterest(interest, onData, null, wireFormat);
+    return node_.expressInterest(interest, onData, null, wireFormat, this);
   }
 
   /**
@@ -170,7 +170,7 @@ public class Face {
   expressInterest(Interest interest, OnData onData) throws IOException
   {
     return node_.expressInterest
-      (interest, onData, null, WireFormat.getDefaultWireFormat());
+      (interest, onData, null, WireFormat.getDefaultWireFormat(), this);
   }
 
   /**
@@ -210,7 +210,7 @@ public class Face {
       interest.setInterestLifetimeMilliseconds(4000.0);
     }
 
-    return node_.expressInterest(interest, onData, onTimeout, wireFormat);
+    return node_.expressInterest(interest, onData, onTimeout, wireFormat, this);
   }
 
   /**
@@ -851,6 +851,19 @@ public class Face {
    */
   public static int
   getMaxNdnPacketSize() { return Common.MAX_NDN_PACKET_SIZE; }
+
+  /**
+   * Call callback.callback() after the given delay. Even though this is public,
+   * it is not part of the public API of Face. This default implementation just
+   * calls Node.callLater, but a subclass can override.
+   * @param delayMilliseconds The delay in milliseconds.
+   * @param callback This calls callback.callback() after the delay.
+   */
+  public void
+  callLater(double delayMilliseconds, Node.Callback callback)
+  {
+    node_.callLater(delayMilliseconds, callback);
+  }
 
   private Node node_;
   KeyChain commandKeyChain_ = null;
