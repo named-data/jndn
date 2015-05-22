@@ -94,10 +94,8 @@ public class TcpTransport extends Transport {
     if(connectionInfo_ == null || !((ConnectionInfo) connectionInfo).getHost()
       .equals(connectionInfo_.getHost()))
     {
-      InetAddress address = InetAddress.getByName
-        (((ConnectionInfo)connectionInfo).getHost());
+      isLocal_ = getIsLocal(((ConnectionInfo)connectionInfo).getHost());
       connectionInfo_ = (ConnectionInfo)connectionInfo;
-      isLocal_ = address.isLoopbackAddress();
     }
     return isLocal_;
   }
@@ -202,6 +200,25 @@ public class TcpTransport extends Transport {
         channel_.close();
       channel_ = null;
     }
+  }
+
+  /**
+   * A static method to determine whether the host is on the current machine.
+   * Results are not cached. According to
+   * http://redmine.named-data.net/projects/nfd/wiki/ScopeControl#local-face,
+   * TCP transports with a loopback address are local. If connectionInfo
+   * contains a host name, InetAddress will do a blocking DNS lookup; otherwise
+   * it will parse the IP address and examine the first octet to determine if
+   * it is a loopback address (e.g. first octet == 127).
+   * @param host The host to check.
+   * @return True if the host is local, False if not.
+   * @throws IOException
+   */
+  public static boolean
+  getIsLocal(String host) throws IOException
+  {
+    InetAddress address = InetAddress.getByName(host);
+    return address.isLoopbackAddress();
   }
 
   SocketChannel channel_;
