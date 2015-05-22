@@ -92,8 +92,16 @@ public class Node implements ElementListener {
       transport_.connect(connectionInfo_, this);
 
     long pendingInterestId = PendingInterest.getNextPendingInterestId();
-    pendingInterestTable_.add(new PendingInterest
-      (pendingInterestId, new Interest(interest), onData, onTimeout));
+    final PendingInterest pendingInterest = new PendingInterest
+      (pendingInterestId, new Interest(interest), onData, onTimeout);
+    pendingInterestTable_.add(pendingInterest);
+    if (interest.getInterestLifetimeMilliseconds() >= 0.0)
+      // Set up the timeout.
+      callLater
+        (interest.getInterestLifetimeMilliseconds(),
+         new Callback() {
+           public void callback() { processInterestTimeout(pendingInterest); }
+         });
 
     // Special case: For timeoutPrefix_ we don't actually send the interest.
     if (!timeoutPrefix_.match(interest.getName())) {
@@ -124,6 +132,9 @@ public class Node implements ElementListener {
       if (((PendingInterest)pendingInterestTable_.get(i)).getPendingInterestId
            () == pendingInterestId) {
         ++count;
+        // For efficiency, mark this as removed so that
+        // processInterestTimeout doesn't look for it.
+        ((PendingInterest)pendingInterestTable_.get(i)).setIsRemoved();
         pendingInterestTable_.remove(i);
       }
     }
@@ -361,23 +372,6 @@ public class Node implements ElementListener {
   {
     transport_.processEvents();
 
-    // Check for PIT entry timeouts. Go backwards through the list so we can
-    //   remove entries.
-    double nowMilliseconds = Common.getNowMilliseconds();
-    for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
-      if (((PendingInterest)pendingInterestTable_.get(i)).isTimedOut
-            (nowMilliseconds)) {
-        // Save the PendingInterest and remove it from the PIT.  Then call the callback.
-        PendingInterest pendingInterest =
-          (PendingInterest)pendingInterestTable_.get(i);
-        pendingInterestTable_.remove(i);
-        pendingInterest.callTimeout();
-
-        // Refresh now since the timeout callback might have delayed.
-        nowMilliseconds = Common.getNowMilliseconds();
-      }
-    }
-
     // Check for delayed calls. Since callLater does a sorted insert into
     // delayedCallTable_, the check for timeouts is quick and does not
     // require searching the entire table. If callLater is overridden to use
@@ -530,6 +524,30 @@ public class Node implements ElementListener {
   }
 
   /**
+   * This is used in callLater for when the pending interest expires. If the
+   * pendingInterest is still in the pendingInterestTable_, remove it and call
+   * its onTimeout callback.
+   * @param pendingInterest The pending interest to check.
+   */
+  private void
+  processInterestTimeout(PendingInterest pendingInterest)
+  {
+    if (pendingInterest.getIsRemoved())
+      // extractEntriesForExpressedInterest or removePendingInterest has
+      // removed pendingInterest from pendingInterestTable_, so we don't need
+      // to look for it. Do nothing.
+      return;
+
+    int index = pendingInterestTable_.indexOf(pendingInterest);
+    if (index < 0)
+      // The pending interest has been removed. Do nothing.
+      return;
+
+    pendingInterestTable_.remove(index);
+    pendingInterest.callTimeout();
+  }
+
+  /**
    * DelayedCall is a class for the members of the delayedCallTable_.
    */
   private static class DelayedCall {
@@ -564,6 +582,10 @@ public class Node implements ElementListener {
     private double callTime_;
   }
 
+  /**
+   * PendingInterest is a private class for the members of the
+   * pendingInterestTable_.
+   */
   private static class PendingInterest {
     public PendingInterest
       (long pendingInterestId, Interest interest, OnData onData,
@@ -573,14 +595,6 @@ public class Node implements ElementListener {
       interest_ = interest;
       onData_ = onData;
       onTimeout_ = onTimeout;
-
-      // Set up timeoutTime_.
-      if (interest_.getInterestLifetimeMilliseconds() >= 0.0)
-        timeoutTimeMilliseconds_ = Common.getNowMilliseconds() +
-          interest_.getInterestLifetimeMilliseconds();
-      else
-        // No timeout.
-        timeoutTimeMilliseconds_ = -1.0;
     }
 
     /**
@@ -594,33 +608,33 @@ public class Node implements ElementListener {
      * Get the pendingInterestId given to the constructor.
      * @return The pendingInterestId.
      */
-    public long
+    public final long
     getPendingInterestId() { return pendingInterestId_; }
 
-    public Interest
+    public final Interest
     getInterest() { return interest_; }
 
-    public OnData
+    public final OnData
     getOnData() { return onData_; }
 
     /**
-     * Check if this interest is timed out.
-     * @param nowMilliseconds The current time in milliseconds from
-     * Common.getNowMilliseconds.
-     * @return True if this interest timed out, otherwise false.
+     * Set the isRemoved flag which is returned by getIsRemoved().
      */
-    public boolean
-    isTimedOut(double nowMilliseconds)
-    {
-      return timeoutTimeMilliseconds_ >= 0.0 &&
-             nowMilliseconds >= timeoutTimeMilliseconds_;
-    }
+    public final void
+    setIsRemoved() { isRemoved_ = true; }
+
+    /**
+     * Check if setIsRemoved() was called.
+     * @return True if setIsRemoved() was called.
+     */
+    public final boolean
+    getIsRemoved() { return isRemoved_; }
 
     /**
      * Call onTimeout_ (if defined). This ignores exceptions from the
      * onTimeout_.
      */
-    public void
+    public final void
     callTimeout()
     {
       if (onTimeout_ != null) {
@@ -637,9 +651,7 @@ public class Node implements ElementListener {
     private final long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
     private final OnData onData_;
     private final OnTimeout onTimeout_;
-    private final double timeoutTimeMilliseconds_; /**< The time when the interest
-     * times out in milliseconds according to Common.getNowMilliseconds, or -1
-     * for no timeout. */
+    private boolean isRemoved_ = false;
   }
 
   /**
@@ -1214,10 +1226,15 @@ public class Node implements ElementListener {
   {
     // Go backwards through the list so we can remove entries.
     for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
-      if (((PendingInterest)pendingInterestTable_.get(i)).getInterest
-          ().matchesName(name)) {
+      PendingInterest pendingInterest =
+        (PendingInterest)pendingInterestTable_.get(i);
+      
+      if (pendingInterest.getInterest().matchesName(name)) {
         entries.add(pendingInterestTable_.get(i));
+        // We let the callback from callLater call _processInterestTimeout, but
+        // for efficiency, mark this as removed so that it returns right away.
         pendingInterestTable_.remove(i);
+        pendingInterest.setIsRemoved();
       }
     }
   }
