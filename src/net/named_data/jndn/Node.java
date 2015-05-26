@@ -554,7 +554,7 @@ public class Node implements ElementListener {
    */
   private static class DelayedCall {
     /**
-     * Create a new _DelayedCall and set the call time based on the current
+     * Create a new DelayedCall and set the call time based on the current
      * time and the delayMilliseconds.
      * @param delayMilliseconds The delay in milliseconds.
      * @param callback This calls callback.callback() after the delay.
