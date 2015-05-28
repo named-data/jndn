@@ -101,8 +101,8 @@ public class Node implements ElementListener {
       // Set up the timeout.
       face.callLater
         (interest.getInterestLifetimeMilliseconds(),
-         new Callback() {
-           public void callback() { processInterestTimeout(pendingInterest); }
+         new Runnable() {
+           public void run() { processInterestTimeout(pendingInterest); }
          });
 
     // Special case: For timeoutPrefix_ we don't actually send the interest.
@@ -495,20 +495,13 @@ public class Node implements ElementListener {
   getMaxNdnPacketSize() { return Common.MAX_NDN_PACKET_SIZE; }
 
   /**
-   * Node.Callback has callback() which is used in callLater.
-   */
-  public interface Callback {
-    void callback();
-  }
-
-  /**
-   * Call callback.callback() after the given delay. This adds to
+   * Call callback.run() after the given delay. This adds to
    * delayedCallTable_ which is used by processEvents().
    * @param delayMilliseconds The delay in milliseconds.
-   * @param callback This calls callback.callback() after the delay.
+   * @param callback This calls callback.run() after the delay.
    */
   public final void
-  callLater(double delayMilliseconds, Callback callback)
+  callLater(double delayMilliseconds, Runnable callback)
   {
     DelayedCall delayedCall = new DelayedCall(delayMilliseconds, callback);
     // Insert into delayedCallTable_, sorted on delayedCall.getCallTime().
@@ -557,9 +550,9 @@ public class Node implements ElementListener {
      * Create a new DelayedCall and set the call time based on the current
      * time and the delayMilliseconds.
      * @param delayMilliseconds The delay in milliseconds.
-     * @param callback This calls callback.callback() after the delay.
+     * @param callback This calls callback.run() after the delay.
      */
-    public DelayedCall(double delayMilliseconds, Callback callback)
+    public DelayedCall(double delayMilliseconds, Runnable callback)
     {
       callback_ = callback;
       callTime_ = Common.getNowMilliseconds() + delayMilliseconds;
@@ -578,10 +571,10 @@ public class Node implements ElementListener {
      * exceptions.
      */
     public final void
-    callCallback() { callback_.callback(); }
+    callCallback() { callback_.run(); }
 
-    private Callback callback_;
-    private double callTime_;
+    private final Runnable callback_;
+    private final double callTime_;
   }
 
   /**
