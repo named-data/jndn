@@ -2,6 +2,8 @@ Interim changes since jNDN v0.6 (2015-05-20)
 --------------------------------------------
 
 Changes
+* Added pom-android.xml and pom-without-protobuf.xml, and moved the related
+  profiles out of pom.xml into these files. See INSTALL.md.
 * In security, added KeyChain.createIdentityAndCertificate which returns the
   certificate name, instead of the deprecated createIdentity which returns the
   key name.
