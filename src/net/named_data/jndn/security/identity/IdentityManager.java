@@ -772,8 +772,8 @@ public class IdentityManager {
     certificate.setNotAfter(notAfter);
 
     Name certificateName = keyName.getPrefix(-1).append("KEY").append
-      (keyName.get(-1)).append("ID-CERT").append
-      (Name.Component.fromNumber((long)certificate.getNotBefore()));
+      (keyName.get(-1)).append("ID-CERT").appendVersion
+      ((long)certificate.getNotBefore());
     certificate.setName(certificateName);
 
     certificate.setPublicKeyInfo(publicKey);
