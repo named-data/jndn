@@ -57,9 +57,10 @@ To build in a terminal, change directory to the jNDN root.  Enter:
 This builds the default profile "with-protobuf" which puts jndn-<version>.jar in
 the 'target' folder. The jar file includes ProtobufTlv and other classes so that
 your deployed application needs the Google Protobuf library. To build without
-this dependency, enter:
+this dependency, enter the following which puts jndn-without-protobuf-<version>.jar
+in the 'target' folder:
 
-    mvn package -P without-protobuf
+    mvn -f pom-without-protobuf.xml package
 
 Building 'package' automatically runs the unit tests in the folder 'tests'. To also
 run the integration tests (you must be running NFD), in a terminal enter:
@@ -75,7 +76,7 @@ is installed (see above). Change to the 'examples' directory. In a terminal ente
 
     mvn -q test -DclassName=TestEncodeDecodeFibEntry
 
-To make documentation, in a terminal enter:
+To make documentation, in a terminal change directory to the jNDN root and enter:
 
     mvn javadoc:javadoc -P javadoc
 

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
@@ -478,7 +479,7 @@ public class IdentityManager {
   /**
    * Create an identity certificate for a public key supplied by the caller.
    * @param certificatePrefix The name of public key to be signed.
-   * @param publickey The public key to be signed.
+   * @param publicKey The public key to be signed.
    * @param signerCertificateName The name of signing certificate.
    * @param notBefore The notBefore value in the validity field of the generated certificate.
    * @param notAfter The notAfter vallue in validity field of the generated certificate.
@@ -486,11 +487,58 @@ public class IdentityManager {
    */
   public final IdentityCertificate
   createIdentityCertificate
-    (Name certificatePrefix, PublicKey publickey, Name signerCertificateName,
-     double notBefore, double notAfter)
+    (Name certificatePrefix, PublicKey publicKey, Name signerCertificateName,
+     double notBefore, double notAfter) throws SecurityException
   {
-    throw new UnsupportedOperationException
-      ("IdentityManager.createIdentityCertificate not implemented");
+    IdentityCertificate certificate = new IdentityCertificate();
+    Name keyName = getKeyNameFromCertificatePrefix(certificatePrefix);
+
+    Name certificateName = new Name(certificatePrefix);
+    certificateName.append("ID-CERT")
+      .appendVersion((long)Common.getNowMilliseconds());
+
+    certificate.setName(certificateName);
+    certificate.setNotBefore(notBefore);
+    certificate.setNotAfter(notAfter);
+    certificate.setPublicKeyInfo(publicKey);
+    certificate.addSubjectDescription
+      (new CertificateSubjectDescription("2.5.4.41", keyName.toUri()));
+    try {
+      certificate.encode();
+    } catch (DerEncodingException ex) {
+      throw new SecurityException("DerDecodingException: " + ex);
+    } catch (DerDecodingException ex) {
+      throw new SecurityException("DerEncodingException: " + ex);
+    }
+
+    Sha256WithRsaSignature sha256Sig = new Sha256WithRsaSignature();
+
+    KeyLocator keyLocator = new KeyLocator();
+    keyLocator.setType(KeyLocatorType.KEYNAME);
+    keyLocator.setKeyName(signerCertificateName);
+
+    sha256Sig.setKeyLocator(keyLocator);
+    sha256Sig.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
+      (publicKey.getDigest());
+
+    certificate.setSignature(sha256Sig);
+
+    SignedBlob unsignedData = certificate.wireEncode();
+
+    IdentityCertificate signerCertificate;
+    try {
+      signerCertificate = getCertificate(signerCertificateName);
+    } catch (DerDecodingException ex) {
+      throw new SecurityException("DerDecodingException: " + ex);
+    }
+    Name signerkeyName = signerCertificate.getPublicKeyName();
+
+    Blob sigBits = privateKeyStorage_.sign
+      (unsignedData.signedBuf(), signerkeyName);
+
+    sha256Sig.setSignature(sigBits);
+
+    return certificate;
   }
 
   /**
@@ -772,8 +820,8 @@ public class IdentityManager {
     certificate.setNotAfter(notAfter);
 
     Name certificateName = keyName.getPrefix(-1).append("KEY").append
-      (keyName.get(-1)).append("ID-CERT").append
-      (Name.Component.fromNumber((long)certificate.getNotBefore()));
+      (keyName.get(-1)).append("ID-CERT").appendVersion
+      ((long)certificate.getNotBefore());
     certificate.setName(certificateName);
 
     certificate.setPublicKeyInfo(publicKey);
