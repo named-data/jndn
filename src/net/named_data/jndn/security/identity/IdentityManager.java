@@ -23,6 +23,7 @@ package net.named_data.jndn.security.identity;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
@@ -474,6 +475,187 @@ public class IdentityManager {
     identityStorage_.addCertificate(certificate);
 
     return certificate.getName();
+  }
+
+  /**
+   * Use the keyName to get the public key from the identity storage and
+   * prepare an unsigned identity certificate.
+   * @param keyName The key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param signingIdentity The signing identity.
+   * @param notBefore See IdentityCertificate.
+   * @param notAfter See IdentityCertificate.
+   * @param subjectDescription A list of CertificateSubjectDescription. See
+   * IdentityCertificate. If null or empty, this adds a an ATTRIBUTE_NAME based
+   * on the keyName.
+   * @param certPrefix The prefix before the `KEY` component. If null, this
+   * infers the certificate name according to the relation between the
+   * signingIdentity and the subject identity. If the signingIdentity is a
+   * prefix of the subject identity, `KEY` will be inserted after the
+   * signingIdentity, otherwise `KEY` is inserted after subject identity (i.e.,
+   * before `ksk-...`).
+   * @return The unsigned IdentityCertificate, or null the public is not in the
+   * identity storage or if the inputs are invalid.
+   */
+  public final IdentityCertificate
+  prepareUnsignedIdentityCertificate
+    (Name keyName, Name signingIdentity, double notBefore, double notAfter,
+     List subjectDescription, Name certPrefix)
+    throws SecurityException
+  {
+    PublicKey publicKey;
+    try {
+      publicKey = new PublicKey(identityStorage_.getKey(keyName));
+    }
+    catch (SecurityException e) {
+      return null;
+    }
+
+    return prepareUnsignedIdentityCertificate
+      (keyName, publicKey, signingIdentity, notBefore, notAfter,
+       subjectDescription, certPrefix);
+  }
+
+  /**
+   * Use the keyName to get the public key from the identity storage and
+   * prepare an unsigned identity certificate. This infers the certificate name
+   * according to the relation between the signingIdentity and the subject
+   * identity. If the signingIdentity is a prefix of the subject identity, `KEY`
+   * will be inserted after the signingIdentity, otherwise `KEY` is inserted
+   * after subject identity (i.e., before `ksk-...`).
+   * @param keyName The key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param signingIdentity The signing identity.
+   * @param notBefore See IdentityCertificate.
+   * @param notAfter See IdentityCertificate.
+   * @param subjectDescription A list of CertificateSubjectDescription. See
+   * IdentityCertificate. If null or empty, this adds a an ATTRIBUTE_NAME based
+   * on the keyName.
+   * @return The unsigned IdentityCertificate, or null the public is not in the
+   * identity storage or if the inputs are invalid.
+   */
+  public final IdentityCertificate
+  prepareUnsignedIdentityCertificate
+    (Name keyName, Name signingIdentity, double notBefore, double notAfter,
+     List subjectDescription)
+    throws SecurityException
+  {
+    return prepareUnsignedIdentityCertificate
+      (keyName, signingIdentity, notBefore, notAfter, subjectDescription, null);
+  }
+
+  /**
+   * Prepare an unsigned identity certificate.
+   * @param keyName The key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param publicKey The public key to sign.
+   * @param signingIdentity The signing identity.
+   * @param notBefore See IdentityCertificate.
+   * @param notAfter See IdentityCertificate.
+   * @param subjectDescription A list of CertificateSubjectDescription. See
+   * IdentityCertificate. If null or empty, this adds a an ATTRIBUTE_NAME based
+   * on the keyName.
+   * @param certPrefix The prefix before the `KEY` component. If null, this
+   * infers the certificate name according to the relation between the
+   * signingIdentity and the subject identity. If the signingIdentity is a
+   * prefix of the subject identity, `KEY` will be inserted after the
+   * signingIdentity, otherwise `KEY` is inserted after subject identity (i.e.,
+   * before `ksk-...`).
+   * @return The unsigned IdentityCertificate, or null if the inputs are invalid.
+   */
+  public final IdentityCertificate
+  prepareUnsignedIdentityCertificate
+    (Name keyName, PublicKey publicKey, Name signingIdentity, double notBefore,
+     double notAfter, List subjectDescription, Name certPrefix)
+    throws SecurityException
+  {
+    if (keyName.size() < 1)
+      return null;
+
+    String tempKeyIdPrefix = keyName.get(-1).toEscapedString();
+    if (tempKeyIdPrefix.length() < 4)
+      return null;
+    String keyIdPrefix = tempKeyIdPrefix.substring(0, 4);
+    if (!keyIdPrefix.equals("ksk-") && !keyIdPrefix.equals("dsk-"))
+      return null;
+
+    IdentityCertificate certificate = new IdentityCertificate();
+    Name certName = new Name();
+
+    if (certPrefix == null) {
+      // No certificate prefix hint, so infer the prefix.
+      if (signingIdentity.match(keyName))
+        certName.append(signingIdentity)
+          .append("KEY")
+          .append(keyName.getSubName(signingIdentity.size()))
+          .append("ID-CERT")
+          .appendVersion((long)Common.getNowMilliseconds());
+      else
+        certName.append(keyName.getPrefix(-1))
+          .append("KEY")
+          .append(keyName.get(-1))
+          .append("ID-CERT")
+          .appendVersion((long)Common.getNowMilliseconds());
+    }
+    else {
+      // A cert prefix hint is supplied, so determine the cert name.
+      if (certPrefix.match(keyName) && !certPrefix.equals(keyName))
+        certName.append(certPrefix)
+          .append("KEY")
+          .append(keyName.getSubName(certPrefix.size()))
+          .append("ID-CERT")
+          .appendVersion((long)Common.getNowMilliseconds());
+      else
+        return null;
+    }
+
+    certificate.setName(certName);
+    certificate.setNotBefore(notBefore);
+    certificate.setNotAfter(notAfter);
+    certificate.setPublicKeyInfo(publicKey);
+
+    if (subjectDescription == null || subjectDescription.isEmpty())
+      certificate.addSubjectDescription(new CertificateSubjectDescription
+        ("2.5.4.41", keyName.getPrefix(-1).toUri()));
+    else {
+      for (int i = 0; i < subjectDescription.size(); ++i)
+        certificate.addSubjectDescription
+          ((CertificateSubjectDescription)subjectDescription.get(i));
+    }
+
+    try {
+      certificate.encode();
+    } catch (DerEncodingException ex) {
+      throw new SecurityException("DerEncodingException: " + ex);
+    } catch (DerDecodingException ex) {
+      throw new SecurityException("DerDecodingException: " + ex);
+    }
+
+    return certificate;
+  }
+
+  /**
+   * Prepare an unsigned identity certificate. This infers the certificate name
+   * according to the relation between the signingIdentity and the subject
+   * identity. If the signingIdentity is a prefix of the subject identity, `KEY`
+   * will be inserted after the signingIdentity, otherwise `KEY` is inserted
+   * after subject identity (i.e., before `ksk-...`).
+   * @param keyName The key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param publicKey The public key to sign.
+   * @param signingIdentity The signing identity.
+   * @param notBefore See IdentityCertificate.
+   * @param notAfter See IdentityCertificate.
+   * @param subjectDescription A list of CertificateSubjectDescription. See
+   * IdentityCertificate. If null or empty, this adds a an ATTRIBUTE_NAME based
+   * on the keyName.
+   * @return The unsigned IdentityCertificate, or null if the inputs are invalid.
+   */
+  public final IdentityCertificate
+  prepareUnsignedIdentityCertificate
+    (Name keyName, PublicKey publicKey, Name signingIdentity, double notBefore,
+     double notAfter, List subjectDescription)
+    throws SecurityException
+  {
+    return prepareUnsignedIdentityCertificate
+      (keyName, publicKey, signingIdentity, notBefore, notAfter,
+       subjectDescription, null);
   }
 
   /**
