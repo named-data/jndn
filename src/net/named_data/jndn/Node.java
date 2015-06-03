@@ -1419,7 +1419,6 @@ public class Node implements ElementListener {
   private final ArrayList delayedCallTable_ = new ArrayList(); // DelayedCall
   private final Interest ndndIdFetcherInterest_;
   private Blob ndndId_ = new Blob();
-  private static final SecureRandom random_ = new SecureRandom();
   private final CommandInterestGenerator commandInterestGenerator_ =
     new CommandInterestGenerator();
   private final Name timeoutPrefix_ = new Name("/local/timeout");
