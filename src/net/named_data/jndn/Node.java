@@ -29,6 +29,8 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.encoding.BinaryXml;
@@ -129,17 +131,19 @@ public class Node implements ElementListener {
     int count = 0;
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though pendingInterestId should be unique.
-    for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
-      if (((PendingInterest)pendingInterestTable_.get(i)).getPendingInterestId
-           () == pendingInterestId) {
-        ++count;
-        // For efficiency, mark this as removed so that
-        // processInterestTimeout doesn't look for it.
-        ((PendingInterest)pendingInterestTable_.get(i)).setIsRemoved();
-        pendingInterestTable_.remove(i);
+    synchronized(pendingInterestTable_) {
+      for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
+        if (((PendingInterest)pendingInterestTable_.get(i)).getPendingInterestId
+             () == pendingInterestId) {
+          ++count;
+          // For efficiency, mark this as removed so that
+          // processInterestTimeout doesn't look for it.
+          ((PendingInterest)pendingInterestTable_.get(i)).setIsRemoved();
+          pendingInterestTable_.remove(i);
+        }
       }
     }
-
+    
     if (count == 0)
       Logger.getLogger(Node.class.getName()).log
         (Level.WARNING, "removePendingInterest: Didn't find pendingInterestId {0}",
@@ -248,20 +252,22 @@ public class Node implements ElementListener {
     int count = 0;
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though registeredPrefixId should be unique.
-    for (int i = (int)registeredPrefixTable_.size() - 1; i >= 0; --i) {
-      RegisteredPrefix entry = (RegisteredPrefix)registeredPrefixTable_.get(i);
+    synchronized(registeredPrefixTable_) {
+      for (int i = (int)registeredPrefixTable_.size() - 1; i >= 0; --i) {
+        RegisteredPrefix entry = (RegisteredPrefix)registeredPrefixTable_.get(i);
 
-      if (entry.getRegisteredPrefixId() == registeredPrefixId) {
-        ++count;
+        if (entry.getRegisteredPrefixId() == registeredPrefixId) {
+          ++count;
 
-        if (entry.getRelatedInterestFilterId() > 0)
-          // Remove the related interest filter.
-          unsetInterestFilter(entry.getRelatedInterestFilterId());
+          if (entry.getRelatedInterestFilterId() > 0)
+            // Remove the related interest filter.
+            unsetInterestFilter(entry.getRelatedInterestFilterId());
 
-        registeredPrefixTable_.remove(i);
+          registeredPrefixTable_.remove(i);
+        }
       }
     }
-
+    
     if (count == 0)
       Logger.getLogger(Node.class.getName()).log
         (Level.WARNING, "removeRegisteredPrefix: Didn't find registeredPrefixId {0}",
@@ -307,14 +313,16 @@ public class Node implements ElementListener {
     int count = 0;
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though interestFilterId should be unique.
-    for (int i = (int)interestFilterTable_.size() - 1; i >= 0; --i) {
-      if (((InterestFilterEntry)interestFilterTable_.get(i)).getInterestFilterId()
-            == interestFilterId) {
-        ++count;
-        interestFilterTable_.remove(i);
+    synchronized(interestFilterTable_) {
+      for (int i = (int)interestFilterTable_.size() - 1; i >= 0; --i) {
+        if (((InterestFilterEntry)interestFilterTable_.get(i)).getInterestFilterId()
+              == interestFilterId) {
+          ++count;
+          interestFilterTable_.remove(i);
+        }
       }
     }
-
+    
     if (count == 0)
       Logger.getLogger(Node.class.getName()).log
         (Level.WARNING, "unsetInterestFilter: Didn't find interestFilterId {0}",
@@ -381,10 +389,20 @@ public class Node implements ElementListener {
     double now = Common.getNowMilliseconds();
     // delayedCallTable_ is sorted on _callTime, so we only need to process
     // the timed-out entries at the front, then quit.
-    while (delayedCallTable_.size() > 0 &&
-           ((DelayedCall)delayedCallTable_.get(0)).getCallTime() <= now) {
-      DelayedCall delayedCall = (DelayedCall)delayedCallTable_.get(0);
-      delayedCallTable_.remove(0);
+    while (true) {
+      DelayedCall delayedCall;
+      // Lock while we check and maybe pop the element at the front.
+      synchronized(delayedCallTable_) {
+        if (delayedCallTable_.isEmpty())
+          break;
+        delayedCall = (DelayedCall)delayedCallTable_.get(0);
+        if (delayedCall.getCallTime() > now)
+          // It is not time to call the entry at the front of the list, so finish.
+          break;
+        delayedCallTable_.remove(0);
+      }
+
+      // The lock on delayedCallTable_ is removed, so call the callback.
       delayedCall.callCallback();
     }
   }
@@ -443,14 +461,23 @@ public class Node implements ElementListener {
 
     // Now process as Interest or Data.
     if (interest != null) {
-      // Call all interest filter callbacks which match.
-      for (int i = 0; i < interestFilterTable_.size(); ++i) {
-        InterestFilterEntry entry =
-          (InterestFilterEntry)interestFilterTable_.get(i);
-        if (entry.getFilter().doesMatch(interest.getName()))
-          entry.getOnInterest().onInterest
-           (entry.getFilter().getPrefix(), interest, entry.getFace(),
-            entry.getInterestFilterId(), entry.getFilter());
+      // Quickly lock and get all interest filter callbacks which match.
+      List matchedFilters = new ArrayList();
+      synchronized(interestFilterTable_) {
+        for (int i = 0; i < interestFilterTable_.size(); ++i) {
+          InterestFilterEntry entry =
+            (InterestFilterEntry)interestFilterTable_.get(i);
+          if (entry.getFilter().doesMatch(interest.getName()))
+            matchedFilters.add(entry);
+        }
+      }
+
+      // The lock on interestFilterTable_ is released, so call the callbacks.
+      for (int i = 0; i < matchedFilters.size(); ++i) {
+        InterestFilterEntry entry = (InterestFilterEntry)matchedFilters.get(i);
+        entry.getOnInterest().onInterest
+         (entry.getFilter().getPrefix(), interest, entry.getFace(),
+          entry.getInterestFilterId(), entry.getFilter());
       }
     }
     else if (data != null) {
@@ -505,16 +532,18 @@ public class Node implements ElementListener {
     DelayedCall delayedCall = new DelayedCall(delayMilliseconds, callback);
     // Insert into delayedCallTable_, sorted on delayedCall.getCallTime().
     // Search from the back since we expect it to go there.
-    int i = delayedCallTable_.size() - 1;
-    while (i >= 0) {
-      if (((DelayedCall)delayedCallTable_.get(i)).getCallTime() <=
-          delayedCall.getCallTime())
-        break;
-      --i;
+    synchronized(delayedCallTable_) {
+      int i = delayedCallTable_.size() - 1;
+      while (i >= 0) {
+        if (((DelayedCall)delayedCallTable_.get(i)).getCallTime() <=
+            delayedCall.getCallTime())
+          break;
+        --i;
+      }
+      // Element i is the greatest less than or equal to
+      // delayedCall.getCallTime(), so insert after it.
+      delayedCallTable_.add(i + 1, delayedCall);
     }
-    // Element i is the greatest less than or equal to
-    // delayedCall.getCallTime(), so insert after it.
-    delayedCallTable_.add(i + 1, delayedCall);
   }
 
   /**
@@ -532,12 +561,16 @@ public class Node implements ElementListener {
       // to look for it. Do nothing.
       return;
 
-    int index = pendingInterestTable_.indexOf(pendingInterest);
-    if (index < 0)
-      // The pending interest has been removed. Do nothing.
-      return;
+    // Synchronize so that the list doesn't change the index of the item to remove.
+    synchronized(pendingInterestTable_) {
+      int index = pendingInterestTable_.indexOf(pendingInterest);
+      if (index < 0)
+        // The pending interest has been removed. Do nothing.
+        return;
 
-    pendingInterestTable_.remove(index);
+      pendingInterestTable_.remove(index);
+    }
+    
     pendingInterest.callTimeout();
   }
 
@@ -1232,16 +1265,18 @@ public class Node implements ElementListener {
   extractEntriesForExpressedInterest(Name name, ArrayList entries)
   {
     // Go backwards through the list so we can remove entries.
-    for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
-      PendingInterest pendingInterest =
-        (PendingInterest)pendingInterestTable_.get(i);
-      
-      if (pendingInterest.getInterest().matchesName(name)) {
-        entries.add(pendingInterestTable_.get(i));
-        // We let the callback from callLater call _processInterestTimeout, but
-        // for efficiency, mark this as removed so that it returns right away.
-        pendingInterestTable_.remove(i);
-        pendingInterest.setIsRemoved();
+    synchronized(pendingInterestTable_) {
+      for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
+        PendingInterest pendingInterest =
+          (PendingInterest)pendingInterestTable_.get(i);
+
+        if (pendingInterest.getInterest().matchesName(name)) {
+          entries.add(pendingInterestTable_.get(i));
+          // We let the callback from callLater call _processInterestTimeout, but
+          // for efficiency, mark this as removed so that it returns right away.
+          pendingInterestTable_.remove(i);
+          pendingInterest.setIsRemoved();
+        }
       }
     }
   }
@@ -1425,10 +1460,14 @@ public class Node implements ElementListener {
   private final Transport transport_;
   private final Transport.ConnectionInfo connectionInfo_;
   // Use ArrayList without generics so it works with older Java compilers.
-  private final ArrayList pendingInterestTable_ = new ArrayList();  // PendingInterest
-  private final ArrayList registeredPrefixTable_ = new ArrayList(); // RegisteredPrefix
-  private final ArrayList interestFilterTable_ = new ArrayList(); // InterestFilterEntry
-  private final ArrayList delayedCallTable_ = new ArrayList(); // DelayedCall
+  private final List pendingInterestTable_ = 
+    Collections.synchronizedList(new ArrayList());  // PendingInterest
+  private final List registeredPrefixTable_ = 
+    Collections.synchronizedList(new ArrayList()); // RegisteredPrefix
+  private final List interestFilterTable_ = 
+    Collections.synchronizedList(new ArrayList()); // InterestFilterEntry
+  private final List delayedCallTable_ = 
+    Collections.synchronizedList(new ArrayList()); // DelayedCall
   private final Interest ndndIdFetcherInterest_;
   private Blob ndndId_ = new Blob();
   private final CommandInterestGenerator commandInterestGenerator_ =
