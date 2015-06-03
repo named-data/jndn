@@ -25,7 +25,6 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -593,11 +592,16 @@ public class Node implements ElementListener {
     }
 
     /**
-     * Get the next unique pending interest ID.
+     * Get the next unique pending interest ID. This is thread safe.
      * @return The next ID.
      */
     public static long
-    getNextPendingInterestId() { return ++lastPendingInterestId_; }
+    getNextPendingInterestId()
+    {
+      synchronized(lastPendingInterestIdLock_) {
+        return ++lastPendingInterestId_;
+      }
+    }
 
     /**
      * Get the pendingInterestId given to the constructor.
@@ -643,6 +647,7 @@ public class Node implements ElementListener {
 
     private final Interest interest_;
     private static long lastPendingInterestId_; /**< A class variable used to get the next unique ID. */
+    private static final Object lastPendingInterestIdLock_ = new Object();
     private final long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
     private final OnData onData_;
     private final OnTimeout onTimeout_;
@@ -673,11 +678,16 @@ public class Node implements ElementListener {
     }
 
     /**
-     * Get the next unique entry ID.
+     * Get the next unique entry ID. This is thread safe.
      * @return The next ID.
      */
     public static long
-    getNextRegisteredPrefixId() { return ++lastRegisteredPrefixId_; }
+    getNextRegisteredPrefixId()
+    {
+      synchronized(lastRegisteredPrefixIdLock_) {
+        return ++lastRegisteredPrefixId_;
+      }
+    }
 
     /**
      * Get the registeredPrefixId given to the constructor.
@@ -701,6 +711,7 @@ public class Node implements ElementListener {
     getRelatedInterestFilterId() { return relatedInterestFilterId_; }
 
     private static long lastRegisteredPrefixId_; /**< A class variable used to get the next unique ID. */
+    private static final Object lastRegisteredPrefixIdLock_ = new Object();
     private final long registeredPrefixId_; /**< A unique identifier for this entry so it can be deleted */
     private final Name prefix_;
     private final long relatedInterestFilterId_;
@@ -733,6 +744,7 @@ public class Node implements ElementListener {
      * Get the next interest filter ID. This just calls
      * RegisteredPrefix.getNextRegisteredPrefixId() so that IDs come from the
      * same pool and won't be confused when removing entries from the two tables.
+     * This is thread safe.
      * @return The next ID.
      */
     public static long
