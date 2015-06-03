@@ -76,9 +76,9 @@ public abstract class IdentityStorage {
 
     String keyIdStr;
     if (useKsk)
-      keyIdStr = ("KSK-" + timeString);
+      keyIdStr = ("ksk-" + timeString);
     else
-      keyIdStr = ("DSK-" + timeString);
+      keyIdStr = ("dsk-" + timeString);
 
     Name keyName = new Name(identityName).append(keyIdStr);
 
