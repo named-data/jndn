@@ -91,8 +91,14 @@ public class Node implements ElementListener {
      WireFormat wireFormat, Face face) throws IOException
   {
     // TODO: Properly check if we are already connected to the expected host.
+    Runnable onConnected = new Runnable() {
+      public void run()
+      {
+        // TODO: Implement onConnected. For now, do nothing.
+      }
+    };
     if (!transport_.getIsConnected())
-      transport_.connect(connectionInfo_, this);
+      transport_.connect(connectionInfo_, this, onConnected);
 
     long pendingInterestId = PendingInterest.getNextPendingInterestId();
     final PendingInterest pendingInterest = new PendingInterest

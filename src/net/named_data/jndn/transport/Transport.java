@@ -50,11 +50,14 @@ public abstract class Transport {
    * @param connectionInfo An object of a subclass of ConnectionInfo.
    * @param elementListener The ElementListener must remain valid during the
    * life of this object.
+   * @param onConnected This calls onConnected.run() when the connection is
+   * established.
    * @throws IOException For I/O error.
    */
   public void
   connect
-    (Transport.ConnectionInfo connectionInfo, ElementListener elementListener)
+    (Transport.ConnectionInfo connectionInfo, ElementListener elementListener,
+     Runnable onConnected)
     throws IOException
   {
     throw new UnsupportedOperationException("connect is not implemented");

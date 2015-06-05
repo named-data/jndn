@@ -105,11 +105,14 @@ public class TcpTransport extends Transport {
    * @param connectionInfo A TcpTransport.ConnectionInfo.
    * @param elementListener The ElementListener must remain valid during the
    * life of this object.
+   * @param onConnected This calls onConnected.run() when the connection is
+   * established.
    * @throws IOException For I/O error.
    */
   public void
   connect
-    (Transport.ConnectionInfo connectionInfo, ElementListener elementListener)
+    (Transport.ConnectionInfo connectionInfo, ElementListener elementListener,
+     Runnable onConnected)
     throws IOException
   {
     close();
@@ -120,6 +123,8 @@ public class TcpTransport extends Transport {
     channel_.configureBlocking(false);
 
     elementReader_ = new ElementReader(elementListener);
+
+    onConnected.run();
   }
 
   /**
