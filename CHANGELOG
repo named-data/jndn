@@ -1,7 +1,16 @@
-Interim changes since jNDN v0.6 (2015-05-20)
+Interim changes since jNDN v0.7 (2015-06-02)
 --------------------------------------------
 
+Bug fixes
+* http://redmine.named-data.net/issues/2846 Self-signed cert name needs a version component.
+* http://redmine.named-data.net/issues/2847 Lower-case "ksk-" in generated key name.
+
+jNDN v0.7 (2015-05-28)
+----------------------
+
 Changes
+* Added pom-android.xml and pom-without-protobuf.xml, and moved the related
+  profiles out of pom.xml into these files. See INSTALL.md.
 * In security, added KeyChain.createIdentityAndCertificate which returns the
   certificate name, instead of the deprecated createIdentity which returns the
   key name.

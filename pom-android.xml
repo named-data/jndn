@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.named-data</groupId>
-    <artifactId>jndn</artifactId>
+    <artifactId>jndn-android</artifactId>
     <packaging>jar</packaging>
     <version>0.7</version>
     <name>jndn</name>
@@ -69,11 +69,16 @@
     </build>
     <profiles>
 
-        <!-- Default deployment profile for OSSRH, deploy with 'mvn deploy -P ossrh' -->
+        <!-- Deployment profile for OSSRH, deploy with 'mvn -f pom-android.xml deploy -P ossrh' -->
         <!-- You may need to temporarily set the password in ~/.m2/settings.xml -->
         <profile>
             <id>ossrh</id>
             <dependencies>
+                <dependency>
+                    <groupId>com.google.android</groupId>
+                    <artifactId>android</artifactId>
+                    <version>4.1.1.4</version>
+                </dependency>
                 <dependency>
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>protobuf-java</artifactId>
@@ -82,18 +87,6 @@
             </dependencies>
             <build>
                 <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.2</version>
-                        <configuration>
-                            <source>1.7</source>
-                            <target>1.7</target>
-                            <excludes>
-                                <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
                     <!-- OSSRH-directed plugins (see http://central.sonatype.org/pages/apache-maven.html) -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -161,125 +154,24 @@
             </build>
         </profile>
 
-        <!-- protobuf will be included and Android classes excluded by default -->
+        <!-- protobuf and Android classes are included -->
         <profile>
-            <id>with-protobuf</id>
+            <id>with-android-and-protobuf</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.google.protobuf</groupId>
-                    <artifactId>protobuf-java</artifactId>
-                    <version>2.6.1</version>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.2</version>
-                        <configuration>
-                            <source>1.7</source>
-                            <target>1.7</target>
-                            <excludes>
-                                <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Use this profile to run integration tests on systems with NFD installed; e.g. mvn verify -P with-integration-tests -->
-        <profile>
-            <id>with-integration-tests</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.google.protobuf</groupId>
-                    <artifactId>protobuf-java</artifactId>
-                    <version>2.6.1</version>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.2</version>
-                        <configuration>
-                            <source>1.7</source>
-                            <target>1.7</target>
-                            <excludes>
-                                <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>2.18.1</version>
-                        <configuration>
-                            <includes>
-                                <include>**/integration_tests/*.java</include>
-                            </includes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!--Use this profile to make the javadoc; e.g. mvn javadoc:javadoc -P javadoc -->
-        <profile>
-            <id>javadoc</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.google.protobuf</groupId>
-                    <artifactId>protobuf-java</artifactId>
-                    <version>2.6.1</version>
-                </dependency>
-                <dependency>
                     <groupId>com.google.android</groupId>
                     <artifactId>android</artifactId>
                     <version>4.1.1.4</version>
                 </dependency>
+                <dependency>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                    <version>2.6.1</version>
+                </dependency>
             </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <quiet>true</quiet>
-                            <tags>
-                                <tag>
-                                    <name>note</name>
-                                    <placement>a</placement>
-                                    <head>Note:</head>
-                                </tag>
-                            </tags>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>
