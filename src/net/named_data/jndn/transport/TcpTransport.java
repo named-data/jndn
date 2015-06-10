@@ -185,7 +185,7 @@ public class TcpTransport extends Transport {
    * @return True if connected.
    */
   public boolean
-  getIsConnected()
+  getIsConnected() throws IOException
   {
     if (channel_ == null)
       return false;

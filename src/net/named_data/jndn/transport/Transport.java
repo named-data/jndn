@@ -96,7 +96,7 @@ public abstract class Transport {
    * @return True if connected.
    */
   public boolean
-  getIsConnected()
+  getIsConnected() throws IOException
   {
     throw new UnsupportedOperationException
       ("getIsConnected is not implemented");
