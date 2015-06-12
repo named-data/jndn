@@ -102,7 +102,12 @@ public class Face {
     (Interest interest, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
   {
-    return node_.expressInterest(interest, onData, onTimeout, wireFormat, this);
+    long pendingInterestId = node_.getNextEntryId();
+
+    node_.expressInterest
+      (pendingInterestId, interest, onData, onTimeout, wireFormat, this);
+
+    return pendingInterestId;
   }
 
   /**
@@ -240,7 +245,6 @@ public class Face {
   {
     return expressInterest(name, null, onData, onTimeout, wireFormat);
   }
-
 
   /**
    * Encode name as an Interest. If interestTemplate is not null, use its
@@ -514,9 +518,14 @@ public class Face {
      OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
      WireFormat wireFormat) throws IOException, SecurityException
   {
-    return node_.registerPrefix
-      (prefix, onInterest, onRegisterFailed, flags, wireFormat,
-       commandKeyChain_, commandCertificateName_, this);
+    // Get the registeredPrefixId now so we can return it to the caller.
+    long registeredPrefixId = node_.getNextEntryId();
+
+    node_.registerPrefix
+      (registeredPrefixId, prefix, onInterest, onRegisterFailed, flags,
+       wireFormat, commandKeyChain_, commandCertificateName_, this);
+
+    return registeredPrefixId;
   }
 
   /**
@@ -715,7 +724,11 @@ public class Face {
   public long
   setInterestFilter(InterestFilter filter, OnInterestCallback onInterest)
   {
-    return node_.setInterestFilter(filter, onInterest, this);
+    long interestFilterId = node_.getNextEntryId();
+
+    node_.setInterestFilter(interestFilterId, filter, onInterest, this);
+
+    return interestFilterId;
   }
 
   /**
