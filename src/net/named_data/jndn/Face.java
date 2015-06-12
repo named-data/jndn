@@ -127,8 +127,8 @@ public class Face {
   expressInterest
     (Interest interest, OnData onData, OnTimeout onTimeout) throws IOException
   {
-    return node_.expressInterest
-      (interest, onData, onTimeout, WireFormat.getDefaultWireFormat(), this);
+    return expressInterest
+      (interest, onData, onTimeout, WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -149,7 +149,7 @@ public class Face {
   expressInterest
     (Interest interest, OnData onData, WireFormat wireFormat) throws IOException
   {
-    return node_.expressInterest(interest, onData, null, wireFormat, this);
+    return expressInterest(interest, onData, null, wireFormat);
   }
 
   /**
@@ -169,8 +169,8 @@ public class Face {
   public long
   expressInterest(Interest interest, OnData onData) throws IOException
   {
-    return node_.expressInterest
-      (interest, onData, null, WireFormat.getDefaultWireFormat(), this);
+    return expressInterest
+      (interest, onData, null, WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -210,7 +210,7 @@ public class Face {
       interest.setInterestLifetimeMilliseconds(4000.0);
     }
 
-    return node_.expressInterest(interest, onData, onTimeout, wireFormat, this);
+    return expressInterest(interest, onData, onTimeout, wireFormat);
   }
 
   /**
@@ -478,9 +478,7 @@ public class Face {
   public void
   makeCommandInterest(Interest interest) throws SecurityException
   {
-    node_.makeCommandInterest
-      (interest, commandKeyChain_, commandCertificateName_,
-       WireFormat.getDefaultWireFormat());
+    makeCommandInterest(interest, WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -639,9 +637,8 @@ public class Face {
         }
       };
 
-    return node_.registerPrefix
-      (prefix, onInterestCallback, onRegisterFailed, flags, wireFormat,
-       commandKeyChain_, commandCertificateName_, this);
+    return registerPrefix
+      (prefix, onInterestCallback, onRegisterFailed, flags, wireFormat);
   }
 
   /**
@@ -737,7 +734,7 @@ public class Face {
   public long
   setInterestFilter(Name prefix, OnInterestCallback onInterest)
   {
-    return node_.setInterestFilter(new InterestFilter(prefix), onInterest, this);
+    return setInterestFilter(new InterestFilter(prefix), onInterest);
   }
 
   /**
@@ -776,7 +773,7 @@ public class Face {
   public void
   putData(Data data) throws IOException
   {
-    node_.putData(data, WireFormat.getDefaultWireFormat());
+    putData(data, WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -787,7 +784,7 @@ public class Face {
   public void
   send(Blob encoding) throws IOException
   {
-    node_.send(encoding.buf());
+    send(encoding.buf());
   }
 
   /**
