@@ -100,7 +100,7 @@ public class Node implements ElementListener {
     if (!transport_.getIsConnected())
       transport_.connect(connectionInfo_, this, onConnected);
 
-    long pendingInterestId = PendingInterest.getNextPendingInterestId();
+    long pendingInterestId = getNextEntryId();
     final PendingInterest pendingInterest = new PendingInterest
       (pendingInterestId, new Interest(interest), onData, onTimeout);
     pendingInterestTable_.add(pendingInterest);
@@ -210,7 +210,7 @@ public class Node implements ElementListener {
      Name commandCertificateName, Face face) throws IOException, SecurityException
   {
     // Get the registeredPrefixId now so we can return it to the caller.
-    long registeredPrefixId = RegisteredPrefix.getNextRegisteredPrefixId();
+    long registeredPrefixId = getNextEntryId();
 
     // If we have an _ndndId, we know we already connected to NDNx.
     if (ndndId_.size() != 0 || commandKeyChain == null) {
@@ -298,7 +298,7 @@ public class Node implements ElementListener {
   setInterestFilter
     (InterestFilter filter, OnInterestCallback onInterest, Face face)
   {
-    long interestFilterId = InterestFilterEntry.getNextInterestFilterId();
+    long interestFilterId = getNextEntryId();
     interestFilterTable_.add
       (new InterestFilterEntry
        (interestFilterId, new InterestFilter(filter), onInterest, face));
@@ -553,6 +553,22 @@ public class Node implements ElementListener {
   }
 
   /**
+   * Get the next unique entry ID for the pending interest table, interest 
+   * filter table, etc. This uses a synchronized to be thread safe. Most entry
+   * IDs are for the pending interest table (there usually are not many interest
+   * filter table entries) so we use a common pool to only have to do the thread
+   * safe lock in one method which is called by Face.
+   * @return The next entry ID.
+   */
+  public long
+  getNextEntryId()
+  {
+    synchronized(lastEntryIdLock_) {
+      return ++lastEntryId_;
+    }
+  }
+
+  /**
    * This is used in callLater for when the pending interest expires. If the
    * pendingInterest is still in the pendingInterestTable_, remove it and call
    * its onTimeout callback.
@@ -631,18 +647,6 @@ public class Node implements ElementListener {
     }
 
     /**
-     * Get the next unique pending interest ID. This is thread safe.
-     * @return The next ID.
-     */
-    public static long
-    getNextPendingInterestId()
-    {
-      synchronized(lastPendingInterestIdLock_) {
-        return ++lastPendingInterestId_;
-      }
-    }
-
-    /**
      * Get the pendingInterestId given to the constructor.
      * @return The pendingInterestId.
      */
@@ -685,8 +689,6 @@ public class Node implements ElementListener {
     }
 
     private final Interest interest_;
-    private static long lastPendingInterestId_; /**< A class variable used to get the next unique ID. */
-    private static final Object lastPendingInterestIdLock_ = new Object();
     private final long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
     private final OnData onData_;
     private final OnTimeout onTimeout_;
@@ -702,7 +704,7 @@ public class Node implements ElementListener {
   private static class RegisteredPrefix {
     /**
      * Create a RegisteredPrefix with the given values.
-     * @param registeredPrefixId The ID from getNextRegisteredPrefixId().
+     * @param registeredPrefixId The ID from getNextEntryId().
      * @param prefix The name prefix.
      * @param relatedInterestFilterId (optional) The related interestFilterId
      * for the filter set in the same registerPrefix operation. If omitted, set
@@ -714,18 +716,6 @@ public class Node implements ElementListener {
       registeredPrefixId_ = registeredPrefixId;
       prefix_ = prefix;
       relatedInterestFilterId_ = relatedInterestFilterId;
-    }
-
-    /**
-     * Get the next unique entry ID. This is thread safe.
-     * @return The next ID.
-     */
-    public static long
-    getNextRegisteredPrefixId()
-    {
-      synchronized(lastRegisteredPrefixIdLock_) {
-        return ++lastRegisteredPrefixId_;
-      }
     }
 
     /**
@@ -749,8 +739,6 @@ public class Node implements ElementListener {
     public final long
     getRelatedInterestFilterId() { return relatedInterestFilterId_; }
 
-    private static long lastRegisteredPrefixId_; /**< A class variable used to get the next unique ID. */
-    private static final Object lastRegisteredPrefixIdLock_ = new Object();
     private final long registeredPrefixId_; /**< A unique identifier for this entry so it can be deleted */
     private final Name prefix_;
     private final long relatedInterestFilterId_;
@@ -763,7 +751,7 @@ public class Node implements ElementListener {
   private static class InterestFilterEntry {
     /**
      * Create a new InterestFilterEntry with the given values.
-     * @param interestFilterId The ID from getNextInterestFilterId().
+     * @param interestFilterId The ID from getNextEntryId().
      * @param filter The InterestFilter for this entry.
      * @param onInterest The callback to call.
      * @param face The face on which was called registerPrefix or
@@ -778,16 +766,6 @@ public class Node implements ElementListener {
       onInterest_ = onInterest;
       face_ = face;
     }
-
-    /**
-     * Get the next interest filter ID. This just calls
-     * RegisteredPrefix.getNextRegisteredPrefixId() so that IDs come from the
-     * same pool and won't be confused when removing entries from the two tables.
-     * This is thread safe.
-     * @return The next ID.
-     */
-    public static long
-    getNextInterestFilterId() { return RegisteredPrefix.getNextRegisteredPrefixId(); }
 
     /**
      * Get the interestFilterId given to the constructor.
@@ -878,8 +856,7 @@ public class Node implements ElementListener {
        * Create a new NdndIdFetcher.Info.
        *
        * @param node
-       * @param registeredPrefixId The
-       * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got
+       * @param registeredPrefixId The getNextEntryId() which registerPrefix got
        * so it could return it to the caller.
        * @param prefix This copies the Name.
        * @param onInterest
@@ -1289,10 +1266,9 @@ public class Node implements ElementListener {
 
   /**
    * Do the work of registerPrefix once we know we are connected with an ndndId_.
-   * @param registeredPrefixId The RegisteredPrefix.getNextRegisteredPrefixId()
-   * which registerPrefix got so it could return it to the caller. If this
-   * is 0, then don't add to registeredPrefixTable_ (assuming it has already
-   * been done).
+   * @param registeredPrefixId The getNextEntryId() which registerPrefix got so
+   * it could return it to the caller. If this is 0, then don't add to
+   * registeredPrefixTable_ (assuming it has already been done).
    * @param prefix
    * @param onInterest
    * @param onRegisterFailed
@@ -1372,10 +1348,9 @@ public class Node implements ElementListener {
 
   /**
    * Do the work of registerPrefix to register with NFD.
-   * @param registeredPrefixId The RegisteredPrefix.getNextRegisteredPrefixId()
-   * which registerPrefix got so it could return it to the caller. If this
-   * is 0, then don't add to registeredPrefixTable_ (assuming it has already
-   * been done).
+   * @param registeredPrefixId The getNextEntryId() which registerPrefix got so
+   * it could return it to the caller. If this is 0, then don't add to
+   * registeredPrefixTable_ (assuming it has already been done).
    * @param prefix
    * @param onInterest
    * @param onRegisterFailed
@@ -1479,4 +1454,6 @@ public class Node implements ElementListener {
   private final CommandInterestGenerator commandInterestGenerator_ =
     new CommandInterestGenerator();
   private final Name timeoutPrefix_ = new Name("/local/timeout");
+  private long lastEntryId_;
+  private final Object lastEntryIdLock_ = new Object();
 }
