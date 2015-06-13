@@ -1258,6 +1258,7 @@ public class Node implements ElementListener {
 
     ControlParameters controlParameters = new ControlParameters();
     controlParameters.setName(prefix);
+    controlParameters.setForwardingFlags(flags);
 
     Interest commandInterest = new Interest();
 
