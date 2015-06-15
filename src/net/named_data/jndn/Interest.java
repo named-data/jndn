@@ -320,8 +320,18 @@ public class Interest implements ChangeCountable {
       return (answerOriginKind_ & ANSWER_STALE) == 0;
   }
 
+  /**
+   * @deprecated Scope is not used by NFD.
+   */
   public final int
-  getScope() { return scope_; }
+  getScope()
+  {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("getScope is for NDNx and is deprecated. To enable while you upgrade your code to not use Scope, set WireFormat.ENABLE_NDNX = true");
+
+    return scope_;
+  }
 
   public final double
   getInterestLifetimeMilliseconds() { return interestLifetimeMilliseconds_; }
@@ -465,13 +475,15 @@ public class Interest implements ChangeCountable {
   }
 
   /**
-   * Set the interest scope.
-   * @param scope The interest scope. If not specified, set to -1.
-   * @return This Interest so that you can chain calls to update values.
+   * @deprecated Scope is not used by NFD.
    */
   public final Interest
   setScope(int scope)
   {
+    if (!WireFormat.ENABLE_NDNX)
+      throw new Error
+        ("setScope is for NDNx and is deprecated. To enable while you upgrade your code to not use Scope, set WireFormat.ENABLE_NDNX = true");
+
     scope_ = scope;
     ++changeCount_;
     return this;
@@ -650,7 +662,8 @@ public class Interest implements ChangeCountable {
   private final ChangeCounter exclude_ = new ChangeCounter(new Exclude());
   private int childSelector_ = -1;
   private int answerOriginKind_ = -1;
-  private int scope_ = -1;
+  /** @deprecated. Scope is not used by NFD. */
+  public int scope_ = -1;
   private double interestLifetimeMilliseconds_ = -1;
   private Blob nonce_ = new Blob();
   private long getNonceChangeCount_ = 0;
