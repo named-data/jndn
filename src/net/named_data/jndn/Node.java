@@ -90,6 +90,8 @@ public class Node implements ElementListener {
     (long pendingInterestId, Interest interest, OnData onData,
      OnTimeout onTimeout, WireFormat wireFormat, Face face) throws IOException
   {
+    Interest interestCopy = new Interest(interest);
+    
     // TODO: Properly check if we are already connected to the expected host.
     Runnable onConnected = new Runnable() {
       public void run()
@@ -100,25 +102,8 @@ public class Node implements ElementListener {
     if (!transport_.getIsConnected())
       transport_.connect(connectionInfo_, this, onConnected);
 
-    final PendingInterest pendingInterest = new PendingInterest
-      (pendingInterestId, new Interest(interest), onData, onTimeout);
-    pendingInterestTable_.add(pendingInterest);
-    if (interest.getInterestLifetimeMilliseconds() >= 0.0)
-      // Set up the timeout.
-      face.callLater
-        (interest.getInterestLifetimeMilliseconds(),
-         new Runnable() {
-           public void run() { processInterestTimeout(pendingInterest); }
-         });
-
-    // Special case: For timeoutPrefix_ we don't actually send the interest.
-    if (!timeoutPrefix_.match(interest.getName())) {
-      Blob encoding = interest.wireEncode(wireFormat);
-      if (encoding.size() > getMaxNdnPacketSize())
-        throw new Error
-          ("The encoded interest size exceeds the maximum limit getMaxNdnPacketSize()");
-      transport_.send(encoding.buf());
-    }
+    expressInterestHelper
+      (pendingInterestId, interestCopy, onData, onTimeout, wireFormat, face);
   }
 
   /**
@@ -588,6 +573,49 @@ public class Node implements ElementListener {
     }
     
     pendingInterest.callTimeout();
+  }
+
+  /**
+   * Do the work of expressInterest once we know we are connected. Add the entry
+   * to the PIT and call, encode and send the interest.
+   * @param pendingInterestId The getNextEntryId() for the pending interest ID
+   * which Face got so it could return it to the caller.
+   * @param interestCopy The Interest to send, which has already been copied by
+   * expressInterest.
+   * @param onData  This calls onData.onData when a matching data packet is
+   * received.
+   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.
+   * If onTimeout is null, this does not use it.
+   * @param wireFormat A WireFormat object used to encode the message.
+   * @param face The face which has the callLater method, used for interest
+   * timeouts. The callLater method may be overridden in a subclass of Face.
+   * @throws IOException For I/O error in sending the interest.
+   * @throws Error If the encoded interest size exceeds getMaxNdnPacketSize().
+   */
+  private void
+  expressInterestHelper
+    (long pendingInterestId, Interest interestCopy, OnData onData,
+     OnTimeout onTimeout, WireFormat wireFormat, Face face) throws IOException
+  {
+    final PendingInterest pendingInterest = new PendingInterest
+      (pendingInterestId, interestCopy, onData, onTimeout);
+    pendingInterestTable_.add(pendingInterest);
+    if (interestCopy.getInterestLifetimeMilliseconds() >= 0.0)
+      // Set up the timeout.
+      face.callLater
+        (interestCopy.getInterestLifetimeMilliseconds(),
+         new Runnable() {
+           public void run() { processInterestTimeout(pendingInterest); }
+         });
+
+    // Special case: For timeoutPrefix_ we don't actually send the interest.
+    if (!timeoutPrefix_.match(interestCopy.getName())) {
+      Blob encoding = interestCopy.wireEncode(wireFormat);
+      if (encoding.size() > getMaxNdnPacketSize())
+        throw new Error
+          ("The encoded interest size exceeds the maximum limit getMaxNdnPacketSize()");
+      transport_.send(encoding.buf());
+    }
   }
 
   /**
