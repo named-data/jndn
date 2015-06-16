@@ -875,7 +875,7 @@ public class Face {
     node_.callLater(delayMilliseconds, callback);
   }
 
-  private Node node_;
-  KeyChain commandKeyChain_ = null;
-  Name commandCertificateName_ = new Name();
+  protected final Node node_;
+  private KeyChain commandKeyChain_ = null;
+  private Name commandCertificateName_ = new Name();
 }
