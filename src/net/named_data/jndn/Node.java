@@ -87,23 +87,82 @@ public class Node implements ElementListener {
    */
   public final void
   expressInterest
-    (long pendingInterestId, Interest interest, OnData onData,
-     OnTimeout onTimeout, WireFormat wireFormat, Face face) throws IOException
+    (final long pendingInterestId, Interest interest, final OnData onData,
+     final OnTimeout onTimeout, final WireFormat wireFormat, final Face face)
+     throws IOException
   {
-    Interest interestCopy = new Interest(interest);
-    
-    // TODO: Properly check if we are already connected to the expected host.
-    Runnable onConnected = new Runnable() {
-      public void run()
-      {
-        // TODO: Implement onConnected. For now, do nothing.
-      }
-    };
-    if (!transport_.getIsConnected())
-      transport_.connect(connectionInfo_, this, onConnected);
+    final Interest interestCopy = new Interest(interest);
 
-    expressInterestHelper
-      (pendingInterestId, interestCopy, onData, onTimeout, wireFormat, face);
+    if (connectStatus_ == ConnectStatus.CONNECT_COMPLETE) {
+      // We are connected. Simply send the interest without synchronizing.
+      expressInterestHelper
+        (pendingInterestId, interestCopy, onData, onTimeout, wireFormat, face);
+      return;
+    }
+
+    // Wile connecting, use onConnectedCallbacks_ to synchronize
+    // onConnectedCallbacks_ as well as connectStatus_.
+    synchronized(onConnectedCallbacks_) {
+      // TODO: Properly check if we are already connected to the expected host.
+      if (connectStatus_ == ConnectStatus.UNCONNECTED) {
+        connectStatus_ = ConnectStatus.CONNECT_REQUESTED;
+
+        // expressInterestHelper will be called by onConnected.
+        onConnectedCallbacks_.add(new Runnable() {
+          public void run() {
+            try {
+              expressInterestHelper
+                (pendingInterestId, interestCopy, onData, onTimeout, wireFormat,
+                 face);
+            } catch (IOException ex) {
+              Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+            }
+          }
+        });
+
+        Runnable onConnected = new Runnable() {
+          public void run() {
+            // This is called on a separate thread from the surrounding code
+            // when connected, so synchronize again.
+            synchronized(onConnectedCallbacks_) {
+              // Call each callback added while the connection was opening.
+              for (int i = 0; i < onConnectedCallbacks_.size(); ++i)
+                ((Runnable)onConnectedCallbacks_.get(i)).run();
+              onConnectedCallbacks_.clear();
+
+              // Make future calls to expressInterest send directly to the
+              // Transport.
+              connectStatus_ = ConnectStatus.CONNECT_COMPLETE;
+            }
+          }
+        };
+        transport_.connect(connectionInfo_, this, onConnected);
+      }
+      else if (connectStatus_ == ConnectStatus.CONNECT_REQUESTED) {
+        // Still connecting. add to the interests to express by onConnected.
+        onConnectedCallbacks_.add(new Runnable() {
+          public void run() {
+            try {
+              expressInterestHelper
+                (pendingInterestId, interestCopy, onData, onTimeout, wireFormat,
+                 face);
+            } catch (IOException ex) {
+              Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+            }
+          }
+        });
+      }
+      else if (connectStatus_ == ConnectStatus.CONNECT_COMPLETE)
+        // We have to repeat this check for CONNECT_COMPLETE in case the
+        // onConnected callback was called while we were waiting to enter this
+        // synchronized block.
+        expressInterestHelper
+          (pendingInterestId, interestCopy, onData, onTimeout, wireFormat, face);
+      else
+        // Don't expect this to happen.
+        throw new Error
+          ("Node: Unrecognized _connectStatus " + connectStatus_);
+    }
   }
 
   /**
@@ -577,7 +636,7 @@ public class Node implements ElementListener {
 
   /**
    * Do the work of expressInterest once we know we are connected. Add the entry
-   * to the PIT and call, encode and send the interest.
+   * to the PIT, encode and send the interest.
    * @param pendingInterestId The getNextEntryId() for the pending interest ID
    * which Face got so it could return it to the caller.
    * @param interestCopy The Interest to send, which has already been copied by
@@ -617,6 +676,8 @@ public class Node implements ElementListener {
       transport_.send(encoding.buf());
     }
   }
+
+  private enum ConnectStatus { UNCONNECTED, CONNECT_REQUESTED, CONNECT_COMPLETE }
 
   /**
    * DelayedCall is a class for the members of the delayedCallTable_.
@@ -1478,6 +1539,8 @@ public class Node implements ElementListener {
     Collections.synchronizedList(new ArrayList()); // InterestFilterEntry
   private final List delayedCallTable_ = 
     Collections.synchronizedList(new ArrayList()); // DelayedCall
+  private final List onConnectedCallbacks_ =
+    Collections.synchronizedList(new ArrayList()); // Runnable
   private final Interest ndndIdFetcherInterest_;
   private Blob ndndId_ = new Blob();
   private final CommandInterestGenerator commandInterestGenerator_ =
@@ -1485,4 +1548,5 @@ public class Node implements ElementListener {
   private final Name timeoutPrefix_ = new Name("/local/timeout");
   private long lastEntryId_;
   private final Object lastEntryIdLock_ = new Object();
+  private ConnectStatus connectStatus_ = ConnectStatus.UNCONNECTED;
 }
