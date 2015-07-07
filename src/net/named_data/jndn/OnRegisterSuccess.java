@@ -28,6 +28,8 @@ public interface OnRegisterSuccess {
    * Face.registerPrefix calls onRegisterSuccess when it receives a success
    * message from the forwarder.
    * @param prefix The prefix given to registerPrefix.
+   * @param registeredPrefixId The registered prefix ID which was also returned
+   * by registerPrefix.
    */
-  void onRegisterSuccess(Name prefix);
+  void onRegisterSuccess(Name prefix, long registeredPrefixId);
 }

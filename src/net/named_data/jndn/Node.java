@@ -1026,7 +1026,8 @@ public class Node implements ElementListener {
           "Register prefix succeeded with the NFD forwarder for prefix {0}",
           info_.prefix_.toUri());
         if (info_.onRegisterSuccess_ != null)
-          info_.onRegisterSuccess_.onRegisterSuccess(info_.prefix_);
+          info_.onRegisterSuccess_.onRegisterSuccess
+            (info_.prefix_, info_.registeredPrefixId_);
       }
       else {
         Name expectedName = new Name("/ndnx/.../selfreg");
@@ -1045,7 +1046,8 @@ public class Node implements ElementListener {
           "Register prefix succeeded with the NDNx forwarder for prefix {0}",
           info_.prefix_.toUri());
         if (info_.onRegisterSuccess_ != null)
-          info_.onRegisterSuccess_.onRegisterSuccess(info_.prefix_);
+          info_.onRegisterSuccess_.onRegisterSuccess
+            (info_.prefix_, info_.registeredPrefixId_);
       }
     }
 
@@ -1117,12 +1119,14 @@ public class Node implements ElementListener {
        * @param face The face which is passed to the onInterest callback. If
        * onInterest is null, this is ignored. TODO: This is not needed after
        * we remove NdndIdFetcher.
+       * @param registeredPrefixId The registered prefix ID also returned by
+       * registerPrefix.
        */
       public Info
         (Node node, Name prefix, OnInterestCallback onInterest,
          OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed, 
          ForwardingFlags flags, WireFormat wireFormat, boolean isNfdCommand,
-         Face face)
+         Face face, long registeredPrefixId)
       {
         node_ = node;
         prefix_ = prefix;
@@ -1133,6 +1137,7 @@ public class Node implements ElementListener {
         wireFormat_ = wireFormat;
         isNfdCommand_ = isNfdCommand;
         face_ = face;
+        registeredPrefixId_ = registeredPrefixId;
       }
 
       public final Node node_;
@@ -1144,6 +1149,7 @@ public class Node implements ElementListener {
       public final WireFormat wireFormat_;
       public final boolean isNfdCommand_;
       public final Face face_;
+      public final long registeredPrefixId_;
     }
 
     private final Info info_;
@@ -1435,7 +1441,7 @@ public class Node implements ElementListener {
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
        (this, prefix, onInterest, onRegisterSuccess, onRegisterFailed, flags,
-        wireFormat, false, face));
+        wireFormat, false, face, registeredPrefixId));
     try {
       expressInterest
         (getNextEntryId(), interest, response, response, wireFormat, face);
@@ -1532,7 +1538,7 @@ public class Node implements ElementListener {
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
        (this, prefix, onInterest, onRegisterSuccess, onRegisterFailed, flags,
-        wireFormat, true, face));
+        wireFormat, true, face, registeredPrefixId));
     try {
       expressInterest
         (getNextEntryId(), commandInterest, response, response, wireFormat, face);
