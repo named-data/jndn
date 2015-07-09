@@ -1,6 +1,7 @@
 /**
  * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * @author: From ndn-group-encrypt src/encrypted-content https://github.com/named-data/ndn-group-encrypt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +23,6 @@ package net.named_data.jndn.encrypt;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.encoding.EncodingException;
-import net.named_data.jndn.encoding.Tlv0_1_1WireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.util.Blob;
 
@@ -73,34 +73,40 @@ public class EncryptedContent {
   /**
    * Set the algorithm type.
    * @param algorithmType The algorithm type. If not specified, set to -1.
+   * @return This EncryptedContent so that you can chain calls to update values.
    */
-  public final void
+  public final EncryptedContent
   setAlgorithmType(int algorithmType)
   {
     algorithmType_ = algorithmType < 0 ? -1 : algorithmType;
+    return this;
   }
 
   /**
    * Set the key locator.
    * @param keyLocator The key locator. If not specified, set to the default
    * KeyLocator().
+   * @return This EncryptedContent so that you can chain calls to update values.
    */
-  public final void
+  public final EncryptedContent
   setKeyLocator(KeyLocator keyLocator)
   {
     keyLocator_ = keyLocator == null ?
       new KeyLocator() : new KeyLocator(keyLocator);
+    return this;
   }
 
   /**
    * Set the encrypted payload.
    * @param payload The payload. If not specified, set to the default Blob()
    * where isNull() is true.
+   * @return This EncryptedContent so that you can chain calls to update values.
    */
-  public final void
+  public final EncryptedContent
   setPayload(Blob payload)
   {
     payload_ = (payload_ == null ? new Blob() : payload);
+    return this;
   }
 
   /**
