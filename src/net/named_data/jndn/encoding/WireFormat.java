@@ -389,7 +389,8 @@ public class WireFormat {
   }
 
   /**
-   * Encode the EncryptedContent in NDN-TLV and return the encoding.
+   * Encode the EncryptedContent and return the encoding. Your derived class
+   * should override.
    * @param encryptedContent The EncryptedContent object to encode.
    * @return A Blob containing the encoding.
    * @throws UnsupportedOperationException for unimplemented if the derived
@@ -403,8 +404,8 @@ public class WireFormat {
   }
 
   /**
-   * Decode input as a EncryptedContent in NDN-TLV and set the fields of the
-   * localControlHeader object.
+   * Decode input as an EncryptedContent and set the fields of the
+   * encryptedContent object. Your derived class should override.
    * @param encryptedContent The EncryptedContent object whose fields are
    * updated.
    * @param input The input buffer to decode.  This reads from position() to
