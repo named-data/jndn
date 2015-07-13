@@ -551,6 +551,8 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     // Encode backwards.
     encoder.writeBlobTlv
       (Tlv.EncryptedContent_EncryptedPayload, encryptedContent.getPayload().buf());
+    encoder.writeOptionalBlobTlv
+      (Tlv.EncryptedContent_InitialVector, encryptedContent.getInitialVector().buf());
     // Assume the algorithmType value is the same as the TLV type.
     encoder.writeNonNegativeIntegerTlv
       (Tlv.EncryptedContent_EncryptionAlgorithm, encryptedContent.getAlgorithmType());
@@ -586,6 +588,9 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     encryptedContent.setAlgorithmType
       ((int)decoder.readNonNegativeIntegerTlv
        (Tlv.EncryptedContent_EncryptionAlgorithm));
+    encryptedContent.setInitialVector
+      (new Blob(decoder.readOptionalBlobTlv
+        (Tlv.EncryptedContent_InitialVector, endOffset), true));
     encryptedContent.setPayload
       (new Blob(decoder.readBlobTlv(Tlv.EncryptedContent_EncryptedPayload), true));
 
