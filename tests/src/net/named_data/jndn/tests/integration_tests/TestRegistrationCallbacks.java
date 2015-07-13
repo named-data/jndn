@@ -1,20 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2015 Regents of the University of California.
+ * @author: Andrew Brown <andrew.brown@intel.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
+
 package src.net.named_data.jndn.tests.integration_tests;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 import net.named_data.jndn.Face;
-import net.named_data.jndn.Interest;
-import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.OnRegisterSuccess;
-import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.SecurityException;
 import org.junit.Assert;
 import org.junit.Before;
