@@ -47,6 +47,24 @@ public class TestEncryptedContent {
   }
 
   private static final ByteBuffer ENCRYPTED = toBuffer(new int[] {
+0x82, 0x30, // EncryptedContent
+  0x1c, 0x16, // KeyLocator
+    0x07, 0x14, // Name
+      0x08, 0x04,
+        0x74, 0x65, 0x73, 0x74, // 'test'
+      0x08, 0x03,
+        0x6b, 0x65, 0x79, // 'key'
+      0x08, 0x07,
+        0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72, // 'locator'
+  0x83, 0x01, // EncryptedAlgorithm
+    0x00,
+  0x85, 0x0a, // InitialVector
+    0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x62, 0x69, 0x74, 0x73,
+  0x84, 0x07, // EncryptedPayload
+    0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74
+  });
+
+  private static final ByteBuffer ENCRYPTED_NO_IV = toBuffer(new int[] {
 0x82, 0x24, // EncryptedContent
   0x1c, 0x16, // KeyLocator
     0x07, 0x14, // Name
@@ -66,6 +84,10 @@ public class TestEncryptedContent {
     0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74
   });
 
+  private static final ByteBuffer IV = toBuffer(new int[] {
+    0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x62, 0x69, 0x74, 0x73
+  });
+
   @Test
   public void
   testConstructor() throws EncodingException
@@ -73,21 +95,27 @@ public class TestEncryptedContent {
     EncryptedContent content = new EncryptedContent();
     assertEquals(content.getAlgorithmType(), -1);
     assertEquals(content.getPayload().isNull(), true);
+    assertEquals(content.getInitialVector().isNull(), true);
     assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
 
     Blob payload = new Blob(MESSAGE, false);
+    Blob initialVector = new Blob(IV, false);
+
     KeyLocator keyLocator = new KeyLocator();
     keyLocator.setType(KeyLocatorType.KEYNAME);
     keyLocator.getKeyName().set("/test/key/locator");
     // TODO: Use AlgorithmSha256WithRsa.
-    content.setAlgorithmType(0).setKeyLocator(keyLocator).setPayload(payload);
+    content.setAlgorithmType(0).setKeyLocator(keyLocator).setPayload(payload)
+      .setInitialVector(initialVector);
 
     // Test the copy constructor.
     EncryptedContent sha256RsaContent = new EncryptedContent(content);
     Blob contentPayload = sha256RsaContent.getPayload();
+    Blob contentInitialVector = sha256RsaContent.getInitialVector();
 
     assertEquals(sha256RsaContent.getAlgorithmType(), 0);
     assertTrue(contentPayload.equals(payload));
+    assertTrue(contentInitialVector.equals(initialVector));
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
     assertTrue(sha256RsaContent.getKeyLocator().getKeyName().equals
                (new Name("/test/key/locator")));
@@ -100,14 +128,44 @@ public class TestEncryptedContent {
     sha256RsaContent = new EncryptedContent();
     sha256RsaContent.wireDecode(encryptedBlob);
     contentPayload = sha256RsaContent.getPayload();
+    contentInitialVector = sha256RsaContent.getInitialVector();
 
     // TODO: Use AlgorithmSha256WithRsa.
     assertEquals(sha256RsaContent.getAlgorithmType(), 0);
     assertTrue(contentPayload.equals(payload));
+    assertTrue(contentInitialVector.equals(initialVector));
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
     assertTrue(sha256RsaContent.getKeyLocator().getKeyName().equals
                (new Name("/test/key/locator")));
-  }
+
+    // Test no IV.
+    sha256RsaContent = new EncryptedContent();
+    sha256RsaContent.setAlgorithmType(0).setKeyLocator(keyLocator).setPayload(payload);
+    contentPayload = sha256RsaContent.getPayload();
+
+    assertEquals(sha256RsaContent.getAlgorithmType(), 0);
+    assertTrue(contentPayload.equals(payload));
+    assertTrue(sha256RsaContent.getInitialVector().isNull());
+    assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
+    assertTrue(sha256RsaContent.getKeyLocator().getKeyName().equals
+               (new Name("/test/key/locator")));
+
+    encryptedBlob = new Blob(ENCRYPTED_NO_IV, false);
+    Blob encodedNoIv = sha256RsaContent.wireEncode();
+
+    assertTrue(encryptedBlob.equals(encodedNoIv));
+
+    sha256RsaContent = new EncryptedContent();
+    sha256RsaContent.wireDecode(encryptedBlob);
+    contentPayload = sha256RsaContent.getPayload();
+
+    assertEquals(sha256RsaContent.getAlgorithmType(), 0);
+    assertTrue(sha256RsaContent.getPayload().equals(payload));
+    assertTrue(sha256RsaContent.getInitialVector().isNull());
+    assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
+    assertTrue(sha256RsaContent.getKeyLocator().getKeyName().equals
+               (new Name("/test/key/locator")));
+}
 
   @Test
   public void
@@ -116,7 +174,7 @@ public class TestEncryptedContent {
     EncryptedContent encryptedContent = new EncryptedContent();
 
     Blob errorBlob1 = new Blob(toBuffer(new int[] {
-      0x1f, 0x24, // Wrong EncryptedContent (0x82, 0x24)
+      0x1f, 0x30, // Wrong EncryptedContent (0x82, 0x24)
         0x1c, 0x16, // KeyLocator
           0x07, 0x14, // Name
             0x08, 0x04,
@@ -127,6 +185,8 @@ public class TestEncryptedContent {
               0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
         0x83, 0x01, // EncryptedAlgorithm
           0x00,
+        0x85, 0x0a, // InitialVector
+          0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x62, 0x69, 0x74, 0x73,
         0x84, 0x07, // EncryptedPayload
           0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74
     }), false);
@@ -138,7 +198,7 @@ public class TestEncryptedContent {
     catch (Exception ex) { fail("wireDecode did not throw EncodingException"); }
 
     Blob errorBlob2 = new Blob(toBuffer(new int[] {
-      0x82, 0x24, // EncryptedContent
+      0x82, 0x30, // EncryptedContent
         0x1d, 0x16, // Wrong KeyLocator (0x1c, 0x16)
           0x07, 0x14, // Name
             0x08, 0x04,
@@ -149,6 +209,8 @@ public class TestEncryptedContent {
               0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
         0x83, 0x01, // EncryptedAlgorithm
           0x00,
+        0x85, 0x0a, // InitialVector
+          0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x62, 0x69, 0x74, 0x73,
         0x84, 0x07, // EncryptedPayload
           0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74
     }), false);
@@ -160,7 +222,7 @@ public class TestEncryptedContent {
     catch (Exception ex) { fail("wireDecode did not throw EncodingException"); }
 
     Blob errorBlob3 = new Blob(toBuffer(new int[] {
-      0x82, 0x24, // EncryptedContent
+      0x82, 0x30, // EncryptedContent
         0x1c, 0x16, // KeyLocator
           0x07, 0x14, // Name
             0x08, 0x04,
@@ -171,6 +233,8 @@ public class TestEncryptedContent {
               0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
         0x1d, 0x01, // Wrong EncryptedAlgorithm (0x83, 0x01)
           0x00,
+        0x85, 0x0a, // InitialVector
+          0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x62, 0x69, 0x74, 0x73,
         0x84, 0x07, // EncryptedPayload
           0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74
     }), false);
@@ -182,7 +246,7 @@ public class TestEncryptedContent {
     catch (Exception ex) { fail("wireDecode did not throw EncodingException"); }
 
     Blob errorBlob4 = new Blob(toBuffer(new int[] {
-      0x82, 0x24, // EncryptedContent
+      0x82, 0x30, // EncryptedContent
         0x1c, 0x16, // KeyLocator
           0x07, 0x14, // Name
             0x08, 0x04,
@@ -193,7 +257,9 @@ public class TestEncryptedContent {
               0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72, // 'locator'
         0x83, 0x01, // EncryptedAlgorithm
           0x00,
-        0x21, 0x07, // EncryptedPayload (0x84, 0x07)
+        0x1f, 0x0a, // InitialVector (0x84, 0x0a)
+          0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x62, 0x69, 0x74, 0x73,
+        0x84, 0x07, // EncryptedPayload
           0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74
     }), false);
     try {
@@ -204,10 +270,34 @@ public class TestEncryptedContent {
     catch (Exception ex) { fail("wireDecode did not throw EncodingException"); }
 
     Blob errorBlob5 = new Blob(toBuffer(new int[] {
-      0x82, 0x00 // Empty EncryptedContent
+      0x82, 0x30, // EncryptedContent
+        0x1c, 0x16, // KeyLocator
+          0x07, 0x14, // Name
+            0x08, 0x04,
+              0x74, 0x65, 0x73, 0x74, // 'test'
+            0x08, 0x03,
+              0x6b, 0x65, 0x79, // 'key'
+            0x08, 0x07,
+              0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72, // 'locator'
+        0x83, 0x01, // EncryptedAlgorithm
+          0x00,
+        0x85, 0x0a, // InitialVector
+          0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x62, 0x69, 0x74, 0x73,
+        0x21, 0x07, // EncryptedPayload (0x85, 0x07)
+          0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74
     }), false);
     try {
       encryptedContent.wireDecode(errorBlob5);
+      fail("wireDecode did not throw an exception");
+    }
+    catch (EncodingException ex) {}
+    catch (Exception ex) { fail("wireDecode did not throw EncodingException"); }
+
+    Blob errorBlob6 = new Blob(toBuffer(new int[] {
+      0x82, 0x00 // Empty EncryptedContent
+    }), false);
+    try {
+      encryptedContent.wireDecode(errorBlob6);
       fail("wireDecode did not throw an exception");
     }
     catch (EncodingException ex) {}
@@ -221,12 +311,14 @@ public class TestEncryptedContent {
     EncryptedContent content = new EncryptedContent();
     assertEquals(content.getAlgorithmType(), -1);
     assertEquals(content.getPayload().isNull(), true);
+    assertEquals(content.getInitialVector().isNull(), true);
     assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
 
     // TODO: Use AlgorithmSha256WithRsa.
     content.setAlgorithmType(0);
     assertEquals(content.getAlgorithmType(), 0);
     assertEquals(content.getPayload().isNull(), true);
+    assertEquals(content.getInitialVector().isNull(), true);
     assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
 
     KeyLocator keyLocator = new KeyLocator();
@@ -237,12 +329,19 @@ public class TestEncryptedContent {
     assertTrue(content.getKeyLocator().getKeyName().equals
                (new Name("/test/key/locator")));
     assertEquals(content.getPayload().isNull(), true);
+    assertEquals(content.getInitialVector().isNull(), true);
 
     Blob payload = new Blob(MESSAGE, false);
     content.setPayload(payload);
 
     Blob contentPayload = content.getPayload();
     assertTrue(contentPayload.equals(payload));
+
+    Blob initialVector = new Blob(IV, false);
+    content.setInitialVector(initialVector);
+
+    Blob contentInitialVector = content.getInitialVector();
+    assertTrue(contentInitialVector.equals(initialVector));
 
     Blob encoded = content.wireEncode();
     Blob contentBlob = new Blob(ENCRYPTED, false);
