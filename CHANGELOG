@@ -1,8 +1,9 @@
-Interim changes since jNDN v0.7 (2015-07-07)
+Interim changes since jNDN v0.7 (2015-07-13)
 --------------------------------------------
 
 Changes
 * In Face.registerPrefix, added the optional onRegisterSuccess callback.
+* In integration_tests, added TestRegistrationCallbacks. (Thanks to Andrew Brown.)
 
 Bug fixes
 * http://redmine.named-data.net/issues/2846 Self-signed cert name needs a version component.
