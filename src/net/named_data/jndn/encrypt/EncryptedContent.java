@@ -46,6 +46,7 @@ public class EncryptedContent {
   {
     algorithmType_ = encryptedContent.algorithmType_;
     keyLocator_ = new KeyLocator(encryptedContent.keyLocator_);
+    initialVector_ = encryptedContent.initialVector_;
     payload_ = encryptedContent.payload_;
   }
 
@@ -62,6 +63,13 @@ public class EncryptedContent {
    */
   public final KeyLocator
   getKeyLocator() { return keyLocator_; }
+
+  /**
+   * Get the initial vector.
+   * @return The initial vector. If not specified, isNull() is true.
+   */
+  public final Blob
+  getInitialVector() { return initialVector_; }
 
   /**
    * Get the payload.
@@ -97,6 +105,19 @@ public class EncryptedContent {
   }
 
   /**
+   * Set the initial vector.
+   * @param initialVector The initial vector. If not specified, set to the
+   * default Blob() where isNull() is true.
+   * @return This EncryptedContent so that you can chain calls to update values.
+   */
+  public final EncryptedContent
+  setInitialVector(Blob initialVector)
+  {
+    initialVector_ = (initialVector == null ? new Blob() : initialVector);
+    return this;
+  }
+
+  /**
    * Set the encrypted payload.
    * @param payload The payload. If not specified, set to the default Blob()
    * where isNull() is true.
@@ -105,7 +126,7 @@ public class EncryptedContent {
   public final EncryptedContent
   setPayload(Blob payload)
   {
-    payload_ = (payload_ == null ? new Blob() : payload);
+    payload_ = (payload == null ? new Blob() : payload);
     return this;
   }
 
@@ -183,5 +204,6 @@ public class EncryptedContent {
 
   private int algorithmType_ = -1;
   private KeyLocator keyLocator_ = new KeyLocator();
+  private Blob initialVector_ = new Blob();
   private Blob payload_ = new Blob();
 }
