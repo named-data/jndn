@@ -158,7 +158,7 @@ public class AsyncTcpTransport extends Transport {
     
     channel_ = AsynchronousSocketChannel.open
       (AsynchronousChannelGroup.withThreadPool(threadPool_));
-    // TODO: dispatch to threadPool_.
+    // connect is already async, so no need to dispatch.
     channel_.connect
       (new InetSocketAddress
          (((ConnectionInfo)connectionInfo).getHost(),
@@ -183,8 +183,7 @@ public class AsyncTcpTransport extends Transport {
   {
     inputBuffer_.limit(inputBuffer_.capacity());
     inputBuffer_.position(0);
-    // TODO: This is already called from a CompletionHandler. Do we need to
-    // dispatch to threadPool_?
+    // read is already async, so no need to dispatch.
     channel_.read(inputBuffer_, null, readCompletionHandler_);
   }
 
@@ -206,7 +205,7 @@ public class AsyncTcpTransport extends Transport {
     int savePosition = data.position();
     try {
       while (data.hasRemaining())
-        // TODO: Dispatch to threadPool_ to send.
+        // write is already async, so no need to dispatch.
         // TODO: The CompletionHandler should write remaining bytes.
         channel_.write(data);
     }
