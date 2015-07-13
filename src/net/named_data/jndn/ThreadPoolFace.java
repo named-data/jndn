@@ -37,8 +37,10 @@ public class ThreadPoolFace extends Face {
    * @param threadPool The thread pool used to submit method calls such as
    * expressInterest and the related callbacks such as onData. The thread pool
    * is also used to schedule the interest timeouts.
-   * @param transport A Transport object used for communication. This should be
-   * an async Transport which uses the same threadPool, such as AsyncTcpTransport.
+   * @param transport A Transport object used for communication. If you do not
+   * want to call processEvents, then the transport should be an async transport
+   * like AsyncTcpTransport, in which case the transport should use the same
+   * ioService.
    * @param connectionInfo A Transport.ConnectionInfo to be used to connect to
    * the transport.
    */
