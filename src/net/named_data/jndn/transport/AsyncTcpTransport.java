@@ -22,6 +22,7 @@ package net.named_data.jndn.transport;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ScheduledExecutorService;
@@ -155,7 +156,8 @@ public class AsyncTcpTransport extends Transport {
   {
     // TODO: Close a previous connection.
     
-    channel_ = AsynchronousSocketChannel.open();
+    channel_ = AsynchronousSocketChannel.open
+      (AsynchronousChannelGroup.withThreadPool(threadPool_));
     // TODO: dispatch to threadPool_.
     channel_.connect
       (new InetSocketAddress
