@@ -115,7 +115,7 @@ public class Node implements ElementListener {
                 (pendingInterestId, interestCopy, onData, onTimeout, wireFormat,
                  face);
             } catch (IOException ex) {
-              Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+              logger_.log(Level.SEVERE, null, ex);
             }
           }
         });
@@ -147,7 +147,7 @@ public class Node implements ElementListener {
                 (pendingInterestId, interestCopy, onData, onTimeout, wireFormat,
                  face);
             } catch (IOException ex) {
-              Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+              logger_.log(Level.SEVERE, null, ex);
             }
           }
         });
@@ -192,7 +192,7 @@ public class Node implements ElementListener {
     }
     
     if (count == 0)
-      Logger.getLogger(Node.class.getName()).log
+      logger_.log
         (Level.WARNING, "removePendingInterest: Didn't find pendingInterestId {0}",
          pendingInterestId);
   }
@@ -318,7 +318,7 @@ public class Node implements ElementListener {
     }
     
     if (count == 0)
-      Logger.getLogger(Node.class.getName()).log
+      logger_.log
         (Level.WARNING, "removeRegisteredPrefix: Didn't find registeredPrefixId {0}",
          registeredPrefixId);
   }
@@ -372,7 +372,7 @@ public class Node implements ElementListener {
     }
     
     if (count == 0)
-      Logger.getLogger(Node.class.getName()).log
+      logger_.log
         (Level.WARNING, "unsetInterestFilter: Didn't find interestFilterId {0}",
          interestFilterId);
   }
@@ -907,7 +907,7 @@ public class Node implements ElementListener {
       // Do a quick check that the first byte is for DER encoding.
       if (ndndIdData.getContent().size() < 1 ||
           ndndIdData.getContent().buf().get(0) != 0x30) {
-        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        logger_.log(Level.INFO,
           "Register prefix failed: The content returned when fetching the NDNx ID does not appear to be a public key");
         info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
         return;
@@ -933,7 +933,7 @@ public class Node implements ElementListener {
     public void
     onTimeout(Interest timedOutInterest)
     {
-      Logger.getLogger(Node.class.getName()).log(Level.INFO,
+      logger_.log(Level.INFO,
         "Register prefix failed: Timeout fetching the NDNx ID");
       info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
     }
@@ -1008,7 +1008,7 @@ public class Node implements ElementListener {
                (Tlv.NfdCommand_StatusCode);
         }
         catch (EncodingException ex) {
-          Logger.getLogger(Node.class.getName()).log(Level.INFO,
+          logger_.log(Level.INFO,
             "Register prefix failed: Error decoding the NFD response: {0}", ex);
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
           return;
@@ -1016,13 +1016,13 @@ public class Node implements ElementListener {
 
         // Status code 200 is "OK".
         if (statusCode != 200) {
-          Logger.getLogger(Node.class.getName()).log(Level.INFO,
+          logger_.log(Level.INFO,
             "Register prefix failed: Expected NFD status code 200, got: {0}", statusCode);
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
           return;
         }
 
-        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        logger_.log(Level.INFO,
           "Register prefix succeeded with the NFD forwarder for prefix {0}",
           info_.prefix_.toUri());
         if (info_.onRegisterSuccess_ != null)
@@ -1035,14 +1035,14 @@ public class Node implements ElementListener {
         if (responseData.getName().size() < 4 ||
             !responseData.getName().get(0).equals(expectedName.get(0)) ||
             !responseData.getName().get(2).equals(expectedName.get(2))) {
-          Logger.getLogger(Node.class.getName()).log(Level.INFO,
+          logger_.log(Level.INFO,
             "Register prefix failed: Unexpected name in NDNx response: {0}",
             responseData.getName().toUri());
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
           return;
         }
 
-        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        logger_.log(Level.INFO,
           "Register prefix succeeded with the NDNx forwarder for prefix {0}",
           info_.prefix_.toUri());
         if (info_.onRegisterSuccess_ != null)
@@ -1059,7 +1059,7 @@ public class Node implements ElementListener {
     onTimeout(Interest timedOutInterest)
     {
       if (info_.isNfdCommand_) {
-        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        logger_.log(Level.INFO,
           "Timeout for NFD register prefix command. Attempting an NDNx command...");
         // The application set the commandKeyChain, but we may be connected to NDNx.
         if (info_.node_.ndndId_.size() == 0) {
@@ -1081,7 +1081,7 @@ public class Node implements ElementListener {
           catch (IOException ex) {
             // We don't expect this to happen since we already sent data
             //   through the transport.
-            Logger.getLogger(Node.class.getName()).log(Level.INFO,
+            logger_.log(Level.INFO,
               "Register prefix failed: Error sending the register prefix interest to the forwarder: {0}", ex);
             info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
           }
@@ -1099,7 +1099,7 @@ public class Node implements ElementListener {
         //   can't try an NFD command. Or it was sent from this callback after
         //   trying an NFD command. Fail.
 
-        Logger.getLogger(Node.class.getName()).log(Level.INFO,
+        logger_.log(Level.INFO,
           "Register prefix failed: Timeout waiting for the response from the register prefix interest");
         info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
       }
@@ -1448,7 +1448,7 @@ public class Node implements ElementListener {
     }
     catch (IOException ex) {
       // Can't send the interest. Call onRegisterFailed.
-      Logger.getLogger(Node.class.getName()).log(Level.INFO,
+      logger_.log(Level.INFO,
         "Register prefix failed: Error sending the register prefix interest to the forwarder: {0}", ex);
       onRegisterFailed.onRegisterFailed(prefix);
     }
@@ -1497,7 +1497,7 @@ public class Node implements ElementListener {
     try {
       faceIsLocal = isLocal();
     } catch (IOException ex) {
-      Logger.getLogger(Node.class.getName()).log(Level.INFO,
+      logger_.log(Level.INFO,
         "Register prefix failed: Error attempting to determine if the face is local: {0}", ex);
       onRegisterFailed.onRegisterFailed(prefix);
       return;
@@ -1545,7 +1545,7 @@ public class Node implements ElementListener {
     }
     catch (IOException ex) {
       // Can't send the interest. Call onRegisterFailed.
-      Logger.getLogger(Node.class.getName()).log(Level.INFO,
+      logger_.log(Level.INFO,
         "Register prefix failed: Error sending the register prefix interest to the forwarder: {0}", ex);
       onRegisterFailed.onRegisterFailed(prefix);
     }
@@ -1572,4 +1572,5 @@ public class Node implements ElementListener {
   private long lastEntryId_;
   private final Object lastEntryIdLock_ = new Object();
   private ConnectStatus connectStatus_ = ConnectStatus.UNCONNECTED;
+  private static final Logger logger_ = Logger.getLogger(Node.class.getName());
 }
