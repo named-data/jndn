@@ -24,7 +24,18 @@ import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import net.named_data.jndn.util.Blob;
 
+/**
+ * An EncryptParams holds an encryption mode and other parameters used to
+ * encrypt and decrypt.
+ */
 public class EncryptParams {
+  /**
+   * Create an EncryptParams with the given parameters.
+   * @param encryptionMode The encryption mode.
+   * @param paddingScheme The padding scheme.
+   * @param initialVectorLength The initial vector length, or 0 if the initial
+   * vector is not specified.
+   */
   public EncryptParams
     (EncryptionMode encryptionMode, PaddingScheme paddingScheme,
      int initialVectorLength)
