@@ -27,6 +27,7 @@ import net.named_data.jndn.util.Blob;
 /**
  * An EncryptParams holds an encryption mode and other parameters used to
  * encrypt and decrypt.
+ * @note This class is an experimental feature. The API may change.
  */
 public class EncryptParams {
   /**
