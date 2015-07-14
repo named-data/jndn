@@ -22,12 +22,24 @@ package net.named_data.jndn.encrypt;
 
 import net.named_data.jndn.util.Blob;
 
+/**
+ * An EncryptKey supplies the key for encrypt.
+ * @note This class is an experimental feature. The API may change.
+ */
 public class EncryptKey {
+  /**
+   * Create an EncryptKey with the given key value.
+   * @param keyBits The key value.
+   */
   public EncryptKey(Blob keyBits)
   {
     keyBits_ = keyBits;
   }
 
+  /**
+   * Get the key value.
+   * @return The key value.
+   */
   public final Blob
   getKeyBits() { return keyBits_; }
 
