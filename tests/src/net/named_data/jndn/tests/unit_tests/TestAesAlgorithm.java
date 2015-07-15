@@ -33,7 +33,7 @@ import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.encrypt.algo.EncryptionMode;
 import net.named_data.jndn.encrypt.algo.PaddingScheme;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
-import net.named_data.jndn.encrypt.algo.Aes;
+import net.named_data.jndn.encrypt.algo.AesAlgorithm;
 import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -91,29 +91,29 @@ public class TestAesAlgorithm {
       (EncryptionMode.ECB_AES, PaddingScheme.PKCS7, 16);
 
     DecryptKey decryptKey = new DecryptKey(new Blob(KEY, false));
-    EncryptKey encryptKey = Aes.deriveEncryptKey(decryptKey.getKeyBits());
+    EncryptKey encryptKey = AesAlgorithm.deriveEncryptKey(decryptKey.getKeyBits());
 
     Blob plainBlob = new Blob(PLAINTEXT, false);
 
-    Blob cipherBlob = Aes.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
+    Blob cipherBlob = AesAlgorithm.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
     assertTrue(cipherBlob.equals(new Blob(CIPHERTEXT_ECB, false)));
 
-    Blob receivedBlob = Aes.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
+    Blob receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
 
     encryptParams.setEncryptionMode(EncryptionMode.CBC_AES);
 
-    cipherBlob = Aes.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
-    receivedBlob = Aes.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
+    cipherBlob = AesAlgorithm.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
+    receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
 
     Blob initialVector = new Blob(INITIAL_VECTOR, false);
     encryptParams.setInitialVector(initialVector);
 
-    cipherBlob = Aes.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
+    cipherBlob = AesAlgorithm.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
     assertTrue(cipherBlob.equals(new Blob(CIPHERTEXT_CBC_IV, false)));
 
-    receivedBlob = Aes.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
+    receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
   }
 }

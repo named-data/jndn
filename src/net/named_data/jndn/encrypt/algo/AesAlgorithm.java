@@ -18,6 +18,9 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
+// (This is ported from ndn::gep::algo::Aes, and named AesAlgorithm because
+// "Aes" is very short and not all the Common Client Libraries have namespaces.)
+
 package net.named_data.jndn.encrypt.algo;
 
 import java.nio.ByteBuffer;
@@ -37,11 +40,11 @@ import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.security.AesKeyParams;
 
 /**
- * The Aes class provides static methods to manipulate keys, encrypt and decrypt
- * using the AES symmetric key cipher.
+ * The AesAlgorithm class provides static methods to manipulate keys, encrypt
+ * and decrypt using the AES symmetric key cipher.
  * @note This class is an experimental feature. The API may change.
  */
-public class Aes {
+public class AesAlgorithm {
   /**
    * Generate a new random decrypt key for AES based on the given params.
    * @param params The key params with the key size (in bits).
