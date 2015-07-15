@@ -36,11 +36,21 @@ import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.security.AesKeyParams;
 
+/**
+ * The Aes class provides static methods to manipulate keys, encrypt and decrypt
+ * using the AES symmetric key cipher.
+ * @note This class is an experimental feature. The API may change.
+ */
 public class Aes {
+  /**
+   * Generate a new random decrypt key for AES based on the given params.
+   * @param params The key params with the key size (in bits).
+   * @return The new decrypt key.
+   */
   public static DecryptKey
   generateKey(AesKeyParams params)
   {
-    // Converting the key bit size to bytes.
+    // Convert the key bit size to bytes.
     ByteBuffer key = ByteBuffer.allocate(params.getKeySize() * 8);
     random_.nextBytes(key.array());
 
@@ -48,12 +58,25 @@ public class Aes {
     return decryptKey;
   }
 
+  /**
+   * Derive a new encrypt key from the given key value.
+   * @param keyBits The key value for the new encrypt key.
+   * @return The new encrypt key.
+   */
   public static EncryptKey
   deriveEncryptKey(Blob keyBits)
   {
     return new EncryptKey(keyBits);
   }
 
+  /**
+   * Decrypt the encryptedData using the keyBits according the encrypt params.
+   * @param keyBits The key value.
+   * @param encryptedData The data to decrypt.
+   * @param params This decrypts according to params.getEncryptionMode() and
+   * other params as needed such as params.getInitialVector().
+   * @return The decrypted data.
+   */
   public static Blob
   decrypt(Blob keyBits, Blob encryptedData, EncryptParams params)
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
@@ -81,6 +104,14 @@ public class Aes {
       throw new Error("unsupported encryption mode");
   }
 
+  /**
+   * Encrypt the plainData using the keyBits according the encrypt params.
+   * @param keyBits The key value.
+   * @param plainData The data to encrypt.
+   * @param params This encrypts according to params.getEncryptionMode() and
+   * other params as needed such as params.getInitialVector().
+   * @return The encrypted data.
+   */
   public static Blob
   encrypt(Blob keyBits, Blob plainData, EncryptParams params)
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
