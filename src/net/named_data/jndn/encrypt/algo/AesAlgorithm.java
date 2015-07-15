@@ -62,8 +62,8 @@ public class AesAlgorithm {
   }
 
   /**
-   * Derive a new encrypt key from the given key value.
-   * @param keyBits The key value for the new encrypt key.
+   * Derive a new encrypt key from the given decrypt key value.
+   * @param keyBits The key value of the decrypt key.
    * @return The new encrypt key.
    */
   public static EncryptKey
