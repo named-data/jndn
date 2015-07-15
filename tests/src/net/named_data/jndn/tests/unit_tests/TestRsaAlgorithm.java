@@ -34,7 +34,6 @@ import net.named_data.jndn.encrypt.algo.EncryptionMode;
 import net.named_data.jndn.encrypt.algo.PaddingScheme;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
-import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertTrue;
