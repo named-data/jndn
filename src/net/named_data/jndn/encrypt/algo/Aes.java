@@ -51,7 +51,7 @@ public class Aes {
   generateKey(AesKeyParams params)
   {
     // Convert the key bit size to bytes.
-    ByteBuffer key = ByteBuffer.allocate(params.getKeySize() * 8);
+    ByteBuffer key = ByteBuffer.allocate(params.getKeySize() / 8);
     random_.nextBytes(key.array());
 
     DecryptKey decryptKey = new DecryptKey(new Blob(key, false));
