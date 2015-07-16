@@ -23,6 +23,7 @@
 
 package net.named_data.jndn.encrypt.algo;
 
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -31,17 +32,19 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import net.named_data.jndn.encoding.der.DerDecodingException;
+import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.encrypt.DecryptKey;
 import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.security.RsaKeyParams;
@@ -83,13 +86,30 @@ public class RsaAlgorithm {
    * @return The new encrypt key (DER-encoded public key).
    */
   public static EncryptKey
-  deriveEncryptKey(Blob keyBits) throws InvalidKeySpecException
+  deriveEncryptKey(Blob keyBits) 
+    throws InvalidKeySpecException, DerDecodingException
   {
-    RSAPrivateCrtKey privateKey = (RSAPrivateCrtKey)keyFactory_.generatePrivate
-      (new PKCS8EncodedKeySpec(keyBits.getImmutableArray()));
+    // Decode the PKCS #8 private key. (We don't use RSAPrivateCrtKey because
+    // the Android library doesn't have an easy way to decode into it.)
+    DerNode parsedNode = DerNode.parse(keyBits.buf(), 0);
+    List pkcs8Children = parsedNode.getChildren();
+    List algorithmIdChildren = DerNode.getSequence(pkcs8Children, 1).getChildren();
+    String oidString = ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal().toString();
+    Blob rsaPrivateKeyDer = ((DerNode)pkcs8Children.get(2)).getPayload();
+
+    final String RSA_ENCRYPTION_OID = "1.2.840.113549.1.1.1";
+    if (!oidString.equals(RSA_ENCRYPTION_OID))
+      throw new DerDecodingException("The PKCS #8 private key is not RSA_ENCRYPTION");
+
+    // Decode the PKCS #1 RSAPrivateKey.
+    parsedNode = DerNode.parse(rsaPrivateKeyDer.buf(), 0);
+    List rsaPrivateKeyChildren = parsedNode.getChildren();
+    Blob modulus = ((DerNode)rsaPrivateKeyChildren.get(1)).getPayload();
+    Blob publicExponent = ((DerNode)rsaPrivateKeyChildren.get(2)).getPayload();
 
     PublicKey publicKey = keyFactory_.generatePublic(new RSAPublicKeySpec
-      (privateKey.getModulus(), privateKey.getPublicExponent()));
+      (new BigInteger(modulus.getImmutableArray()),
+       new BigInteger(publicExponent.getImmutableArray())));
 
     return new EncryptKey(new Blob(publicKey.getEncoded()));
   }

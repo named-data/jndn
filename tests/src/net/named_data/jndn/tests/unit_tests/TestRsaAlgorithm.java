@@ -28,6 +28,7 @@ import java.security.spec.InvalidKeySpecException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encrypt.DecryptKey;
 import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.encrypt.algo.EncryptionMode;
@@ -100,7 +101,7 @@ public class TestRsaAlgorithm {
   testEncryptionDecryption()
     throws InvalidKeySpecException, NoSuchAlgorithmException,
            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
-           BadPaddingException
+           BadPaddingException, DerDecodingException
   {
     EncryptParams encryptParams = new EncryptParams
       (EncryptionMode.RSA, PaddingScheme.OAEP_SHA, 0);
