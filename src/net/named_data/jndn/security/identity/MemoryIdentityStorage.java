@@ -318,7 +318,8 @@ public class MemoryIdentityStorage extends IdentityStorage {
   {
     String identity = identityNameCheck.toUri();
     if(identityStore_.containsKey(identity)){
-      ((IdentityRecord)identityStore_.get(identity)).setDefaultKey(keyName);
+      ((IdentityRecord)identityStore_.get(identity)).setDefaultKey
+        (new Name(keyName));
     }
   }
 
@@ -332,7 +333,8 @@ public class MemoryIdentityStorage extends IdentityStorage {
   {
     String key = keyName.toUri();
     if(keyStore_.containsKey(key)){
-      ((KeyRecord)keyStore_.get(key)).setDefaultCertificate(certificateName);
+      ((KeyRecord)keyStore_.get(key)).setDefaultCertificate
+        (new Name(certificateName));
     }
   }
 
