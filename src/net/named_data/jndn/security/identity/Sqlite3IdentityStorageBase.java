@@ -116,7 +116,6 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
   checkSetDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
     throws SecurityException
   {
-    String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
 
     if (identityNameCheck.size() > 0 && !identityNameCheck.equals(identityName))
