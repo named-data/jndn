@@ -315,10 +315,18 @@ public class MemoryIdentityStorage extends IdentityStorage {
    */
   public void
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)
+    throws SecurityException
   {
-    String identity = identityNameCheck.toUri();
+    Name identityName = keyName.getPrefix(-1);
+
+    if (identityNameCheck.size() > 0 && !identityNameCheck.equals(identityName))
+      throw new SecurityException
+        ("The specified identity name does not match the key name");
+
+    String identity = identityName.toUri();
     if(identityStore_.containsKey(identity)){
-      ((IdentityRecord)identityStore_.get(identity)).setDefaultKey(keyName);
+      ((IdentityRecord)identityStore_.get(identity)).setDefaultKey
+        (new Name(keyName));
     }
   }
 
@@ -332,7 +340,8 @@ public class MemoryIdentityStorage extends IdentityStorage {
   {
     String key = keyName.toUri();
     if(keyStore_.containsKey(key)){
-      ((KeyRecord)keyStore_.get(key)).setDefaultCertificate(certificateName);
+      ((KeyRecord)keyStore_.get(key)).setDefaultCertificate
+        (new Name(certificateName));
     }
   }
 
