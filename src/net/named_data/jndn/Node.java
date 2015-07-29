@@ -107,9 +107,10 @@ public class Node implements ElementListener {
       if (!transport_.isAsync()) {
         // The simple case: Just do a blocking connect and express.
         transport_.connect(connectionInfo_, this, null);
-        connectStatus_ = ConnectStatus.CONNECT_COMPLETE;
         expressInterestHelper
           (pendingInterestId, interestCopy, onData, onTimeout, wireFormat, face);
+        // Make future calls to expressInterest send directly to the Transport.
+        connectStatus_ = ConnectStatus.CONNECT_COMPLETE;
         
         return;
       }
