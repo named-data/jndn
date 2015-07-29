@@ -171,12 +171,18 @@ public abstract class PolicyManager {
     (net.named_data.jndn.Signature signature, SignedBlob signedBlob,
      Blob publicKeyDer) throws SecurityException
   {
-    if (signature instanceof Sha256WithRsaSignature)
+    if (signature instanceof Sha256WithRsaSignature) {
+      if (publicKeyDer.isNull())
+        return false;
       return verifySha256WithRsaSignature
           (signature.getSignature(), signedBlob, publicKeyDer);
-    else if (signature instanceof Sha256WithEcdsaSignature)
+    }
+    else if (signature instanceof Sha256WithEcdsaSignature) {
+      if (publicKeyDer.isNull())
+        return false;
       return verifySha256WithEcdsaSignature
           (signature.getSignature(), signedBlob, publicKeyDer);
+    }
     else if (signature instanceof DigestSha256Signature)
       return verifyDigestSha256Signature(signature.getSignature(), signedBlob);
     else
