@@ -88,12 +88,20 @@ public class UdpTransport extends Transport {
   }
 
   /**
+   * Override to return false since connect does not need to use the onConnected
+   * callback.
+   * @return False.
+   */
+  public boolean
+  isAsync() { return false; }
+
+  /**
    * Connect according to the info in ConnectionInfo, and use elementListener.
    * @param connectionInfo A UdpTransport.ConnectionInfo.
    * @param elementListener The ElementListener must remain valid during the
    * life of this object.
-   * @param onConnected This calls onConnected.run() when the connection is
-   * established.
+   * @param onConnected If not null, this calls onConnected.run() when the
+   * connection is established.
    * @throws IOException For I/O error.
    */
   public void
@@ -112,7 +120,8 @@ public class UdpTransport extends Transport {
 
     elementReader_ = new ElementReader(elementListener);
 
-    onConnected.run();
+    if (onConnected != null)
+      onConnected.run();
   }
 
   /**

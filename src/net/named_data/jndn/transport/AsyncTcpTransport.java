@@ -123,8 +123,8 @@ public class AsyncTcpTransport extends Transport {
    * @return True if the host is local, false if not.
    * @throws java.io.IOException
    */
-  public boolean isLocal(Transport.ConnectionInfo connectionInfo)
-    throws IOException
+  public boolean
+  isLocal(Transport.ConnectionInfo connectionInfo) throws IOException
   {
     synchronized(isLocalLock_) {
       if(connectionInfo_ == null || !((ConnectionInfo)connectionInfo).getHost()
@@ -140,12 +140,19 @@ public class AsyncTcpTransport extends Transport {
   }
 
   /**
+   * Override to return true since connect needs to use the onConnected callback.
+   * @return True.
+   */
+  public boolean
+  isAsync() { return true; }
+
+  /**
    * Connect according to the info in ConnectionInfo, and use elementListener.
    * @param connectionInfo An AsyncTcpTransport.ConnectionInfo.
    * @param elementListener The ElementListener must remain valid during the
    * life of this object.
    * @param onConnected This calls onConnected.run() when the connection is
-   * established.
+   * established. This is needed since connect is async.
    * @throws IOException For I/O error.
    */
   public void
@@ -166,7 +173,8 @@ public class AsyncTcpTransport extends Transport {
        null,
        new CompletionHandler<Void, Void>() {
          public void completed(Void dummy, Void attachment) {
-           onConnected.run();
+           if (onConnected != null)
+             onConnected.run();
            asyncRead();
          }
 
