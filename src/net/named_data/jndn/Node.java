@@ -104,6 +104,17 @@ public class Node implements ElementListener {
     // onConnectedCallbacks_ as well as connectStatus_.
     synchronized(onConnectedCallbacks_) {
       // TODO: Properly check if we are already connected to the expected host.
+      if (!transport_.isAsync()) {
+        // The simple case: Just do a blocking connect and express.
+        transport_.connect(connectionInfo_, this, null);
+        connectStatus_ = ConnectStatus.CONNECT_COMPLETE;
+        expressInterestHelper
+          (pendingInterestId, interestCopy, onData, onTimeout, wireFormat, face);
+        
+        return;
+      }
+
+      // Handle the async case.
       if (connectStatus_ == ConnectStatus.UNCONNECTED) {
         connectStatus_ = ConnectStatus.CONNECT_REQUESTED;
 
