@@ -28,8 +28,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.named_data.jndn.Data;
@@ -37,7 +35,6 @@ import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
-import net.named_data.jndn.OnData;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
@@ -154,12 +151,27 @@ public class ConfigPolicyManager extends PolicyManager {
     construct(configFileName);
   }
 
+  /**
+   * Reset the certificate cache and other fields to the constructor state.
+   */
+  public final void
+  reset()
+  {
+    certificateCache_.reset();
+    fixedCertificateCache_.clear();
+    keyTimestamps_.clear();
+    requiresVerification_ = true;
+    config_ = new BoostInfoParser();
+    refreshManager_ = new TrustAnchorRefreshManager();
+  }
+
   private void
   construct(String configFileName) throws IOException, SecurityException
   {
     config_.read(configFileName);
     loadTrustAnchorCertificates();
   }
+
 
   /**
    * Check if the received data packet can escape from verification and be
@@ -1182,8 +1194,8 @@ public class ConfigPolicyManager extends PolicyManager {
   //   interests to avoid replay attacks.
   // key is the public key name, value is the last timestamp.
   private final HashMap keyTimestamps_ = new HashMap();
-  private final BoostInfoParser config_ = new BoostInfoParser();
+  private BoostInfoParser config_ = new BoostInfoParser();
   private boolean requiresVerification_ = true;
-  private final TrustAnchorRefreshManager refreshManager_ =
+  private TrustAnchorRefreshManager refreshManager_ =
     new TrustAnchorRefreshManager();
 }
