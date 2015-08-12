@@ -40,7 +40,15 @@ public class BoostInfoParser {
   public BoostInfoTree
   read(String fileName) throws IOException
   {
-    read(fileName, root_);
+    BufferedReader stream = new BufferedReader(new FileReader(fileName));
+    // Use "try/finally instead of "try-with-resources" or "using"
+    // which are not supported before Java 7.
+    try {
+      read(stream, root_);
+    } finally {
+      stream.close();
+    }
+
     return root_;
   }
 
@@ -150,23 +158,16 @@ public class BoostInfoParser {
 
   /**
    * Internal import method with an explicit context node.
-   * @param fileName The path to the INFO file.
+   * @param stream The stream for reading the INFO content.
    * @param ctx The node currently being populated.
    * @return The ctx.
    */
   private BoostInfoTree
-  read(String fileName, BoostInfoTree ctx) throws IOException
+  read(BufferedReader stream, BoostInfoTree ctx) throws IOException
   {
-    BufferedReader stream = new BufferedReader(new FileReader(fileName));
-    // Use "try/finally instead of "try-with-resources" or "using"
-    // which are not supported before Java 7.
-    try {
-      String line = null;
-      while ((line = stream.readLine()) != null)
-        ctx = parseLine(line.trim(), ctx);
-    } finally {
-      stream.close();
-    }
+    String line = null;
+    while ((line = stream.readLine()) != null)
+      ctx = parseLine(line.trim(), ctx);
 
     return ctx;
   }
@@ -202,8 +203,16 @@ public class BoostInfoParser {
         val = (String)strings.get(1);
 
       // If it is an "#include", load the new file instead of inserting keys.
-      if ("#include".equals(key))
-        context = read(val, context);
+      if ("#include".equals(key)) {
+        BufferedReader stream = new BufferedReader(new FileReader(val));
+        // Use "try/finally instead of "try-with-resources" or "using"
+        // which are not supported before Java 7.
+        try {
+          context = read(stream, context);
+        } finally {
+          stream.close();
+        }
+      }
       else
         context.createSubtree(key, val);
 
