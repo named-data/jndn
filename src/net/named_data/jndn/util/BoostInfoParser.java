@@ -25,6 +25,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 
 /**
@@ -48,6 +49,23 @@ public class BoostInfoParser {
     } finally {
       stream.close();
     }
+
+    return root_;
+  }
+
+  /**
+   * Add the contents of the input string to the root BoostInfoTree.
+   * @param input The contents of the INFO file, with lines separated by "\n" or
+   * "\r\n".
+   * @param inputName Used for log messages, etc.
+   * @return The new root BoostInfoTree.
+   * @throws IOException 
+   */
+  public BoostInfoTree
+  read(String input, String inputName) throws IOException
+  {
+    BufferedReader stream = new BufferedReader(new StringReader(input));
+    read(stream, root_);
 
     return root_;
   }
