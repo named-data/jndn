@@ -71,10 +71,11 @@ import net.named_data.jndn.util.SignedBlob;
  */
 public class ConfigPolicyManager extends PolicyManager {
   /**
-   * Create a new ConfigPolicyManager which acts on the rules specified in the
-   * configuration file and downloads unknown certificates when necessary.
-   * @param configFileName The path to the configuration file containing
-   * verification rules.
+   * Create a new ConfigPolicyManager which will act on the rules specified in
+   * the configuration and download unknown certificates when necessary.
+   * @param configFileName (optional) If not null or empty, the path to the
+   * configuration file containing verification rules. Otherwise, you should
+   * separately call load().
    * @param certificateCache (optional) A CertificateCache to hold known
    * certificates. If this is null or omitted, then create an internal
    * CertificateCache.
@@ -100,7 +101,8 @@ public class ConfigPolicyManager extends PolicyManager {
     keyTimestampTtl_ = keyTimestampTtl;
     maxTrackedKeys_ = maxTrackedKeys;
 
-    construct(configFileName);
+    if (configFileName != null && !configFileName.equals(""))
+      load(configFileName);
   }
 
   public ConfigPolicyManager
@@ -112,7 +114,8 @@ public class ConfigPolicyManager extends PolicyManager {
     keyGraceInterval_ = graceInterval;
     keyTimestampTtl_ = keyTimestampTtl;
 
-    construct(configFileName);
+    if (configFileName != null && !configFileName.equals(""))
+      load(configFileName);
   }
 
   public ConfigPolicyManager
@@ -123,7 +126,8 @@ public class ConfigPolicyManager extends PolicyManager {
     maxDepth_ = searchDepth;
     keyGraceInterval_ = graceInterval;
 
-    construct(configFileName);
+    if (configFileName != null && !configFileName.equals(""))
+      load(configFileName);
   }
 
   public ConfigPolicyManager
@@ -133,7 +137,8 @@ public class ConfigPolicyManager extends PolicyManager {
     certificateCache_ = certificateCache;
     maxDepth_ = searchDepth;
 
-    construct(configFileName);
+    if (configFileName != null && !configFileName.equals(""))
+      load(configFileName);
   }
 
   public ConfigPolicyManager
@@ -142,13 +147,24 @@ public class ConfigPolicyManager extends PolicyManager {
   {
     certificateCache_ = certificateCache;
 
-    construct(configFileName);
+    if (configFileName != null && !configFileName.equals(""))
+      load(configFileName);
   }
 
   public ConfigPolicyManager(String configFileName)
     throws IOException, SecurityException
   {
-    construct(configFileName);
+    if (configFileName != null && !configFileName.equals(""))
+      load(configFileName);
+  }
+
+  /**
+   * Create a new ConfigPolicyManager which will act on the rules specified in
+   * the configuration and download unknown certificates when necessary. Use
+   * default parameter values. You must call load().
+   */
+  public ConfigPolicyManager()
+  {
   }
 
   /**
@@ -165,13 +181,32 @@ public class ConfigPolicyManager extends PolicyManager {
     refreshManager_ = new TrustAnchorRefreshManager();
   }
 
-  private void
-  construct(String configFileName) throws IOException, SecurityException
+  /**
+   * Call reset() and load the configuration rules from the file.
+   * @param configFileName The path to the configuration file containing the
+   * verification rules.
+   */
+  public final void
+  load(String configFileName) throws IOException, SecurityException
   {
+    reset();
     config_.read(configFileName);
     loadTrustAnchorCertificates();
   }
 
+  /**
+   * Call reset() and load the configuration rules from the input.
+   * @param input The contents of the configuration rules, with lines separated
+   * by "\n" or "\r\n".
+   * @param inputName Used for log messages, etc.
+   */
+  public void
+  load(String input, String inputName) throws IOException, SecurityException
+  {
+    reset();
+    config_.read(input, inputName);
+    loadTrustAnchorCertificates();
+  }
 
   /**
    * Check if the received data packet can escape from verification and be
