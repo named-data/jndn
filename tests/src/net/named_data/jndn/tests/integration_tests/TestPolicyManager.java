@@ -262,9 +262,6 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
 
     testCertFile_ = new File(new File(policyConfigDirectory_, "certs"), "test.cert");
 
-    databaseFilePath_ = new File(policyConfigDirectory_, "test-public-info.db");
-    databaseFilePath_.delete();
-
     identityStorage_ = new MemoryIdentityStorage();
     privateKeyStorage_ = new MemoryPrivateKeyStorage();
     identityManager_ = new IdentityManager(identityStorage_, privateKeyStorage_);
@@ -301,13 +298,11 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
   public void
   tearDown()
   {
-    databaseFilePath_.delete();
     testCertFile_.delete();
     face_.shutdown();
   }
 
   File policyConfigDirectory_;
-  File databaseFilePath_;
   File testCertFile_;
   Name identityName_;
   Name keyName_;
