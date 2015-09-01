@@ -58,12 +58,13 @@ public class TestGetAsync {
 
       Counter counter = new Counter();
 
-      Name name1 = new Name("/ndn/edu/ucla/remap/ndn-js-test/howdy.txt/%FD%052%A1%DF%5E%A4");
+      // Try to fetch anything.
+      Name name1 = new Name("/");
       System.out.println("Express name " + name1.toUri());
       face.expressInterest(name1, counter, counter);
 
-      // Try to get anything.
-      Name name2 = new Name("/");
+      // Try to fetch using a known name.
+      Name name2 = new Name("/ndn/edu/ucla/remap/demo/ndn-js-test/hello.txt/%FDU%8D%9DM");
       System.out.println("Express name " + name2.toUri());
       face.expressInterest(name2, counter, counter);
 

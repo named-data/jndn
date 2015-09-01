@@ -102,7 +102,12 @@ public class Face {
     (Interest interest, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
   {
-    return node_.expressInterest(interest, onData, onTimeout, wireFormat);
+    long pendingInterestId = node_.getNextEntryId();
+
+    node_.expressInterest
+      (pendingInterestId, interest, onData, onTimeout, wireFormat, this);
+
+    return pendingInterestId;
   }
 
   /**
@@ -127,7 +132,7 @@ public class Face {
   expressInterest
     (Interest interest, OnData onData, OnTimeout onTimeout) throws IOException
   {
-    return node_.expressInterest
+    return expressInterest
       (interest, onData, onTimeout, WireFormat.getDefaultWireFormat());
   }
 
@@ -149,7 +154,7 @@ public class Face {
   expressInterest
     (Interest interest, OnData onData, WireFormat wireFormat) throws IOException
   {
-    return node_.expressInterest(interest, onData, null, wireFormat);
+    return expressInterest(interest, onData, null, wireFormat);
   }
 
   /**
@@ -169,7 +174,7 @@ public class Face {
   public long
   expressInterest(Interest interest, OnData onData) throws IOException
   {
-    return node_.expressInterest
+    return expressInterest
       (interest, onData, null, WireFormat.getDefaultWireFormat());
   }
 
@@ -210,7 +215,7 @@ public class Face {
       interest.setInterestLifetimeMilliseconds(4000.0);
     }
 
-    return node_.expressInterest(interest, onData, onTimeout, wireFormat);
+    return expressInterest(interest, onData, onTimeout, wireFormat);
   }
 
   /**
@@ -240,7 +245,6 @@ public class Face {
   {
     return expressInterest(name, null, onData, onTimeout, wireFormat);
   }
-
 
   /**
    * Encode name as an Interest. If interestTemplate is not null, use its
@@ -478,9 +482,166 @@ public class Face {
   public void
   makeCommandInterest(Interest interest) throws SecurityException
   {
-    node_.makeCommandInterest
-      (interest, commandKeyChain_, commandCertificateName_,
+    makeCommandInterest(interest, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a
+   * matching interest is received. If you have not called setCommandSigningInfo,
+   * this assumes you are connecting to NDNx. If you have called
+   * setCommandSigningInfo, this first sends an NFD registration request, and if
+   * that times out then this sends an NDNx registration request. If you need to
+   * register a prefix with NFD, you must first call setCommandSigningInfo.
+   * @param prefix A Name for the prefix to register. This copies the Name.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * The onInterest callback should supply the Data with face.putData().
+   * NOTE: You must not change the prefix or filter objects - if you need to
+   * change them then make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
+   * message from the forwarder. If onRegisterSuccess is null, this does not use
+   * it.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * @param flags The flags for finer control of which interests are forwarded
+   * to the application.
+   * @param wireFormat A WireFormat object used to encode the message.
+   * @return The registered prefix ID which can be used with
+   * removeRegisteredPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterestCallback onInterest,
+     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+     ForwardingFlags flags, WireFormat wireFormat)
+    throws IOException, SecurityException
+  {
+    // Get the registeredPrefixId now so we can return it to the caller.
+    long registeredPrefixId = node_.getNextEntryId();
+
+    node_.registerPrefix
+      (registeredPrefixId, prefix, onInterest, onRegisterSuccess, 
+       onRegisterFailed, flags, wireFormat, commandKeyChain_,
+       commandCertificateName_, this);
+
+    return registeredPrefixId;
+  }
+
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a
+   * matching interest is received.
+   * This uses the default WireFormat.getDefaultWireFormat().
+   * @param prefix A Name for the prefix to register. This copies the Name.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * The onInterest callback should supply the Data with face.putData().
+   * NOTE: You must not change the prefix or filter objects - if you need to
+   * change them then make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
+   * message from the forwarder. If onRegisterSuccess is null, this does not use
+   * it.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * @param flags The flags for finer control of which interests are forwarded
+   * to the application.
+   * @return The registered prefix ID which can be used with
+   * removeRegisteredPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterestCallback onInterest,
+     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+     ForwardingFlags flags) throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterSuccess, onRegisterFailed, flags,
        WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a
+   * matching interest is received.
+   * Use default ForwardingFlags.
+   * @param prefix A Name for the prefix to register. This copies the Name.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * The onInterest callback should supply the Data with face.putData().
+   * NOTE: You must not change the prefix or filter objects - if you need to
+   * change them then make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
+   * message from the forwarder. If onRegisterSuccess is null, this does not use
+   * it.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * @param wireFormat A WireFormat object used to encode the message.
+   * @return The registered prefix ID which can be used with
+   * removeRegisteredPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterestCallback onInterest,
+     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+     WireFormat wireFormat) throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterSuccess, onRegisterFailed,
+       new ForwardingFlags(), wireFormat);
+  }
+
+  /**
+   * Register prefix with the connected NDN hub and call onInterest when a
+   * matching interest is received.
+   * This uses the default WireFormat.getDefaultWireFormat().
+   * Use default ForwardingFlags.
+   * @param prefix A Name for the prefix to register. This copies the Name.
+   * @param onInterest (optional) If not null, this creates an interest filter
+   * from prefix so that when an Interest is received which matches the filter,
+   * this calls
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * The onInterest callback should supply the Data with face.putData().
+   * NOTE: You must not change the prefix or filter objects - if you need to
+   * change them then make a copy.
+   * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
+   * message from the forwarder. If onRegisterSuccess is null, this does not use
+   * it.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * @return The registered prefix ID which can be used with
+   * removeRegisteredPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterestCallback onInterest,
+     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed)
+    throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterSuccess, onRegisterFailed,
+       new ForwardingFlags(), WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -516,9 +677,8 @@ public class Face {
      OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
      WireFormat wireFormat) throws IOException, SecurityException
   {
-    return node_.registerPrefix
-      (prefix, onInterest, onRegisterFailed, flags, wireFormat,
-       commandKeyChain_, commandCertificateName_, this);
+    return registerPrefix
+      (prefix, onInterest, null, onRegisterFailed, flags, wireFormat);
   }
 
   /**
@@ -548,7 +708,7 @@ public class Face {
      ForwardingFlags flags) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, flags,
+      (prefix, onInterest, null, onRegisterFailed, flags,
        WireFormat.getDefaultWireFormat());
   }
 
@@ -580,7 +740,8 @@ public class Face {
      WireFormat wireFormat) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, new ForwardingFlags(), wireFormat);
+      (prefix, onInterest, null, onRegisterFailed, new ForwardingFlags(),
+       wireFormat);
   }
 
   /**
@@ -611,7 +772,7 @@ public class Face {
      OnRegisterFailed onRegisterFailed) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, new ForwardingFlags(),
+      (prefix, onInterest, null, onRegisterFailed, new ForwardingFlags(),
        WireFormat.getDefaultWireFormat());
   }
 
@@ -639,9 +800,8 @@ public class Face {
         }
       };
 
-    return node_.registerPrefix
-      (prefix, onInterestCallback, onRegisterFailed, flags, wireFormat,
-       commandKeyChain_, commandCertificateName_, this);
+    return registerPrefix
+      (prefix, onInterestCallback, onRegisterFailed, flags, wireFormat);
   }
 
   /**
@@ -718,7 +878,11 @@ public class Face {
   public long
   setInterestFilter(InterestFilter filter, OnInterestCallback onInterest)
   {
-    return node_.setInterestFilter(filter, onInterest, this);
+    long interestFilterId = node_.getNextEntryId();
+
+    node_.setInterestFilter(interestFilterId, filter, onInterest, this);
+
+    return interestFilterId;
   }
 
   /**
@@ -737,7 +901,7 @@ public class Face {
   public long
   setInterestFilter(Name prefix, OnInterestCallback onInterest)
   {
-    return node_.setInterestFilter(new InterestFilter(prefix), onInterest, this);
+    return setInterestFilter(new InterestFilter(prefix), onInterest);
   }
 
   /**
@@ -776,7 +940,7 @@ public class Face {
   public void
   putData(Data data) throws IOException
   {
-    node_.putData(data, WireFormat.getDefaultWireFormat());
+    putData(data, WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -787,7 +951,7 @@ public class Face {
   public void
   send(Blob encoding) throws IOException
   {
-    node_.send(encoding.buf());
+    send(encoding.buf());
   }
 
   /**
@@ -852,7 +1016,20 @@ public class Face {
   public static int
   getMaxNdnPacketSize() { return Common.MAX_NDN_PACKET_SIZE; }
 
-  private Node node_;
-  KeyChain commandKeyChain_ = null;
-  Name commandCertificateName_ = new Name();
+  /**
+   * Call callback.run() after the given delay. Even though this is public,
+   * it is not part of the public API of Face. This default implementation just
+   * calls Node.callLater, but a subclass can override.
+   * @param delayMilliseconds The delay in milliseconds.
+   * @param callback This calls callback.run() after the delay.
+   */
+  public void
+  callLater(double delayMilliseconds, Runnable callback)
+  {
+    node_.callLater(delayMilliseconds, callback);
+  }
+
+  protected final Node node_;
+  private KeyChain commandKeyChain_ = null;
+  private Name commandCertificateName_ = new Name();
 }

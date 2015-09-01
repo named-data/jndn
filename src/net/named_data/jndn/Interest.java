@@ -77,7 +77,8 @@ public class Interest implements ChangeCountable {
     interestLifetimeMilliseconds_ = interest.interestLifetimeMilliseconds_;
     scope_ = interest.scope_;
     nonce_ = interest.getNonce();
-    setDefaultWireEncoding(interest.defaultWireEncoding_, null);
+    setDefaultWireEncoding
+      (interest.getDefaultWireEncoding(), interest.defaultWireEncodingFormat_);
   }
 
   /**

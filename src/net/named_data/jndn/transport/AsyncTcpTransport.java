@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,19 +19,53 @@
 
 package net.named_data.jndn.transport;
 
-import java.nio.channels.SocketChannel;
-import java.net.InetSocketAddress;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousChannelGroup;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
+import java.util.concurrent.ScheduledExecutorService;
 import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.ElementReader;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Common;
 
-public class TcpTransport extends Transport {
+/**
+ * AsyncTcpTransport extends Transport for async communication over TCP by
+ * dispatching reads from an AsynchronousSocketChannel to a
+ * ScheduledExecutorService.
+ */
+public class AsyncTcpTransport extends Transport {
+  public AsyncTcpTransport(ScheduledExecutorService threadPool)
+  {
+    threadPool_ = threadPool;
+
+    // This is the CompletionHandler for asyncRead().
+    readCompletionHandler_ = new CompletionHandler<Integer, Void>() {
+      public void completed(Integer bytesRead, Void attachment) {
+        if (bytesRead > 0) {
+          inputBuffer_.flip();
+          try {
+            elementReader_.onReceivedData(inputBuffer_);
+          } catch (EncodingException ex) {
+            // TODO: How to notify the application of failure?
+            ex.printStackTrace();
+          }
+        }
+
+        // Repeatedly do  async read.
+        asyncRead();
+      }
+
+      public void failed(Throwable ex, Void attachment) {
+        // TODO: How to notify the application of failure?
+        ex.printStackTrace();
+      }};
+  }
+
   /**
-   * A TcpTransport.ConnectionInfo extends Transport.ConnectionInfo to hold
+   * AsyncTcpTransport.ConnectionInfo extends Transport.ConnectionInfo to hold
    * the host and port info for the TCP connection.
    */
   public static class ConnectionInfo extends Transport.ConnectionInfo {
@@ -84,60 +118,85 @@ public class TcpTransport extends Transport {
    * contains a host name, InetAddress will do a blocking DNS lookup; otherwise
    * it will parse the IP address and examine the first octet to determine if
    * it is a loopback address (e.g. first octet == 127).
-   * @param connectionInfo A TcpTransport.ConnectionInfo with the host to check.
+   * @param connectionInfo An AsyncTcpTransport.ConnectionInfo with the host to
+   * check.
    * @return True if the host is local, false if not.
    * @throws java.io.IOException
    */
-  public boolean isLocal(Transport.ConnectionInfo connectionInfo)
-    throws IOException
+  public boolean
+  isLocal(Transport.ConnectionInfo connectionInfo) throws IOException
   {
-    if(connectionInfo_ == null || !((ConnectionInfo) connectionInfo).getHost()
-      .equals(connectionInfo_.getHost()))
-    {
-      isLocal_ = getIsLocal(((ConnectionInfo)connectionInfo).getHost());
-      connectionInfo_ = (ConnectionInfo)connectionInfo;
+    synchronized(isLocalLock_) {
+      if(connectionInfo_ == null || !((ConnectionInfo)connectionInfo).getHost()
+        .equals(connectionInfo_.getHost()))
+      {
+        isLocal_ = TcpTransport.getIsLocal
+          (((ConnectionInfo)connectionInfo).getHost());
+        connectionInfo_ = (ConnectionInfo)connectionInfo;
+      }
+
+      return isLocal_;
     }
-    return isLocal_;
   }
 
   /**
-   * Override to return false since connect does not need to use the onConnected
-   * callback.
-   * @return False.
+   * Override to return true since connect needs to use the onConnected callback.
+   * @return True.
    */
   public boolean
-  isAsync() { return false; }
+  isAsync() { return true; }
 
   /**
    * Connect according to the info in ConnectionInfo, and use elementListener.
-   * @param connectionInfo A TcpTransport.ConnectionInfo.
+   * @param connectionInfo An AsyncTcpTransport.ConnectionInfo.
    * @param elementListener The ElementListener must remain valid during the
    * life of this object.
-   * @param onConnected If not null, this calls onConnected.run() when the
-   * connection is established.
+   * @param onConnected This calls onConnected.run() when the connection is
+   * established. This is needed since connect is async.
    * @throws IOException For I/O error.
    */
   public void
   connect
     (Transport.ConnectionInfo connectionInfo, ElementListener elementListener,
-     Runnable onConnected)
+     final Runnable onConnected)
     throws IOException
   {
-    close();
+    // TODO: Close a previous connection.
+    
+    channel_ = AsynchronousSocketChannel.open
+      (AsynchronousChannelGroup.withThreadPool(threadPool_));
+    // connect is already async, so no need to dispatch.
+    channel_.connect
+      (new InetSocketAddress
+         (((ConnectionInfo)connectionInfo).getHost(),
+          ((ConnectionInfo)connectionInfo).getPort()),
+       null,
+       new CompletionHandler<Void, Void>() {
+         public void completed(Void dummy, Void attachment) {
+           if (onConnected != null)
+             onConnected.run();
+           asyncRead();
+         }
 
-    channel_ = SocketChannel.open
-      (new InetSocketAddress(((ConnectionInfo)connectionInfo).getHost(),
-       ((ConnectionInfo)connectionInfo).getPort()));
-    channel_.configureBlocking(false);
+         public void failed(Throwable ex, Void attachment) {
+           // TODO: How to notify the application of failure?
+           ex.printStackTrace();
+         }});
 
     elementReader_ = new ElementReader(elementListener);
+  }
 
-    if (onConnected != null)
-      onConnected.run();
+  private void
+  asyncRead()
+  {
+    inputBuffer_.limit(inputBuffer_.capacity());
+    inputBuffer_.position(0);
+    // read is already async, so no need to dispatch.
+    channel_.read(inputBuffer_, null, readCompletionHandler_);
   }
 
   /**
-   * Set data to the host
+   * Set data to the host.
    * @param data The buffer of data to send.  This reads from position() to
    * limit(), but does not change the position.
    * @throws IOException For I/O error.
@@ -145,14 +204,17 @@ public class TcpTransport extends Transport {
   public void
   send(ByteBuffer data) throws IOException
   {
-    if (channel_ == null)
+    if (!getIsConnected())
       throw new IOException
         ("Cannot send because the socket is not open.  Use connect.");
 
     // Save and restore the position.
+    // TODO: Copy the buffer so that the sending thread doesn't change it?
     int savePosition = data.position();
     try {
-      while(data.hasRemaining())
+      while (data.hasRemaining())
+        // write is already async, so no need to dispatch.
+        // TODO: The CompletionHandler should write remaining bytes.
         channel_.write(data);
     }
     finally {
@@ -161,32 +223,11 @@ public class TcpTransport extends Transport {
   }
 
   /**
-   * Process any data to receive.  For each element received, call
-   * elementListener.onReceivedElement.
-   * This is non-blocking and will return immediately if there is no data to
-   * receive. You should normally not call this directly since it is called by
-   * Face.processEvents.
-   * If you call this from an main event loop, you may want to catch and
-   * log/disregard all exceptions.
-   * @throws IOException For I/O error.
-   * @throws EncodingException For invalid encoding.
+   * Do nothing since AsynchronousSocketChannel checks for incoming data.
    */
   public void
   processEvents() throws IOException, EncodingException
   {
-    if (!getIsConnected())
-      return;
-
-    while (true) {
-      inputBuffer_.limit(inputBuffer_.capacity());
-      inputBuffer_.position(0);
-      int bytesRead = channel_.read(inputBuffer_);
-      if (bytesRead <= 0)
-        return;
-
-      inputBuffer_.flip();
-      elementReader_.onReceivedData(inputBuffer_);
-    }
   }
 
   /**
@@ -199,46 +240,15 @@ public class TcpTransport extends Transport {
     if (channel_ == null)
       return false;
 
-    return channel_.isConnected();
+    return channel_.getRemoteAddress() != null;
   }
 
-  /**
-   * Close the connection.  If not connected, this does nothing.
-   * @throws IOException For I/O error.
-   */
-  public void
-  close() throws IOException
-  {
-    if (channel_ != null) {
-      if (channel_.isConnected())
-        channel_.close();
-      channel_ = null;
-    }
-  }
-
-  /**
-   * A static method to determine whether the host is on the current machine.
-   * Results are not cached. According to
-   * http://redmine.named-data.net/projects/nfd/wiki/ScopeControl#local-face,
-   * TCP transports with a loopback address are local. If connectionInfo
-   * contains a host name, InetAddress will do a blocking DNS lookup; otherwise
-   * it will parse the IP address and examine the first octet to determine if
-   * it is a loopback address (e.g. first octet == 127).
-   * @param host The host to check.
-   * @return True if the host is local, False if not.
-   * @throws IOException
-   */
-  public static boolean
-  getIsLocal(String host) throws IOException
-  {
-    InetAddress address = InetAddress.getByName(host);
-    return address.isLoopbackAddress();
-  }
-
-  SocketChannel channel_;
-  ByteBuffer inputBuffer_ = ByteBuffer.allocate(Common.MAX_NDN_PACKET_SIZE);
-  // TODO: This belongs in the socket listener.
+  private AsynchronousSocketChannel channel_;
+  private final CompletionHandler<Integer, Void> readCompletionHandler_;
+  private final ScheduledExecutorService threadPool_;
+  private ByteBuffer inputBuffer_ = ByteBuffer.allocate(Common.MAX_NDN_PACKET_SIZE);
   private ElementReader elementReader_;
   private ConnectionInfo connectionInfo_;
   private boolean isLocal_;
+  private final Object isLocalLock_ = new Object();
 }

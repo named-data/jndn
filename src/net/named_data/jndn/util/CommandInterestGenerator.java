@@ -59,10 +59,16 @@ public class CommandInterestGenerator {
     (Interest interest, KeyChain keyChain, Name certificateName,
      WireFormat wireFormat) throws SecurityException
   {
-    double timestamp = Math.round(Common.getNowMilliseconds());
-    while (timestamp <= lastTimestamp_)
-      timestamp += 1.0;
-
+    double timestamp;
+    synchronized(lastTimestampLock_) {
+      timestamp = Math.round(Common.getNowMilliseconds());
+      while (timestamp <= lastTimestamp_)
+        timestamp += 1.0;
+      // Update the timestamp now while it is locked. In the small chance that
+      //   signing fails, it just means that we have bumped the timestamp.
+      lastTimestamp_ = timestamp;
+    }
+    
     // The timestamp is encoded as a TLV nonNegativeInteger.
     TlvEncoder encoder = new TlvEncoder(8);
     encoder.writeNonNegativeInteger((long)timestamp);
@@ -71,6 +77,7 @@ public class CommandInterestGenerator {
     // The random value is a TLV nonNegativeInteger too, but we know it is 8 bytes,
     //   so we don't need to call the nonNegativeInteger encoder.
     ByteBuffer randomBuffer = ByteBuffer.allocate(8);
+    // Note: SecureRandom is thread safe.
     random_.nextBytes(randomBuffer.array());
     interest.getName().append(new Blob(randomBuffer, false));
 
@@ -79,9 +86,6 @@ public class CommandInterestGenerator {
     if (interest.getInterestLifetimeMilliseconds() < 0)
       // The caller has not set the interest lifetime, so set it here.
       interest.setInterestLifetimeMilliseconds(1000.0);
-
-    // We successfully signed the interest, so update the timestamp.
-    lastTimestamp_ = timestamp;
   }
 
   /**
@@ -104,5 +108,6 @@ public class CommandInterestGenerator {
   }
 
   private double lastTimestamp_;
+  private final Object lastTimestampLock_ = new Object();
   private static final SecureRandom random_ = new SecureRandom();
 }
