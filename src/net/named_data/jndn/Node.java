@@ -43,6 +43,7 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.impl.DelayedCallTable;
+import net.named_data.jndn.impl.InterestFilterTable;
 import net.named_data.jndn.impl.PendingInterestTable;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
@@ -338,9 +339,8 @@ public class Node implements ElementListener {
     (long interestFilterId, InterestFilter filter, OnInterestCallback onInterest,
      Face face)
   {
-    interestFilterTable_.add
-      (new InterestFilterEntry
-       (interestFilterId, new InterestFilter(filter), onInterest, face));
+    interestFilterTable_.setInterestFilter
+      (interestFilterId, new InterestFilter(filter), onInterest, face);
   }
 
   /**
@@ -353,23 +353,7 @@ public class Node implements ElementListener {
   public final void
   unsetInterestFilter(long interestFilterId)
   {
-    int count = 0;
-    // Go backwards through the list so we can remove entries.
-    // Remove all entries even though interestFilterId should be unique.
-    synchronized(interestFilterTable_) {
-      for (int i = (int)interestFilterTable_.size() - 1; i >= 0; --i) {
-        if (((InterestFilterEntry)interestFilterTable_.get(i)).getInterestFilterId()
-              == interestFilterId) {
-          ++count;
-          interestFilterTable_.remove(i);
-        }
-      }
-    }
-    
-    if (count == 0)
-      logger_.log
-        (Level.WARNING, "unsetInterestFilter: Didn't find interestFilterId {0}",
-         interestFilterId);
+    interestFilterTable_.unsetInterestFilter(interestFilterId);
   }
 
   /**
@@ -484,19 +468,13 @@ public class Node implements ElementListener {
     // Now process as Interest or Data.
     if (interest != null) {
       // Quickly lock and get all interest filter callbacks which match.
-      List matchedFilters = new ArrayList();
-      synchronized(interestFilterTable_) {
-        for (int i = 0; i < interestFilterTable_.size(); ++i) {
-          InterestFilterEntry entry =
-            (InterestFilterEntry)interestFilterTable_.get(i);
-          if (entry.getFilter().doesMatch(interest.getName()))
-            matchedFilters.add(entry);
-        }
-      }
+      ArrayList matchedFilters = new ArrayList();
+      interestFilterTable_.getMatchedFilters(interest, matchedFilters);
 
       // The lock on interestFilterTable_ is released, so call the callbacks.
       for (int i = 0; i < matchedFilters.size(); ++i) {
-        InterestFilterEntry entry = (InterestFilterEntry)matchedFilters.get(i);
+        InterestFilterTable.Entry entry =
+          (InterestFilterTable.Entry)matchedFilters.get(i);
         entry.getOnInterest().onInterest
          (entry.getFilter().getPrefix(), interest, entry.getFace(),
           entry.getInterestFilterId(), entry.getFilter());
@@ -676,63 +654,6 @@ public class Node implements ElementListener {
     private final long registeredPrefixId_; /**< A unique identifier for this entry so it can be deleted */
     private final Name prefix_;
     private final long relatedInterestFilterId_;
-  }
-
-  /**
-   * An InterestFilterEntry holds an interestFilterId, an InterestFilter and the
-   * OnInterestCallback with its related Face.
-   */
-  private static class InterestFilterEntry {
-    /**
-     * Create a new InterestFilterEntry with the given values.
-     * @param interestFilterId The ID from getNextEntryId().
-     * @param filter The InterestFilter for this entry.
-     * @param onInterest The callback to call.
-     * @param face The face on which was called registerPrefix or
-     * setInterestFilter which is passed to the onInterest callback.
-     */
-    public InterestFilterEntry
-      (long interestFilterId, InterestFilter filter,
-       OnInterestCallback onInterest, Face face)
-    {
-      interestFilterId_ = interestFilterId;
-      filter_ = filter;
-      onInterest_ = onInterest;
-      face_ = face;
-    }
-
-    /**
-     * Get the interestFilterId given to the constructor.
-     * @return The interestFilterId.
-     */
-    public final long
-    getInterestFilterId() { return interestFilterId_; }
-
-    /**
-     * Get the InterestFilter given to the constructor.
-     * @return The InterestFilter.
-     */
-    public final InterestFilter
-    getFilter() { return filter_; }
-
-    /**
-     * Get the OnInterestCallback given to the constructor.
-     * @return The OnInterestCallback.
-     */
-    public final OnInterestCallback
-    getOnInterest() { return onInterest_; }
-
-    /**
-     * Get the Face given to the constructor.
-     * @return The Face.
-     */
-    public final Face
-    getFace() { return face_; }
-
-    private final long interestFilterId_; /**< A unique identifier for this entry so it can be deleted */
-    private final InterestFilter filter_;
-    private final OnInterestCallback onInterest_;
-    private final Face face_;
   }
 
   private static class NdndIdFetcher implements OnData, OnTimeout
@@ -1373,11 +1294,11 @@ public class Node implements ElementListener {
   private final Transport.ConnectionInfo connectionInfo_;
   private final PendingInterestTable pendingInterestTable_ =
     new PendingInterestTable();
+  private final InterestFilterTable interestFilterTable_ =
+    new InterestFilterTable();
   // Use ArrayList without generics so it works with older Java compilers.
   private final List registeredPrefixTable_ = 
     Collections.synchronizedList(new ArrayList()); // RegisteredPrefix
-  private final List interestFilterTable_ = 
-    Collections.synchronizedList(new ArrayList()); // InterestFilterEntry
   private final DelayedCallTable delayedCallTable_ = new DelayedCallTable();
   private final List onConnectedCallbacks_ =
     Collections.synchronizedList(new ArrayList()); // Runnable
