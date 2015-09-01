@@ -42,6 +42,7 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.impl.PendingInterestTable;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.transport.Transport;
@@ -187,26 +188,7 @@ public class Node implements ElementListener {
   public final void
   removePendingInterest(long pendingInterestId)
   {
-    int count = 0;
-    // Go backwards through the list so we can remove entries.
-    // Remove all entries even though pendingInterestId should be unique.
-    synchronized(pendingInterestTable_) {
-      for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
-        if (((PendingInterest)pendingInterestTable_.get(i)).getPendingInterestId
-             () == pendingInterestId) {
-          ++count;
-          // For efficiency, mark this as removed so that
-          // processInterestTimeout doesn't look for it.
-          ((PendingInterest)pendingInterestTable_.get(i)).setIsRemoved();
-          pendingInterestTable_.remove(i);
-        }
-      }
-    }
-    
-    if (count == 0)
-      logger_.log
-        (Level.WARNING, "removePendingInterest: Didn't find pendingInterestId {0}",
-         pendingInterestId);
+    pendingInterestTable_.removePendingInterest(pendingInterestId);
   }
 
   /**
@@ -542,9 +524,11 @@ public class Node implements ElementListener {
     }
     else if (data != null) {
       ArrayList pitEntries = new ArrayList();
-      extractEntriesForExpressedInterest(data.getName(), pitEntries);
+      pendingInterestTable_.extractEntriesForExpressedInterest
+        (data.getName(), pitEntries);
       for (int i = 0; i < pitEntries.size(); ++i) {
-        PendingInterest pendingInterest = (PendingInterest)pitEntries.get(i);
+        PendingInterestTable.Entry pendingInterest =
+          (PendingInterestTable.Entry)pitEntries.get(i);
         pendingInterest.getOnData().onData(pendingInterest.getInterest(), data);
       }
     }
@@ -629,25 +613,10 @@ public class Node implements ElementListener {
    * @param pendingInterest The pending interest to check.
    */
   private void
-  processInterestTimeout(PendingInterest pendingInterest)
+  processInterestTimeout(PendingInterestTable.Entry pendingInterest)
   {
-    if (pendingInterest.getIsRemoved())
-      // extractEntriesForExpressedInterest or removePendingInterest has
-      // removed pendingInterest from pendingInterestTable_, so we don't need
-      // to look for it. Do nothing.
-      return;
-
-    // Synchronize so that the list doesn't change the index of the item to remove.
-    synchronized(pendingInterestTable_) {
-      int index = pendingInterestTable_.indexOf(pendingInterest);
-      if (index < 0)
-        // The pending interest has been removed. Do nothing.
-        return;
-
-      pendingInterestTable_.remove(index);
-    }
-    
-    pendingInterest.callTimeout();
+    if (pendingInterestTable_.removeEntry(pendingInterest))
+      pendingInterest.callTimeout();
   }
 
   /**
@@ -672,9 +641,8 @@ public class Node implements ElementListener {
     (long pendingInterestId, Interest interestCopy, OnData onData,
      OnTimeout onTimeout, WireFormat wireFormat, Face face) throws IOException
   {
-    final PendingInterest pendingInterest = new PendingInterest
-      (pendingInterestId, interestCopy, onData, onTimeout);
-    pendingInterestTable_.add(pendingInterest);
+    final PendingInterestTable.Entry pendingInterest =
+      pendingInterestTable_.add(pendingInterestId, interestCopy, onData, onTimeout);
     if (interestCopy.getInterestLifetimeMilliseconds() >= 0.0)
       // Set up the timeout.
       face.callLater
@@ -728,70 +696,6 @@ public class Node implements ElementListener {
 
     private final Runnable callback_;
     private final double callTime_;
-  }
-
-  /**
-   * PendingInterest is a private class for the members of the
-   * pendingInterestTable_.
-   */
-  private static class PendingInterest {
-    public PendingInterest
-      (long pendingInterestId, Interest interest, OnData onData,
-       OnTimeout onTimeout)
-    {
-      pendingInterestId_ = pendingInterestId;
-      interest_ = interest;
-      onData_ = onData;
-      onTimeout_ = onTimeout;
-    }
-
-    /**
-     * Get the pendingInterestId given to the constructor.
-     * @return The pendingInterestId.
-     */
-    public final long
-    getPendingInterestId() { return pendingInterestId_; }
-
-    public final Interest
-    getInterest() { return interest_; }
-
-    public final OnData
-    getOnData() { return onData_; }
-
-    /**
-     * Set the isRemoved flag which is returned by getIsRemoved().
-     */
-    public final void
-    setIsRemoved() { isRemoved_ = true; }
-
-    /**
-     * Check if setIsRemoved() was called.
-     * @return True if setIsRemoved() was called.
-     */
-    public final boolean
-    getIsRemoved() { return isRemoved_; }
-
-    /**
-     * Call onTimeout_ (if defined). This ignores exceptions from the
-     * onTimeout_.
-     */
-    public final void
-    callTimeout()
-    {
-      if (onTimeout_ != null) {
-        // Ignore all exceptions.
-        try {
-          onTimeout_.onTimeout(interest_);
-        }
-        catch (Throwable e) { }
-      }
-    }
-
-    private final Interest interest_;
-    private final long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
-    private final OnData onData_;
-    private final OnTimeout onTimeout_;
-    private boolean isRemoved_ = false;
   }
 
   /**
@@ -1352,35 +1256,6 @@ public class Node implements ElementListener {
   }
 
   /**
-   * Find all entries from pendingInterestTable_ where the name conforms to the
-   * entry's interest selectors, remove the entries from the table and add to
-   * the entries list.
-   * @param name The name to find the interest for (from the incoming data
-   * packet).
-   * @param entries Add matching entries from pendingInterestTable_.  The caller
-   * should pass in an empty ArrayList.
-   */
-  private void
-  extractEntriesForExpressedInterest(Name name, ArrayList entries)
-  {
-    // Go backwards through the list so we can remove entries.
-    synchronized(pendingInterestTable_) {
-      for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
-        PendingInterest pendingInterest =
-          (PendingInterest)pendingInterestTable_.get(i);
-
-        if (pendingInterest.getInterest().matchesName(name)) {
-          entries.add(pendingInterestTable_.get(i));
-          // We let the callback from callLater call _processInterestTimeout, but
-          // for efficiency, mark this as removed so that it returns right away.
-          pendingInterestTable_.remove(i);
-          pendingInterest.setIsRemoved();
-        }
-      }
-    }
-  }
-
-  /**
    * Do the work of registerPrefix once we know we are connected with an ndndId_.
    * @param registeredPrefixId The getNextEntryId() which registerPrefix got so
    * it could return it to the caller. If this is 0, then don't add to
@@ -1565,9 +1440,9 @@ public class Node implements ElementListener {
 
   private final Transport transport_;
   private final Transport.ConnectionInfo connectionInfo_;
+  private final PendingInterestTable pendingInterestTable_ =
+    new PendingInterestTable();
   // Use ArrayList without generics so it works with older Java compilers.
-  private final List pendingInterestTable_ = 
-    Collections.synchronizedList(new ArrayList());  // PendingInterest
   private final List registeredPrefixTable_ = 
     Collections.synchronizedList(new ArrayList()); // RegisteredPrefix
   private final List interestFilterTable_ = 
