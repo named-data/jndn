@@ -44,7 +44,7 @@ import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
-import net.named_data.jndn.security.identity.BasicIdentityStorage;
+import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.ConfigPolicyManager;
@@ -262,10 +262,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
 
     testCertFile_ = new File(new File(policyConfigDirectory_, "certs"), "test.cert");
 
-    databaseFilePath_ = new File(policyConfigDirectory_, "test-public-info.db");
-    databaseFilePath_.delete();
-
-    identityStorage_ = new BasicIdentityStorage(databaseFilePath_.getPath());
+    identityStorage_ = new MemoryIdentityStorage();
     privateKeyStorage_ = new MemoryPrivateKeyStorage();
     identityManager_ = new IdentityManager(identityStorage_, privateKeyStorage_);
     policyManager_ = new ConfigPolicyManager
@@ -301,17 +298,15 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
   public void
   tearDown()
   {
-    databaseFilePath_.delete();
     testCertFile_.delete();
     face_.shutdown();
   }
 
   File policyConfigDirectory_;
-  File databaseFilePath_;
   File testCertFile_;
   Name identityName_;
   Name keyName_;
-  BasicIdentityStorage identityStorage_;
+  MemoryIdentityStorage identityStorage_;
   MemoryPrivateKeyStorage privateKeyStorage_;
   IdentityManager identityManager_;
   PolicyManager policyManager_;

@@ -46,15 +46,25 @@ public abstract class Transport {
     throws IOException;
 
   /**
+   * Check if this transport is async where connect needs to use the onConnected
+   * callback.
+   * @return True if transport connect is async, false if not.
+   */
+  public abstract boolean isAsync();
+
+  /**
    * Connect according to the info in ConnectionInfo, and use elementListener.
    * @param connectionInfo An object of a subclass of ConnectionInfo.
    * @param elementListener The ElementListener must remain valid during the
    * life of this object.
+   * @param onConnected If not null, this calls onConnected.run() when the
+   * connection is established. This is needed if isAsync() is true.
    * @throws IOException For I/O error.
    */
   public void
   connect
-    (Transport.ConnectionInfo connectionInfo, ElementListener elementListener)
+    (Transport.ConnectionInfo connectionInfo, ElementListener elementListener,
+     Runnable onConnected)
     throws IOException
   {
     throw new UnsupportedOperationException("connect is not implemented");
@@ -93,7 +103,7 @@ public abstract class Transport {
    * @return True if connected.
    */
   public boolean
-  getIsConnected()
+  getIsConnected() throws IOException
   {
     throw new UnsupportedOperationException
       ("getIsConnected is not implemented");
