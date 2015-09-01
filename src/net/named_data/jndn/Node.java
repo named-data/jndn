@@ -42,6 +42,7 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.impl.DelayedCallTable;
 import net.named_data.jndn.impl.PendingInterestTable;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
@@ -423,30 +424,9 @@ public class Node implements ElementListener {
   {
     transport_.processEvents();
 
-    // Check for delayed calls. Since callLater does a sorted insert into
-    // delayedCallTable_, the check for timeouts is quick and does not
-    // require searching the entire table. If callLater is overridden to use
-    // a different mechanism, then processEvents is not needed to check for
-    // delayed calls.
-    double now = Common.getNowMilliseconds();
-    // delayedCallTable_ is sorted on _callTime, so we only need to process
-    // the timed-out entries at the front, then quit.
-    while (true) {
-      DelayedCall delayedCall;
-      // Lock while we check and maybe pop the element at the front.
-      synchronized(delayedCallTable_) {
-        if (delayedCallTable_.isEmpty())
-          break;
-        delayedCall = (DelayedCall)delayedCallTable_.get(0);
-        if (delayedCall.getCallTime() > now)
-          // It is not time to call the entry at the front of the list, so finish.
-          break;
-        delayedCallTable_.remove(0);
-      }
-
-      // The lock on delayedCallTable_ is removed, so call the callback.
-      delayedCall.callCallback();
-    }
+    // If Face.callLater is overridden to use a different mechanism, then
+    // processEvents is not needed to check for delayed calls.
+    delayedCallTable_.callTimedOut();
   }
 
   public final Transport
@@ -573,21 +553,7 @@ public class Node implements ElementListener {
   public final void
   callLater(double delayMilliseconds, Runnable callback)
   {
-    DelayedCall delayedCall = new DelayedCall(delayMilliseconds, callback);
-    // Insert into delayedCallTable_, sorted on delayedCall.getCallTime().
-    // Search from the back since we expect it to go there.
-    synchronized(delayedCallTable_) {
-      int i = delayedCallTable_.size() - 1;
-      while (i >= 0) {
-        if (((DelayedCall)delayedCallTable_.get(i)).getCallTime() <=
-            delayedCall.getCallTime())
-          break;
-        --i;
-      }
-      // Element i is the greatest less than or equal to
-      // delayedCall.getCallTime(), so insert after it.
-      delayedCallTable_.add(i + 1, delayedCall);
-    }
+    delayedCallTable_.callLater(delayMilliseconds, callback);
   }
 
   /**
@@ -662,41 +628,6 @@ public class Node implements ElementListener {
   }
 
   private enum ConnectStatus { UNCONNECTED, CONNECT_REQUESTED, CONNECT_COMPLETE }
-
-  /**
-   * DelayedCall is a class for the members of the delayedCallTable_.
-   */
-  private static class DelayedCall {
-    /**
-     * Create a new DelayedCall and set the call time based on the current
-     * time and the delayMilliseconds.
-     * @param delayMilliseconds The delay in milliseconds.
-     * @param callback This calls callback.run() after the delay.
-     */
-    public DelayedCall(double delayMilliseconds, Runnable callback)
-    {
-      callback_ = callback;
-      callTime_ = Common.getNowMilliseconds() + delayMilliseconds;
-    }
-    
-    /**
-     * Get the time at which the callback should be called.
-     * @return The call time in milliseconds, similar to
-     * Common.getNowMilliseconds().
-     */
-    public final double
-    getCallTime() { return callTime_; }
-
-    /**
-     * Call the callback given to the constructor. This does not catch
-     * exceptions.
-     */
-    public final void
-    callCallback() { callback_.run(); }
-
-    private final Runnable callback_;
-    private final double callTime_;
-  }
 
   /**
    * A RegisteredPrefix holds a registeredPrefixId and information necessary
@@ -1447,8 +1378,7 @@ public class Node implements ElementListener {
     Collections.synchronizedList(new ArrayList()); // RegisteredPrefix
   private final List interestFilterTable_ = 
     Collections.synchronizedList(new ArrayList()); // InterestFilterEntry
-  private final List delayedCallTable_ = 
-    Collections.synchronizedList(new ArrayList()); // DelayedCall
+  private final DelayedCallTable delayedCallTable_ = new DelayedCallTable();
   private final List onConnectedCallbacks_ =
     Collections.synchronizedList(new ArrayList()); // Runnable
   private final Interest ndndIdFetcherInterest_;
