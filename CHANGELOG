@@ -1,9 +1,14 @@
-Interim changes since jNDN v0.7 (2015-08-08)
+Interim changes since jNDN v0.7 (2015-09-01)
 --------------------------------------------
 
 Changes
+* Added ThreadPoolFace, AsyncTcpTransport and AsyncUnixTransport which use
+  Java's nio service which handles all the async operations so that your
+  application doesn't need to call processEvents.
 * In security ConfigPolicyManager, added load(input, inputName) to read
   configuration rules from a string.
+* In examples, added TestGetAsyncThreadPool which uses ThreadPoolFace and doesn't 
+  call processEvents. (Not working in Android yet which doesn't have nio async I/O.)
 
 Bug fixes
 * http://redmine.named-data.net/issues/2846 Self-signed cert name needs a version component.
