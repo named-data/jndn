@@ -45,6 +45,7 @@ import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.impl.DelayedCallTable;
 import net.named_data.jndn.impl.InterestFilterTable;
 import net.named_data.jndn.impl.PendingInterestTable;
+import net.named_data.jndn.impl.RegisteredPrefixTable;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.transport.Transport;
@@ -294,29 +295,7 @@ public class Node implements ElementListener {
   public final void
   removeRegisteredPrefix(long registeredPrefixId)
   {
-    int count = 0;
-    // Go backwards through the list so we can remove entries.
-    // Remove all entries even though registeredPrefixId should be unique.
-    synchronized(registeredPrefixTable_) {
-      for (int i = (int)registeredPrefixTable_.size() - 1; i >= 0; --i) {
-        RegisteredPrefix entry = (RegisteredPrefix)registeredPrefixTable_.get(i);
-
-        if (entry.getRegisteredPrefixId() == registeredPrefixId) {
-          ++count;
-
-          if (entry.getRelatedInterestFilterId() > 0)
-            // Remove the related interest filter.
-            unsetInterestFilter(entry.getRelatedInterestFilterId());
-
-          registeredPrefixTable_.remove(i);
-        }
-      }
-    }
-    
-    if (count == 0)
-      logger_.log
-        (Level.WARNING, "removeRegisteredPrefix: Didn't find registeredPrefixId {0}",
-         registeredPrefixId);
+    registeredPrefixTable_.removeRegisteredPrefix(registeredPrefixId);
   }
 
   /**
@@ -606,55 +585,6 @@ public class Node implements ElementListener {
   }
 
   private enum ConnectStatus { UNCONNECTED, CONNECT_REQUESTED, CONNECT_COMPLETE }
-
-  /**
-   * A RegisteredPrefix holds a registeredPrefixId and information necessary
-   * to remove the registration later. It optionally holds a related
-   * interestFilterId if the InterestFilter was set in the same
-   * registerPrefix operation.
-   */
-  private static class RegisteredPrefix {
-    /**
-     * Create a RegisteredPrefix with the given values.
-     * @param registeredPrefixId The ID from getNextEntryId().
-     * @param prefix The name prefix.
-     * @param relatedInterestFilterId (optional) The related interestFilterId
-     * for the filter set in the same registerPrefix operation. If omitted, set
-     * to 0.
-     */
-    public RegisteredPrefix
-      (long registeredPrefixId, Name prefix, long relatedInterestFilterId)
-    {
-      registeredPrefixId_ = registeredPrefixId;
-      prefix_ = prefix;
-      relatedInterestFilterId_ = relatedInterestFilterId;
-    }
-
-    /**
-     * Get the registeredPrefixId given to the constructor.
-     * @return The registeredPrefixId.
-     */
-    public final long
-    getRegisteredPrefixId() { return registeredPrefixId_; }
-
-    /**
-     * Get the name prefix given to the constructor.
-     * @return The name prefix.
-     */
-    public final Name
-    getPrefix() { return prefix_; }
-
-    /**
-     * Get the related interestFilterId given to the constructor.
-     * @return The related interestFilterId.
-     */
-    public final long
-    getRelatedInterestFilterId() { return relatedInterestFilterId_; }
-
-    private final long registeredPrefixId_; /**< A unique identifier for this entry so it can be deleted */
-    private final Name prefix_;
-    private final long relatedInterestFilterId_;
-  }
 
   private static class NdndIdFetcher implements OnData, OnTimeout
   {
@@ -1172,8 +1102,7 @@ public class Node implements ElementListener {
           (interestFilterId, new InterestFilter(prefix), onInterest, face);
       }
 
-      registeredPrefixTable_.add
-        (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
+      registeredPrefixTable_.add(registeredPrefixId, prefix, interestFilterId);
     }
 
     // send the registration interest.
@@ -1269,8 +1198,7 @@ public class Node implements ElementListener {
           (interestFilterId, new InterestFilter(prefix), onInterest, face);
       }
 
-      registeredPrefixTable_.add
-        (new RegisteredPrefix(registeredPrefixId, prefix, interestFilterId));
+      registeredPrefixTable_.add(registeredPrefixId, prefix, interestFilterId);
     }
 
     // Send the registration interest.
@@ -1296,10 +1224,10 @@ public class Node implements ElementListener {
     new PendingInterestTable();
   private final InterestFilterTable interestFilterTable_ =
     new InterestFilterTable();
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final List registeredPrefixTable_ = 
-    Collections.synchronizedList(new ArrayList()); // RegisteredPrefix
+  private final RegisteredPrefixTable registeredPrefixTable_ =
+    new RegisteredPrefixTable(interestFilterTable_);
   private final DelayedCallTable delayedCallTable_ = new DelayedCallTable();
+  // Use ArrayList without generics so it works with older Java compilers.
   private final List onConnectedCallbacks_ =
     Collections.synchronizedList(new ArrayList()); // Runnable
   private final Interest ndndIdFetcherInterest_;
