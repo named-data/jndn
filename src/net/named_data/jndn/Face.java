@@ -527,8 +527,8 @@ public class Face {
     long registeredPrefixId = node_.getNextEntryId();
 
     node_.registerPrefix
-      (registeredPrefixId, prefix, onInterest, onRegisterSuccess, 
-       onRegisterFailed, flags, wireFormat, commandKeyChain_,
+      (registeredPrefixId, prefix, onInterest, onRegisterFailed,
+       onRegisterSuccess, flags, wireFormat, commandKeyChain_,
        commandCertificateName_, this);
 
     return registeredPrefixId;
