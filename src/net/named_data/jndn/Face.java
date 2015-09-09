@@ -493,9 +493,8 @@ public class Face {
    * that times out then this sends an NDNx registration request. If you need to
    * register a prefix with NFD, you must first call setCommandSigningInfo.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * The onInterest callback should supply the Data with face.putData().
    * NOTE: You must not change the prefix or filter objects - if you need to
@@ -539,9 +538,8 @@ public class Face {
    * matching interest is received.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * The onInterest callback should supply the Data with face.putData().
    * NOTE: You must not change the prefix or filter objects - if you need to
@@ -575,9 +573,8 @@ public class Face {
    * matching interest is received.
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * The onInterest callback should supply the Data with face.putData().
    * NOTE: You must not change the prefix or filter objects - if you need to
@@ -613,9 +610,8 @@ public class Face {
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * The onInterest callback should supply the Data with face.putData().
    * NOTE: You must not change the prefix or filter objects - if you need to
@@ -652,9 +648,8 @@ public class Face {
    * that times out then this sends an NDNx registration request. If you need to
    * register a prefix with NFD, you must first call setCommandSigningInfo.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * The onInterest callback should supply the Data with face.putData().
    * NOTE: You must not change the prefix or filter objects - if you need to
@@ -686,9 +681,8 @@ public class Face {
    * matching interest is received.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * The onInterest callback should supply the Data with face.putData().
    * NOTE: You must not change the prefix or filter objects - if you need to
@@ -717,9 +711,8 @@ public class Face {
    * matching interest is received.
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * The onInterest callback should supply the Data with face.putData().
    * NOTE: You must not change the prefix or filter objects - if you need to
@@ -750,9 +743,8 @@ public class Face {
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * The onInterest callback should supply the Data with face.putData().
    * NOTE: You must not change the prefix or filter objects - if you need to

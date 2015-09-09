@@ -221,9 +221,8 @@ public class Node implements ElementListener {
    * @param registeredPrefixId The getNextEntryId() for the registered prefix ID
    * which Face got so it could return it to the caller.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * If onInterest is null, it is ignored and you must call setInterestFilter.
    * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix)
