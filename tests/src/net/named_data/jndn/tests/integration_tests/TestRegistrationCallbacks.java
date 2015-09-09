@@ -63,18 +63,18 @@ public class TestRegistrationCallbacks {
 
     // register the prefix and count when it registers successfully
     face.registerPrefix(new Name("/test/register/callbacks"),
-      (OnInterestCallback) null, new OnRegisterSuccess() {
+      (OnInterestCallback) null, new OnRegisterFailed() {
+        @Override
+        public void onRegisterFailed(Name prefix) {
+          long endTime = System.currentTimeMillis();
+          logger.info("Registration failed in (ms): " + (endTime - startTime));
+        }
+      }, new OnRegisterSuccess() {
         @Override
         public void onRegisterSuccess(Name prefix, long registeredPrefixId) {
           long endTime = System.currentTimeMillis();
           counter.count++;
           logger.info("Registration succeeded in (ms): " + (endTime - startTime));
-        }
-      }, new OnRegisterFailed() {
-        @Override
-        public void onRegisterFailed(Name prefix) {
-          long endTime = System.currentTimeMillis();
-          logger.info("Registration failed in (ms): " + (endTime - startTime));
         }
       });
 
