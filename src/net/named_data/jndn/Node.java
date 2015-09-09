@@ -229,9 +229,9 @@ public class Node implements ElementListener {
    * if failed to retrieve the connected hub's ID or failed to register the
    * prefix.
    * @param onRegisterSuccess This calls
-   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
-   * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it.
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it.
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.

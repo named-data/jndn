@@ -503,10 +503,10 @@ public class Face {
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onRegisterSuccess This calls
-   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
-   * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it. (The onRegisterSuccess parameter comes after onRegisterFailed because
-   * it can be null or omitted, unlike onRegisterFailed.)
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it. (The onRegisterSuccess parameter comes after
+   * onRegisterFailed because it can be null or omitted, unlike onRegisterFailed.)
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.
@@ -565,10 +565,10 @@ public class Face {
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onRegisterSuccess This calls
-   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
-   * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it. (The onRegisterSuccess parameter comes after onRegisterFailed because
-   * it can be null or omitted, unlike onRegisterFailed.)
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it. (The onRegisterSuccess parameter comes after
+   * onRegisterFailed because it can be null or omitted, unlike onRegisterFailed.)
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @return The registered prefix ID which can be used with
@@ -617,10 +617,10 @@ public class Face {
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onRegisterSuccess This calls
-   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
-   * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it. (The onRegisterSuccess parameter comes after onRegisterFailed because
-   * it can be null or omitted, unlike onRegisterFailed.)
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it. (The onRegisterSuccess parameter comes after
+   * onRegisterFailed because it can be null or omitted, unlike onRegisterFailed.)
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
@@ -671,10 +671,10 @@ public class Face {
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onRegisterSuccess This calls
-   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
-   * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it. (The onRegisterSuccess parameter comes after onRegisterFailed because
-   * it can be null or omitted, unlike onRegisterFailed.)
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it. (The onRegisterSuccess parameter comes after
+   * onRegisterFailed because it can be null or omitted, unlike onRegisterFailed.)
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
