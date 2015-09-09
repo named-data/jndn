@@ -221,18 +221,17 @@ public class Node implements ElementListener {
    * @param registeredPrefixId The getNextEntryId() for the registered prefix ID
    * which Face got so it could return it to the caller.
    * @param prefix A Name for the prefix to register. This copies the Name.
-   * @param onInterest (optional) If not null, this creates an interest filter
-   * from prefix so that when an Interest is received which matches the filter,
-   * this calls
+   * @param onInterest If not null, this creates an interest filter from prefix
+   * so that when an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
    * If onInterest is null, it is ignored and you must call setInterestFilter.
-   * @param onRegisterSuccess This calls
-   * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
-   * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it.
    * @param onRegisterFailed This calls onRegisterFailed.onRegisterFailed(prefix)
    * if failed to retrieve the connected hub's ID or failed to register the
    * prefix.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it.
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.
@@ -248,7 +247,7 @@ public class Node implements ElementListener {
   public final void
   registerPrefix
     (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
-     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+     OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
      ForwardingFlags flags, WireFormat wireFormat, KeyChain commandKeyChain,
      Name commandCertificateName, Face face) throws IOException, SecurityException
   {
@@ -263,8 +262,8 @@ public class Node implements ElementListener {
         // First fetch the ndndId of the connected hub.
         NdndIdFetcher fetcher = new NdndIdFetcher
           (new NdndIdFetcher.Info
-            (this, registeredPrefixId, prefix, onInterest, onRegisterSuccess,
-             onRegisterFailed, flags, wireFormat, face));
+            (this, registeredPrefixId, prefix, onInterest, onRegisterFailed,
+             onRegisterSuccess, flags, wireFormat, face));
         // We send the interest using the given wire format so that the hub
         //   receives (and sends) in the application's desired wire format.
         expressInterest
@@ -273,14 +272,14 @@ public class Node implements ElementListener {
       }
       else
         registerPrefixHelper
-          (registeredPrefixId, new Name(prefix), onInterest, onRegisterSuccess,
-           onRegisterFailed, flags, wireFormat, face);
+          (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed,
+           onRegisterSuccess, flags, wireFormat, face);
     }
     else
       // The application set the KeyChain for signing NFD interests.
       nfdRegisterPrefix
-        (registeredPrefixId, new Name(prefix), onInterest, onRegisterSuccess,
-         onRegisterFailed, flags, commandKeyChain, commandCertificateName,
+        (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed,
+         onRegisterSuccess, flags, commandKeyChain, commandCertificateName,
          wireFormat, face);
   }
 
@@ -620,7 +619,7 @@ public class Node implements ElementListener {
       info_.node_.ndndId_ = new Blob(digest);
       info_.node_.registerPrefixHelper
         (info_.registeredPrefixId_, info_.prefix_, info_.onInterest_,
-         info_.onRegisterSuccess_, info_.onRegisterFailed_, info_.flags_,
+         info_.onRegisterFailed_, info_.onRegisterSuccess_, info_.flags_,
          info_.wireFormat_, info_.face_);
     }
 
@@ -653,15 +652,15 @@ public class Node implements ElementListener {
        */
       public Info
         (Node node, long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
-         OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+          OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
          ForwardingFlags flags, WireFormat wireFormat, Face face)
       {
         node_ = node;
         registeredPrefixId_ = registeredPrefixId;
         prefix_ = new Name(prefix);
         onInterest_ = onInterest;
-        onRegisterSuccess_ = onRegisterSuccess;
         onRegisterFailed_ = onRegisterFailed;
+        onRegisterSuccess_ = onRegisterSuccess;
         flags_ = flags;
         wireFormat_ = wireFormat;
         face_ = face;
@@ -671,8 +670,8 @@ public class Node implements ElementListener {
       public final long registeredPrefixId_;
       public final Name prefix_;
       public final OnInterestCallback onInterest_;
-      public final OnRegisterSuccess onRegisterSuccess_;
       public final OnRegisterFailed onRegisterFailed_;
+      public final OnRegisterSuccess onRegisterSuccess_;
       public final ForwardingFlags flags_;
       public final WireFormat wireFormat_;
       public final Face face_;
@@ -767,7 +766,7 @@ public class Node implements ElementListener {
           NdndIdFetcher fetcher = new NdndIdFetcher
             (new NdndIdFetcher.Info
               (info_.node_, 0, info_.prefix_, info_.onInterest_,
-               info_.onRegisterSuccess_, info_.onRegisterFailed_, info_.flags_,
+               info_.onRegisterFailed_, info_.onRegisterSuccess_, info_.flags_,
                info_.wireFormat_, info_.face_));
           // We send the interest using the given wire format so that the hub
           // receives (and sends) in the application's desired wire format.
@@ -789,7 +788,7 @@ public class Node implements ElementListener {
           //   registeredPrefixTable_ on the first try.
           info_.node_.registerPrefixHelper
             (0, new Name(info_.prefix_), info_.onInterest_, 
-             info_.onRegisterSuccess_, info_.onRegisterFailed_, info_.flags_,
+             info_.onRegisterFailed_, info_.onRegisterSuccess_, info_.flags_,
              info_.wireFormat_, info_.face_);
       }
       else {
@@ -809,8 +808,8 @@ public class Node implements ElementListener {
        * @param node
        * @param prefix
        * @param onInterest
-       * @param onRegisterSuccess
        * @param onRegisterFailed
+       * @param onRegisterSuccess
        * @param flags
        * @param wireFormat
        * @param isNfdCommand
@@ -822,15 +821,15 @@ public class Node implements ElementListener {
        */
       public Info
         (Node node, Name prefix, OnInterestCallback onInterest,
-         OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed, 
+         OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
          ForwardingFlags flags, WireFormat wireFormat, boolean isNfdCommand,
          Face face, long registeredPrefixId)
       {
         node_ = node;
         prefix_ = prefix;
         onInterest_ = onInterest;
-        onRegisterSuccess_ = onRegisterSuccess;
         onRegisterFailed_ = onRegisterFailed;
+        onRegisterSuccess_ = onRegisterSuccess;
         flags_ = flags;
         wireFormat_ = wireFormat;
         isNfdCommand_ = isNfdCommand;
@@ -841,8 +840,8 @@ public class Node implements ElementListener {
       public final Node node_;
       public final Name prefix_;
       public final OnInterestCallback onInterest_;
-      public final OnRegisterSuccess onRegisterSuccess_;
       public final OnRegisterFailed onRegisterFailed_;
+      public final OnRegisterSuccess onRegisterSuccess_;
       public final ForwardingFlags flags_;
       public final WireFormat wireFormat_;
       public final boolean isNfdCommand_;
@@ -1044,8 +1043,8 @@ public class Node implements ElementListener {
    * registeredPrefixTable_ (assuming it has already been done).
    * @param prefix
    * @param onInterest
-   * @param onRegisterSuccess
    * @param onRegisterFailed
+   * @param onRegisterSuccess
    * @param flags
    * @param wireFormat
    * @param face The face which is passed to the onInterest callback. If
@@ -1054,7 +1053,7 @@ public class Node implements ElementListener {
   private void
   registerPrefixHelper
     (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
-     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+     OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
      ForwardingFlags flags, WireFormat wireFormat, Face face)
   {
     if (!WireFormat.ENABLE_NDNX)
@@ -1108,7 +1107,7 @@ public class Node implements ElementListener {
     // send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
-       (this, prefix, onInterest, onRegisterSuccess, onRegisterFailed, flags,
+       (this, prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags,
         wireFormat, false, face, registeredPrefixId));
     try {
       expressInterest
@@ -1130,6 +1129,7 @@ public class Node implements ElementListener {
    * @param prefix
    * @param onInterest
    * @param onRegisterFailed
+   * @param onRegisterSuccess
    * @param flags
    * @param commandKeyChain
    * @param commandCertificateName
@@ -1142,7 +1142,7 @@ public class Node implements ElementListener {
   private void
   nfdRegisterPrefix
     (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
-     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+     OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
      ForwardingFlags flags, KeyChain commandKeyChain,
      Name commandCertificateName, WireFormat wireFormat, Face face)
     throws SecurityException
@@ -1204,7 +1204,7 @@ public class Node implements ElementListener {
     // Send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
-       (this, prefix, onInterest, onRegisterSuccess, onRegisterFailed, flags,
+       (this, prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags,
         wireFormat, true, face, registeredPrefixId));
     try {
       expressInterest
