@@ -500,12 +500,13 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onRegisterSuccess This calls
    * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
    * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it.
-   * @param onRegisterFailed If register prefix fails for any reason, this
-   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * it. (The onRegisterSuccess parameter comes after onRegisterFailed because
+   * it can be null or omitted, unlike onRegisterFailed.)
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.
@@ -518,7 +519,7 @@ public class Face {
   public long
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
-     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+     OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
      ForwardingFlags flags, WireFormat wireFormat)
     throws IOException, SecurityException
   {
@@ -534,6 +535,22 @@ public class Face {
   }
 
   /**
+   * @deprecated Use
+   * registerPrefix(prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags, wireFormat)
+   * where the onRegisterSuccess parameter comes after onRegisterFailed.
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterestCallback onInterest,
+     OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
+     ForwardingFlags flags, WireFormat wireFormat)
+    throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags, wireFormat);
+  }
+
+  /**
    * Register prefix with the connected NDN hub and call onInterest when a
    * matching interest is received.
    * This uses the default WireFormat.getDefaultWireFormat().
@@ -545,12 +562,13 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onRegisterSuccess This calls
    * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
    * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it.
-   * @param onRegisterFailed If register prefix fails for any reason, this
-   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * it. (The onRegisterSuccess parameter comes after onRegisterFailed because
+   * it can be null or omitted, unlike onRegisterFailed.)
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @return The registered prefix ID which can be used with
@@ -560,11 +578,27 @@ public class Face {
   public long
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
+     OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
+     ForwardingFlags flags) throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags,
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * @deprecated Use
+   * registerPrefix(prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags)
+   * where the onRegisterSuccess parameter comes after onRegisterFailed.
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterestCallback onInterest,
      OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
      ForwardingFlags flags) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterSuccess, onRegisterFailed, flags,
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags,
        WireFormat.getDefaultWireFormat());
   }
 
@@ -580,12 +614,13 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onRegisterSuccess This calls
    * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
    * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it.
-   * @param onRegisterFailed If register prefix fails for any reason, this
-   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * it. (The onRegisterSuccess parameter comes after onRegisterFailed because
+   * it can be null or omitted, unlike onRegisterFailed.)
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
@@ -596,11 +631,27 @@ public class Face {
   public long
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
+     OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
+     WireFormat wireFormat) throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess,
+       new ForwardingFlags(), wireFormat);
+  }
+
+  /**
+   * @deprecated Use
+   * registerPrefix(prefix, onInterest, onRegisterFailed, onRegisterSuccess, wireFormat)
+   * where the onRegisterSuccess parameter comes after onRegisterFailed.
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterestCallback onInterest,
      OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
      WireFormat wireFormat) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterSuccess, onRegisterFailed,
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess,
        new ForwardingFlags(), wireFormat);
   }
 
@@ -617,12 +668,13 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
    * @param onRegisterSuccess This calls
    * onRegisterSuccess.onRegisterSuccess(prefix) when this receives a success
    * message from the forwarder. If onRegisterSuccess is null, this does not use
-   * it.
-   * @param onRegisterFailed If register prefix fails for any reason, this
-   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * it. (The onRegisterSuccess parameter comes after onRegisterFailed because
+   * it can be null or omitted, unlike onRegisterFailed.)
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
@@ -632,11 +684,27 @@ public class Face {
   public long
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
+     OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess)
+    throws IOException, SecurityException
+  {
+    return registerPrefix
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess,
+       new ForwardingFlags(), WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * @deprecated Use
+   * registerPrefix(prefix, onInterest, onRegisterFailed, onRegisterSuccess)
+   * where the onRegisterSuccess parameter comes after onRegisterFailed.
+   */
+  public long
+  registerPrefix
+    (Name prefix, OnInterestCallback onInterest,
      OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed)
     throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterSuccess, onRegisterFailed,
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess,
        new ForwardingFlags(), WireFormat.getDefaultWireFormat());
   }
 
@@ -673,7 +741,7 @@ public class Face {
      WireFormat wireFormat) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, null, onRegisterFailed, flags, wireFormat);
+      (prefix, onInterest, onRegisterFailed, null, flags, wireFormat);
   }
 
   /**
@@ -702,7 +770,7 @@ public class Face {
      ForwardingFlags flags) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, null, onRegisterFailed, flags,
+      (prefix, onInterest, onRegisterFailed, null, flags,
        WireFormat.getDefaultWireFormat());
   }
 
@@ -733,7 +801,7 @@ public class Face {
      WireFormat wireFormat) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, null, onRegisterFailed, new ForwardingFlags(),
+      (prefix, onInterest, onRegisterFailed, null, new ForwardingFlags(),
        wireFormat);
   }
 
@@ -764,7 +832,7 @@ public class Face {
      OnRegisterFailed onRegisterFailed) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, null, onRegisterFailed, new ForwardingFlags(),
+      (prefix, onInterest, onRegisterFailed, null, new ForwardingFlags(),
        WireFormat.getDefaultWireFormat());
   }
 
