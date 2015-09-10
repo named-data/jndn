@@ -302,19 +302,21 @@ public class IdentityManager {
   }
 
   /**
-   * Set a key as the default key of an identity.
+   * Set a key as the default key of an identity. The identity name is inferred
+   * from keyName.
    * @param keyName The name of the key.
-   * @param identityName the name of the identity. If empty, the
-   * identity name is inferred from the keyName.
+   * @param identityNameCheck The identity name to check that the keyName
+   * contains the same identity name. If an empty name, it is ignored.
    */
   public final void
-  setDefaultKeyForIdentity(Name keyName, Name identityName) throws SecurityException
+  setDefaultKeyForIdentity(Name keyName, Name identityNameCheck) throws SecurityException
   {
-    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityNameCheck);
   }
 
   /**
-   * Set a key as the default key of an identity, inferred from the keyName.
+   * Set a key as the default key of an identity. The identity name is inferred
+   * from keyName.
    * @param keyName The name of the key.
    */
   public final void
