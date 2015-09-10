@@ -129,7 +129,7 @@ public class IdentityManager {
 
     if (generateKey) {
       keyName = generateKeyPair(identityName, true, params);
-      identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+      identityStorage_.setDefaultKeyNameForIdentity(keyName);
     }
 
     Name certName = null;
@@ -363,7 +363,7 @@ public class IdentityManager {
   {
     Name keyName = generateKeyPair(identityName, isKsk, new RsaKeyParams(keySize));
 
-    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+    identityStorage_.setDefaultKeyNameForIdentity(keyName);
 
     return keyName;
   }
@@ -408,7 +408,7 @@ public class IdentityManager {
   {
     Name keyName = generateKeyPair(identityName, isKsk, new EcdsaKeyParams(keySize));
 
-    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+    identityStorage_.setDefaultKeyNameForIdentity(keyName);
 
     return keyName;
   }
