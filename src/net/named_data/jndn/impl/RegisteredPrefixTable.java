@@ -69,7 +69,7 @@ public class RegisteredPrefixTable {
     int count = 0;
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though registeredPrefixId should be unique.
-    for (int i = (int)table_.size() - 1; i >= 0; --i) {
+    for (int i = table_.size() - 1; i >= 0; --i) {
       Entry entry = (Entry)table_.get(i);
 
       if (entry.getRegisteredPrefixId() == registeredPrefixId) {
