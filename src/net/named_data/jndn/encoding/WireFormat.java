@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.DelegationSet;
-import net.named_data.jndn.ForwardingEntry;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.LocalControlHeader;
 import net.named_data.jndn.Name;
@@ -231,39 +230,6 @@ public class WireFormat {
   decodeData(Data data, ByteBuffer input) throws EncodingException
   {
     decodeData(data, input, new int[1], new int[1]);
-  }
-
-  /**
-   * Encode forwardingEntry and return the encoding. Your derived class should
-   * override.
-   * @param forwardingEntry The ForwardingEntry object to encode.
-   * @return A Blob containing the encoding.
-   * @throws UnsupportedOperationException for unimplemented if the derived
-   * class does not override.
-   */
-  public Blob
-  encodeForwardingEntry(ForwardingEntry forwardingEntry)
-  {
-    throw new UnsupportedOperationException
-      ("encodeForwardingEntry is not implemented");
-  }
-
-  /**
-   * Decode input as a forwarding entry and set the fields of the
-   * forwardingEntry object. Your derived class should override.
-   * @param forwardingEntry The ForwardingEntry object whose fields are updated.
-   * @param input The input buffer to decode.  This reads from position() to
-   * limit(), but does not change the position.
-   * @throws UnsupportedOperationException for unimplemented if the derived
-   * class does not override.
-   * @throws EncodingException For invalid encoding.
-   */
-  public void
-  decodeForwardingEntry
-    (ForwardingEntry forwardingEntry, ByteBuffer input) throws EncodingException
-  {
-    throw new UnsupportedOperationException
-      ("decodeForwardingEntry is not implemented");
   }
 
   /**

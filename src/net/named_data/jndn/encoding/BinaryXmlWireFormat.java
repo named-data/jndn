@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Exclude;
-import net.named_data.jndn.ForwardingEntry;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
@@ -150,83 +149,6 @@ public class BinaryXmlWireFormat extends WireFormat {
   {
     BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);
     decodeData(data, input, signedPortionBeginOffset, signedPortionEndOffset, decoder);
-  }
-
-  /**
-   * Encode forwardingEntry in binary XML and return the encoding.
-   * @param forwardingEntry The ForwardingEntry object to encode.
-   * @return A Blob containing the encoding.
-   */
-  public Blob
-  encodeForwardingEntry(ForwardingEntry forwardingEntry)
-  {
-    BinaryXmlEncoder encoder = new BinaryXmlEncoder();
-
-    encoder.writeElementStartDTag(BinaryXml.DTag_ForwardingEntry);
-
-    encoder.writeOptionalUDataDTagElement
-      (BinaryXml.DTag_Action, new Blob(forwardingEntry.getAction()));
-    encodeName(forwardingEntry.getPrefix(), new int[1], new int[1], encoder);
-    // This will skip encoding if there is no publisherPublicKeyDigest.
-    encodePublisherPublicKeyDigest
-      (forwardingEntry.getPublisherPublicKeyDigest(), encoder);
-    encoder.writeOptionalUnsignedDecimalIntDTagElement
-      (BinaryXml.DTag_FaceID, forwardingEntry.getFaceId());
-    encoder.writeUnsignedDecimalIntDTagElement
-      (BinaryXml.DTag_ForwardingFlags,
-       forwardingEntry.getForwardingFlags().getForwardingEntryFlags());
-    if (forwardingEntry.getFreshnessPeriod() >= 0.0)
-      // Convert from milliseconds to seconds.
-      encoder.writeOptionalUnsignedDecimalIntDTagElement
-        (BinaryXml.DTag_FreshnessSeconds,
-         (int)Math.round(forwardingEntry.getFreshnessPeriod() / 1000.0));
-
-    encoder.writeElementClose();
-    return new Blob(encoder.getOutput(), false);
-  }
-
-  /**
-   * Decode input as a forwarding entry in binary XML and set the fields of the
-   * forwardingEntry object.
-   * @param forwardingEntry The ForwardingEntry object whose fields are updated.
-   * @param input ByteBuffer input.
-   * @throws EncodingException For invalid encoding.
-   */
-  public void
-  decodeForwardingEntry
-    (ForwardingEntry forwardingEntry, ByteBuffer input) throws EncodingException
-  {
-    BinaryXmlDecoder decoder = new BinaryXmlDecoder(input);
-    decoder.readElementStartDTag(BinaryXml.DTag_ForwardingEntry);
-
-    ByteBuffer action = decoder.readOptionalUDataDTagElement(BinaryXml.DTag_Action);
-    if (action != null)
-      forwardingEntry.setAction
-        (new String(new Blob(action, true).getImmutableArray()));
-    else
-      forwardingEntry.setAction("");
-
-    decodeName(forwardingEntry.getPrefix(), new int[1], new int[1], decoder);
-    decodeOptionalPublisherPublicKeyDigest
-      (forwardingEntry.getPublisherPublicKeyDigest(), decoder);
-    forwardingEntry.setFaceId
-      (decoder.readOptionalUnsignedIntegerDTagElement(BinaryXml.DTag_FaceID));
-
-    int forwardingEntryFlags = decoder.readOptionalUnsignedIntegerDTagElement
-      (BinaryXml.DTag_ForwardingFlags);
-    if (forwardingEntryFlags >= 0)
-      forwardingEntry.getForwardingFlags().setForwardingEntryFlags(forwardingEntryFlags);
-    else
-      // This sets the default flags.
-      forwardingEntry.setForwardingFlags(null);
-
-    int freshnessSeconds = decoder.readOptionalUnsignedIntegerDTagElement
-      (BinaryXml.DTag_FreshnessSeconds);
-    // Convert seconds to milliseconds.
-    forwardingEntry.setFreshnessPeriod
-      (freshnessSeconds >= 0 ? (double)freshnessSeconds * 1000.0 : -1.0);
-
-    decoder.readElementClose();
   }
 
   /**

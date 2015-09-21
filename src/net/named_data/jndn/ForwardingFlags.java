@@ -161,54 +161,6 @@ public class ForwardingFlags {
   setCaptureOk(boolean captureOk) { captureOk_ = captureOk; }
 
   /**
-   * Get an integer with the bits set according to the flags as used by the
-   * ForwardingEntry message.
-   * @return An integer with the bits set.
-   */
-  public final int
-  getForwardingEntryFlags()
-  {
-    int result = 0;
-
-    if (active_)
-      result |= ForwardingEntryFlags_ACTIVE;
-    if (childInherit_)
-      result |= ForwardingEntryFlags_CHILD_INHERIT;
-    if (advertise_)
-      result |= ForwardingEntryFlags_ADVERTISE;
-    if (last_)
-      result |= ForwardingEntryFlags_LAST;
-    if (capture_)
-      result |= ForwardingEntryFlags_CAPTURE;
-    if (local_)
-      result |= ForwardingEntryFlags_LOCAL;
-    if (tap_)
-      result |= ForwardingEntryFlags_TAP;
-    if (captureOk_)
-      result |= ForwardingEntryFlags_CAPTURE_OK;
-
-    return result;
-  }
-
-  /**
-   * Set the flags according to the bits in forwardingEntryFlags as used by the
-   * ForwardingEntry message.
-   * @param forwardingEntryFlags An integer with the bits set.
-   */
-  public final void
-  setForwardingEntryFlags(int forwardingEntryFlags)
-  {
-    active_ = (forwardingEntryFlags & ForwardingEntryFlags_ACTIVE) != 0;
-    childInherit_ = (forwardingEntryFlags & ForwardingEntryFlags_CHILD_INHERIT) != 0;
-    advertise_ = (forwardingEntryFlags & ForwardingEntryFlags_ADVERTISE) != 0;
-    last_ = (forwardingEntryFlags & ForwardingEntryFlags_LAST) != 0;
-    capture_ = (forwardingEntryFlags & ForwardingEntryFlags_CAPTURE) != 0;
-    local_ = (forwardingEntryFlags & ForwardingEntryFlags_LOCAL) != 0;
-    tap_ = (forwardingEntryFlags & ForwardingEntryFlags_TAP) != 0;
-    captureOk_ = (forwardingEntryFlags & ForwardingEntryFlags_CAPTURE_OK) != 0;
-  }
-
-  /**
    * Get an integer with the bits set according to the NFD forwarding flags as
    * used in the ControlParameters of the command interest.
    * @return An integer with the bits set.
