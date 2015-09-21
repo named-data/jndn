@@ -43,8 +43,6 @@ public class Sha256WithRsaSignature extends Signature {
    */
   public Sha256WithRsaSignature(Sha256WithRsaSignature signature)
   {
-    digestAlgorithm_ = signature.digestAlgorithm_;
-    witness_ = signature.witness_;
     signature_ = signature.signature_;
     keyLocator_.set(new KeyLocator(signature.getKeyLocator()));
   }
@@ -60,32 +58,6 @@ public class Sha256WithRsaSignature extends Signature {
   }
 
   /**
-   * @deprecated This is for the NDNx wire format which is deprecated.
-   */
-  public final Blob
-  getDigestAlgorithm()
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("The Digest Algorithm is for the NDNx wire format and is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
-
-    return digestAlgorithm_;
-  }
-
-  /**
-   * @deprecated This is for the NDNx wire format which is deprecated.
-   */
-  public final Blob
-  getWitness()
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("The Witness is for the NDNx wire format and is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
-
-    return witness_;
-  }
-
-  /**
    * Get the signature bytes.
    * @return The signature bytes. If not specified, the value isNull().
    */
@@ -94,34 +66,6 @@ public class Sha256WithRsaSignature extends Signature {
 
   public final KeyLocator
   getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
-
-  /**
-   * @deprecated This is for the NDNx wire format which is deprecated.
-   */
-  public final void
-  setDigestAlgorithm(Blob digestAlgorithm)
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("The Digest Algorithm is for the NDNx wire format and is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
-
-    digestAlgorithm_ = (digestAlgorithm == null ? new Blob() : digestAlgorithm);
-    ++changeCount_;
-  }
-
-  /**
-   * @deprecated This is for the NDNx wire format which is deprecated.
-   */
-  public final void
-  setWitness(Blob witness)
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("The Witness is for the NDNx wire format and is deprecated. To enable while you upgrade your code to use NDN-TLV, set WireFormat.ENABLE_NDNX = true");
-
-    witness_ = (witness == null ? new Blob() : witness);
-    ++changeCount_;
-  }
 
   /**
    * Set the signature bytes to the given value.
@@ -159,9 +103,6 @@ public class Sha256WithRsaSignature extends Signature {
     return changeCount_;
   }
 
-  private Blob digestAlgorithm_ = new Blob(); /**< if empty, the default is
-                                             2.16.840.1.101.3.4.2.1 (sha-256) */
-  private Blob witness_ = new Blob();
   private Blob signature_ = new Blob();
   private final ChangeCounter keyLocator_ = new ChangeCounter(new KeyLocator());
   private long changeCount_ = 0;
