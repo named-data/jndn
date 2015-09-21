@@ -29,7 +29,6 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.KeyNameType;
 import net.named_data.jndn.MetaInfo;
 import net.named_data.jndn.Name;
-import net.named_data.jndn.PublisherPublicKeyDigest;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.util.Blob;
 
@@ -345,52 +344,6 @@ public class BinaryXmlWireFormat extends WireFormat {
     signedPortionEndOffset[0] = decoder.getOffset();
 
     decoder.readElementClose();
-  }
-
-  /**
-   * Encode the PublisherPublicKeyDigest using Binary XML.  If publisherPublicKeyDigest.getPublisherPublicKeyDigest().size()
-   * is 0, then do nothing.
-   * @param publisherPublicKeyDigest The PublisherPublicKeyDigest to encode.
-   * @param encoder The BinaryXmlEncoder used to encode.
-   */
-  private static void
-  encodePublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest, BinaryXmlEncoder encoder)
-  {
-    if (publisherPublicKeyDigest.getPublisherPublicKeyDigest().size() <= 0)
-      return;
-
-    encoder.writeBlobDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest, publisherPublicKeyDigest.getPublisherPublicKeyDigest());
-  }
-
-  /**
-   * Expect the next element to be a Binary XML PublisherPublicKeyDigest and decode into publisherPublicKeyDigest.
-   * @param publisherPublicKeyDigest The PublisherPublicKeyDigest to update.
-   * @param decoder The BinaryXmlDecoder used to decode.
-   * @throws EncodingException For invalid encoding.
-   */
-  private static void
-  decodePublisherPublicKeyDigest
-    (PublisherPublicKeyDigest publisherPublicKeyDigest, BinaryXmlDecoder decoder) throws EncodingException
-  {
-    publisherPublicKeyDigest.setPublisherPublicKeyDigest
-      (new Blob(decoder.readBinaryDTagElement(BinaryXml.DTag_PublisherPublicKeyDigest), true));
-  }
-
-  /**
-   * Peek the next element and if it is a Binary XML PublisherPublicKeyDigest decode into publisherPublicKeyDigest.
-   * Otherwise, set publisherPublicKeyDigest to none.
-   * @param publisherPublicKeyDigest The PublisherPublicKeyDigest to update.
-   * @param decoder The BinaryXmlDecoder used to decode.
-   * @throws EncodingException For invalid encoding.
-   */
-  private static void
-  decodeOptionalPublisherPublicKeyDigest
-    (PublisherPublicKeyDigest publisherPublicKeyDigest, BinaryXmlDecoder decoder) throws EncodingException
-  {
-    if (decoder.peekDTag(BinaryXml.DTag_PublisherPublicKeyDigest))
-      decodePublisherPublicKeyDigest(publisherPublicKeyDigest, decoder);
-    else
-      publisherPublicKeyDigest.clear();
   }
 
   private static void
