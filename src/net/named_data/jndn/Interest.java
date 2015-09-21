@@ -67,8 +67,6 @@ public class Interest implements ChangeCountable {
     name_.set(new Name(interest.getName()));
     minSuffixComponents_ = interest.minSuffixComponents_;
     maxSuffixComponents_ = interest.maxSuffixComponents_;
-    publisherPublicKeyDigest_.set
-      (new PublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest()));
     keyLocator_.set(new KeyLocator(interest.getKeyLocator()));
     exclude_.set(new Exclude(interest.getExclude()));
     childSelector_ = interest.childSelector_;
@@ -242,12 +240,6 @@ public class Interest implements ChangeCountable {
     if (interestLifetimeMilliseconds_ >= 0)
       selectors.append("&ndn.InterestLifetime=").append
         ((long)Math.round(interestLifetimeMilliseconds_));
-    if (getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
-      selectors.append("&ndn.PublisherPublicKeyDigest=");
-      Name.toEscapedString
-        (getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().buf(),
-         selectors);
-    }
     if (nonce_.size() > 0) {
       selectors.append("&ndn.Nonce=");
       Name.toEscapedString(nonce_.buf(), selectors);
@@ -274,17 +266,6 @@ public class Interest implements ChangeCountable {
 
   public final int
   getMaxSuffixComponents() { return maxSuffixComponents_; }
-
-  /**
-   * @deprecated The Interest publisherPublicKeyDigest is deprecated.  If you
-   * need a publisher public key digest, set the keyLocator keyLocatorType to
-   * KEY_LOCATOR_DIGEST and set its key data to the digest.
-   */
-  public final PublisherPublicKeyDigest
-  getPublisherPublicKeyDigest()
-  {
-    return (PublisherPublicKeyDigest)publisherPublicKeyDigest_.get();
-  }
 
   public final KeyLocator
   getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
@@ -630,7 +611,6 @@ public class Interest implements ChangeCountable {
   {
     // Make sure each of the checkChanged is called.
     boolean changed = name_.checkChanged();
-    changed = publisherPublicKeyDigest_.checkChanged() || changed;
     changed = keyLocator_.checkChanged() || changed;
     changed = exclude_.checkChanged() || changed;
     if (changed)
@@ -654,11 +634,6 @@ public class Interest implements ChangeCountable {
   private final ChangeCounter name_ = new ChangeCounter(new Name());
   private int minSuffixComponents_ = -1;
   private int maxSuffixComponents_ = -1;
-  /** @deprecated. The Interest publisherPublicKeyDigest is deprecated. If you
-   * need a publisher public key digest, set the keyLocator keyLocatorType to
-   * KEY_LOCATOR_DIGEST and set its key data to the digest. */
-  private final ChangeCounter publisherPublicKeyDigest_ =
-    new ChangeCounter(new PublisherPublicKeyDigest());
   private final ChangeCounter keyLocator_ = new ChangeCounter(new KeyLocator());
   private final ChangeCounter exclude_ = new ChangeCounter(new Exclude());
   private int childSelector_ = -1;
