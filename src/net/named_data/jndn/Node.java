@@ -618,7 +618,6 @@ public class Node implements ElementListener {
        * @param onRegisterSuccess
        * @param flags
        * @param wireFormat
-       * @param isNfdCommand
        * @param face The face which is passed to the onInterest callback. If
        * onInterest is null, this is ignored. TODO: This is not needed after
        * we remove NdndIdFetcher.
@@ -628,8 +627,8 @@ public class Node implements ElementListener {
       public Info
         (Node node, Name prefix, OnInterestCallback onInterest,
          OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
-         ForwardingFlags flags, WireFormat wireFormat, boolean isNfdCommand,
-         Face face, long registeredPrefixId)
+         ForwardingFlags flags, WireFormat wireFormat, Face face,
+         long registeredPrefixId)
       {
         node_ = node;
         prefix_ = prefix;
@@ -638,7 +637,6 @@ public class Node implements ElementListener {
         onRegisterSuccess_ = onRegisterSuccess;
         flags_ = flags;
         wireFormat_ = wireFormat;
-        isNfdCommand_ = isNfdCommand;
         face_ = face;
         registeredPrefixId_ = registeredPrefixId;
       }
@@ -650,7 +648,6 @@ public class Node implements ElementListener {
       public final OnRegisterSuccess onRegisterSuccess_;
       public final ForwardingFlags flags_;
       public final WireFormat wireFormat_;
-      public final boolean isNfdCommand_;
       public final Face face_;
       public final long registeredPrefixId_;
     }
@@ -742,7 +739,7 @@ public class Node implements ElementListener {
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
        (this, prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags,
-        wireFormat, true, face, registeredPrefixId));
+        wireFormat, face, registeredPrefixId));
     try {
       expressInterest
         (getNextEntryId(), commandInterest, response, response, wireFormat, face);
