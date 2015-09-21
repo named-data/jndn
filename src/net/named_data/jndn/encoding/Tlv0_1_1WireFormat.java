@@ -592,7 +592,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
 
   /**
-   * Get a singleton instance of a Tlv1_0a2WireFormat.  To always use the
+   * Get a singleton instance of a Tlv0_1_1WireFormat.  To always use the
    * preferred version NDN-TLV, you should use TlvWireFormat.get().
    * @return The singleton instance.
    */
