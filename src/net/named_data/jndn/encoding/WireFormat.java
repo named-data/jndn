@@ -30,13 +30,6 @@ import net.named_data.jndn.Signature;
 import net.named_data.jndn.util.Blob;
 
 public class WireFormat {
-  /** NDNx support and binary XML (ccnb or ndnb) encoding is deprecated and code
-   * with throw an exception. To enable support while you upgrade your code to
-   * use NFD, set WireFormat.ENABLE_NDNX = true . NDNx support will be
-   * completely removed in an upcoming release.
-   */
-  public static boolean ENABLE_NDNX = false;
-
   /**
    * Encode name and return the encoding.  Your derived class should
    * override.
