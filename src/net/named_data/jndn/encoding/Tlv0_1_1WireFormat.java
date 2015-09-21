@@ -24,6 +24,7 @@ import java.security.SecureRandom;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Exclude;
 import net.named_data.jndn.ForwardingFlags;
@@ -536,6 +537,63 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
     // Don't call finishNestedTlvs since we got the payload and don't want to
     // decode any of it now.
+  }
+
+  /**
+   * Encode delegationSet as a sequence of NDN-TLV Delegation, and return the
+   * encoding. Note that the sequence of Delegation does not have an outer TLV
+   * type and length because it is intended to use the type and length of a Data
+   * packet's Content.
+   * @param delegationSet The DelegationSet object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeDelegationSet(DelegationSet delegationSet)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+
+    // Encode backwards.
+    for (int i = delegationSet.size() - 1; i >= 0; --i) {
+      int saveLength = encoder.getLength();
+
+      encodeName(delegationSet.get(i).getName());
+      encoder.writeNonNegativeIntegerTlv
+        (Tlv.Link_Preference, delegationSet.get(i).getPreference());
+
+      encoder.writeTypeAndLength
+        (Tlv.Link_Delegation, encoder.getLength() - saveLength);
+    }
+    
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as a sequence of NDN-TLV Delegation and set the fields of the
+   * delegationSet object. Note that the sequence of Delegation does not have an
+   * outer TLV type and length because it is intended to use the type and length
+   * of a Data packet's Content. This ignores any elements after the sequence
+   * of Delegation and before input.limit().
+   * @param delegationSet The DelegationSet object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void
+  decodeDelegationSet
+    (DelegationSet delegationSet, ByteBuffer input) throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = input.limit();
+
+    while (decoder.getOffset() < endOffset) {
+      int preference = (int)decoder.readNonNegativeIntegerTlv(Tlv.Link_Preference);
+      Name name = new Name();
+      decodeName(name, new int[1], new int[1], decoder);
+      
+      delegationSet.add(preference, name);
+    }
+
+    delegationSet.clear();
   }
 
   /**
