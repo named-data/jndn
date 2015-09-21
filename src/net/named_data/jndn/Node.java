@@ -26,9 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.named_data.jndn.encoding.BinaryXml;
-import net.named_data.jndn.encoding.BinaryXmlDecoder;
-import net.named_data.jndn.encoding.BinaryXmlWireFormat;
 import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.TlvWireFormat;
@@ -375,9 +372,6 @@ public class Node implements ElementListener {
     // First, decode as Interest or Data.
     Interest interest = null;
     Data data = null;
-    // The type codes for TLV Interest and Data packets are chosen to not
-    //   conflict with the first byte of a binary XML packet, so we can
-    //   just look at the first byte.
     if (element.get(0) == Tlv.Interest || element.get(0) == Tlv.Data) {
       TlvDecoder decoder = new TlvDecoder(element);
       if (decoder.peekType(Tlv.Interest, element.remaining())) {
@@ -393,18 +387,6 @@ public class Node implements ElementListener {
 
         if (localControlHeader != null)
           data.setLocalControlHeader(localControlHeader);
-      }
-    }
-    else {
-      // Binary XML.
-      BinaryXmlDecoder decoder = new BinaryXmlDecoder(element);
-      if (decoder.peekDTag(BinaryXml.DTag_Interest)) {
-        interest = new Interest();
-        interest.wireDecode(element, BinaryXmlWireFormat.get());
-      }
-      else if (decoder.peekDTag(BinaryXml.DTag_ContentObject)) {
-        data = new Data();
-        data.wireDecode(element, BinaryXmlWireFormat.get());
       }
     }
 
