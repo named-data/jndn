@@ -97,8 +97,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     // Encode backwards.
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.InterestLifetime, interest.getInterestLifetimeMilliseconds());
-    // Access scope_ directly to avoid throwing a deprecated exception.
-    encoder.writeOptionalNonNegativeIntegerTlv(Tlv.Scope, interest.scope_);
 
     // Encode the Nonce as 4 bytes.
     if (interest.getNonce().size() == 0)
@@ -183,9 +181,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       decodeSelectors(interest, decoder);
     // Require a Nonce, but don't force it to be 4 bytes.
     ByteBuffer nonce = decoder.readBlobTlv(Tlv.Nonce);
-    // Access scope_ directly to avoid throwing a deprecated exception.
-    interest.scope_ = (int)decoder.readOptionalNonNegativeIntegerTlv
-      (Tlv.Scope, endOffset);
     interest.setInterestLifetimeMilliseconds
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.InterestLifetime, endOffset));
 

@@ -73,7 +73,6 @@ public class Interest implements ChangeCountable {
     mustBeFresh_ = interest.mustBeFresh_;
 
     interestLifetimeMilliseconds_ = interest.interestLifetimeMilliseconds_;
-    scope_ = interest.scope_;
     nonce_ = interest.getNonce();
     setDefaultWireEncoding
       (interest.getDefaultWireEncoding(), interest.defaultWireEncodingFormat_);
@@ -224,8 +223,6 @@ public class Interest implements ChangeCountable {
     if (childSelector_ >= 0)
       selectors.append("&ndn.ChildSelector=").append(childSelector_);
     selectors.append("&ndn.MustBeFresh=").append(mustBeFresh_ ? 1 : 0);
-    if (scope_ >= 0)
-      selectors.append("&ndn.Scope=").append(scope_);
     if (interestLifetimeMilliseconds_ >= 0)
       selectors.append("&ndn.InterestLifetime=").append
         ((long)Math.round(interestLifetimeMilliseconds_));
@@ -271,19 +268,6 @@ public class Interest implements ChangeCountable {
    */
   public final boolean
   getMustBeFresh() { return mustBeFresh_; }
-
-  /**
-   * @deprecated Scope is not used by NFD.
-   */
-  public final int
-  getScope()
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("getScope is for NDNx and is deprecated. To enable while you upgrade your code to not use Scope, set WireFormat.ENABLE_NDNX = true");
-
-    return scope_;
-  }
 
   public final double
   getInterestLifetimeMilliseconds() { return interestLifetimeMilliseconds_; }
@@ -392,21 +376,6 @@ public class Interest implements ChangeCountable {
   setMustBeFresh(boolean mustBeFresh)
   {
     mustBeFresh_ = mustBeFresh;
-    ++changeCount_;
-    return this;
-  }
-
-  /**
-   * @deprecated Scope is not used by NFD.
-   */
-  public final Interest
-  setScope(int scope)
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("setScope is for NDNx and is deprecated. To enable while you upgrade your code to not use Scope, set WireFormat.ENABLE_NDNX = true");
-
-    scope_ = scope;
     ++changeCount_;
     return this;
   }
@@ -578,8 +547,6 @@ public class Interest implements ChangeCountable {
   private final ChangeCounter exclude_ = new ChangeCounter(new Exclude());
   private int childSelector_ = -1;
   private boolean mustBeFresh_ = true;
-  /** @deprecated. Scope is not used by NFD. */
-  public int scope_ = -1;
   private double interestLifetimeMilliseconds_ = -1;
   private Blob nonce_ = new Blob();
   private long getNonceChangeCount_ = 0;
