@@ -223,8 +223,7 @@ public class Node implements ElementListener {
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.
-   * @param commandKeyChain The KeyChain object for signing interests.  If null,
-   * assume we are connected to a legacy NDNx forwarder.
+   * @param commandKeyChain The KeyChain object for signing interests.
    * @param commandCertificateName The certificate name for signing interests.
    * @param face The face which is passed to the onInterest callback. If
    * onInterest is null, this is ignored.
