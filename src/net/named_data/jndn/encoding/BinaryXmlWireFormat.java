@@ -696,19 +696,6 @@ public class BinaryXmlWireFormat extends WireFormat {
   {
     encoder.writeElementStartDTag(BinaryXml.DTag_SignedInfo);
 
-    if (signature.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0)
-      // We have a publisherPublicKeyDigest, so use it.
-      encodePublisherPublicKeyDigest(signature.getPublisherPublicKeyDigest(), encoder);
-    else {
-      if (signature.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST &&
-          signature.getKeyLocator().getKeyData().size() > 0)
-        // We have a TLV-style KEY_LOCATOR_DIGEST, so encode as the
-        //   publisherPublicKeyDigest.
-        encoder.writeBlobDTagElement
-            (BinaryXml.DTag_PublisherPublicKeyDigest,
-             signature.getKeyLocator().getKeyData());
-    }
-
     encoder.writeOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_Timestamp, metaInfo.getTimestampMilliseconds());
     if (!(metaInfo.getType() == ContentType.DATA || metaInfo.getType() == ContentType.BLOB)) {
       // Not the default of DATA, so we need to encode the type.
@@ -738,7 +725,6 @@ public class BinaryXmlWireFormat extends WireFormat {
   decodeSignedInfo(Sha256WithRsaSignature signature, MetaInfo metaInfo, BinaryXmlDecoder decoder) throws EncodingException
   {
     decoder.readElementStartDTag(BinaryXml.DTag_SignedInfo);
-    decodeOptionalPublisherPublicKeyDigest(signature.getPublisherPublicKeyDigest(), decoder);
     metaInfo.setTimestampMilliseconds(decoder.readOptionalTimeMillisecondsDTagElement(BinaryXml.DTag_Timestamp));
     ByteBuffer typeBytes = decoder.readOptionalBinaryDTagElement(BinaryXml.DTag_Type);
     if (typeBytes == null)

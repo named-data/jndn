@@ -727,7 +727,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     interest.setMaxSuffixComponents((int)decoder.readOptionalNonNegativeIntegerTlv
       (Tlv.MaxSuffixComponents, endOffset));
 
-    // Initially set publisherPublicKeyDigest to none.
     if (decoder.peekType(Tlv.PublisherPublicKeyLocator, endOffset))
       decodeKeyLocator
         (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), decoder);

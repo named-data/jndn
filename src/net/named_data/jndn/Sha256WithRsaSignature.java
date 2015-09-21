@@ -46,8 +46,6 @@ public class Sha256WithRsaSignature extends Signature {
     digestAlgorithm_ = signature.digestAlgorithm_;
     witness_ = signature.witness_;
     signature_ = signature.signature_;
-    publisherPublicKeyDigest_.set
-      (new PublisherPublicKeyDigest(signature.getPublisherPublicKeyDigest()));
     keyLocator_.set(new KeyLocator(signature.getKeyLocator()));
   }
 
@@ -94,17 +92,6 @@ public class Sha256WithRsaSignature extends Signature {
   public final Blob
   getSignature() { return signature_; }
 
-  /**
-   * @deprecated The Signature publisherPublicKeyDigest is deprecated. If you
-   * need a publisher public key digest, set the keyLocator keyLocatorType to
-   * KEY_LOCATOR_DIGEST and set its key data to the digest.
-   */
-  public final PublisherPublicKeyDigest
-  getPublisherPublicKeyDigest()
-  {
-    return (PublisherPublicKeyDigest)publisherPublicKeyDigest_.get();
-  }
-
   public final KeyLocator
   getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
 
@@ -147,20 +134,6 @@ public class Sha256WithRsaSignature extends Signature {
     ++changeCount_;
   }
 
-  /**
-   * @deprecated The Signature publisherPublicKeyDigest is deprecated. If you
-   * need a publisher public key digest, set the keyLocator keyLocatorType to
-   * KEY_LOCATOR_DIGEST and set its key data to the digest.
-   */
-  public final void
-  setPublisherPublicKeyDigest(PublisherPublicKeyDigest publisherPublicKeyDigest)
-  {
-    publisherPublicKeyDigest_.set
-      (publisherPublicKeyDigest == null ? new PublisherPublicKeyDigest()
-      : new PublisherPublicKeyDigest(publisherPublicKeyDigest));
-    ++changeCount_;
-  }
-
   public final void
   setKeyLocator(KeyLocator keyLocator)
   {
@@ -178,8 +151,7 @@ public class Sha256WithRsaSignature extends Signature {
   getChangeCount()
   {
     // Make sure each of the checkChanged is called.
-    boolean changed = publisherPublicKeyDigest_.checkChanged();
-    changed = keyLocator_.checkChanged() || changed;
+    boolean changed = keyLocator_.checkChanged();
     if (changed)
       // A child object has changed, so update the change count.
       ++changeCount_;
@@ -191,8 +163,6 @@ public class Sha256WithRsaSignature extends Signature {
                                              2.16.840.1.101.3.4.2.1 (sha-256) */
   private Blob witness_ = new Blob();
   private Blob signature_ = new Blob();
-  private final ChangeCounter publisherPublicKeyDigest_ =
-    new ChangeCounter(new PublisherPublicKeyDigest());
   private final ChangeCounter keyLocator_ = new ChangeCounter(new KeyLocator());
   private long changeCount_ = 0;
 }
