@@ -21,14 +21,12 @@ package net.named_data.jndn.encoding;
 
 import java.nio.ByteBuffer;
 import net.named_data.jndn.util.DynamicByteBuffer;
-import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvStructureDecoder;
 import net.named_data.jndn.util.Common;
 
 /**
  * A ElementReader lets you call onReceivedData multiple times which
- * uses a BinaryXmlStructureDecoder or TlvStructureDecoder to detect the end of
- * a binary XML or NDN-TLV element and calls
+ * uses a TlvStructureDecoder to detect the end of an NDN-TLV element and calls
  * elementListener.onReceivedElement(element) with the element. This handles the
  * case where a single call to onReceivedData may contain multiple elements.
  */
@@ -65,41 +63,19 @@ public class ElementReader {
 
       try {
         if (!usePartialData_) {
-          // This is the beginning of an element. Check whether it is binaryXML or
-          //   TLV.
+          // This is the beginning of an element.
           if (data.remaining() <= 0)
             // Wait for more data.
             return;
-
-          // The type codes for TLV Interest and Data packets are chosen to not
-          //   conflict with the first byte of a binary XML packet, so we can
-          //   just look at the first byte.
-          int firstByte = (int)data.get(0) & 0xff;
-          if (firstByte == Tlv.Interest || firstByte == Tlv.Data ||
-              firstByte == Tlv.LocalControlHeader_LocalControlHeader ||
-              firstByte == 100)
-            useTlv_ = true;
-          else
-            // Binary XML.
-            useTlv_ = false;
         }
 
-        if (useTlv_) {
-          // Scan the input to check if a whole TLV object has been read.
-          tlvStructureDecoder_.seek(0);
-          gotElementEnd = tlvStructureDecoder_.findElementEnd(data);
-          offset = tlvStructureDecoder_.getOffset();
-        }
-        else {
-          // Scan the input to check if a whole binary XML object has been read.
-          binaryXmlStructureDecoder_.seek(0);
-          gotElementEnd = binaryXmlStructureDecoder_.findElementEnd(data);
-          offset = binaryXmlStructureDecoder_.getOffset();
-        }
+        // Scan the input to check if a whole TLV object has been read.
+        tlvStructureDecoder_.seek(0);
+        gotElementEnd = tlvStructureDecoder_.findElementEnd(data);
+        offset = tlvStructureDecoder_.getOffset();
       } catch (EncodingException ex) {
         // Reset to read a new element on the next call.
         usePartialData_ = false;
-        binaryXmlStructureDecoder_ = new BinaryXmlStructureDecoder();
         tlvStructureDecoder_ = new TlvStructureDecoder();
 
         throw ex;
@@ -126,7 +102,6 @@ public class ElementReader {
         // in case it throws an exception.
         data.position(offset);
         data = data.slice();
-        binaryXmlStructureDecoder_ = new BinaryXmlStructureDecoder();
         tlvStructureDecoder_ = new TlvStructureDecoder();
 
         elementListener_.onReceivedElement(element);
@@ -147,7 +122,6 @@ public class ElementReader {
             Common.MAX_NDN_PACKET_SIZE) {
           // Reset to read a new element on the next call.
           usePartialData_ = false;
-          binaryXmlStructureDecoder_ = new BinaryXmlStructureDecoder();
           tlvStructureDecoder_ = new TlvStructureDecoder();
 
           throw new EncodingException
@@ -160,11 +134,8 @@ public class ElementReader {
     }
   }
 
-  private ElementListener elementListener_;
-  private BinaryXmlStructureDecoder binaryXmlStructureDecoder_ =
-    new BinaryXmlStructureDecoder();
+  private final ElementListener elementListener_;
   private TlvStructureDecoder tlvStructureDecoder_ = new TlvStructureDecoder();
   private boolean usePartialData_;
-  private DynamicByteBuffer partialData_ = new DynamicByteBuffer(1000);
-  private boolean useTlv_;
+  private final DynamicByteBuffer partialData_ = new DynamicByteBuffer(1000);
 }

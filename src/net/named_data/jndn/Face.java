@@ -487,11 +487,8 @@ public class Face {
 
   /**
    * Register prefix with the connected NDN hub and call onInterest when a
-   * matching interest is received. If you have not called setCommandSigningInfo,
-   * this assumes you are connecting to NDNx. If you have called
-   * setCommandSigningInfo, this first sends an NFD registration request, and if
-   * that times out then this sends an NDNx registration request. If you need to
-   * register a prefix with NFD, you must first call setCommandSigningInfo.
+   * matching interest is received. To register a prefix with NFD, you must
+   * first call setCommandSigningInfo.
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest If not null, this creates an interest filter from prefix
    * so that when an Interest is received which matches the filter, this calls
@@ -710,11 +707,8 @@ public class Face {
 
   /**
    * Register prefix with the connected NDN hub and call onInterest when a
-   * matching interest is received. If you have not called setCommandSigningInfo,
-   * this assumes you are connecting to NDNx. If you have called
-   * setCommandSigningInfo, this first sends an NFD registration request, and if
-   * that times out then this sends an NDNx registration request. If you need to
-   * register a prefix with NFD, you must first call setCommandSigningInfo.
+   * matching interest is received. To register a prefix with NFD, you must
+   * first call setCommandSigningInfo.
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest If not null, this creates an interest filter from prefix
    * so that when an Interest is received which matches the filter, this calls
@@ -746,7 +740,8 @@ public class Face {
 
   /**
    * Register prefix with the connected NDN hub and call onInterest when a
-   * matching interest is received.
+   * matching interest is received. To register a prefix with NFD, you must
+   * first call setCommandSigningInfo.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest If not null, this creates an interest filter from prefix
@@ -776,7 +771,8 @@ public class Face {
 
   /**
    * Register prefix with the connected NDN hub and call onInterest when a
-   * matching interest is received.
+   * matching interest is received. To register a prefix with NFD, you must
+   * first call setCommandSigningInfo.
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest If not null, this creates an interest filter from prefix
@@ -807,7 +803,8 @@ public class Face {
 
   /**
    * Register prefix with the connected NDN hub and call onInterest when a
-   * matching interest is received.
+   * matching interest is received. To register a prefix with NFD, you must
+   * first call setCommandSigningInfo.
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
    * @param prefix A Name for the prefix to register. This copies the Name.

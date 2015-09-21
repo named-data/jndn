@@ -24,15 +24,9 @@ package net.named_data.jndn;
  */
 public enum ContentType {
   BLOB(0),
-  // ContentType DATA is deprecated. Use BLOB.
-  DATA(0),
   LINK(1),
   KEY (2),
-  // ContentType ENCR, GONE and NACK are not supported in NDN-TLV encoding and
-  //   are deprecated.
-  ENCR(3),
-  GONE(4),
-  NACK(5);
+  NACK(3);
 
   ContentType (int type)
   {

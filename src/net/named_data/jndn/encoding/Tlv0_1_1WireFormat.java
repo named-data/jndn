@@ -97,8 +97,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     // Encode backwards.
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.InterestLifetime, interest.getInterestLifetimeMilliseconds());
-    // Access scope_ directly to avoid throwing a deprecated exception.
-    encoder.writeOptionalNonNegativeIntegerTlv(Tlv.Scope, interest.scope_);
 
     // Encode the Nonce as 4 bytes.
     if (interest.getNonce().size() == 0)
@@ -183,9 +181,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       decodeSelectors(interest, decoder);
     // Require a Nonce, but don't force it to be 4 bytes.
     ByteBuffer nonce = decoder.readBlobTlv(Tlv.Nonce);
-    // Access scope_ directly to avoid throwing a deprecated exception.
-    interest.scope_ = (int)decoder.readOptionalNonNegativeIntegerTlv
-      (Tlv.Scope, endOffset);
     interest.setInterestLifetimeMilliseconds
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.InterestLifetime, endOffset));
 
@@ -706,19 +701,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     if (interest.getKeyLocator().getType() != KeyLocatorType.NONE)
       encodeKeyLocator
         (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), encoder);
-    else {
-      // There is no keyLocator. If there is a publisherPublicKeyDigest, then
-      //   encode as KEY_LOCATOR_DIGEST. (When we remove the deprecated
-      //   publisherPublicKeyDigest, we don't need this.)
-      if (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
-        int savePublisherPublicKeyDigestLength = encoder.getLength();
-        encoder.writeBlobTlv
-          (Tlv.KeyLocatorDigest,
-           interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().buf());
-        encoder.writeTypeAndLength
-          (Tlv.KeyLocator, encoder.getLength() - savePublisherPublicKeyDigestLength);
-      }
-    }
 
     encoder.writeOptionalNonNegativeIntegerTlv(
       Tlv.MaxSuffixComponents, interest.getMaxSuffixComponents());
@@ -740,17 +722,9 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     interest.setMaxSuffixComponents((int)decoder.readOptionalNonNegativeIntegerTlv
       (Tlv.MaxSuffixComponents, endOffset));
 
-    // Initially set publisherPublicKeyDigest to none.
-    interest.getPublisherPublicKeyDigest().clear();
-    if (decoder.peekType(Tlv.PublisherPublicKeyLocator, endOffset)) {
+    if (decoder.peekType(Tlv.PublisherPublicKeyLocator, endOffset))
       decodeKeyLocator
         (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), decoder);
-      if (interest.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST) {
-        // For backwards compatibility, also set the publisherPublicKeyDigest.
-        interest.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-          (interest.getKeyLocator().getKeyData());
-      }
-    }
     else
       interest.getKeyLocator().clear();
 
@@ -938,8 +912,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.FreshnessPeriod, metaInfo.getFreshnessPeriod());
-    if (!(metaInfo.getType() == ContentType.BLOB ||
-          metaInfo.getType() == ContentType.DATA)) {
+    if (!(metaInfo.getType() == ContentType.BLOB)) {
       // Not the default, so we need to encode the type.
       if (metaInfo.getType() == ContentType.LINK ||
           metaInfo.getType() == ContentType.KEY)
