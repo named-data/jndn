@@ -912,8 +912,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.FreshnessPeriod, metaInfo.getFreshnessPeriod());
-    if (!(metaInfo.getType() == ContentType.BLOB ||
-          metaInfo.getType() == ContentType.DATA)) {
+    if (!(metaInfo.getType() == ContentType.BLOB)) {
       // Not the default, so we need to encode the type.
       if (metaInfo.getType() == ContentType.LINK ||
           metaInfo.getType() == ContentType.KEY)
