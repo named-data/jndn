@@ -171,8 +171,6 @@ public class TestPublishAsyncNfd {
       Data data = new Data(interest.getName());
       String content = "Echo " + interest.getName().toUri();
       data.setContent(new Blob(content));
-      // setTimestampMilliseconds is needed for BinaryXml compatibility.
-      data.getMetaInfo().setTimestampMilliseconds(System.currentTimeMillis());
 
       try {
         keyChain_.sign(data, certificateName_);      }
