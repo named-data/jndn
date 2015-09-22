@@ -41,8 +41,7 @@ import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
- * A SelfVerifyPolicyManager implements a PolicyManager to use the public key
- * DER in the data packet's KeyLocator (if available) or look in the
+ * A SelfVerifyPolicyManager implements a PolicyManager to look in the
  * IdentityStorage for the public key with the name in the KeyLocator (if
  * available) and use it to verify the data packet, without searching a
  * certificate chain.  If the public key can't be found, the verification fails.
@@ -113,8 +112,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   /**
-   * Use the public key DER in the data packet's KeyLocator (if available) or
-   * look in the IdentityStorage for the public key with the name in the
+   * Look in the IdentityStorage for the public key with the name in the
    * KeyLocator (if available) and use it to verify the data packet.  If the
    * public key can't be found, call onVerifyFailed.
    * @param data The Data object with the signature to check.
@@ -141,11 +139,9 @@ public class SelfVerifyPolicyManager extends PolicyManager {
 
   /**
    * Use wireFormat.decodeSignatureInfoAndValue to decode the last two name
-   * components of the signed interest. Use the public key DER in the signed
-   * interest SignatureInfo's KeyLocator (if available) or look in the
-   * IdentityStorage for the public key with the name in the KeyLocator
-   * (if available) and use it to verify the interest. If the public key can't
-   * be found, call onVerifyFailed.
+   * components of the signed interest. Look in the IdentityStorage for the
+   * public key with the name in the KeyLocator (if available) and use it to
+   * verify the interest. If the public key can't be found, call onVerifyFailed.
    * @param interest The interest with the signature to check.
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress. (stepCount is ignored.)
@@ -209,12 +205,11 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   /**
-   * Check the type of signatureInfo to get the KeyLocator. Use the public key
-   * DER in the KeyLocator (if available) or look in the IdentityStorage for the
-   * public key with the name in the KeyLocator (if available) and use it to
-   * verify the signedBlob. If the public key can't be found, return false.
-   * (This is a generalized method which can verify both a Data packet and an
-   * interest.)
+   * Check the type of signatureInfo to get the KeyLocator. Look in the
+   * IdentityStorage for the public key with the name in the KeyLocator (if
+   * available) and use it to verify the signedBlob. If the public key can't be
+   * found, return false. (This is a generalized method which can verify both a
+   * Data packet and an interest.)
    * @param signatureInfo An object of a subclass of Signature, e.g.
    * Sha256WithRsaSignature.
    * @param signedBlob the SignedBlob with the signed portion to verify.
@@ -234,19 +229,16 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   /**
-   * Return the public key DER in the KeyLocator (if available) or look in the
-   * IdentityStorage for the public key with the name in the KeyLocator
-   * (if available). If the public key can't be found, return and empty Blob.
+   * Look in the IdentityStorage for the public key with the name in the
+   * KeyLocator (if available). If the public key can't be found, return and
+   * empty Blob.
    * @param keyLocator The KeyLocator.
    * @return The public key DER or an empty Blob if not found.
    */
   private Blob
   getPublicKeyDer(KeyLocator keyLocator) throws SecurityException
   {
-    if (keyLocator.getType() == KeyLocatorType.KEY)
-      // Use the public key DER directly.
-      return keyLocator.getKeyData();
-    else if (keyLocator.getType() == KeyLocatorType.KEYNAME &&
+    if (keyLocator.getType() == KeyLocatorType.KEYNAME &&
              identityStorage_ != null)
       // Assume the key name is a certificate name.
       return identityStorage_.getKey
