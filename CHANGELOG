@@ -9,6 +9,8 @@ Changes
   get/setWitness and get/setDigestAlgorithm.
 * In ForwardingFlags, removed deprecated NDNx flags active, advertise, last,
   local, tap and captureOK.
+* In KeyLocator, removed deprecated NDNx types KEY and CERTIFICATE.
+* In MetaInfo, removed deprecated NDNx get/setTimestamp.
 * In MetaInfo get/setType, removed deprecated NDNx types DATA, ENCR and GONE.
 * Removed deprecated NDNx ForwardingEntry.
 * Removed deprecated NDNx BinaryXmlWireFormat and support for binary XML packets.

@@ -34,18 +34,11 @@ public class MetaInfo implements ChangeCountable {
    */
   public MetaInfo(MetaInfo metaInfo)
   {
-    timestampMilliseconds_ = metaInfo.timestampMilliseconds_;
     type_ = metaInfo.type_;
     freshnessPeriod_ = metaInfo.freshnessPeriod_;
     // Name.Component is read-only, so we don't need a deep copy.
     finalBlockId_ = metaInfo.finalBlockId_;
   }
-
-  /**
-   * @deprecated Use the application-specific content to store a timestamp.
-   */
-  public final double
-  getTimestampMilliseconds() { return timestampMilliseconds_; }
 
   public final ContentType
   getType() { return type_; }
@@ -70,16 +63,6 @@ public class MetaInfo implements ChangeCountable {
    */
   public final Name.Component
   getFinalBlockID() { return getFinalBlockId(); }
-
-  /**
-   * @deprecated Use the application-specific content to store a timestamp.
-   */
-  public final void
-  setTimestampMilliseconds(double timestampMilliseconds)
-  {
-    timestampMilliseconds_ = timestampMilliseconds;
-    ++changeCount_;
-  }
 
   public final void
   setType(ContentType type)
@@ -128,7 +111,6 @@ public class MetaInfo implements ChangeCountable {
   public final long
   getChangeCount() { return changeCount_; }
 
-  private double timestampMilliseconds_ = -1; /**< milliseconds since 1/1/1970. -1 for none */
   private ContentType type_ = ContentType.BLOB; /**< default is ContentType.BLOB. */
   private double freshnessPeriod_ = -1; /**< -1 for none */
   private Name.Component finalBlockId_ = new Name.Component(); /**< size 0 for none */
