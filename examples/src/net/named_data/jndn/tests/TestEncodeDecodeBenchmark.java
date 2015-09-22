@@ -268,7 +268,6 @@ public class TestEncodeDecodeBenchmark {
         KeyLocator keyLocator = new KeyLocator();
         keyLocator.setType(KeyLocatorType.KEYNAME);
         keyLocator.setKeyName(certificateName);
-        keyLocator.setKeyNameType(KeyNameType.NONE);
         Sha256WithRsaSignature sha256Signature =
           (Sha256WithRsaSignature)data.getSignature();
         sha256Signature.setKeyLocator(keyLocator);
