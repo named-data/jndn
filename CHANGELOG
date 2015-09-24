@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.7.1 (2015-09-21)
-----------------------------------------------
+jNDN v0.8 (2015-09-24)
+----------------------
 
 Changes
 * In Face.registerPrefix, removed deprecated support to register with NDNx.
