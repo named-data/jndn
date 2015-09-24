@@ -27,8 +27,8 @@ package net.named_data.jndn;
  */
 public class ForwardingFlags {
   /**
-   * Create a new ForwardingFlags with "active" and "childInherit" set and all
-   * other flags cleared.
+   * Create a new ForwardingFlags with "childInherit" set and all other flags
+   * cleared.
    */
   public ForwardingFlags() {}
 
