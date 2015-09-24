@@ -29,7 +29,7 @@ public class Tlv {
   public static final int NameComponent =    8;
   public static final int Selectors =        9;
   public static final int Nonce =            10;
-  public static final int Scope =            11;
+  // public static final int <Unassigned> =  11;
   public static final int InterestLifetime = 12;
   public static final int MinSuffixComponents = 13;
   public static final int MaxSuffixComponents = 14;
