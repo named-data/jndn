@@ -53,6 +53,23 @@ public class TestNameComponentMethods {
       ("Hash codes for different strings are not different",
        foo1.hashCode() != bar.hashCode());
   }
+  
+  @Test
+  public void
+  testCompare()
+  {
+    Name.Component c7f = new Name("/%7F").get(0);
+    Name.Component c80 = new Name("/%80").get(0);
+    Name.Component c81 = new Name("/%81").get(0);
+    
+    assertTrue("%81 should be greater than %80", c81.compare(c80) > 0);
+    assertTrue("%80 should be greater than %7f", c80.compare(c7f) > 0);
+    
+    // here's why this fails: Java handling of signing with bytes
+    assertEquals("Components should encode as unsigned", 127, c7f.getValue().getImmutableArray()[0]);
+    assertEquals("Components should encode as unsigned", 128, c80.getValue().getImmutableArray()[0]);
+    assertEquals("Components should encode as unsigned", 129, c81.getValue().getImmutableArray()[0]);
+  }
 
   // Many more component methods to be tested!
 }
