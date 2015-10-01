@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
  * old owner can’t change the bytes.
  * Note that  the pointer to the ByteBuffer can be null.
  */
-public class Blob {
+public class Blob implements Comparable {
   /**
    * Create a new Blob with a null pointer.
    */
@@ -250,6 +250,54 @@ public class Blob {
       return false;
 
     return equals((Blob)other);
+  }
+
+  /**
+   * Compare this to the other Blob using byte-by-byte comparison from their
+   * position to their limit. If this and other are both isNull(), then this
+   * returns 0. If this isNull() and the other is not, return -1. If this is not
+   * isNull() and the other is, return 1. We compare explicitly because a Blob
+   * uses a ByteBuffer which compares based on signed byte, not unsigned byte.
+   * @param other The other Blob to compare with.
+   * @return 0 If they compare equal, -1 if self is less than other, or 1 if
+   * self is greater than other.  If both are equal up to the shortest, then
+   * return -1 if self is shorter than other, or 1 of self is longer than other.
+   */
+  public final int
+  compare(Blob other)
+  {
+    if (buffer_ == null && other.buffer_ == null)
+        return 0;
+    if (buffer_ == null && other.buffer_ != null)
+        return -1;
+    if (buffer_ != null && other.buffer_ == null)
+        return 1;
+
+    // Manually compare elements as unsigned.
+    int r = Math.min(buffer_.remaining(), other.buffer_.remaining());
+    for (int i = 0; i < r; ++i) {
+      // b & 0xff makes the byte unsigned and returns an int.
+      int xThis = buffer_.get(buffer_.position() + i) & 0xff;
+      int xOther = other.buffer_.get(other.buffer_.position() + i) & 0xff;
+      
+      if (xThis < xOther)
+        return -1;
+      if (xThis > xOther)
+        return 1;
+    }
+
+    // They are equal up to the shorter.
+    if (buffer_.remaining() < other.buffer_.remaining())
+        return -1;
+    if (buffer_.remaining() > other.buffer_.remaining())
+        return 1;
+    return 0;
+  }
+
+  public final int
+  compareTo(Object o)
+  {
+    return this.compare((Blob)o);
   }
 
   /**
