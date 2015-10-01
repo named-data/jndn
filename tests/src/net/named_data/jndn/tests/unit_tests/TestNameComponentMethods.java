@@ -53,6 +53,18 @@ public class TestNameComponentMethods {
       ("Hash codes for different strings are not different",
        foo1.hashCode() != bar.hashCode());
   }
+  
+  @Test
+  public void
+  testCompare()
+  {
+    Name.Component c7f = new Name("/%7F").get(0);
+    Name.Component c80 = new Name("/%80").get(0);
+    Name.Component c81 = new Name("/%81").get(0);
+    
+    assertTrue("%81 should be greater than %80", c81.compare(c80) > 0);
+    assertTrue("%80 should be greater than %7f", c80.compare(c7f) > 0);
+  }
 
   // Many more component methods to be tested!
 }

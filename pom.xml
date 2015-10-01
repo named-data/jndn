@@ -52,7 +52,7 @@
     </distributionManagement>
     <build>
         <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>tests</testSourceDirectory>
+        <testSourceDirectory>tests/src</testSourceDirectory>
         <plugins>
             <!-- do not run integration tests by default -->
             <plugin>
