@@ -312,7 +312,7 @@ public class Name implements ChangeCountable, Comparable {
         return 1;
 
       // The components are equal length. Just do a byte compare.
-      return value_.buf().compareTo(other.value_.buf());
+      return value_.compare(other.value_);
     }
 
     public final int
