@@ -915,7 +915,8 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     if (!(metaInfo.getType() == ContentType.BLOB)) {
       // Not the default, so we need to encode the type.
       if (metaInfo.getType() == ContentType.LINK ||
-          metaInfo.getType() == ContentType.KEY)
+          metaInfo.getType() == ContentType.KEY ||
+          metaInfo.getType() == ContentType.NACK)
         // The ContentType enum is set up with the correct integer for
         // each NDN-TLV ContentType.
         encoder.writeNonNegativeIntegerTlv
@@ -939,8 +940,10 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       (Tlv.ContentType, endOffset);
     if (type == ContentType.LINK.getNumericType())
       metaInfo.setType(ContentType.LINK);
-    if (type == ContentType.KEY.getNumericType())
+    else if (type == ContentType.KEY.getNumericType())
       metaInfo.setType(ContentType.KEY);
+    else if (type == ContentType.NACK.getNumericType())
+      metaInfo.setType(ContentType.NACK);
     else
       // Default to BLOB.
       metaInfo.setType(ContentType.BLOB);
