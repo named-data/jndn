@@ -64,6 +64,7 @@ public class Link extends Data {
 
     try {
       delegations_.wireDecode(getContent());
+      getMetaInfo().setType(ContentType.LINK);
     }
     catch (EncodingException ex) {
       delegations_.clear();
@@ -80,6 +81,10 @@ public class Link extends Data {
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
     super.wireDecode(input, wireFormat);
+    if (getMetaInfo().getType() != ContentType.LINK)
+      throw new EncodingException
+        ("Link.wireDecode: MetaInfo ContentType is not LINK.");
+    
     delegations_.wireDecode(getContent());
   }
 
