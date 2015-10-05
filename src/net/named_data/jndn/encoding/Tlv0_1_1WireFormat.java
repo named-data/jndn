@@ -551,14 +551,14 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     for (int i = delegationSet.size() - 1; i >= 0; --i) {
       int saveLength = encoder.getLength();
 
-      encodeName(delegationSet.get(i).getName());
+      encodeName(delegationSet.get(i).getName(), new int[1], new int[1], encoder);
       encoder.writeNonNegativeIntegerTlv
         (Tlv.Link_Preference, delegationSet.get(i).getPreference());
 
       encoder.writeTypeAndLength
         (Tlv.Link_Delegation, encoder.getLength() - saveLength);
     }
-    
+
     return new Blob(encoder.getOutput(), false);
   }
 
@@ -580,15 +580,15 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     TlvDecoder decoder = new TlvDecoder(input);
     int endOffset = input.limit();
 
+    delegationSet.clear();
     while (decoder.getOffset() < endOffset) {
+      decoder.readTypeAndLength(Tlv.Link_Delegation);
       int preference = (int)decoder.readNonNegativeIntegerTlv(Tlv.Link_Preference);
       Name name = new Name();
       decodeName(name, new int[1], new int[1], decoder);
       
       delegationSet.add(preference, name);
     }
-
-    delegationSet.clear();
   }
 
   /**
