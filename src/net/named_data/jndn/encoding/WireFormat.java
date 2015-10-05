@@ -313,7 +313,7 @@ public class WireFormat {
   }
 
   /**
-   * Encode the LocalControlHeader in NDN-TLV and return the encoding. Your
+   * Encode the LocalControlHeader and return the encoding. Your
    * derived class should override.
    * @param localControlHeader The LocalControlHeader object to encode.
    * @return A Blob containing the encoding.
@@ -328,7 +328,7 @@ public class WireFormat {
   }
 
   /**
-   * Decode input as a LocalControlHeader in NDN-TLV and set the fields of the
+   * Decode input as a LocalControlHeader and set the fields of the
    * localControlHeader object. Your derived class should override.
    * @param localControlHeader The LocalControlHeader object whose fields are
    * updated.
