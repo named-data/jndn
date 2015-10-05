@@ -67,15 +67,12 @@ public class Interest implements ChangeCountable {
     name_.set(new Name(interest.getName()));
     minSuffixComponents_ = interest.minSuffixComponents_;
     maxSuffixComponents_ = interest.maxSuffixComponents_;
-    publisherPublicKeyDigest_.set
-      (new PublisherPublicKeyDigest(interest.getPublisherPublicKeyDigest()));
     keyLocator_.set(new KeyLocator(interest.getKeyLocator()));
     exclude_.set(new Exclude(interest.getExclude()));
     childSelector_ = interest.childSelector_;
-    answerOriginKind_ = interest.answerOriginKind_;
+    mustBeFresh_ = interest.mustBeFresh_;
 
     interestLifetimeMilliseconds_ = interest.interestLifetimeMilliseconds_;
-    scope_ = interest.scope_;
     nonce_ = interest.getNonce();
     setDefaultWireEncoding
       (interest.getDefaultWireEncoding(), interest.defaultWireEncodingFormat_);
@@ -91,16 +88,6 @@ public class Interest implements ChangeCountable {
 
   public static final int CHILD_SELECTOR_LEFT = 0;
   public static final int CHILD_SELECTOR_RIGHT = 1;
-
-  public static final int ANSWER_NO_CONTENT_STORE = 0;
-  public static final int ANSWER_CONTENT_STORE = 1;
-  public static final int ANSWER_GENERATED = 2;
-  public static final int ANSWER_STALE = 4;    // Stale answer OK
-  public static final int MARK_STALE = 16;     // Must have scope 0.
-                                               // Michael calls this a "hack"
-
-  public static final int DEFAULT_ANSWER_ORIGIN_KIND =
-    ANSWER_CONTENT_STORE | ANSWER_GENERATED;
 
   /**
    * Encode this Interest for a particular wire format. If wireFormat is the
@@ -235,19 +222,10 @@ public class Interest implements ChangeCountable {
       selectors.append("&ndn.MaxSuffixComponents=").append(maxSuffixComponents_);
     if (childSelector_ >= 0)
       selectors.append("&ndn.ChildSelector=").append(childSelector_);
-    if (answerOriginKind_ >= 0)
-      selectors.append("&ndn.AnswerOriginKind=").append(answerOriginKind_);
-    if (scope_ >= 0)
-      selectors.append("&ndn.Scope=").append(scope_);
+    selectors.append("&ndn.MustBeFresh=").append(mustBeFresh_ ? 1 : 0);
     if (interestLifetimeMilliseconds_ >= 0)
       selectors.append("&ndn.InterestLifetime=").append
         ((long)Math.round(interestLifetimeMilliseconds_));
-    if (getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
-      selectors.append("&ndn.PublisherPublicKeyDigest=");
-      Name.toEscapedString
-        (getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().buf(),
-         selectors);
-    }
     if (nonce_.size() > 0) {
       selectors.append("&ndn.Nonce=");
       Name.toEscapedString(nonce_.buf(), selectors);
@@ -275,17 +253,6 @@ public class Interest implements ChangeCountable {
   public final int
   getMaxSuffixComponents() { return maxSuffixComponents_; }
 
-  /**
-   * @deprecated The Interest publisherPublicKeyDigest is deprecated.  If you
-   * need a publisher public key digest, set the keyLocator keyLocatorType to
-   * KEY_LOCATOR_DIGEST and set its key data to the digest.
-   */
-  public final PublisherPublicKeyDigest
-  getPublisherPublicKeyDigest()
-  {
-    return (PublisherPublicKeyDigest)publisherPublicKeyDigest_.get();
-  }
-
   public final KeyLocator
   getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
 
@@ -296,43 +263,11 @@ public class Interest implements ChangeCountable {
   getChildSelector() { return childSelector_; }
 
   /**
-   * @deprecated Use getMustBeFresh.
-   */
-  public final int
-  getAnswerOriginKind()
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("getAnswerOriginKind is for NDNx and is deprecated. To enable while you upgrade your code to use NFD's getMustBeFresh(), set WireFormat.ENABLE_NDNX = true");
-
-    return answerOriginKind_;
-  }
-
-  /**
    * Get the must be fresh flag. If not specified, the default is true.
    * @return The must be fresh flag.
    */
   public final boolean
-  getMustBeFresh()
-  {
-    if (answerOriginKind_ < 0)
-      return true;
-    else
-      return (answerOriginKind_ & ANSWER_STALE) == 0;
-  }
-
-  /**
-   * @deprecated Scope is not used by NFD.
-   */
-  public final int
-  getScope()
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("getScope is for NDNx and is deprecated. To enable while you upgrade your code to not use Scope, set WireFormat.ENABLE_NDNX = true");
-
-    return scope_;
-  }
+  getMustBeFresh() { return mustBeFresh_; }
 
   public final double
   getInterestLifetimeMilliseconds() { return interestLifetimeMilliseconds_; }
@@ -432,21 +367,6 @@ public class Interest implements ChangeCountable {
   }
 
   /**
-   * @deprecated Use setMustBeFresh.
-   */
-  public final Interest
-  setAnswerOriginKind(int answerOriginKind)
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("setAnswerOriginKind is for NDNx and is deprecated. To enable while you upgrade your code to use NFD's setMustBeFresh(), set WireFormat.ENABLE_NDNX = true");
-
-    answerOriginKind_ = answerOriginKind;
-    ++changeCount_;
-    return this;
-  }
-
-  /**
    * Set the MustBeFresh flag.
    * @param mustBeFresh True if the content must be fresh, otherwise false. If
    * you do not set this flag, the default value is true.
@@ -455,37 +375,7 @@ public class Interest implements ChangeCountable {
   public final Interest
   setMustBeFresh(boolean mustBeFresh)
   {
-    if (answerOriginKind_ < 0) {
-      // It is is already the default where MustBeFresh is true.
-      if (!mustBeFresh) {
-        // Set answerOriginKind_ so that getMustBeFresh returns false.
-        answerOriginKind_ = ANSWER_STALE;
-        ++changeCount_;
-      }
-    }
-    else {
-      if (mustBeFresh)
-        // Clear the stale bit.
-        answerOriginKind_ &= ~ANSWER_STALE;
-      else
-        // Set the stale bit.
-        answerOriginKind_ |= ANSWER_STALE;
-      ++changeCount_;
-    }
-    return this;
-  }
-
-  /**
-   * @deprecated Scope is not used by NFD.
-   */
-  public final Interest
-  setScope(int scope)
-  {
-    if (!WireFormat.ENABLE_NDNX)
-      throw new Error
-        ("setScope is for NDNx and is deprecated. To enable while you upgrade your code to not use Scope, set WireFormat.ENABLE_NDNX = true");
-
-    scope_ = scope;
+    mustBeFresh_ = mustBeFresh;
     ++changeCount_;
     return this;
   }
@@ -630,7 +520,6 @@ public class Interest implements ChangeCountable {
   {
     // Make sure each of the checkChanged is called.
     boolean changed = name_.checkChanged();
-    changed = publisherPublicKeyDigest_.checkChanged() || changed;
     changed = keyLocator_.checkChanged() || changed;
     changed = exclude_.checkChanged() || changed;
     if (changed)
@@ -654,17 +543,10 @@ public class Interest implements ChangeCountable {
   private final ChangeCounter name_ = new ChangeCounter(new Name());
   private int minSuffixComponents_ = -1;
   private int maxSuffixComponents_ = -1;
-  /** @deprecated. The Interest publisherPublicKeyDigest is deprecated. If you
-   * need a publisher public key digest, set the keyLocator keyLocatorType to
-   * KEY_LOCATOR_DIGEST and set its key data to the digest. */
-  private final ChangeCounter publisherPublicKeyDigest_ =
-    new ChangeCounter(new PublisherPublicKeyDigest());
   private final ChangeCounter keyLocator_ = new ChangeCounter(new KeyLocator());
   private final ChangeCounter exclude_ = new ChangeCounter(new Exclude());
   private int childSelector_ = -1;
-  private int answerOriginKind_ = -1;
-  /** @deprecated. Scope is not used by NFD. */
-  public int scope_ = -1;
+  private boolean mustBeFresh_ = true;
   private double interestLifetimeMilliseconds_ = -1;
   private Blob nonce_ = new Blob();
   private long getNonceChangeCount_ = 0;

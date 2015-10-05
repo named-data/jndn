@@ -23,15 +23,14 @@ import java.nio.ByteBuffer;
 
 /**
  * A class implements ElementListener if it has onReceivedElement which is used
- * by BinaryXmlElementReader.onReceivedData.
+ * by Node.onReceivedData.
  */
 public interface ElementListener
 {
   /**
-   * This is called when an entire binary XML element is received.
-   * @param element The binary XML element.  This buffer is only valid during
-   * this call.  If you need the data
-   * later, you must copy.
+   * This is called when an entire element is received.
+   * @param element The element.  This buffer is only valid during this call.
+   * If you need the data later, you must copy.
    */
   void onReceivedElement(ByteBuffer element) throws EncodingException;
 }

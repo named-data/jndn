@@ -312,7 +312,7 @@ public class Name implements ChangeCountable, Comparable {
         return 1;
 
       // The components are equal length. Just do a byte compare.
-      return value_.buf().compareTo(other.value_.buf());
+      return value_.compare(other.value_);
     }
 
     public final int
@@ -867,8 +867,8 @@ public class Name implements ChangeCountable, Comparable {
    * because /c comes before /bb according to NDN canonical ordering since it is
    * shorter.
    * @param other The other Name to compare with.
-   * @return 0 If they compare equal, -1 if *this comes before other in the
-   * canonical ordering, or 1 if *this comes after other in the canonical
+   * @return 0 If they compare equal, -1 if this Name comes before other in the
+   * canonical ordering, or 1 if this Name comes after other in the canonical
    * ordering.
    *
    * See http://named-data.net/doc/0.2/technical/CanonicalOrder.html

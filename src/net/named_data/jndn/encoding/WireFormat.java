@@ -22,7 +22,7 @@ package net.named_data.jndn.encoding;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Data;
-import net.named_data.jndn.ForwardingEntry;
+import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.LocalControlHeader;
 import net.named_data.jndn.Name;
@@ -30,13 +30,6 @@ import net.named_data.jndn.Signature;
 import net.named_data.jndn.util.Blob;
 
 public class WireFormat {
-  /** NDNx support and binary XML (ccnb or ndnb) encoding is deprecated and code
-   * with throw an exception. To enable support while you upgrade your code to
-   * use NFD, set WireFormat.ENABLE_NDNX = true . NDNx support will be
-   * completely removed in an upcoming release.
-   */
-  public static boolean ENABLE_NDNX = false;
-
   /**
    * Encode name and return the encoding.  Your derived class should
    * override.
@@ -233,39 +226,6 @@ public class WireFormat {
   }
 
   /**
-   * Encode forwardingEntry and return the encoding. Your derived class should
-   * override.
-   * @param forwardingEntry The ForwardingEntry object to encode.
-   * @return A Blob containing the encoding.
-   * @throws UnsupportedOperationException for unimplemented if the derived
-   * class does not override.
-   */
-  public Blob
-  encodeForwardingEntry(ForwardingEntry forwardingEntry)
-  {
-    throw new UnsupportedOperationException
-      ("encodeForwardingEntry is not implemented");
-  }
-
-  /**
-   * Decode input as a forwarding entry and set the fields of the
-   * forwardingEntry object. Your derived class should override.
-   * @param forwardingEntry The ForwardingEntry object whose fields are updated.
-   * @param input The input buffer to decode.  This reads from position() to
-   * limit(), but does not change the position.
-   * @throws UnsupportedOperationException for unimplemented if the derived
-   * class does not override.
-   * @throws EncodingException For invalid encoding.
-   */
-  public void
-  decodeForwardingEntry
-    (ForwardingEntry forwardingEntry, ByteBuffer input) throws EncodingException
-  {
-    throw new UnsupportedOperationException
-      ("decodeForwardingEntry is not implemented");
-  }
-
-  /**
    * Encode controlParameters and return the encoding.
    * Your derived class should override.
    * @param controlParameters The ControlParameters object to encode.
@@ -385,6 +345,39 @@ public class WireFormat {
   {
     throw new UnsupportedOperationException
       ("decodeLocalControlHeader is not implemented");
+  }
+
+  /**
+   * Encode delegationSet and return the encoding.
+   * Your derived class should override.
+   * @param delegationSet The DelegationSet object to encode.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public Blob
+  encodeDelegationSet(DelegationSet delegationSet)
+  {
+    throw new UnsupportedOperationException
+      ("encodeDelegationSet is not implemented");
+  }
+
+  /**
+   * Decode input as a delegation set and set the fields of the
+   * delegationSet object.  Your derived class should override.
+   * @param delegationSet The DelegationSet object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void
+  decodeDelegationSet
+    (DelegationSet delegationSet, ByteBuffer input) throws EncodingException
+  {
+    throw new UnsupportedOperationException
+      ("decodeDelegationSet is not implemented");
   }
 
   /**

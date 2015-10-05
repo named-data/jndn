@@ -24,6 +24,7 @@ import java.security.SecureRandom;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Exclude;
 import net.named_data.jndn.ForwardingFlags;
@@ -96,8 +97,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     // Encode backwards.
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.InterestLifetime, interest.getInterestLifetimeMilliseconds());
-    // Access scope_ directly to avoid throwing a deprecated exception.
-    encoder.writeOptionalNonNegativeIntegerTlv(Tlv.Scope, interest.scope_);
 
     // Encode the Nonce as 4 bytes.
     if (interest.getNonce().size() == 0)
@@ -182,9 +181,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       decodeSelectors(interest, decoder);
     // Require a Nonce, but don't force it to be 4 bytes.
     ByteBuffer nonce = decoder.readBlobTlv(Tlv.Nonce);
-    // Access scope_ directly to avoid throwing a deprecated exception.
-    interest.scope_ = (int)decoder.readOptionalNonNegativeIntegerTlv
-      (Tlv.Scope, endOffset);
     interest.setInterestLifetimeMilliseconds
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.InterestLifetime, endOffset));
 
@@ -539,7 +535,64 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
 
   /**
-   * Get a singleton instance of a Tlv1_0a2WireFormat.  To always use the
+   * Encode delegationSet as a sequence of NDN-TLV Delegation, and return the
+   * encoding. Note that the sequence of Delegation does not have an outer TLV
+   * type and length because it is intended to use the type and length of a Data
+   * packet's Content.
+   * @param delegationSet The DelegationSet object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeDelegationSet(DelegationSet delegationSet)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+
+    // Encode backwards.
+    for (int i = delegationSet.size() - 1; i >= 0; --i) {
+      int saveLength = encoder.getLength();
+
+      encodeName(delegationSet.get(i).getName());
+      encoder.writeNonNegativeIntegerTlv
+        (Tlv.Link_Preference, delegationSet.get(i).getPreference());
+
+      encoder.writeTypeAndLength
+        (Tlv.Link_Delegation, encoder.getLength() - saveLength);
+    }
+    
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as a sequence of NDN-TLV Delegation and set the fields of the
+   * delegationSet object. Note that the sequence of Delegation does not have an
+   * outer TLV type and length because it is intended to use the type and length
+   * of a Data packet's Content. This ignores any elements after the sequence
+   * of Delegation and before input.limit().
+   * @param delegationSet The DelegationSet object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void
+  decodeDelegationSet
+    (DelegationSet delegationSet, ByteBuffer input) throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = input.limit();
+
+    while (decoder.getOffset() < endOffset) {
+      int preference = (int)decoder.readNonNegativeIntegerTlv(Tlv.Link_Preference);
+      Name name = new Name();
+      decodeName(name, new int[1], new int[1], decoder);
+      
+      delegationSet.add(preference, name);
+    }
+
+    delegationSet.clear();
+  }
+
+  /**
+   * Get a singleton instance of a Tlv0_1_1WireFormat.  To always use the
    * preferred version NDN-TLV, you should use TlvWireFormat.get().
    * @return The singleton instance.
    */
@@ -648,19 +701,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     if (interest.getKeyLocator().getType() != KeyLocatorType.NONE)
       encodeKeyLocator
         (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), encoder);
-    else {
-      // There is no keyLocator. If there is a publisherPublicKeyDigest, then
-      //   encode as KEY_LOCATOR_DIGEST. (When we remove the deprecated
-      //   publisherPublicKeyDigest, we don't need this.)
-      if (interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().size() > 0) {
-        int savePublisherPublicKeyDigestLength = encoder.getLength();
-        encoder.writeBlobTlv
-          (Tlv.KeyLocatorDigest,
-           interest.getPublisherPublicKeyDigest().getPublisherPublicKeyDigest().buf());
-        encoder.writeTypeAndLength
-          (Tlv.KeyLocator, encoder.getLength() - savePublisherPublicKeyDigestLength);
-      }
-    }
 
     encoder.writeOptionalNonNegativeIntegerTlv(
       Tlv.MaxSuffixComponents, interest.getMaxSuffixComponents());
@@ -682,17 +722,9 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     interest.setMaxSuffixComponents((int)decoder.readOptionalNonNegativeIntegerTlv
       (Tlv.MaxSuffixComponents, endOffset));
 
-    // Initially set publisherPublicKeyDigest to none.
-    interest.getPublisherPublicKeyDigest().clear();
-    if (decoder.peekType(Tlv.PublisherPublicKeyLocator, endOffset)) {
+    if (decoder.peekType(Tlv.PublisherPublicKeyLocator, endOffset))
       decodeKeyLocator
         (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), decoder);
-      if (interest.getKeyLocator().getType() == KeyLocatorType.KEY_LOCATOR_DIGEST) {
-        // For backwards compatibility, also set the publisherPublicKeyDigest.
-        interest.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-          (interest.getKeyLocator().getKeyData());
-      }
-    }
     else
       interest.getKeyLocator().clear();
 
@@ -880,8 +912,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.FreshnessPeriod, metaInfo.getFreshnessPeriod());
-    if (!(metaInfo.getType() == ContentType.BLOB ||
-          metaInfo.getType() == ContentType.DATA)) {
+    if (!(metaInfo.getType() == ContentType.BLOB)) {
       // Not the default, so we need to encode the type.
       if (metaInfo.getType() == ContentType.LINK ||
           metaInfo.getType() == ContentType.KEY)

@@ -129,7 +129,7 @@ public class IdentityManager {
 
     if (generateKey) {
       keyName = generateKeyPair(identityName, true, params);
-      identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+      identityStorage_.setDefaultKeyNameForIdentity(keyName);
     }
 
     Name certName = null;
@@ -302,19 +302,21 @@ public class IdentityManager {
   }
 
   /**
-   * Set a key as the default key of an identity.
+   * Set a key as the default key of an identity. The identity name is inferred
+   * from keyName.
    * @param keyName The name of the key.
-   * @param identityName the name of the identity. If empty, the
-   * identity name is inferred from the keyName.
+   * @param identityNameCheck The identity name to check that the keyName
+   * contains the same identity name. If an empty name, it is ignored.
    */
   public final void
-  setDefaultKeyForIdentity(Name keyName, Name identityName) throws SecurityException
+  setDefaultKeyForIdentity(Name keyName, Name identityNameCheck) throws SecurityException
   {
-    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityNameCheck);
   }
 
   /**
-   * Set a key as the default key of an identity, inferred from the keyName.
+   * Set a key as the default key of an identity. The identity name is inferred
+   * from keyName.
    * @param keyName The name of the key.
    */
   public final void
@@ -361,7 +363,7 @@ public class IdentityManager {
   {
     Name keyName = generateKeyPair(identityName, isKsk, new RsaKeyParams(keySize));
 
-    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+    identityStorage_.setDefaultKeyNameForIdentity(keyName);
 
     return keyName;
   }
@@ -406,7 +408,7 @@ public class IdentityManager {
   {
     Name keyName = generateKeyPair(identityName, isKsk, new EcdsaKeyParams(keySize));
 
-    identityStorage_.setDefaultKeyNameForIdentity(keyName, identityName);
+    identityStorage_.setDefaultKeyNameForIdentity(keyName);
 
     return keyName;
   }
@@ -700,8 +702,6 @@ public class IdentityManager {
     keyLocator.setKeyName(signerCertificateName);
 
     sha256Sig.setKeyLocator(keyLocator);
-    sha256Sig.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-      (publicKey.getDigest());
 
     certificate.setSignature(sha256Sig);
 
@@ -1099,8 +1099,6 @@ public class IdentityManager {
 
       signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
       signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
-      signature.getPublisherPublicKeyDigest().setPublisherPublicKeyDigest
-        (publicKey.getDigest());
 
       return signature;
     }

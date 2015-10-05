@@ -313,9 +313,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Set the default key name for the specified identity.
-   * @param keyName The key name.
-   * @param identityNameCheck The identity name to check the keyName.
+   * Set a key as the default key of an identity. The identity name is inferred
+   * from keyName.
+   * @param keyName The name of the key.
+   * @param identityNameCheck The identity name to check that the keyName
+   * contains the same identity name. If an empty name, it is ignored.
    */
   public void
   setDefaultKeyNameForIdentity(Name keyName, Name identityNameCheck)

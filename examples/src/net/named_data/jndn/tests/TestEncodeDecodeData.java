@@ -207,14 +207,9 @@ public class TestEncodeDecodeData {
     else
       System.out.println("content: <empty>");
 
-    if (!(data.getMetaInfo().getType() == ContentType.BLOB ||
-          data.getMetaInfo().getType() == ContentType.DATA)) {
+    if (!(data.getMetaInfo().getType() == ContentType.BLOB)) {
       System.out.print("metaInfo.type: ");
-      if (data.getMetaInfo().getType() == ContentType.ENCR)
-        System.out.println("ENCR");
-      else if (data.getMetaInfo().getType() == ContentType.GONE)
-        System.out.println("GONE");
-      else if (data.getMetaInfo().getType() == ContentType.KEY)
+      if (data.getMetaInfo().getType() == ContentType.KEY)
         System.out.println("KEY");
       else if (data.getMetaInfo().getType() == ContentType.LINK)
         System.out.println("LINK");
