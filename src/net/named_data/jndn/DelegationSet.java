@@ -141,7 +141,7 @@ public class DelegationSet {
     boolean wasRemoved = false;
     // Go backwards through the list so we can remove entries.
     for (int i = delegations_.size() - 1; i >= 0; --i) {
-      if (((Delegation)delegations_.get(i)).name_ == name) {
+      if (((Delegation)delegations_.get(i)).name_.equals(name)) {
         wasRemoved = true;
         delegations_.remove(i);
       }
