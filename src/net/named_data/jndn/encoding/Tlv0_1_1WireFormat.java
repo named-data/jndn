@@ -41,6 +41,7 @@ import net.named_data.jndn.SignatureHolder;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
+import net.named_data.jndn.encrypt.EncryptedContent;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -589,6 +590,66 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     }
 
     delegationSet.clear();
+  }
+
+  /**
+   * Encode the EncryptedContent in NDN-TLV and return the encoding.
+   * @param encryptedContent The EncryptedContent object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeEncryptedContent(EncryptedContent encryptedContent)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    encoder.writeBlobTlv
+      (Tlv.EncryptedContent_EncryptedPayload, encryptedContent.getPayload().buf());
+    encoder.writeOptionalBlobTlv
+      (Tlv.EncryptedContent_InitialVector, encryptedContent.getInitialVector().buf());
+    // Assume the algorithmType value is the same as the TLV type.
+    encoder.writeNonNegativeIntegerTlv
+      (Tlv.EncryptedContent_EncryptionAlgorithm, encryptedContent.getAlgorithmType());
+    Tlv0_1_1WireFormat.encodeKeyLocator
+      (Tlv.KeyLocator, encryptedContent.getKeyLocator(), encoder);
+
+    encoder.writeTypeAndLength
+      (Tlv.EncryptedContent_EncryptedContent, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as a EncryptedContent in NDN-TLV and set the fields of the
+   * localControlHeader object.
+   * @param encryptedContent The EncryptedContent object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding
+   */
+  public void
+  decodeEncryptedContent
+    (EncryptedContent encryptedContent, ByteBuffer input)
+    throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = decoder.readNestedTlvsStart
+      (Tlv.EncryptedContent_EncryptedContent);
+
+    Tlv0_1_1WireFormat.decodeKeyLocator
+      (Tlv.KeyLocator, encryptedContent.getKeyLocator(), decoder);
+    encryptedContent.setAlgorithmType
+      ((int)decoder.readNonNegativeIntegerTlv
+       (Tlv.EncryptedContent_EncryptionAlgorithm));
+    encryptedContent.setInitialVector
+      (new Blob(decoder.readOptionalBlobTlv
+        (Tlv.EncryptedContent_InitialVector, endOffset), true));
+    encryptedContent.setPayload
+      (new Blob(decoder.readBlobTlv(Tlv.EncryptedContent_EncryptedPayload), true));
+
+    decoder.finishNestedTlvs(endOffset);
   }
 
   /**

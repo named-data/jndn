@@ -93,4 +93,9 @@ public class Tlv {
 
   public static final int Link_Preference = 30;
   public static final int Link_Delegation = 31;
+
+  public static final int EncryptedContent_EncryptedContent = 130;
+  public static final int EncryptedContent_EncryptionAlgorithm = 131;
+  public static final int EncryptedContent_EncryptedPayload = 132;
+  public static final int EncryptedContent_InitialVector = 133;
 }
