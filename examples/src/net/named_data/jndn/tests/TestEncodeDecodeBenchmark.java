@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
-import net.named_data.jndn.KeyNameType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
