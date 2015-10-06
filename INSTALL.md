@@ -35,7 +35,7 @@ In a new terminal, enter:
 
 Optional: To install Android SDK, install from https://developer.android.com/sdk/index.html .
 
-## Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 14.04 (64 bit and 32 bit)
+## Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 14.04 (64 bit and 32 bit), Ubuntu 15.04 (64 bit)
 To install Apache Maven, in a terminal enter:
 
     sudo apt-get install maven
