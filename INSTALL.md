@@ -24,7 +24,7 @@ In a new terminal, enter:
 
 Optional: To install Android SDK, install from https://developer.android.com/sdk/index.html .
 
-## OS X 10.9.5, OS X 10.10.2
+## OS X 10.9.5, OS X 10.10.2, OS X 10.11
 Install Xcode.  (Xcode seems to already have the Command Line Tools.)
 
 To install Apache Maven, install MacPorts from http://www.macports.org/install.php .
