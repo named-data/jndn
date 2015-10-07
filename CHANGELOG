@@ -1,5 +1,9 @@
-Interim changes since jNDN v0.8 (2015-10-01)
+Interim changes since jNDN v0.8 (2015-10-07)
 --------------------------------------------
+
+Changes
+* INSTALL: Removed unsupported OS X 10.8.4.
+* INSTALL: Added OS X 10.11 and Ubuntu 15.04 (64 bit).
 
 Bug fixes
 * http://redmine.named-data.net/issues/3228 Make Name.Component.compare use unsigned compare.
