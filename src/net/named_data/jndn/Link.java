@@ -62,12 +62,14 @@ public class Link extends Data {
   {
     super(data);
 
-    try {
-      delegations_.wireDecode(getContent());
-      getMetaInfo().setType(ContentType.LINK);
-    }
-    catch (EncodingException ex) {
-      delegations_.clear();
+    if (!getContent().isNull()) {
+      try {
+        delegations_.wireDecode(getContent());
+        getMetaInfo().setType(ContentType.LINK);
+      }
+      catch (EncodingException ex) {
+        delegations_.clear();
+      }
     }
   }
 
