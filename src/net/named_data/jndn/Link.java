@@ -121,9 +121,7 @@ public class Link extends Data {
   public final Link
   addDelegation(int preference, Name name)
   {
-    addDelegation(preference, name, WireFormat.getDefaultWireFormat());
-
-    return this;
+    return addDelegation(preference, name, WireFormat.getDefaultWireFormat());
   }
 
   /**
