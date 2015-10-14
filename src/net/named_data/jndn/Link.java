@@ -26,7 +26,8 @@ import net.named_data.jndn.util.Blob;
 
 /**
  * The Link class extends Data and represents a Link instance where the Data
- * content is an encoded delegation set.
+ * content is an encoded delegation set. The format is defined in "link.pdf"
+ * attached to Redmine issue http://redmine.named-data.net/issues/2587 .
  */
 public class Link extends Data {
   /**
