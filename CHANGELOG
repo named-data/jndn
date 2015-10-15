@@ -2,6 +2,7 @@ Interim changes since jNDN v0.8 (2015-10-07)
 --------------------------------------------
 
 Changes
+* In Name, added method toString() which calls toUri().
 * INSTALL: Removed unsupported OS X 10.8.4.
 * INSTALL: Added OS X 10.11 and Ubuntu 15.04 (64 bit).
 
