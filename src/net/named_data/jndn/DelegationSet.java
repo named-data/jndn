@@ -176,6 +176,22 @@ public class DelegationSet {
   }
 
   /**
+   * Find the first delegation with the given name and return its index.
+   * @param name Then name of the delegation to find.
+   * @return The index of the delegation, or -1 if not found.
+   */
+  public final int
+  find(Name name)
+  {
+    for (int i = 0; i < delegations_.size(); ++i) {
+      if (((Delegation)delegations_.get(i)).name_.equals(name))
+        return i;
+    }
+
+    return -1;
+  }
+
+  /**
    * Encode this DelegationSet for a particular wire format.
    * @param wireFormat A WireFormat object used to encode this DelegationSet.
    * @return The encoded buffer.
