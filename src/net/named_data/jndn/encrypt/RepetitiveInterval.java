@@ -1,0 +1,292 @@
+/**
+ * Copyright (C) 2015 Regents of the University of California.
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * @author: From ndn-group-encrypt src/repetitive-interval https://github.com/named-data/ndn-group-encrypt
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
+ */
+
+package net.named_data.jndn.encrypt;
+
+import java.util.Calendar;
+import java.util.TimeZone;
+
+/**
+ * A RepetitiveInterval is an advanced interval which can repeat and can be used
+ * to find a simple Interval that a time point falls in.
+ */
+public class RepetitiveInterval {
+  public enum RepeatUnit {
+    NONE(0),
+    DAY(1),
+    MONTH(2),
+    YEAR(3);
+
+    RepeatUnit (int type)
+    {
+      type_ = type;
+    }
+
+    public final int
+    getNumericType() { return type_; }
+
+    private final int type_;
+  }
+
+  /**
+   * Create a default RepetitiveInterval with one day duration, non-repeating.
+   */
+  public RepetitiveInterval()
+  {
+    startDate_ = -Double.MAX_VALUE;
+    endDate_ = -Double.MAX_VALUE;
+    intervalStartHour_ = 0;
+    intervalEndHour_ = 24;
+    nRepeats_ = 0;
+    repeatUnit_ = RepeatUnit.NONE;
+  }
+
+  /**
+   * Create a RepetitiveInterval with the given values. startDate must be
+   * earlier than or same as endDate. startHour must be less than endHour.
+   * @param startDate The start date as milliseconds since Jan 1, 1970 GMT.
+   * @param endDate The end date as milliseconds since Jan 1, 1970 GMT.
+   * @param intervalStartHour The start hour in the day, from 0 to 23.
+   * @param intervalEndHour The end hour in the day from 1 to 24.
+   * @param nRepeats Repeat the interval nRepeats repetitions, every unit, until
+   * endDate.
+   * @param repeatUnit The unit of the repetition. If this is NONE, then
+   * startDate must equal endDate.
+   * @throws Error if the above conditions are not met.
+   */
+  public RepetitiveInterval
+    (double startDate, double endDate, int intervalStartHour,
+     int intervalEndHour, int nRepeats, RepeatUnit repeatUnit)
+  {
+    startDate_ = toDateOnlyMilliseconds(startDate);
+    endDate_ = toDateOnlyMilliseconds(endDate);
+    intervalStartHour_ = intervalStartHour;
+    intervalEndHour_ = intervalEndHour;
+    nRepeats_ = nRepeats;
+    repeatUnit_ = repeatUnit;
+
+    validate();
+  }
+
+  /**
+   * Create a RepetitiveInterval with the given values, and no repetition.
+   * Because there is no repetition, startDate must equal endDate. startHour
+   * must be less than endHour.
+   * @param startDate The start date as milliseconds since Jan 1, 1970 GMT.
+   * @param endDate The end date as milliseconds since Jan 1, 1970 GMT.
+   * @param intervalStartHour The start hour in the day, from 0 to 23.
+   * @param intervalEndHour The end hour in the day from 1 to 24.
+   * @throws Error if the above conditions are not met.
+   */
+  public RepetitiveInterval
+    (double startDate, double endDate, int intervalStartHour,
+     int intervalEndHour)
+  {
+    startDate_ = toDateOnlyMilliseconds(startDate);
+    endDate_ = toDateOnlyMilliseconds(endDate);
+    intervalStartHour_ = intervalStartHour;
+    intervalEndHour_ = intervalEndHour;
+    nRepeats_ = 0;
+    repeatUnit_ = RepeatUnit.NONE;
+
+    validate();
+  }
+
+  private void
+  validate()
+  {
+    if (!(intervalStartHour_ < intervalEndHour_))
+      throw new Error("ReptitiveInterval: startHour must be less than endHour");
+    if (!(startDate_ <= endDate_))
+      throw new Error
+        ("ReptitiveInterval: startDate must be earlier than or same as endDate");
+    if (!(intervalStartHour_ >= 0))
+      throw new Error("ReptitiveInterval: intervalStartHour must be non-negative");
+    if (!(intervalEndHour_ >= 1 && intervalEndHour_ <= 24))
+      throw new Error("ReptitiveInterval: intervalEndHour must be from 1 to 24");
+    if (repeatUnit_ == RepeatUnit.NONE) {
+      if (!(startDate_ == endDate_))
+        throw new Error
+          ("ReptitiveInterval: With RepeatUnit.NONE, startDate must equal endDate");
+    }
+  }
+
+  public final Interval
+  getInterval(double timePoint, boolean[] isPositive)
+  {
+    double startTime;
+    double endTime;
+
+    if (!hasIntervalOnDate(timePoint)) {
+      // There is no interval on the date of timePoint.
+      startTime = toDateOnlyMilliseconds(timePoint);
+      endTime = startTime + 24 * MILLISECONDS_IN_HOUR;
+      isPositive[0] = false;
+    }
+    else {
+      // There is an interval on the date of timePoint.
+      startTime = 
+        toDateOnlyMilliseconds(timePoint) + intervalStartHour_ * MILLISECONDS_IN_HOUR;
+      endTime =
+        toDateOnlyMilliseconds(timePoint) + intervalEndHour_ * MILLISECONDS_IN_HOUR;
+
+      // check if in the time duration
+      if (timePoint < startTime) {
+        endTime = startTime;
+        startTime = toDateOnlyMilliseconds(timePoint);
+        isPositive[0] = false;
+      }
+      else if (timePoint > endTime) {
+        startTime = endTime;
+        endTime = startTime + MILLISECONDS_IN_DAY;
+        isPositive[0] = false;
+      }
+      else
+        isPositive[0] = true;
+    }
+
+    return new Interval(startTime, endTime);
+  }
+
+  // TODO: less than
+
+  /**
+   * Get the start date.
+   * @return The start date as milliseconds since Jan 1, 1970 GMT.
+   */
+  public final double
+  getStartDate() { return startDate_; }
+
+  /**
+   * Get the end date.
+   * @return The end date as milliseconds since Jan 1, 1970 GMT.
+   */
+  public final double
+  getEndDate() { return endDate_; }
+
+  /**
+   * Get the interval start hour.
+   * @return The interval start hour.
+   */
+  public final int
+  getIntervalStartHour() { return intervalStartHour_; }
+
+  /**
+   * Get the interval end hour.
+   * @return The interval end hour.
+   */
+  public final int
+  getIntervalEndHour() { return intervalEndHour_; }
+
+  /**
+   * Get the number of repeats.
+   * @return The number of repeats.
+   */
+  public final int
+  getNRepeats() { return nRepeats_; }
+
+  /**
+   * Get the repeat unit.
+   * @return The repeat unit.
+   */
+  public final RepeatUnit
+  getRepeatUnit() { return repeatUnit_; }
+
+  /**
+   * Check if the date of the time point is in any interval.
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
+   * @return True if the date of the time point is in any interval.
+   */
+  private boolean
+  hasIntervalOnDate(double timePoint)
+  {
+    Calendar timePointDate = toCalendar(toDateOnlyMilliseconds(timePoint));
+    Calendar startDate = toCalendar(startDate_);
+    Calendar endDate = toCalendar(endDate_);
+
+    if (timePointDate.before(startDate) || timePointDate.after(endDate))
+      return false;
+
+    if (repeatUnit_ == RepeatUnit.NONE)
+      return true;
+
+    if (repeatUnit_ == RepeatUnit.DAY) {
+      long durationDays =
+        (timePointDate.getTimeInMillis() - startDate.getTimeInMillis()) /
+        MILLISECONDS_IN_DAY;
+      if (durationDays % nRepeats_ == 0)
+        return true;
+    }
+    else if (repeatUnit_ == RepeatUnit.MONTH && 
+             timePointDate.get(Calendar.DAY_OF_MONTH) ==
+             startDate.get(Calendar.DAY_OF_MONTH)) {
+      int yearDifference =
+        timePointDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR);
+      int monthDifference = 12 * yearDifference +
+        timePointDate.get(Calendar.MONTH) - startDate.get(Calendar.MONTH);
+      if (monthDifference % nRepeats_ == 0)
+        return true;
+    }
+    else if (repeatUnit_ == RepeatUnit.YEAR &&
+             timePointDate.get(Calendar.DAY_OF_MONTH) == startDate.get(Calendar.DAY_OF_MONTH) &&
+             timePointDate.get(Calendar.MONTH) == startDate.get(Calendar.MONTH)) {
+      int difference = timePointDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR);
+      if (difference % nRepeats_ == 0)
+        return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Return a time point on the beginning of the date (without hours, minutes, etc.)
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
+   * @return A time point as milliseconds since Jan 1, 1970 GMT.
+   */
+  private double
+  toDateOnlyMilliseconds(double timePoint)
+  {
+    long result = (long)Math.round(timePoint);
+    result -= result % MILLISECONDS_IN_DAY;
+    return result;
+  }
+
+  /**
+   * Return a Calendar for the time point.
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
+   * @return The Calendar.
+   */
+  private Calendar
+  toCalendar(double timePoint)
+  {
+    Calendar result = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    result.setTimeInMillis((long)timePoint);
+    return result;
+  }
+
+  private static final long MILLISECONDS_IN_HOUR = 3600 * 1000;
+  private static final long MILLISECONDS_IN_DAY = 24 * 3600 * 1000;
+  private final double startDate_; // MillisecondsSince1970 GMT
+  private final double endDate_;   // MillisecondsSince1970 GMT
+  private final int intervalStartHour_;
+  private final int intervalEndHour_;
+  private final int nRepeats_;
+  private final RepeatUnit repeatUnit_;
+}
