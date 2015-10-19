@@ -41,8 +41,8 @@ public class Interval {
    * Create a valid Interval with the given start and end times. The start
    * time must be less than the end time. To create an empty interval (start 
    * time equals end time), use the constructor Interval(true).
-   * @param startTime The start time as milliseconds since Jan 1, 1970.
-   * @param endTime The end time as milliseconds since Jan 1, 1970.
+   * @param startTime The start time as milliseconds since Jan 1, 1970 GMT.
+   * @param endTime The end time as milliseconds since Jan 1, 1970 GMT.
    * @throws Error if startTime is not less than endTime.
    */
   public Interval(double startTime, double endTime)
@@ -178,7 +178,7 @@ public class Interval {
   
   /**
    * Get the start time.
-   * @return The start time as milliseconds since Jan 1, 1970.
+   * @return The start time as milliseconds since Jan 1, 1970 GMT.
    * @throws Error if this Interval is invalid.
    */
   public final double
@@ -191,7 +191,7 @@ public class Interval {
 
   /**
    * Get the end time.
-   * @return The end time as milliseconds since Jan 1, 1970.
+   * @return The end time as milliseconds since Jan 1, 1970 GMT.
    * @throws Error if this Interval is invalid.
    */
   public final double
@@ -223,7 +223,7 @@ public class Interval {
     return startTime_ == endTime_;
   }
 
-  private double startTime_; // MillisecondsSince1970
-  private double endTime_;   // MillisecondsSince1970
+  private double startTime_; // MillisecondsSince1970 GMT
+  private double endTime_;   // MillisecondsSince1970 GMT
   private final boolean isValid_;
 }
