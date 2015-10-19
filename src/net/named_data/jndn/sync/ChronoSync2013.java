@@ -559,6 +559,10 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
         byte[] array = tempContent.toByteArray();
         Data data = new Data(interest.getName());
         data.setContent(new Blob(array));
+        if (interest.getName().get(-1).toEscapedString().equals("00"))
+          // Limit the lifetime of replies to interest for "00" since they can be different.
+          data.getMetaInfo().setFreshnessPeriod(1000);
+
         try {
           keyChain_.sign(data, certificateName_);
         } catch (SecurityException ex) {

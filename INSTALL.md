@@ -13,18 +13,7 @@ Prerequisites
 
 Following are the detailed steps for each platform to install the prerequisites.
 
-## OS X 10.8.4
-Install Xcode.
-In Xcode Preferences > Downloads, install "Command Line Tools".
-
-To install Apache Maven, install MacPorts from http://www.macports.org/install.php .
-In a new terminal, enter:
-
-    sudo port install maven3
-
-Optional: To install Android SDK, install from https://developer.android.com/sdk/index.html .
-
-## OS X 10.9.5, OS X 10.10.2
+## OS X 10.9.5, OS X 10.10.2, OS X 10.11
 Install Xcode.  (Xcode seems to already have the Command Line Tools.)
 
 To install Apache Maven, install MacPorts from http://www.macports.org/install.php .
@@ -35,7 +24,7 @@ In a new terminal, enter:
 
 Optional: To install Android SDK, install from https://developer.android.com/sdk/index.html .
 
-## Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 14.04 (64 bit and 32 bit)
+## Ubuntu 12.04 (64 bit and 32 bit), Ubuntu 14.04 (64 bit and 32 bit), Ubuntu 15.04 (64 bit)
 To install Apache Maven, in a terminal enter:
 
     sudo apt-get install maven
@@ -103,7 +92,7 @@ examples/target/classes/net/named_data/jndn/tests:
 
 * TestGetAsync: Connect to one of the NDN testbed hubs, express an interest and display the received data.
 * TestPublishAsyncNfd: Connect to the local NFD hub, accept interests with prefix /testecho and echo back a data packet. See test-echo-consumer.
-* TestEchoConsumer: Prompt for a word, send the interest /testecho/word to the local hub which is echoed by test-publish-async-nfd (or test-publish-async-ndnx).
+* TestEchoConsumer: Prompt for a word, send the interest /testecho/word to the local hub which is echoed by test-publish-async-nfd.
 * TestEncodeDecodeInterest: Encode and decode an interest, testing interest selectors and the name URI.
 * TestEncodeDecodeData: Encode and decode a data packet, including signing the data packet.
 * TestEncodeDecodeFibEntry: Encode and decode a sample Protobuf message using ProtobufTlv.

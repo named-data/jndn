@@ -96,6 +96,17 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
+    encoder.writeOptionalNonNegativeIntegerTlv(
+      Tlv.SelectedDelegation, interest.getSelectedDelegationIndex());
+    try {
+      Blob linkWireEncoding = interest.getLinkWireEncoding(this);
+      if (!linkWireEncoding.isNull())
+        // Encode the entire link as is.
+        encoder.writeBuffer(linkWireEncoding.buf());
+    } catch (EncodingException ex) {
+      throw new Error(ex.getMessage());
+    }
+    
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.InterestLifetime, interest.getInterestLifetimeMilliseconds());
 
@@ -184,6 +195,26 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     ByteBuffer nonce = decoder.readBlobTlv(Tlv.Nonce);
     interest.setInterestLifetimeMilliseconds
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.InterestLifetime, endOffset));
+
+    if (decoder.peekType(Tlv.Data, endOffset)) {
+      // Get the bytes of the Link TLV.
+      int linkBeginOffset = decoder.getOffset();
+      int linkEndOffset = decoder.readNestedTlvsStart(Tlv.Data);
+      decoder.seek(linkEndOffset);
+      ByteBuffer linkEncoding = input.duplicate();
+      linkEncoding.limit(linkEndOffset);
+      linkEncoding.position(linkBeginOffset);
+
+      interest.setLinkWireEncoding(new Blob(linkEncoding, true), this);
+    }
+    else
+      interest.unsetLink();
+    interest.setSelectedDelegationIndex
+      ((int)decoder.readOptionalNonNegativeIntegerTlv
+       (Tlv.SelectedDelegation, endOffset));
+    if (interest.getSelectedDelegationIndex() >= 0 && !interest.hasLink())
+      throw new EncodingException
+        ("Interest has a selected delegation, but no link object");
 
     // Set the nonce last because setting other interest fields clears it.
     interest.setNonce(new Blob(nonce, true));
@@ -552,14 +583,14 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     for (int i = delegationSet.size() - 1; i >= 0; --i) {
       int saveLength = encoder.getLength();
 
-      encodeName(delegationSet.get(i).getName());
+      encodeName(delegationSet.get(i).getName(), new int[1], new int[1], encoder);
       encoder.writeNonNegativeIntegerTlv
         (Tlv.Link_Preference, delegationSet.get(i).getPreference());
 
       encoder.writeTypeAndLength
         (Tlv.Link_Delegation, encoder.getLength() - saveLength);
     }
-    
+
     return new Blob(encoder.getOutput(), false);
   }
 
@@ -581,15 +612,17 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     TlvDecoder decoder = new TlvDecoder(input);
     int endOffset = input.limit();
 
+    delegationSet.clear();
     while (decoder.getOffset() < endOffset) {
+      decoder.readTypeAndLength(Tlv.Link_Delegation);
       int preference = (int)decoder.readNonNegativeIntegerTlv(Tlv.Link_Preference);
       Name name = new Name();
       decodeName(name, new int[1], new int[1], decoder);
-      
-      delegationSet.add(preference, name);
-    }
 
-    delegationSet.clear();
+      // Add unsorted to preserve the order so that Interest selected delegation
+      // index will work.
+      delegationSet.addUnsorted(preference, name);
+    }
   }
 
   /**
@@ -976,7 +1009,8 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     if (!(metaInfo.getType() == ContentType.BLOB)) {
       // Not the default, so we need to encode the type.
       if (metaInfo.getType() == ContentType.LINK ||
-          metaInfo.getType() == ContentType.KEY)
+          metaInfo.getType() == ContentType.KEY ||
+          metaInfo.getType() == ContentType.NACK)
         // The ContentType enum is set up with the correct integer for
         // each NDN-TLV ContentType.
         encoder.writeNonNegativeIntegerTlv
@@ -1000,8 +1034,10 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       (Tlv.ContentType, endOffset);
     if (type == ContentType.LINK.getNumericType())
       metaInfo.setType(ContentType.LINK);
-    if (type == ContentType.KEY.getNumericType())
+    else if (type == ContentType.KEY.getNumericType())
       metaInfo.setType(ContentType.KEY);
+    else if (type == ContentType.NACK.getNumericType())
+      metaInfo.setType(ContentType.NACK);
     else
       // Default to BLOB.
       metaInfo.setType(ContentType.BLOB);

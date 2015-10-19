@@ -207,7 +207,7 @@ public class TlvEncoder {
   /**
    * Write the buffer from its position() to limit() to the output just
    * before getLength() from the back. Advance getLength() of the output. This
-   * does NOT change value.position(). Note that this does not encode a type
+   * does NOT change buffer.position(). Note that this does not encode a type
    * and length; for that see writeBlobTlv.
    * @param buffer The byte buffer with the bytes to write. If buffer is null,
    * then do nothing.

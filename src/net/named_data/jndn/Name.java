@@ -643,6 +643,8 @@ public class Name implements ChangeCountable, Comparable {
     return toUri(false);
   }
 
+  public String toString() { return toUri(); }
+
   /**
    * Append a component with the encoded segment number according to NDN
    * naming conventions for "Segment number" (marker 0x00).

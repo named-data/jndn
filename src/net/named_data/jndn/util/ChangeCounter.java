@@ -27,14 +27,14 @@ package net.named_data.jndn.util;
  */
 public class ChangeCounter {
   /**
-   * Create a new ChangeCounter to track the given target.  This sets the local
-   * change counter to target.getChangeCount().
-   * @param target The target to track.
+   * Create a new ChangeCounter to track the given target. If target is not null,
+   * this sets the local change counter to target.getChangeCount().
+   * @param target The target to track. This may be null.
    */
   public ChangeCounter(ChangeCountable target)
   {
     target_ = target;
-    changeCount_ = target_.getChangeCount();
+    changeCount_ = (target_ == null ? 0 : target_.getChangeCount());
   }
 
   /**
@@ -45,26 +45,29 @@ public class ChangeCounter {
   public final ChangeCountable get() { return target_; }
 
   /**
-   * Set the target to the given target.  This sets the local change counter to
-   * target.getChangeCount().
-   * @param target The target to track.
+   * Set the target to the given target.  If target is not null, this sets the
+   * local change counter to target.getChangeCount().
+   * @param target The target to track. This may be null.
    */
   public final void set(ChangeCountable target)
   {
     target_ = target;
-    changeCount_ = target_.getChangeCount();
+    changeCount_ = (target_ == null ? 0 : target_.getChangeCount());
   }
 
   /**
    * If the target's change count is different than the local change count, then
    * update the local change count and return true.  Otherwise return false,
-   * meaning that the target has not changed.  This is useful since the
-   * target (or one of the target's targets) may be changed and you need to find
-   * out.
+   * meaning that the target has not changed. Also, if the target is null,
+   * simply return false.This is useful since the target (or one of the target's
+   * targets) may be changed and you need to find out.
    * @return True if the change count has been updated, false if not.
    */
   public final boolean checkChanged()
   {
+    if (target_ == null)
+      return false;
+
     long targetChangeCount = target_.getChangeCount();
     if (changeCount_ != targetChangeCount) {
       changeCount_ = targetChangeCount;

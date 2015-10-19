@@ -3,7 +3,7 @@ jNDN:  A Named Data Networking client library for Java
 ------------------------------------------------------
 
 jNDN is a new implementation of a Named Data Networking client library written in Java.
-It is wire format compatible with the new NDN-TLV encoding, with NDNx and PARC's CCNx.
+It is wire format compatible with the NDN-TLV encoding.
 
 jNDN conforms to the NDN Common Client Libraries API and your application should
 follow this public API:
@@ -16,10 +16,8 @@ http://redmine.named-data.net/projects/jndn/issues
 
 ---
 
-The library currently requires a remote NDN daemon, and has been tested with:
-* ndnd from NDNx: https://github.com/named-data/ndnx
-* ndnd-tlv (which uses NDNx): https://github.com/named-data/ndnd-tlv
-* The new NFD forwarder: https://github.com/named-data/NFD
+The library currently requires a remote NDN daemon, and has been tested with the
+NFD forwarder: https://github.com/named-data/NFD
 
 License
 -------

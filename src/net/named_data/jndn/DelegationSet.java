@@ -27,8 +27,12 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.util.Blob;
 
 /**
- * A DelegationSet holds a set of DelegationSet.Delegation which is used as the
- * content of a Link instance. Only one delegation is allowed for a given name.
+ * A DelegationSet holds a list of DelegationSet.Delegation entries which is
+ * used as the content of a Link instance. If you add elements with add(), then
+ * the list is a set sorted by preference number then by name. But wireDecode
+ * will add the elements from the wire encoding, preserving the given order and
+ * possible duplicates (in which case a DelegationSet really holds a "list" and
+ * not necessarily a "set").
  */
 public class DelegationSet {
   /**
@@ -108,7 +112,8 @@ public class DelegationSet {
   /**
    * Add a new DelegationSet.Delegation to the list of delegations, sorted by
    * preference number then by name. If there is already a delegation with the
-   * same name, update its preference.
+   * same name, update its preference, and remove any extra delegations with the
+   * same name.
    * @param preference The preference number.
    * @param name The delegation name. This makes a copy of the name.
    */
@@ -131,6 +136,20 @@ public class DelegationSet {
   }
 
   /**
+   * Add a new DelegationSet.Delegation to the end of the list of delegations,
+   * without sorting or updating any existing entries. This is useful for adding
+   * preferences from a wire encoding, preserving the supplied ordering and
+   * possible duplicates.
+   * @param preference The preference number.
+   * @param name The delegation name. This makes a copy of the name.
+   */
+  public final void
+  addUnsorted(int preference, Name name)
+  {
+    delegations_.add(new Delegation(preference, name));
+  }
+
+  /**
    * Remove every DelegationSet.Delegation with the given name.
    * @param name Then name to match the name of the delegation(s) to be removed.
    * @return True if a DelegationSet.Delegation was removed, otherwise false.
@@ -141,7 +160,7 @@ public class DelegationSet {
     boolean wasRemoved = false;
     // Go backwards through the list so we can remove entries.
     for (int i = delegations_.size() - 1; i >= 0; --i) {
-      if (((Delegation)delegations_.get(i)).name_ == name) {
+      if (((Delegation)delegations_.get(i)).name_.equals(name)) {
         wasRemoved = true;
         delegations_.remove(i);
       }
@@ -176,6 +195,22 @@ public class DelegationSet {
   }
 
   /**
+   * Find the first delegation with the given name and return its index.
+   * @param name Then name of the delegation to find.
+   * @return The index of the delegation, or -1 if not found.
+   */
+  public final int
+  find(Name name)
+  {
+    for (int i = 0; i < delegations_.size(); ++i) {
+      if (((Delegation)delegations_.get(i)).name_.equals(name))
+        return i;
+    }
+
+    return -1;
+  }
+
+  /**
    * Encode this DelegationSet for a particular wire format.
    * @param wireFormat A WireFormat object used to encode this DelegationSet.
    * @return The encoded buffer.
@@ -198,7 +233,9 @@ public class DelegationSet {
   }
 
   /**
-   * Decode the input using a particular wire format and update this DelegationSet.
+   * Decode the input using a particular wire format and update this 
+   * DelegationSet, using addUnsorted() to preserve the given order and
+   * possible duplicates.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
    * @param wireFormat A WireFormat object used to decode the input.
@@ -212,7 +249,8 @@ public class DelegationSet {
 
   /**
    * Decode the input using the default wire format
-   * WireFormat.getDefaultWireFormat() and update this DelegationSet.
+   * WireFormat.getDefaultWireFormat() and update this DelegationSet, using
+   * addUnsorted() to preserve the given order and possible duplicates.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.

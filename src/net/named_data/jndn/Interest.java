@@ -74,6 +74,13 @@ public class Interest implements ChangeCountable {
 
     interestLifetimeMilliseconds_ = interest.interestLifetimeMilliseconds_;
     nonce_ = interest.getNonce();
+
+    linkWireEncoding_ = interest.linkWireEncoding_;
+    linkWireEncodingFormat_ = interest.linkWireEncodingFormat_;
+    if (interest.link_.get() != null)
+      link_.set(new Link((Link)interest.link_.get()));
+    selectedDelegationIndex_ = interest.selectedDelegationIndex_;
+
     setDefaultWireEncoding
       (interest.getDefaultWireEncoding(), interest.defaultWireEncodingFormat_);
   }
@@ -290,6 +297,85 @@ public class Interest implements ChangeCountable {
   }
 
   /**
+   * Check if this interest has a link object (or a link wire encoding which
+   * can be decoded to make the link object).
+   * @return True if this interest has a link object, false if not.
+   */
+  public final boolean
+  hasLink()
+  {
+    return link_.get() != null || !linkWireEncoding_.isNull();
+  }
+
+  /**
+   * Get the link object. If necessary, decode it from the link wire encoding.
+   * @return  The link object, or null if not specified.
+   * @throws EncodingException For error decoding the link wire encoding (if
+   * necessary).
+   */
+  public final Link
+  getLink() throws EncodingException
+  {
+    if (link_.get() != null)
+      return (Link)link_.get();
+    else if (!linkWireEncoding_.isNull()) {
+      // Decode the link object from linkWireEncoding_.
+      Link link = new Link();
+      link.wireDecode(linkWireEncoding_, linkWireEncodingFormat_);
+      link_.set(link);
+
+      // Clear linkWireEncoding_ since it is now managed by the link object.
+      linkWireEncoding_ = new Blob();
+      linkWireEncodingFormat_ = null;
+      
+      return link;
+    }
+    else
+      return null;
+  }
+
+  /**
+   * Get the wire encoding of the link object. If there is already a wire
+   * encoding then return it. Otherwise encode from the link object (if
+   * available).
+   * @param wireFormat The desired wire format for the encoding.
+   * @return The wire encoding, or an isNull Blob if the link is not specified.
+   * @throws EncodingException for error encoding the link object.
+   */
+  public final Blob
+  getLinkWireEncoding(WireFormat wireFormat) throws EncodingException
+  {
+    if (!linkWireEncoding_.isNull() && linkWireEncodingFormat_ == wireFormat)
+      return linkWireEncoding_;
+
+    Link link = getLink();
+    if (link != null)
+      return link.wireEncode(wireFormat);
+    else
+      return new Blob();
+  }
+
+  /**
+   * Get the wire encoding of the link object. If there is already a wire
+   * encoding then return it. Otherwise encode from the link object (if
+   * available).
+   * @return The wire encoding, or an isNull Blob if the link is not specified.
+   * @throws EncodingException for error encoding the link object.
+   */
+  public final Blob
+  getLinkWireEncoding() throws EncodingException
+  {
+    return getLinkWireEncoding(WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Get the selected delegation index.
+   * @return The selected delegation index. If not specified, return -1.
+   */
+  public final int
+  getSelectedDelegationIndex() { return selectedDelegationIndex_; }
+
+  /**
    * Get the incoming face ID of the local control header.
    * @return The incoming face ID. If not specified, return -1.
    * @note This is an experimental feature. This API may change in the future.
@@ -442,6 +528,67 @@ public class Interest implements ChangeCountable {
   }
 
   /**
+   * Set the link wire encoding bytes, without decoding them. If there is
+   * a link object, set it to null. If you later call getLink(), it will
+   * decode the wireEncoding to create the link object.
+   * @param encoding The buffer with the bytes of the link wire encoding.
+   * If no link is specified, set to an empty Blob() or call unsetLink().
+   * @param wireFormat The wire format of the encoding, to be used later if
+   * necessary to decode.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
+  setLinkWireEncoding(Blob encoding, WireFormat wireFormat)
+  {
+    linkWireEncoding_ = encoding;
+    linkWireEncodingFormat_ = wireFormat;
+
+    // Clear the link object, assuming that it has a different encoding.
+    link_.set(null);
+
+    ++changeCount_;
+    return this;
+  }
+
+  /**
+   * Set the link wire encoding bytes, without decoding them. If there is
+   * a link object, set it to null. IF you later call getLink(), it will
+   * decode the wireEncoding to create the link object.
+   * @param encoding The buffer with the bytes of the link wire encoding.
+   * If no link is specified, set to an empty Blob().
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
+  setLinkWireEncoding(Blob encoding)
+  {
+    return setLinkWireEncoding(encoding, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Clear the link wire encoding and link object so that getLink() returns null.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
+  unsetLink()
+  {
+    return setLinkWireEncoding(new Blob(), null);
+  }
+
+  /**
+   * Set the selected delegation index.
+   * @param selectedDelegationIndex The selected delegation index. If not
+   * specified, set to -1.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
+  setSelectedDelegationIndex(int selectedDelegationIndex)
+  {
+    selectedDelegationIndex_ = selectedDelegationIndex;
+    ++changeCount_;
+    return this;
+  }
+
+  /**
    * An internal library method to set localControlHeader to a copy of the given
    * LocalControlHeader for an incoming packet. The application should not call
    * this.
@@ -522,6 +669,7 @@ public class Interest implements ChangeCountable {
     boolean changed = name_.checkChanged();
     changed = keyLocator_.checkChanged() || changed;
     changed = exclude_.checkChanged() || changed;
+    changed = link_.checkChanged() || changed;
     if (changed)
       // A child object has changed, so update the change count.
       ++changeCount_;
@@ -551,6 +699,10 @@ public class Interest implements ChangeCountable {
   private Blob nonce_ = new Blob();
   private long getNonceChangeCount_ = 0;
   private LocalControlHeader localControlHeader_ = new LocalControlHeader();
+  private Blob linkWireEncoding_ = new Blob();
+  private WireFormat linkWireEncodingFormat_ = null;
+  private final ChangeCounter link_ = new ChangeCounter(null);
+  private int selectedDelegationIndex_ = -1;
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
   private WireFormat defaultWireEncodingFormat_;
   private long getDefaultWireEncodingChangeCount_ = 0;
