@@ -28,6 +28,7 @@ import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Exclude;
 import net.named_data.jndn.ForwardingFlags;
+import net.named_data.jndn.GenericSignature;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
@@ -200,11 +201,9 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       int linkBeginOffset = decoder.getOffset();
       int linkEndOffset = decoder.readNestedTlvsStart(Tlv.Data);
       decoder.seek(linkEndOffset);
-      ByteBuffer linkEncoding = input.duplicate();
-      linkEncoding.limit(linkEndOffset);
-      linkEncoding.position(linkBeginOffset);
 
-      interest.setLinkWireEncoding(new Blob(linkEncoding, true), this);
+      interest.setLinkWireEncoding
+        (new Blob(decoder.getSlice(linkBeginOffset, linkEndOffset), true), this);
     }
     else
       interest.unsetLink();
@@ -871,6 +870,26 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   private void
   encodeSignatureInfo(Signature signature, TlvEncoder encoder)
   {
+    if (signature instanceof GenericSignature) {
+      // Handle GenericSignature separately since it has the entire encoding.
+      Blob encoding = ((GenericSignature)signature).getSignatureInfoEncoding();
+      
+      // Do a test decoding to sanity check that it is valid TLV.
+      try {
+        TlvDecoder decoder = new TlvDecoder(encoding.buf());
+        int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
+        decoder.readNonNegativeIntegerTlv(Tlv.SignatureType);
+        decoder.finishNestedTlvs(endOffset);
+      } catch (EncodingException ex) {
+        throw new Error
+          ("The GenericSignature encoding is not a valid NDN-TLV SignatureInfo: " +
+           ex.getMessage());
+      }
+
+      encoder.writeBuffer(encoding.buf());
+      return;
+    }
+
     int saveLength = encoder.getLength();
 
     // Encode backwards.
@@ -902,13 +921,14 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   decodeSignatureInfo
     (SignatureHolder signatureHolder, TlvDecoder decoder) throws EncodingException
   {
+    int beginOffset = decoder.getOffset();
     int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
 
     int signatureType = (int)decoder.readNonNegativeIntegerTlv(Tlv.SignatureType);
     if (signatureType == Tlv.SignatureType_SignatureSha256WithRsa) {
         signatureHolder.setSignature(new Sha256WithRsaSignature());
-        // Modify data's signature object because if we create an object
-        //   and set it, then data will have to copy all the fields.
+        // Modify the holder's signature object because if we create an object
+        //   and set it, then the holder will have to copy all the fields.
         Sha256WithRsaSignature signatureInfo =
           (Sha256WithRsaSignature)signatureHolder.getSignature();
         decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
@@ -921,9 +941,15 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     }
     else if (signatureType == Tlv.SignatureType_DigestSha256)
         signatureHolder.setSignature(new DigestSha256Signature());
-    else
-        throw new EncodingException
-         ("decodeSignatureInfo: unrecognized SignatureInfo type" + signatureType);
+    else {
+      signatureHolder.setSignature(new GenericSignature());
+      GenericSignature signatureInfo =
+        (GenericSignature)signatureHolder.getSignature();
+
+      // Get the bytes of the SignatureInfo TLV.
+      signatureInfo.setSignatureInfoEncoding
+        (new Blob(decoder.getSlice(beginOffset, endOffset), true), signatureType);
+    }
 
     decoder.finishNestedTlvs(endOffset);
   }
