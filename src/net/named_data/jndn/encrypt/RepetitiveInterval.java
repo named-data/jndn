@@ -134,6 +134,16 @@ public class RepetitiveInterval implements Comparable {
     }
   }
 
+  /**
+   * Get an interval that covers the time point. If there is no interval
+   * covering the time point, this returns false for isPositive and returns a
+   * negative interval.
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
+   * @param isPositive Set isPositive[0] true if the returned interval is
+   * positive, false if negative.
+   * @return The interval covering the time point, or a negative interval if not
+   * found.
+   */
   public final Interval
   getInterval(double timePoint, boolean[] isPositive)
   {
@@ -143,7 +153,7 @@ public class RepetitiveInterval implements Comparable {
     if (!hasIntervalOnDate(timePoint)) {
       // There is no interval on the date of timePoint.
       startTime = toDateOnlyMilliseconds(timePoint);
-      endTime = startTime + 24 * MILLISECONDS_IN_HOUR;
+      endTime = toDateOnlyMilliseconds(timePoint) + 24 * MILLISECONDS_IN_HOUR;
       isPositive[0] = false;
     }
     else {
@@ -161,7 +171,7 @@ public class RepetitiveInterval implements Comparable {
       }
       else if (timePoint > endTime) {
         startTime = endTime;
-        endTime = startTime + MILLISECONDS_IN_DAY;
+        endTime = toDateOnlyMilliseconds(timePoint) + MILLISECONDS_IN_DAY;
         isPositive[0] = false;
       }
       else
