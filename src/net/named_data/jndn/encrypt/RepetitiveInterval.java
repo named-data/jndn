@@ -27,7 +27,7 @@ import java.util.TimeZone;
  * A RepetitiveInterval is an advanced interval which can repeat and can be used
  * to find a simple Interval that a time point falls in.
  */
-public class RepetitiveInterval {
+public class RepetitiveInterval implements Comparable {
   public enum RepeatUnit {
     NONE(0),
     DAY(1),
@@ -41,6 +41,12 @@ public class RepetitiveInterval {
 
     public final int
     getNumericType() { return type_; }
+
+    public final int
+    compare(RepeatUnit other)
+    {
+      return Integer.compare(getNumericType(), other.getNumericType());
+    }
 
     private final int type_;
   }
@@ -165,7 +171,65 @@ public class RepetitiveInterval {
     return new Interval(startTime, endTime);
   }
 
-  // TODO: less than
+  /**
+   * Compare this to the other RepetitiveInterval.
+   * @param other The other RepetitiveInterval to compare to.
+   * @return -1 if this is less than the other, 1 if greater and 0 if equal.
+   */
+  public final int
+  compare(RepetitiveInterval other)
+  {
+    if (startDate_ < other.startDate_)
+      return -1;
+    if (startDate_ > other.startDate_)
+      return 1;
+
+    if (endDate_ < other.endDate_)
+      return -1;
+    if (endDate_ > other.endDate_)
+      return 1;
+
+    if (intervalStartHour_ < other.intervalStartHour_)
+      return -1;
+    if (intervalStartHour_ > other.intervalStartHour_)
+      return 1;
+
+    if (intervalEndHour_ < other.intervalEndHour_)
+      return -1;
+    if (intervalEndHour_ > other.intervalEndHour_)
+      return 1;
+
+    if (nRepeats_ < other.nRepeats_)
+      return -1;
+    if (nRepeats_ > other.nRepeats_)
+      return 1;
+
+    return repeatUnit_.compare(other.repeatUnit_);
+  }
+
+  public int
+  compareTo(Object other) { return compare((RepetitiveInterval)other); }
+
+  public boolean equals(Object other)
+  {
+    if (!(other instanceof RepetitiveInterval))
+      return false;
+
+    return compare((RepetitiveInterval)other) == 0;
+  }
+
+  public int hashCode() {
+    int hash = 3;
+    hash = 73 * hash + (int)
+      (Double.doubleToLongBits(startDate_) ^ (Double.doubleToLongBits(startDate_) >>> 32));
+    hash = 73 * hash + (int)
+      (Double.doubleToLongBits(endDate_) ^ (Double.doubleToLongBits(endDate_) >>> 32));
+    hash = 73 * hash + intervalStartHour_;
+    hash = 73 * hash + intervalEndHour_;
+    hash = 73 * hash + nRepeats_;
+    hash = 73 * hash + repeatUnit_.getNumericType();
+    return hash;
+  }
 
   /**
    * Get the start date.
