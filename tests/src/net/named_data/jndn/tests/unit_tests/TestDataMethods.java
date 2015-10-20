@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.GenericSignature;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
@@ -299,6 +300,24 @@ public class TestDataMethods {
 1
   });
 
+  private static final int experimentalSignatureType = 100;
+  private static final ByteBuffer experimentalSignatureInfo = toBuffer(new int[] {
+0x16, 0x08, // SignatureInfo
+  0x1B, 0x01, experimentalSignatureType, // SignatureType
+  0x81, 0x03, 1, 2, 3 // Experimental info
+});
+
+  private static final ByteBuffer experimentalSignatureInfoNoSignatureType = toBuffer(new int[] {
+0x16, 0x05, // SignatureInfo
+  0x81, 0x03, 1, 2, 3 // Experimental info
+});
+
+  private static final ByteBuffer experimentalSignatureInfoBadTlv = toBuffer(new int[] {
+0x16, 0x08, // SignatureInfo
+  0x1B, 0x01, experimentalSignatureType, // SignatureType
+  0x81, 0x10, 1, 2, 3 // Bad TLV encoding (length 0x10 doesn't match the value length.
+});
+
   static String dump(Object s1) { return s1.toString(); }
   static String dump(Object s1, Object s2) { return s1.toString() + " " + s2.toString(); }
 
@@ -530,5 +549,60 @@ public class TestDataMethods {
     credentials.verifyData(freshData, counter, counter);
     assertEquals("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
     assertEquals("Verification callback was not used", counter.onVerifiedCallCount_, 1);
+  }
+
+  @Test
+  public void
+  testGenericSignature()
+  {
+    // Test correct encoding.
+    GenericSignature signature = new GenericSignature();
+    signature.setSignatureInfoEncoding
+      (new Blob(experimentalSignatureInfo, false), -1);
+    Blob signatureValue = new Blob(toBuffer(new int[] { 1, 2, 3, 4} ), false);
+    signature.setSignature(signatureValue);
+    
+    freshData.setSignature(signature);
+    Blob encoding = freshData.wireEncode();
+
+    Data decodedData = new Data();
+    try {
+      decodedData.wireDecode(encoding);
+    } catch (EncodingException ex) {
+      fail("Error decoding Data with GenericSignature: " + ex);
+    }
+
+    GenericSignature decodedSignature = (GenericSignature)decodedData.getSignature();
+    assertEquals(experimentalSignatureType, decodedSignature.getTypeCode());
+    assertTrue(new Blob(experimentalSignatureInfo, false).equals
+               (decodedSignature.getSignatureInfoEncoding()));
+    assertTrue(signatureValue.equals(decodedSignature.getSignature()));
+
+    // Test bad encoding.
+    signature = new GenericSignature();
+    signature.setSignatureInfoEncoding
+      (new Blob(experimentalSignatureInfoNoSignatureType, false), -1);
+    signature.setSignature(signatureValue);
+    freshData.setSignature(signature);
+    boolean gotError = true;
+    try {
+      freshData.wireEncode();
+      gotError = false;
+    } catch (Error ex) {}
+    if (!gotError)
+      fail("Expected encoding error for experimentalSignatureInfoNoSignatureType");
+
+    signature = new GenericSignature();
+    signature.setSignatureInfoEncoding
+      (new Blob(experimentalSignatureInfoBadTlv, false), -1);
+    signature.setSignature(signatureValue);
+    freshData.setSignature(signature);
+    gotError = true;
+    try {
+      freshData.wireEncode();
+      gotError = false;
+    } catch (Error ex) {}
+    if (!gotError)
+      fail("Expected encoding error for experimentalSignatureInfoBadTlv");
   }
 }
