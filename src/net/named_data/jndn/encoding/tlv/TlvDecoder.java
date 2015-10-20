@@ -350,5 +350,24 @@ public class TlvDecoder {
     input_.position(offset);
   }
 
+  /**
+   * Return a ByteBuffer slice of the input for the given offset range.
+   * @param beginOffset The offset in the input of the beginning of the slice.
+   * @param endOffset The offset in the input of the end of the slice.
+   * @return A slice on the input buffer.  This is not a copy of the bytes in
+   * the input buffer. If you need a copy, then you must make a copy of the
+   * return value.
+   */
+  public final ByteBuffer
+  getSlice(int beginOffset, int endOffset)
+  {
+    ByteBuffer result = input_.duplicate();
+    // First set position to 0 to be sure that endOffset won't be before it.
+    result.position(0);
+    result.limit(endOffset);
+    result.position(beginOffset);
+    return result;
+  }
+
   private final ByteBuffer input_;
 }
