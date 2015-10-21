@@ -31,8 +31,7 @@ import javax.crypto.NoSuchPaddingException;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encrypt.DecryptKey;
 import net.named_data.jndn.encrypt.EncryptKey;
-import net.named_data.jndn.encrypt.algo.EncryptionMode;
-import net.named_data.jndn.encrypt.algo.PaddingScheme;
+import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
 import net.named_data.jndn.util.Blob;
@@ -104,7 +103,7 @@ public class TestRsaAlgorithm {
            BadPaddingException, DerDecodingException
   {
     EncryptParams encryptParams = new EncryptParams
-      (EncryptionMode.RSA, PaddingScheme.OAEP_SHA, 0);
+      (EncryptAlgorithmType.RsaOaep, 0);
 
     Blob privateKeyBlob = new Blob(Common.base64Decode(PRIVATE_KEY));
     Blob publicKeyBlob = new Blob(Common.base64Decode(PUBLIC_KEY));

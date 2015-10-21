@@ -30,8 +30,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import net.named_data.jndn.encrypt.DecryptKey;
 import net.named_data.jndn.encrypt.EncryptKey;
-import net.named_data.jndn.encrypt.algo.EncryptionMode;
-import net.named_data.jndn.encrypt.algo.PaddingScheme;
+import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
 import net.named_data.jndn.util.Blob;
@@ -88,7 +87,7 @@ public class TestAesAlgorithm {
            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException
   {
     EncryptParams encryptParams = new EncryptParams
-      (EncryptionMode.ECB_AES, PaddingScheme.PKCS7, 16);
+      (EncryptAlgorithmType.AesEcb, 16);
 
     DecryptKey decryptKey = new DecryptKey(new Blob(KEY, false));
     EncryptKey encryptKey = AesAlgorithm.deriveEncryptKey(decryptKey.getKeyBits());
@@ -101,7 +100,7 @@ public class TestAesAlgorithm {
     Blob receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
 
-    encryptParams.setEncryptionMode(EncryptionMode.CBC_AES);
+    encryptParams.setAlgorithmType(EncryptAlgorithmType.AesCbc);
 
     cipherBlob = AesAlgorithm.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
     receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
