@@ -119,20 +119,26 @@ public class TestInterval {
     assertEquals(tempInterval.isEmpty(), true);
 
     tempInterval = new Interval(interval1);
+    boolean gotError = true;
     try {
       tempInterval.unionWith(interval2);
-      fail("Expected error in unionWith(interval2)");
+      gotError = false;
     } catch (Error ex) {}
+    if (!gotError)
+      fail("Expected error in unionWith(interval2)");
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval3);
     assertEquals(tempInterval.isEmpty(), true);
 
     tempInterval = new Interval(interval1);
+    gotError = true;
     try {
       tempInterval.unionWith(interval3);
-      fail("Expected error in unionWith(interval3)");
+      gotError = false;
     } catch (Error ex) {}
+    if (!gotError)
+      fail("Expected error in unionWith(interval3)");
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval4);
