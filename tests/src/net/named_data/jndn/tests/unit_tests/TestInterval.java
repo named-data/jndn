@@ -116,7 +116,7 @@ public class TestInterval {
 
     Interval tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval2);
-    assertEquals(tempInterval.isEmpty(), true);
+    assertEquals(true, tempInterval.isEmpty());
 
     tempInterval = new Interval(interval1);
     boolean gotError = true;
@@ -129,7 +129,7 @@ public class TestInterval {
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval3);
-    assertEquals(tempInterval.isEmpty(), true);
+    assertEquals(true, tempInterval.isEmpty());
 
     tempInterval = new Interval(interval1);
     gotError = true;
@@ -142,47 +142,47 @@ public class TestInterval {
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval4);
-    assertEquals(tempInterval.isEmpty(), false);
+    assertEquals(false, tempInterval.isEmpty());
     assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
     assertEquals("20150825T040000", formatDate(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.unionWith(interval4);
-    assertEquals(tempInterval.isEmpty(), false);
+    assertEquals(false, tempInterval.isEmpty());
     assertEquals("20150825T010000", formatDate(tempInterval.getStartTime()));
     assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval5);
-    assertEquals(tempInterval.isEmpty(), false);
+    assertEquals(false, tempInterval.isEmpty());
     assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
     assertEquals("20150825T040000", formatDate(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.unionWith(interval5);
-    assertEquals(tempInterval.isEmpty(), false);
+    assertEquals(false, tempInterval.isEmpty());
     assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
     assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval6);
-    assertEquals(tempInterval.isEmpty(), false);
+    assertEquals(false, tempInterval.isEmpty());
     assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
     assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.unionWith(interval6);
-    assertEquals(tempInterval.isEmpty(), false);
+    assertEquals(false, tempInterval.isEmpty());
     assertEquals("20150825T010000", formatDate(tempInterval.getStartTime()));
     assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval7);
-    assertEquals(tempInterval.isEmpty(), true);
+    assertEquals(true, tempInterval.isEmpty());
 
     tempInterval = new Interval(interval1);
     tempInterval.unionWith(interval7);
-    assertEquals(tempInterval.isEmpty(), false);
+    assertEquals(false, tempInterval.isEmpty());
     assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
     assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
   }
