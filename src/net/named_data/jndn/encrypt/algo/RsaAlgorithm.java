@@ -118,7 +118,7 @@ public class RsaAlgorithm {
    * Decrypt the encryptedData using the keyBits according the encrypt params.
    * @param keyBits The key value (PKCS8-encoded private key).
    * @param encryptedData The data to decrypt.
-   * @param params This decrypts according to params.getPaddingScheme().
+   * @param params This decrypts according to params.getAlgorithmType().
    * @return The decrypted data.
    */
   public static Blob
@@ -147,7 +147,7 @@ public class RsaAlgorithm {
    * Encrypt the plainData using the keyBits according the encrypt params.
    * @param keyBits The key value (DER-encoded public key).
    * @param plainData The data to encrypt.
-   * @param params This encrypts according to params.getPaddingScheme().
+   * @param params This encrypts according to params.getAlgorithmType().
    * @return The encrypted data.
    */
   public static Blob

@@ -76,7 +76,7 @@ public class AesAlgorithm {
    * Decrypt the encryptedData using the keyBits according the encrypt params.
    * @param keyBits The key value.
    * @param encryptedData The data to decrypt.
-   * @param params This decrypts according to params.getEncryptionMode() and
+   * @param params This decrypts according to params.getAlgorithmType() and
    * other params as needed such as params.getInitialVector().
    * @return The decrypted data.
    */
@@ -111,7 +111,7 @@ public class AesAlgorithm {
    * Encrypt the plainData using the keyBits according the encrypt params.
    * @param keyBits The key value.
    * @param plainData The data to encrypt.
-   * @param params This encrypts according to params.getEncryptionMode() and
+   * @param params This encrypts according to params.getAlgorithmType() and
    * other params as needed such as params.getInitialVector().
    * @return The encrypted data.
    */
