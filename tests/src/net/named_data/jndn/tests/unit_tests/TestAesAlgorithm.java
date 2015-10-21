@@ -107,7 +107,7 @@ public class TestAesAlgorithm {
     Blob receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
 
-    // Dncrypt/decrypt data in AES_CBC with auto-generated IV.
+    // Encrypt/decrypt data in AES_CBC with auto-generated IV.
     encryptParams.setAlgorithmType(EncryptAlgorithmType.AesCbc);
     cipherBlob = AesAlgorithm.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
     receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
