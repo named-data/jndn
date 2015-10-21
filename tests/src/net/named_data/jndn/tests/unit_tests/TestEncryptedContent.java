@@ -27,6 +27,7 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.EncryptedContent;
+import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -57,7 +58,7 @@ public class TestEncryptedContent {
       0x08, 0x07,
         0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72, // 'locator'
   0x83, 0x01, // EncryptedAlgorithm
-    0x00,
+    0x03,
   0x85, 0x0a, // InitialVector
     0x72, 0x61, 0x6e, 0x64, 0x6f, 0x6d, 0x62, 0x69, 0x74, 0x73,
   0x84, 0x07, // EncryptedPayload
@@ -75,7 +76,7 @@ public class TestEncryptedContent {
       0x08, 0x07,
         0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72, // 'locator'
   0x83, 0x01, // EncryptedAlgorithm
-    0x00,
+    0x03,
   0x84, 0x07, // EncryptedPayload
     0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74
   });
@@ -93,7 +94,7 @@ public class TestEncryptedContent {
   testConstructor() throws EncodingException
   {
     EncryptedContent content = new EncryptedContent();
-    assertEquals(content.getAlgorithmType(), -1);
+    assertEquals(content.getAlgorithmType(), EncryptAlgorithmType.NONE);
     assertEquals(content.getPayload().isNull(), true);
     assertEquals(content.getInitialVector().isNull(), true);
     assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
@@ -104,8 +105,8 @@ public class TestEncryptedContent {
     KeyLocator keyLocator = new KeyLocator();
     keyLocator.setType(KeyLocatorType.KEYNAME);
     keyLocator.getKeyName().set("/test/key/locator");
-    // TODO: Use AlgorithmSha256WithRsa.
-    content.setAlgorithmType(0).setKeyLocator(keyLocator).setPayload(payload)
+    content.setAlgorithmType(EncryptAlgorithmType.RsaOaep)
+      .setKeyLocator(keyLocator).setPayload(payload)
       .setInitialVector(initialVector);
 
     // Test the copy constructor.
@@ -113,7 +114,7 @@ public class TestEncryptedContent {
     Blob contentPayload = sha256RsaContent.getPayload();
     Blob contentInitialVector = sha256RsaContent.getInitialVector();
 
-    assertEquals(sha256RsaContent.getAlgorithmType(), 0);
+    assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
     assertTrue(contentPayload.equals(payload));
     assertTrue(contentInitialVector.equals(initialVector));
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
@@ -130,8 +131,7 @@ public class TestEncryptedContent {
     contentPayload = sha256RsaContent.getPayload();
     contentInitialVector = sha256RsaContent.getInitialVector();
 
-    // TODO: Use AlgorithmSha256WithRsa.
-    assertEquals(sha256RsaContent.getAlgorithmType(), 0);
+    assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
     assertTrue(contentPayload.equals(payload));
     assertTrue(contentInitialVector.equals(initialVector));
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
@@ -140,10 +140,11 @@ public class TestEncryptedContent {
 
     // Test no IV.
     sha256RsaContent = new EncryptedContent();
-    sha256RsaContent.setAlgorithmType(0).setKeyLocator(keyLocator).setPayload(payload);
+    sha256RsaContent.setAlgorithmType(EncryptAlgorithmType.RsaOaep)
+      .setKeyLocator(keyLocator).setPayload(payload);
     contentPayload = sha256RsaContent.getPayload();
 
-    assertEquals(sha256RsaContent.getAlgorithmType(), 0);
+    assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
     assertTrue(contentPayload.equals(payload));
     assertTrue(sha256RsaContent.getInitialVector().isNull());
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
@@ -159,7 +160,7 @@ public class TestEncryptedContent {
     sha256RsaContent.wireDecode(encryptedBlob);
     contentPayload = sha256RsaContent.getPayload();
 
-    assertEquals(sha256RsaContent.getAlgorithmType(), 0);
+    assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
     assertTrue(sha256RsaContent.getPayload().equals(payload));
     assertTrue(sha256RsaContent.getInitialVector().isNull());
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
@@ -309,14 +310,13 @@ public class TestEncryptedContent {
   testSetterGetter() throws EncodingException
   {
     EncryptedContent content = new EncryptedContent();
-    assertEquals(content.getAlgorithmType(), -1);
+    assertEquals(content.getAlgorithmType(), EncryptAlgorithmType.NONE);
     assertEquals(content.getPayload().isNull(), true);
     assertEquals(content.getInitialVector().isNull(), true);
     assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
 
-    // TODO: Use AlgorithmSha256WithRsa.
-    content.setAlgorithmType(0);
-    assertEquals(content.getAlgorithmType(), 0);
+    content.setAlgorithmType(EncryptAlgorithmType.RsaOaep);
+    assertEquals(content.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
     assertEquals(content.getPayload().isNull(), true);
     assertEquals(content.getInitialVector().isNull(), true);
     assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
