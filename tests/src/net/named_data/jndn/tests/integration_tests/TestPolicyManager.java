@@ -334,10 +334,10 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
        vr.hasFurtherSteps_);
 
     assertEquals
-      ("Verification failed with NoVerifyPolicyManager", vr.failureCount_, 0);
+      ("Verification failed with NoVerifyPolicyManager", 0, vr.failureCount_);
     assertEquals
       ("Verification success called " + vr.successCount_ + " times instead of 1",
-       vr.successCount_, 1);
+       1, vr.successCount_);
   }
 
   @Test
@@ -359,10 +359,10 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     assertFalse
       ("SelfVerifyPolicyManager returned a ValidationRequest", vr.hasFurtherSteps_);
     assertEquals
-      ("Verification of identity-signed data failed", vr.failureCount_, 0);
+      ("Verification of identity-signed data failed", 0, vr.failureCount_);
     assertEquals
       ("Verification success called " + vr.successCount_ + " times instead of 1",
-       vr.successCount_, 1);
+       1, vr.successCount_);
 
     Data data2 = new Data(new Name("/TestData/2"));
 
@@ -370,10 +370,10 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
 
     assertFalse
       ("SelfVerifyPolicyManager returned a ValidationRequest", vr.hasFurtherSteps_);
-    assertEquals("Verification of unsigned data succeeded", vr.successCount_, 0);
+    assertEquals("Verification of unsigned data succeeded", 0, vr.successCount_);
     assertEquals
       ("Verification failure callback called " + vr.failureCount_ + " times instead of 1",
-       vr.failureCount_, 1);
+       1, vr.failureCount_);
   }
 
   @Test
@@ -398,20 +398,20 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     assertFalse
       ("ConfigPolicyManager returned ValidationRequest but certificate is known",
        vr.hasFurtherSteps_);
-    assertEquals("Verification of valid interest failed", vr.failureCount_, 0);
+    assertEquals("Verification of valid interest failed", 0, vr.failureCount_);
     assertEquals
       ("Verification success called " + vr.successCount_ + " times instead of 1",
-       vr.successCount_, 1);
+       1, vr.successCount_);
 
     vr = doVerify(policyManager_, oldInterest);
 
     assertFalse
       ("ConfigPolicyManager returned ValidationRequest but certificate is known",
        vr.hasFurtherSteps_);
-    assertEquals("Verification of stale interest succeeded", vr.successCount_, 0);
+    assertEquals("Verification of stale interest succeeded", 0, vr.successCount_);
     assertEquals
       ("Verification failure callback called " + vr.failureCount_ + " times instead of 1",
-       vr.failureCount_, 1);
+       1, vr.failureCount_);
   }
 
   @Test
@@ -444,10 +444,10 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
        vr.hasFurtherSteps_);
     assertEquals
       ("ConfigPolicyManager called success callback with pending ValidationRequest",
-       vr.successCount_, 0);
+       0, vr.successCount_);
     assertEquals
       ("ConfigPolicyManager called failure callback with pending ValidationRequest",
-       vr.failureCount_, 0);
+       0, vr.failureCount_);
 
     // Now save the cert data to our anchor directory, and wait.
     // We have to sign it with the current identity or the policy manager will
@@ -474,10 +474,10 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
        vr.hasFurtherSteps_);
     assertEquals
       ("ConfigPolicyManager called success callback with pending ValidationRequest",
-       vr.successCount_, 0);
+       0, vr.successCount_);
     assertEquals
       ("ConfigPolicyManager called failure callback with pending ValidationRequest",
-       vr.failureCount_, 0);
+       0, vr.failureCount_);
 
     Thread.sleep(6000);
 
@@ -489,9 +489,9 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
        vr.hasFurtherSteps_);
     assertEquals
       ("Verification success called " + vr.successCount_ + " times instead of 1",
-       vr.successCount_, 1);
+       1, vr.successCount_);
     assertEquals
       ("ConfigPolicyManager did not verify valid signed data",
-       vr.failureCount_, 0);
+       0, vr.failureCount_);
   }
 }
