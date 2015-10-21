@@ -26,6 +26,7 @@ import java.util.TimeZone;
 /**
  * A RepetitiveInterval is an advanced interval which can repeat and can be used
  * to find a simple Interval that a time point falls in.
+ * @note This class is an experimental feature. The API may change.
  */
 public class RepetitiveInterval implements Comparable {
   public enum RepeatUnit {

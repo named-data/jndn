@@ -23,6 +23,7 @@ package net.named_data.jndn.encrypt;
 /**
  * An Interval defines a time duration which contains a start timestamp and an
  * end timestamp.
+ * @note This class is an experimental feature. The API may change.
  */
 public class Interval {
   /**

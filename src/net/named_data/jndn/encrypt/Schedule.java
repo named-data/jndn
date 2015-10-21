@@ -38,6 +38,7 @@ import net.named_data.jndn.util.Blob;
  * sets of RepetitiveInterval as follows. whiteIntervalList is an ordered
  * set for the times a member is allowed to access to data, and
  * blackIntervalList is for the times a member is not allowed.
+ * @note This class is an experimental feature. The API may change.
  */
 public class Schedule {
   /**
