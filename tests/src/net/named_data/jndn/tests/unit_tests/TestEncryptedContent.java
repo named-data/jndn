@@ -94,10 +94,10 @@ public class TestEncryptedContent {
   testConstructor() throws EncodingException
   {
     EncryptedContent content = new EncryptedContent();
-    assertEquals(content.getAlgorithmType(), EncryptAlgorithmType.NONE);
-    assertEquals(content.getPayload().isNull(), true);
-    assertEquals(content.getInitialVector().isNull(), true);
-    assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
+    assertEquals(EncryptAlgorithmType.NONE, content.getAlgorithmType());
+    assertEquals(true, content.getPayload().isNull());
+    assertEquals(true, content.getInitialVector().isNull());
+    assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());
 
     Blob payload = new Blob(MESSAGE, false);
     Blob initialVector = new Blob(IV, false);
@@ -114,7 +114,7 @@ public class TestEncryptedContent {
     Blob contentPayload = sha256RsaContent.getPayload();
     Blob contentInitialVector = sha256RsaContent.getInitialVector();
 
-    assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
+    assertEquals(EncryptAlgorithmType.RsaOaep, sha256RsaContent.getAlgorithmType());
     assertTrue(contentPayload.equals(payload));
     assertTrue(contentInitialVector.equals(initialVector));
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
@@ -131,7 +131,7 @@ public class TestEncryptedContent {
     contentPayload = sha256RsaContent.getPayload();
     contentInitialVector = sha256RsaContent.getInitialVector();
 
-    assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
+    assertEquals(EncryptAlgorithmType.RsaOaep, sha256RsaContent.getAlgorithmType());
     assertTrue(contentPayload.equals(payload));
     assertTrue(contentInitialVector.equals(initialVector));
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
@@ -144,7 +144,7 @@ public class TestEncryptedContent {
       .setKeyLocator(keyLocator).setPayload(payload);
     contentPayload = sha256RsaContent.getPayload();
 
-    assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
+    assertEquals(EncryptAlgorithmType.RsaOaep, sha256RsaContent.getAlgorithmType());
     assertTrue(contentPayload.equals(payload));
     assertTrue(sha256RsaContent.getInitialVector().isNull());
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
@@ -160,7 +160,7 @@ public class TestEncryptedContent {
     sha256RsaContent.wireDecode(encryptedBlob);
     Blob contentPayloadNoIV = sha256RsaContent.getPayload();
 
-    assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
+    assertEquals(EncryptAlgorithmType.RsaOaep, sha256RsaContent.getAlgorithmType());
     assertTrue(contentPayloadNoIV.equals(payload));
     assertTrue(sha256RsaContent.getInitialVector().isNull());
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
@@ -310,16 +310,16 @@ public class TestEncryptedContent {
   testSetterGetter() throws EncodingException
   {
     EncryptedContent content = new EncryptedContent();
-    assertEquals(content.getAlgorithmType(), EncryptAlgorithmType.NONE);
-    assertEquals(content.getPayload().isNull(), true);
-    assertEquals(content.getInitialVector().isNull(), true);
-    assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
+    assertEquals(EncryptAlgorithmType.NONE, content.getAlgorithmType());
+    assertEquals(true, content.getPayload().isNull());
+    assertEquals(true, content.getInitialVector().isNull());
+    assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());
 
     content.setAlgorithmType(EncryptAlgorithmType.RsaOaep);
-    assertEquals(content.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
-    assertEquals(content.getPayload().isNull(), true);
-    assertEquals(content.getInitialVector().isNull(), true);
-    assertEquals(content.getKeyLocator().getType(), KeyLocatorType.NONE);
+    assertEquals(EncryptAlgorithmType.RsaOaep, content.getAlgorithmType());
+    assertEquals(true, content.getPayload().isNull());
+    assertEquals(true, content.getInitialVector().isNull());
+    assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());
 
     KeyLocator keyLocator = new KeyLocator();
     keyLocator.setType(KeyLocatorType.KEYNAME);
@@ -328,8 +328,8 @@ public class TestEncryptedContent {
     assertTrue(content.getKeyLocator().getType() != KeyLocatorType.NONE);
     assertTrue(content.getKeyLocator().getKeyName().equals
                (new Name("/test/key/locator")));
-    assertEquals(content.getPayload().isNull(), true);
-    assertEquals(content.getInitialVector().isNull(), true);
+    assertEquals(true, content.getPayload().isNull());
+    assertEquals(true, content.getInitialVector().isNull());
 
     Blob payload = new Blob(MESSAGE, false);
     content.setPayload(payload);
