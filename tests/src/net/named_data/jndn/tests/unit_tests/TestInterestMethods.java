@@ -325,9 +325,9 @@ public class TestInterestMethods {
     VerifyInterestCounter counter = new VerifyInterestCounter();
     keyChain.verifyInterest(interest, counter, counter);
     assertEquals
-      ("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
+      ("Signature verification failed", 0, counter.onVerifyFailedCallCount_);
     assertEquals
-      ("Verification callback was not used", counter.onVerifiedCallCount_, 1);
+      ("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }
 
   @Test
