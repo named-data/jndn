@@ -79,15 +79,15 @@ public class TestInterval {
     Interval interval = new Interval(parseDate("20150825T120000"),
                                      parseDate("20150825T160000"));
 
-    double tp1 = parseDate("20150825T120000");
-    double tp2 = parseDate("20150825T130000");
-    double tp3 = parseDate("20150825T170000");
-    double tp4 = parseDate("20150825T110000");
+    double timePoint1 = parseDate("20150825T120000");
+    double timePoint2 = parseDate("20150825T130000");
+    double timePoint3 = parseDate("20150825T170000");
+    double timePoint4 = parseDate("20150825T110000");
 
-    assertEquals(true, interval.covers(tp1));
-    assertEquals(true, interval.covers(tp2));
-    assertEquals(false, interval.covers(tp3));
-    assertEquals(false, interval.covers(tp4));
+    assertEquals(true, interval.covers(timePoint1));
+    assertEquals(true, interval.covers(timePoint2));
+    assertEquals(false, interval.covers(timePoint3));
+    assertEquals(false, interval.covers(timePoint4));
   }
 
   @Test
