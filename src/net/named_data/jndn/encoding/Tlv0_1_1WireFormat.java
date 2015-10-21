@@ -42,6 +42,7 @@ import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.encrypt.EncryptedContent;
+import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -643,7 +644,8 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       (Tlv.Encrypt_InitialVector, encryptedContent.getInitialVector().buf());
     // Assume the algorithmType value is the same as the TLV type.
     encoder.writeNonNegativeIntegerTlv
-      (Tlv.Encrypt_EncryptionAlgorithm, encryptedContent.getAlgorithmType());
+      (Tlv.Encrypt_EncryptionAlgorithm, 
+       encryptedContent.getAlgorithmType().getNumericType());
     Tlv0_1_1WireFormat.encodeKeyLocator
       (Tlv.KeyLocator, encryptedContent.getKeyLocator(), encoder);
 
@@ -673,9 +675,21 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
     Tlv0_1_1WireFormat.decodeKeyLocator
       (Tlv.KeyLocator, encryptedContent.getKeyLocator(), decoder);
-    encryptedContent.setAlgorithmType
-      ((int)decoder.readNonNegativeIntegerTlv
-       (Tlv.Encrypt_EncryptionAlgorithm));
+
+    int algorithmType = (int)decoder.readNonNegativeIntegerTlv
+       (Tlv.Encrypt_EncryptionAlgorithm);
+    if (algorithmType == EncryptAlgorithmType.AesEcb.getNumericType())
+      encryptedContent.setAlgorithmType(EncryptAlgorithmType.AesEcb);
+    else if (algorithmType == EncryptAlgorithmType.AesCbc.getNumericType())
+      encryptedContent.setAlgorithmType(EncryptAlgorithmType.AesCbc);
+    else if (algorithmType == EncryptAlgorithmType.RsaPkcs.getNumericType())
+      encryptedContent.setAlgorithmType(EncryptAlgorithmType.RsaPkcs);
+    else if (algorithmType == EncryptAlgorithmType.RsaOaep.getNumericType())
+      encryptedContent.setAlgorithmType(EncryptAlgorithmType.RsaOaep);
+    else
+      throw new EncodingException
+        ("Unrecognized EncryptionAlgorithm code " + algorithmType);
+
     encryptedContent.setInitialVector
       (new Blob(decoder.readOptionalBlobTlv
         (Tlv.Encrypt_InitialVector, endOffset), true));

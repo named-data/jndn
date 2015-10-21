@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -52,9 +53,9 @@ public class EncryptedContent {
 
   /**
    * Get the algorithm type.
-   * @return The algorithm type. If not specified, return -1.
+   * @return The algorithm type. If not specified, return NONE.
    */
-  public final int
+  public final EncryptAlgorithmType
   getAlgorithmType() { return algorithmType_; }
 
   /**
@@ -80,13 +81,13 @@ public class EncryptedContent {
 
   /**
    * Set the algorithm type.
-   * @param algorithmType The algorithm type. If not specified, set to -1.
+   * @param algorithmType The algorithm type. If not specified, set to NONE.
    * @return This EncryptedContent so that you can chain calls to update values.
    */
   public final EncryptedContent
-  setAlgorithmType(int algorithmType)
+  setAlgorithmType(EncryptAlgorithmType algorithmType)
   {
-    algorithmType_ = algorithmType < 0 ? -1 : algorithmType;
+    algorithmType_ = algorithmType;
     return this;
   }
 
@@ -202,7 +203,7 @@ public class EncryptedContent {
     wireDecode(input, WireFormat.getDefaultWireFormat());
   }
 
-  private int algorithmType_ = -1;
+  private EncryptAlgorithmType algorithmType_ = EncryptAlgorithmType.NONE;
   private KeyLocator keyLocator_ = new KeyLocator();
   private Blob initialVector_ = new Blob();
   private Blob payload_ = new Blob();
