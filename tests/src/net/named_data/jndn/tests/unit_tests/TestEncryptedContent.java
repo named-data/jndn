@@ -158,10 +158,10 @@ public class TestEncryptedContent {
 
     sha256RsaContent = new EncryptedContent();
     sha256RsaContent.wireDecode(encryptedBlob);
-    contentPayload = sha256RsaContent.getPayload();
+    Blob contentPayloadNoIV = sha256RsaContent.getPayload();
 
     assertEquals(sha256RsaContent.getAlgorithmType(), EncryptAlgorithmType.RsaOaep);
-    assertTrue(sha256RsaContent.getPayload().equals(payload));
+    assertTrue(contentPayloadNoIV.equals(payload));
     assertTrue(sha256RsaContent.getInitialVector().isNull());
     assertTrue(sha256RsaContent.getKeyLocator().getType() != KeyLocatorType.NONE);
     assertTrue(sha256RsaContent.getKeyLocator().getKeyName().equals
