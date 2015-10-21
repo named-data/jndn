@@ -85,33 +85,41 @@ public class TestAesAlgorithm {
   testEncryptionDecryption()
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException
-  {
+  {    
     EncryptParams encryptParams = new EncryptParams
       (EncryptAlgorithmType.AesEcb, 16);
 
-    DecryptKey decryptKey = new DecryptKey(new Blob(KEY, false));
+    Blob key = new Blob(KEY, false);
+    DecryptKey decryptKey = new DecryptKey(key);
     EncryptKey encryptKey = AesAlgorithm.deriveEncryptKey(decryptKey.getKeyBits());
+
+    // Check key loading and key derivation.
+    assertTrue(encryptKey.getKeyBits().equals(key));
+    assertTrue(decryptKey.getKeyBits().equals(key));
 
     Blob plainBlob = new Blob(PLAINTEXT, false);
 
+    // Encrypt data in AES_ECB.
     Blob cipherBlob = AesAlgorithm.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
     assertTrue(cipherBlob.equals(new Blob(CIPHERTEXT_ECB, false)));
 
+    // Decrypt data in AES_ECB.
     Blob receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
 
+    // Dncrypt/decrypt data in AES_CBC with auto-generated IV.
     encryptParams.setAlgorithmType(EncryptAlgorithmType.AesCbc);
-
     cipherBlob = AesAlgorithm.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
     receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
 
+    // Encrypt data in AES_CBC with specified IV.
     Blob initialVector = new Blob(INITIAL_VECTOR, false);
     encryptParams.setInitialVector(initialVector);
-
     cipherBlob = AesAlgorithm.encrypt(encryptKey.getKeyBits(), plainBlob, encryptParams);
     assertTrue(cipherBlob.equals(new Blob(CIPHERTEXT_CBC_IV, false)));
 
+    // Decrypt data in AES_CBC with specified IV.
     receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
   }
