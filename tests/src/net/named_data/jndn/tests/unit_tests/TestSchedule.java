@@ -21,14 +21,19 @@
 
 package net.named_data.jndn.tests.unit_tests;
 
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.Interval;
 import net.named_data.jndn.encrypt.RepetitiveInterval;
 import net.named_data.jndn.encrypt.Schedule;
+import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 
 public class TestSchedule {
@@ -122,5 +127,133 @@ public class TestSchedule {
     assertEquals(false, resultInterval.isEmpty());
     assertEquals("20150825T100000", formatDate(resultInterval.getStartTime()));
     assertEquals("20150826T000000", formatDate(resultInterval.getEndTime()));
+  }
+
+  // Convert the int array to a ByteBuffer.
+  public static ByteBuffer
+  toBuffer(int[] array)
+  {
+    ByteBuffer result = ByteBuffer.allocate(array.length);
+    for (int i = 0; i < array.length; ++i)
+      result.put((byte)(array[i] & 0xff));
+
+    result.flip();
+    return result;
+  }
+
+  private static final ByteBuffer SCHEDULE = toBuffer(new int[] {
+  0x8f, 0xc4,// Schedule
+  0x8d, 0x90,// WhiteIntervalList
+  /////
+  0x8c, 0x2e, // RepetitiveInterval
+    0x86, 0x0f,
+      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x35, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+    0x87, 0x0f,
+      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x35, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+    0x88, 0x01,
+      0x04,
+    0x89, 0x01,
+      0x07,
+    0x8a, 0x01,
+      0x00,
+    0x8b, 0x01,
+      0x00,
+  /////
+  0x8c, 0x2e, // RepetitiveInterval
+    0x86, 0x0f,
+      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x35, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+    0x87, 0x0f,
+      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x38, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+    0x88, 0x01,
+      0x05,
+    0x89, 0x01,
+      0x0a,
+    0x8a, 0x01,
+      0x02,
+    0x8b, 0x01,
+      0x01,
+  /////
+  0x8c, 0x2e, // RepetitiveInterval
+    0x86, 0x0f,
+      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x35, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+    0x87, 0x0f,
+      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x38, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+    0x88, 0x01,
+      0x06,
+    0x89, 0x01,
+      0x08,
+    0x8a, 0x01,
+      0x01,
+    0x8b, 0x01,
+      0x01,
+  /////
+  0x8e, 0x30, // BlackIntervalList
+  /////
+  0x8c, 0x2e, // RepetitiveInterval
+     0x86, 0x0f,
+      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x37, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+    0x87, 0x0f,
+      0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x32, 0x37, 0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+    0x88, 0x01,
+      0x07,
+    0x89, 0x01,
+      0x08,
+    0x8a, 0x01,
+      0x00,
+    0x8b, 0x01,
+      0x00
+  });
+
+
+  @Test
+  public void
+  testEncodeAndDecode() throws ParseException
+  {
+    Schedule schedule = new Schedule();
+
+    RepetitiveInterval interval1 = new RepetitiveInterval
+      (parseDate("20150825T000000"),
+       parseDate("20150828T000000"), 5, 10, 2, RepetitiveInterval.RepeatUnit.DAY);
+    RepetitiveInterval interval2 = new RepetitiveInterval
+      (parseDate("20150825T000000"),
+       parseDate("20150828T000000"), 6, 8, 1, RepetitiveInterval.RepeatUnit.DAY);
+    RepetitiveInterval interval3 = new RepetitiveInterval
+      (parseDate("20150827T000000"),
+       parseDate("20150827T000000"), 7, 8);
+    RepetitiveInterval interval4 = new RepetitiveInterval
+      (parseDate("20150825T000000"),
+       parseDate("20150825T000000"), 4, 7);
+
+    schedule.addWhiteInterval(interval1);
+    schedule.addWhiteInterval(interval2);
+    schedule.addWhiteInterval(interval4);
+    schedule.addBlackInterval(interval3);
+
+    Blob encoding = schedule.wireEncode();
+    Blob encoding2 = new Blob(SCHEDULE, false);
+    assertTrue(encoding.equals(encoding2));
+
+    Schedule schedule2 = new Schedule();
+    try {
+      schedule2.wireDecode(encoding);
+    } catch (EncodingException ex) {
+      fail("Error decoding Schedule: " + ex.getMessage());
+    }
+    Interval resultInterval;
+    boolean[] isPositive = { false };
+
+    // timePoint1 --> positive 8.25 4-10
+    double timePoint1 = parseDate("20150825T063000");
+    resultInterval = schedule.getCoveringInterval(timePoint1, isPositive);
+    assertEquals(true, isPositive[0]);
+    assertEquals("20150825T040000", formatDate(resultInterval.getStartTime()));
+    assertEquals("20150825T100000", formatDate(resultInterval.getEndTime()));
+
+    // timePoint2 --> positive 8.26 6-8
+    double timePoint2 = parseDate("20150826T073000");
+    resultInterval = schedule.getCoveringInterval(timePoint2, isPositive);
+    assertEquals(true, isPositive[0]);
+    assertEquals("20150826T060000", formatDate(resultInterval.getStartTime()));
+    assertEquals("20150826T080000", formatDate(resultInterval.getEndTime()));
   }
 }
