@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * @author: From ndn-group-encrypt src/algo/encrypt-params https://github.com/named-data/ndn-group-encrypt
+ * @author: From ndn-group-encrypt https://github.com/named-data/ndn-group-encrypt
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,12 +20,15 @@
 
 package net.named_data.jndn.encrypt.algo;
 
-public enum EncryptionMode {
-  ECB_AES(0),
-  CBC_AES(1),
-  RSA(2);
+public enum EncryptAlgorithmType {
+  NONE(-1),
+  // These correspond to the TLV codes.
+  AesEcb(0),
+  AesCbc(1),
+  RsaPkcs(2),
+  RsaOaep(3);
 
-  EncryptionMode(int type)
+  EncryptAlgorithmType(int type)
   {
     type_ = type;
   }

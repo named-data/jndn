@@ -131,9 +131,9 @@ public class RsaAlgorithm {
       (new PKCS8EncodedKeySpec(keyBits.getImmutableArray()));
 
     String transformation;
-    if (params.getPaddingScheme() == PaddingScheme.PKCS1v15)
+    if (params.getAlgorithmType() == EncryptAlgorithmType.RsaPkcs)
       transformation = "RSA/ECB/PKCS1Padding";
-    else if (params.getPaddingScheme() == PaddingScheme.OAEP_SHA)
+    else if (params.getAlgorithmType() == EncryptAlgorithmType.RsaOaep)
       transformation = "RSA/ECB/OAEPWithSHA-1AndMGF1Padding";
     else
       throw new Error("unsupported padding scheme");
@@ -160,9 +160,9 @@ public class RsaAlgorithm {
       (new X509EncodedKeySpec(keyBits.getImmutableArray()));
 
     String transformation;
-    if (params.getPaddingScheme() == PaddingScheme.PKCS1v15)
+    if (params.getAlgorithmType() == EncryptAlgorithmType.RsaPkcs)
       transformation = "RSA/ECB/PKCS1Padding";
-    else if (params.getPaddingScheme() == PaddingScheme.OAEP_SHA)
+    else if (params.getAlgorithmType() == EncryptAlgorithmType.RsaOaep)
       transformation = "RSA/ECB/OAEPWithSHA-1AndMGF1Padding";
     else
       throw new Error("unsupported padding scheme");

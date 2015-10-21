@@ -85,14 +85,14 @@ public class AesAlgorithm {
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException
   {
-    if (params.getEncryptionMode() == EncryptionMode.ECB_AES) {
+    if (params.getAlgorithmType() == EncryptAlgorithmType.AesEcb) {
       Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
       cipher.init
         (Cipher.DECRYPT_MODE,
          new SecretKeySpec(keyBits.getImmutableArray(), "AES"));
       return new Blob(cipher.doFinal(encryptedData.getImmutableArray()));
     }
-    else if (params.getEncryptionMode() == EncryptionMode.CBC_AES) {
+    else if (params.getAlgorithmType() == EncryptAlgorithmType.AesCbc) {
       if (params.getInitialVector().size() != BLOCK_SIZE)
         throw new Error("incorrect initial vector size");
 
@@ -120,14 +120,14 @@ public class AesAlgorithm {
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException
   {
-    if (params.getEncryptionMode() == EncryptionMode.ECB_AES) {
+    if (params.getAlgorithmType() == EncryptAlgorithmType.AesEcb) {
       Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
       cipher.init
         (Cipher.ENCRYPT_MODE,
          new SecretKeySpec(keyBits.getImmutableArray(), "AES"));
       return new Blob(cipher.doFinal(plainData.getImmutableArray()));
     }
-    else if (params.getEncryptionMode() == EncryptionMode.CBC_AES) {
+    else if (params.getAlgorithmType() == EncryptAlgorithmType.AesCbc) {
       if (params.getInitialVector().size() != BLOCK_SIZE)
         throw new Error("incorrect initial vector size");
       

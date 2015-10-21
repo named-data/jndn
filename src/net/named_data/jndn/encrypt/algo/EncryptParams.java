@@ -25,24 +25,21 @@ import java.security.SecureRandom;
 import net.named_data.jndn.util.Blob;
 
 /**
- * An EncryptParams holds an encryption mode and other parameters used to
+ * An EncryptParams holds an algorithm type and other parameters used to
  * encrypt and decrypt.
  * @note This class is an experimental feature. The API may change.
  */
 public class EncryptParams {
   /**
    * Create an EncryptParams with the given parameters.
-   * @param encryptionMode The encryption mode.
-   * @param paddingScheme The padding scheme.
+   * @param algorithmType The algorithm type, or NONE if not specified.
    * @param initialVectorLength The initial vector length, or 0 if the initial
    * vector is not specified.
    */
   public EncryptParams
-    (EncryptionMode encryptionMode, PaddingScheme paddingScheme,
-     int initialVectorLength)
+    (EncryptAlgorithmType algorithmType, int initialVectorLength)
   {
-    encryptionMode_ = encryptionMode;
-    paddingScheme_ = paddingScheme;
+    algorithmType_ = algorithmType;
 
     if (initialVectorLength > 0) {
       ByteBuffer initialVector = ByteBuffer.allocate(initialVectorLength);
@@ -54,18 +51,11 @@ public class EncryptParams {
   }
 
   /**
-   * Get the encryption mode.
-   * @return The encryption mode.
+   * Get the algorithm type.
+   * @return The algorithm type, or NONE if not specified.
    */
-  public final EncryptionMode
-  getEncryptionMode() { return encryptionMode_; }
-
-  /**
-   * Get the padding scheme.
-   * @return The padding scheme.
-   */
-  public final PaddingScheme
-  getPaddingScheme() { return paddingScheme_; }
+  public final EncryptAlgorithmType
+  getAlgorithmType() { return algorithmType_; }
 
   /**
    * Get the initial vector.
@@ -75,26 +65,14 @@ public class EncryptParams {
   getInitialVector() { return initialVector_; }
 
   /**
-   * Set the encryption mode.
-   * @param encryptionMode The encryption mode.
+   * Set the algorithm type.
+   * @param algorithmType The algorithm type. If not specified, set to NONE.
    * @return This EncryptParams so that you can chain calls to update values.
    */
   public final EncryptParams
-  setEncryptionMode(EncryptionMode encryptionMode)
+  setAlgorithmType(EncryptAlgorithmType algorithmType)
   {
-    encryptionMode_ = encryptionMode;
-    return this;
-  }
-
-  /**
-   * Set the padding scheme.
-   * @param paddingScheme The padding scheme.
-   * @return This EncryptParams so that you can chain calls to update values.
-   */
-  public final EncryptParams
-  setPaddingScheme(PaddingScheme paddingScheme)
-  {
-    paddingScheme_ = paddingScheme;
+    algorithmType_ = algorithmType;
     return this;
   }
 
@@ -111,8 +89,7 @@ public class EncryptParams {
     return this;
   }
 
-  private EncryptionMode encryptionMode_;
-  private PaddingScheme paddingScheme_;
+  private EncryptAlgorithmType algorithmType_;
   private Blob initialVector_;
   // TODO: Move this to a common utility?
   private static final SecureRandom random_ = new SecureRandom();
