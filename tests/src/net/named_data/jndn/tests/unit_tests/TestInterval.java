@@ -22,44 +22,23 @@
 package net.named_data.jndn.tests.unit_tests;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 import net.named_data.jndn.encrypt.Interval;
+import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.toIsoString;
+import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
 public class TestInterval {
-  static SimpleDateFormat dateFormat = getDateFormat();
-
-  private static SimpleDateFormat
-  getDateFormat()
-  {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    return dateFormat;
-  }
-
-  static double parseDate(String dateString) throws ParseException
-  {
-    return (double)dateFormat.parse(dateString).getTime();
-  }
-
-  static String formatDate(double msSince1970)
-  {
-    return dateFormat.format(new Date((long)Math.round(msSince1970)));
-  }
-
   @Test
   public void
   testConstruction() throws ParseException
   {
     // Construct with the right parameters.
-    Interval interval1 = new Interval(parseDate("20150825T120000"),
-                                      parseDate("20150825T160000"));
-    assertEquals("20150825T120000", formatDate(interval1.getStartTime()));
-    assertEquals("20150825T160000", formatDate(interval1.getEndTime()));
+    Interval interval1 = new Interval(fromIsoString("20150825T120000"),
+                                      fromIsoString("20150825T160000"));
+    assertEquals("20150825T120000", toIsoString(interval1.getStartTime()));
+    assertEquals("20150825T160000", toIsoString(interval1.getEndTime()));
     assertEquals(true, interval1.isValid());
 
     // Construct with the invalid interval.
@@ -76,13 +55,13 @@ public class TestInterval {
   public void
   testCoverTimePoint() throws ParseException
   {
-    Interval interval = new Interval(parseDate("20150825T120000"),
-                                     parseDate("20150825T160000"));
+    Interval interval = new Interval(fromIsoString("20150825T120000"),
+                                     fromIsoString("20150825T160000"));
 
-    double timePoint1 = parseDate("20150825T120000");
-    double timePoint2 = parseDate("20150825T130000");
-    double timePoint3 = parseDate("20150825T170000");
-    double timePoint4 = parseDate("20150825T110000");
+    double timePoint1 = fromIsoString("20150825T120000");
+    double timePoint2 = fromIsoString("20150825T130000");
+    double timePoint3 = fromIsoString("20150825T170000");
+    double timePoint4 = fromIsoString("20150825T110000");
 
     assertEquals(true, interval.covers(timePoint1));
     assertEquals(true, interval.covers(timePoint2));
@@ -94,23 +73,23 @@ public class TestInterval {
   public void
   testIntersectionAndUnion() throws ParseException
   {
-    Interval interval1 = new Interval(parseDate("20150825T030000"),
-                                      parseDate("20150825T050000"));
+    Interval interval1 = new Interval(fromIsoString("20150825T030000"),
+                                      fromIsoString("20150825T050000"));
     // No intersection.
-    Interval interval2 = new Interval(parseDate("20150825T050000"),
-                                      parseDate("20150825T070000"));
+    Interval interval2 = new Interval(fromIsoString("20150825T050000"),
+                                      fromIsoString("20150825T070000"));
     // No intersection.
-    Interval interval3 = new Interval(parseDate("20150825T060000"),
-                                      parseDate("20150825T070000"));
+    Interval interval3 = new Interval(fromIsoString("20150825T060000"),
+                                      fromIsoString("20150825T070000"));
     // There's an intersection.
-    Interval interval4 = new Interval(parseDate("20150825T010000"),
-                                      parseDate("20150825T040000"));
+    Interval interval4 = new Interval(fromIsoString("20150825T010000"),
+                                      fromIsoString("20150825T040000"));
     // Right in interval1, there's an intersection.
-    Interval interval5 = new Interval(parseDate("20150825T030000"),
-                                      parseDate("20150825T040000"));
+    Interval interval5 = new Interval(fromIsoString("20150825T030000"),
+                                      fromIsoString("20150825T040000"));
     // Wrap interval1, there's an intersection.
-    Interval interval6 = new Interval(parseDate("20150825T010000"),
-                                      parseDate("20150825T050000"));
+    Interval interval6 = new Interval(fromIsoString("20150825T010000"),
+                                      fromIsoString("20150825T050000"));
     // Empty interval.
     Interval interval7 = new Interval(true);
 
@@ -143,38 +122,38 @@ public class TestInterval {
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval4);
     assertEquals(false, tempInterval.isEmpty());
-    assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
-    assertEquals("20150825T040000", formatDate(tempInterval.getEndTime()));
+    assertEquals("20150825T030000", toIsoString(tempInterval.getStartTime()));
+    assertEquals("20150825T040000", toIsoString(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.unionWith(interval4);
     assertEquals(false, tempInterval.isEmpty());
-    assertEquals("20150825T010000", formatDate(tempInterval.getStartTime()));
-    assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
+    assertEquals("20150825T010000", toIsoString(tempInterval.getStartTime()));
+    assertEquals("20150825T050000", toIsoString(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval5);
     assertEquals(false, tempInterval.isEmpty());
-    assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
-    assertEquals("20150825T040000", formatDate(tempInterval.getEndTime()));
+    assertEquals("20150825T030000", toIsoString(tempInterval.getStartTime()));
+    assertEquals("20150825T040000", toIsoString(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.unionWith(interval5);
     assertEquals(false, tempInterval.isEmpty());
-    assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
-    assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
+    assertEquals("20150825T030000", toIsoString(tempInterval.getStartTime()));
+    assertEquals("20150825T050000", toIsoString(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval6);
     assertEquals(false, tempInterval.isEmpty());
-    assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
-    assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
+    assertEquals("20150825T030000", toIsoString(tempInterval.getStartTime()));
+    assertEquals("20150825T050000", toIsoString(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.unionWith(interval6);
     assertEquals(false, tempInterval.isEmpty());
-    assertEquals("20150825T010000", formatDate(tempInterval.getStartTime()));
-    assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
+    assertEquals("20150825T010000", toIsoString(tempInterval.getStartTime()));
+    assertEquals("20150825T050000", toIsoString(tempInterval.getEndTime()));
 
     tempInterval = new Interval(interval1);
     tempInterval.intersectWith(interval7);
@@ -183,7 +162,7 @@ public class TestInterval {
     tempInterval = new Interval(interval1);
     tempInterval.unionWith(interval7);
     assertEquals(false, tempInterval.isEmpty());
-    assertEquals("20150825T030000", formatDate(tempInterval.getStartTime()));
-    assertEquals("20150825T050000", formatDate(tempInterval.getEndTime()));
+    assertEquals("20150825T030000", toIsoString(tempInterval.getStartTime()));
+    assertEquals("20150825T050000", toIsoString(tempInterval.getEndTime()));
   }
 }
