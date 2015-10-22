@@ -67,7 +67,8 @@ public class RepetitiveInterval implements Comparable {
 
   /**
    * Create a RepetitiveInterval with the given values. startDate must be
-   * earlier than or same as endDate. startHour must be less than endHour.
+   * earlier than or same as endDate. intervalStartHour must be less than
+   * intervalEndHour.
    * @param startDate The start date as milliseconds since Jan 1, 1970 GMT.
    * @param endDate The end date as milliseconds since Jan 1, 1970 GMT.
    * @param intervalStartHour The start hour in the day, from 0 to 23.
@@ -94,8 +95,8 @@ public class RepetitiveInterval implements Comparable {
 
   /**
    * Create a RepetitiveInterval with the given values, and no repetition.
-   * Because there is no repetition, startDate must equal endDate. startHour
-   * must be less than endHour.
+   * Because there is no repetition, startDate must equal endDate. 
+   * intervalStartHour must be less than intervalEndHour.
    * @param startDate The start date as milliseconds since Jan 1, 1970 GMT.
    * @param endDate The end date as milliseconds since Jan 1, 1970 GMT.
    * @param intervalStartHour The start hour in the day, from 0 to 23.
@@ -114,6 +115,20 @@ public class RepetitiveInterval implements Comparable {
     repeatUnit_ = RepeatUnit.NONE;
 
     validate();
+  }
+
+  /**
+   * Create a RepetitiveInterval, copying values from the given repetitiveInterval.
+   * @param repetitiveInterval The RepetitiveInterval to copy values from.
+   */
+  public RepetitiveInterval(RepetitiveInterval repetitiveInterval)
+  {
+    startDate_ = repetitiveInterval.startDate_;
+    endDate_ = repetitiveInterval.endDate_;
+    intervalStartHour_ = repetitiveInterval.intervalStartHour_;
+    intervalEndHour_ = repetitiveInterval.intervalEndHour_;
+    nRepeats_ = repetitiveInterval.nRepeats_;
+    repeatUnit_ = repetitiveInterval.repeatUnit_;
   }
 
   private void
