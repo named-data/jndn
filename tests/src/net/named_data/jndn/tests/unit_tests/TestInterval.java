@@ -102,7 +102,7 @@ public class TestInterval {
     try {
       tempInterval.unionWith(interval2);
       gotError = false;
-    } catch (Error ex) {}
+    } catch (Throwable ex) {}
     if (!gotError)
       fail("Expected error in unionWith(interval2)");
 
@@ -115,7 +115,7 @@ public class TestInterval {
     try {
       tempInterval.unionWith(interval3);
       gotError = false;
-    } catch (Error ex) {}
+    } catch (Throwable ex) {}
     if (!gotError)
       fail("Expected error in unionWith(interval3)");
 
