@@ -49,6 +49,17 @@ public class Schedule {
   }
 
   /**
+   * Create a Schedule, copying values from the given schedule.
+   * @param schedule The Schedule to copy values from.
+   */
+  public Schedule(Schedule schedule)
+  {
+    // RepetitiveInterval is immutable, so we don't need to make a deep copy.
+    whiteIntervalList_.addAll(schedule.whiteIntervalList_);
+    blackIntervalList_.addAll(schedule.blackIntervalList_);
+  }
+
+  /**
    * Add the repetitiveInterval to the whiteIntervalList.
    * @param repetitiveInterval The RepetitiveInterval to add. If the list
    * already contains the same RepetitiveInterval, this does nothing.
