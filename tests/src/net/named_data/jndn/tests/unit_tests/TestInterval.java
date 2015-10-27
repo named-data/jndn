@@ -71,7 +71,7 @@ public class TestInterval {
 
   @Test
   public void
-  testIntersectionAndUnion() throws ParseException
+  testIntersectionAndUnion() throws ParseException, Interval.Error
   {
     Interval interval1 = new Interval(fromIsoString("20150825T030000"),
                                       fromIsoString("20150825T050000"));
@@ -115,7 +115,7 @@ public class TestInterval {
     try {
       tempInterval.unionWith(interval3);
       gotError = false;
-    } catch (Throwable ex) {}
+    } catch (Interval.Error ex) {}
     if (!gotError)
       fail("Expected error in unionWith(interval3)");
 

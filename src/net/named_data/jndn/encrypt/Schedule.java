@@ -114,13 +114,19 @@ public class Schedule {
       RepetitiveInterval element = (RepetitiveInterval)i.next();
 
       Interval tempInterval = element.getInterval(timePoint, localIsPositive);
-      if (localIsPositive[0] == true)
+      if (localIsPositive[0] == true) {
         // tempInterval covers the time point, so union the black negative
         // result with it.
         // Get the union interval of all the black intervals covering the
         // time point.
         // Return false for isPositive and the union interval.
-        blackPositiveResult.unionWith(tempInterval);
+        try {
+          blackPositiveResult.unionWith(tempInterval);
+        } catch (Interval.Error ex) {
+          // We don't expect to get this error.
+          throw new Error("Error in Interval.unionWith: " + ex.getMessage());
+        }
+      }
       else {
         // tempInterval does not cover the time point, so intersect the black
         // negative result with it.
@@ -146,13 +152,19 @@ public class Schedule {
       RepetitiveInterval element = (RepetitiveInterval)i.next();
 
       Interval tempInterval = element.getInterval(timePoint, localIsPositive);
-      if (localIsPositive[0] == true)
+      if (localIsPositive[0] == true) {
         // tempInterval covers the time point, so union the white positive
         // result with it.
         // Get the union interval of all the white intervals covering the time
         // point.
         // Return true for isPositive.
-        whitePositiveResult.unionWith(tempInterval);
+        try {
+          whitePositiveResult.unionWith(tempInterval);
+        } catch (Interval.Error ex) {
+          // We don't expect to get this error.
+          throw new Error("Error in Interval.unionWith: " + ex.getMessage());
+        }
+      }
       else {
         // tempInterval does not cover the time point, so intersect the white
         // negative result with it.

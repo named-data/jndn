@@ -27,6 +27,18 @@ package net.named_data.jndn.encrypt;
  */
 public class Interval {
   /**
+   * Interval.Error extends Exception for errors using Interval methods. Note
+   * that even though this is called "Error" to be consistent with the other
+   * libraries, it extends the Java Exception class, not Error.
+   */
+  public static class Error extends Exception {
+    public Error(String message)
+    {
+      super(message);
+    }
+  }
+
+  /**
    * Create an Interval that is either invalid or an empty interval.
    * @param isValid True to create a valid empty interval, false to create an
    * invalid interval.
@@ -44,12 +56,11 @@ public class Interval {
    * time equals end time), use the constructor Interval(true).
    * @param startTime The start time as milliseconds since Jan 1, 1970 GMT.
    * @param endTime The end time as milliseconds since Jan 1, 1970 GMT.
-   * @throws Error if startTime is not less than endTime.
    */
   public Interval(double startTime, double endTime)
   {
     if (!(startTime < endTime))
-      throw new Error("Interval start time must be less than the end time");
+      throw new java.lang.Error("Interval start time must be less than the end time");
     
     startTime_ = startTime;
     endTime_ = endTime;
@@ -81,13 +92,12 @@ public class Interval {
    * Check if the time point is in this interval.
    * @param timePoint The time point to check.
    * @return True if timePoint is in this interval.
-   * @throws Error if this Interval is invalid.
    */
   public final boolean
   covers(double timePoint)
   {
     if (!isValid_)
-      throw new Error("Interval.covers: This Interval is invalid");
+      throw new java.lang.Error("Interval.covers: This Interval is invalid");
 
     if (isEmpty())
       return false;
@@ -100,15 +110,14 @@ public class Interval {
    * This and the other interval should be valid but either can be empty.
    * @param interval The other Interval to intersect with.
    * @return This Interval.
-   * @throws Error if this Interval or the other interval is invalid.
    */
   public final Interval
   intersectWith(Interval interval)
   {
     if (!isValid_)
-      throw new Error("Interval.intersectWith: This Interval is invalid");
+      throw new java.lang.Error("Interval.intersectWith: This Interval is invalid");
     if (!interval.isValid_)
-      throw new Error("Interval.intersectWith: The other Interval is invalid");
+      throw new java.lang.Error("Interval.intersectWith: The other Interval is invalid");
 
     if (isEmpty() || interval.isEmpty()) {
       // If either is empty, the result is empty.
@@ -140,16 +149,15 @@ public class Interval {
    * intervals are not allowed.)
    * @param interval The other Interval to union with.
    * @return This Interval.
-   * @throws Error if this Interval or the other interval is invalid, or if the
-   * two intervals do not have an intersection.
+   * @throws Interval.Error if the two intervals do not have an intersection.
    */
   public final Interval
-  unionWith(Interval interval)
+  unionWith(Interval interval) throws Interval.Error
   {
     if (!isValid_)
-      throw new Error("Interval.intersectWith: This Interval is invalid");
+      throw new java.lang.Error("Interval.intersectWith: This Interval is invalid");
     if (!interval.isValid_)
-      throw new Error("Interval.intersectWith: The other Interval is invalid");
+      throw new java.lang.Error("Interval.intersectWith: The other Interval is invalid");
 
     if (isEmpty()) {
       // This interval is empty, so use the other.
@@ -163,7 +171,7 @@ public class Interval {
       return this;
 
     if (startTime_ >= interval.endTime_ || endTime_ <= interval.startTime_)
-      throw new Error
+      throw new Interval.Error
         ("Interval.unionWith: The two intervals do not have an intersection");
 
     // Get the start time.
@@ -180,26 +188,24 @@ public class Interval {
   /**
    * Get the start time.
    * @return The start time as milliseconds since Jan 1, 1970 GMT.
-   * @throws Error if this Interval is invalid.
    */
   public final double
   getStartTime()
   {
     if (!isValid_)
-      throw new Error("Interval.getStartTime: This Interval is invalid");
+      throw new java.lang.Error("Interval.getStartTime: This Interval is invalid");
     return startTime_;
   }
 
   /**
    * Get the end time.
    * @return The end time as milliseconds since Jan 1, 1970 GMT.
-   * @throws Error if this Interval is invalid.
    */
   public final double
   getEndTime()
   {
     if (!isValid_)
-      throw new Error("Interval.getEndTime: This Interval is invalid");
+      throw new java.lang.Error("Interval.getEndTime: This Interval is invalid");
     return endTime_;
   }
 
@@ -214,13 +220,12 @@ public class Interval {
    * Check if this Interval is empty.
    * @return True if this Interval is empty (start time equals end time), false
    * if not.
-   * @throws Error if this Interval is invalid.
    */
   public final boolean
   isEmpty()
   {
     if (!isValid_)
-      throw new Error("Interval.isEmpty: This Interval is invalid");
+      throw new java.lang.Error("Interval.isEmpty: This Interval is invalid");
     return startTime_ == endTime_;
   }
 
