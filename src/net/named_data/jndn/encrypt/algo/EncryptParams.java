@@ -51,6 +51,17 @@ public class EncryptParams {
   }
 
   /**
+   * Create an EncryptParams with the given algorithmType and an unspecified
+   * initial vector.
+   * @param algorithmType The algorithm type, or NONE if not specified.
+   */
+  public EncryptParams(EncryptAlgorithmType algorithmType)
+  {
+    algorithmType_ = algorithmType;
+    initialVector_ = new Blob();
+  }
+
+  /**
    * Get the algorithm type.
    * @return The algorithm type, or NONE if not specified.
    */
