@@ -1,7 +1,8 @@
 /**
  * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * From PyNDN unit-tests by Adeola Bannis.
+ * @author: From ndn-group-encrypt unit tests
+ * https://github.com/named-data/ndn-group-encrypt/blob/master/tests/unit-tests/group-manager-db.t.cpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
