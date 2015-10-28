@@ -142,7 +142,7 @@ public class AesAlgorithm {
       throw new Error("unsupported encryption mode");
   }
 
-  private static final int BLOCK_SIZE = 16;
+  public static final int BLOCK_SIZE = 16;
   // TODO: Move this to a common utility?
   private static final SecureRandom random_ = new SecureRandom();
 }
