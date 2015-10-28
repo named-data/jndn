@@ -90,7 +90,7 @@ public class Interval {
 
   /**
    * Check if the time point is in this interval.
-   * @param timePoint The time point to check.
+   * @param timePoint The time point to check as milliseconds since Jan 1, 1970 GMT.
    * @return True if timePoint is in this interval.
    */
   public final boolean
