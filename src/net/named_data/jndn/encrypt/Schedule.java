@@ -294,9 +294,9 @@ public class Schedule {
       (Tlv.Encrypt_IntervalStartHour, repetitiveInterval.getIntervalStartHour());
     // Use Blob to convert the string to UTF8 encoding.
     encoder.writeBlobTlv(Tlv.Encrypt_EndDate,
-      new Blob(formatDate(repetitiveInterval.getEndDate())).buf());
+      new Blob(toIsoString(repetitiveInterval.getEndDate())).buf());
     encoder.writeBlobTlv(Tlv.Encrypt_StartDate,
-      new Blob(formatDate(repetitiveInterval.getStartDate())).buf());
+      new Blob(toIsoString(repetitiveInterval.getStartDate())).buf());
 
     encoder.writeTypeAndLength
       (Tlv.Encrypt_RepetitiveInterval, encoder.getLength() - saveLength);
@@ -313,9 +313,9 @@ public class Schedule {
     int endOffset = decoder.readNestedTlvsStart(Tlv.Encrypt_RepetitiveInterval);
 
     // Use Blob to convert UTF8 to a string.
-    double startDate = parseDate
+    double startDate = fromIsoString
       (new Blob(decoder.readBlobTlv(Tlv.Encrypt_StartDate), true).toString());
-    double endDate = parseDate
+    double endDate = fromIsoString
       (new Blob(decoder.readBlobTlv(Tlv.Encrypt_EndDate), true).toString());
     int startHour = (int)decoder.readNonNegativeIntegerTlv
       (Tlv.Encrypt_IntervalStartHour);
@@ -343,8 +343,8 @@ public class Schedule {
       (startDate, endDate, startHour, endHour, nRepeats, repeatUnit);
   }
 
-  private static double
-  parseDate(String dateString) throws EncodingException
+  public static double
+  fromIsoString(String dateString) throws EncodingException
   {
     try {
       return (double)dateFormat.parse(dateString).getTime();
@@ -353,8 +353,8 @@ public class Schedule {
     }
   }
 
-  private static String
-  formatDate(double msSince1970)
+  public static String
+  toIsoString(double msSince1970)
   {
     return dateFormat.format(new Date((long)Math.round(msSince1970)));
   }
