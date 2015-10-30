@@ -305,9 +305,10 @@ public class TestEncryptor {
       // largeDataContent is a sequence of the two EncryptedContent.
       EncryptedContent encryptedNonce = new EncryptedContent();
       encryptedNonce.wireDecode(largeDataContent);
-      assertEquals(keyName, encryptedNonce.getKeyLocator().getKeyName());
-      assertEquals(0, encryptedNonce.getInitialVector().size());
-      assertEquals(input.type(), encryptedNonce.getAlgorithmType());
+      assertEquals(input.testName(),
+                   keyName, encryptedNonce.getKeyLocator().getKeyName());
+      assertEquals(input.testName(), 0, encryptedNonce.getInitialVector().size());
+      assertEquals(input.testName(), input.type(), encryptedNonce.getAlgorithmType());
 
       // Use the size of encryptedNonce to find the start of encryptedPayload.
       ByteBuffer payloadContent = largeDataContent.buf().duplicate();
@@ -316,11 +317,14 @@ public class TestEncryptor {
       encryptedPayload.wireDecode(payloadContent);
       Name nonceKeyName = new Name(keyName);
       nonceKeyName.append("nonce");
-      assertEquals(nonceKeyName, encryptedPayload.getKeyLocator().getKeyName());
-      assertEquals(16, encryptedPayload.getInitialVector().size());
-      assertEquals(EncryptAlgorithmType.AesCbc, encryptedPayload.getAlgorithmType());
+      assertEquals(input.testName(),
+                   nonceKeyName, encryptedPayload.getKeyLocator().getKeyName());
+      assertEquals(input.testName(),
+                   16, encryptedPayload.getInitialVector().size());
+      assertEquals(input.testName(),
+                   EncryptAlgorithmType.AesCbc, encryptedPayload.getAlgorithmType());
 
-      assertTrue(encryptedNonce.wireEncode().size() +
+      assertTrue(input.testName(), encryptedNonce.wireEncode().size() +
                  encryptedPayload.wireEncode().size() ==
                  largeDataContent.size());
 
@@ -333,7 +337,7 @@ public class TestEncryptor {
       Blob largePayload = AesAlgorithm.decrypt
         (nonce, bufferPayload, encryptParams);
 
-      assertTrue(large_content.equals(largePayload));
+      assertTrue(input.testName(), large_content.equals(largePayload));
     }
   }
 }
