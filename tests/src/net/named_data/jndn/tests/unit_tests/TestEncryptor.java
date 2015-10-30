@@ -111,12 +111,11 @@ public class TestEncryptor {
     public String testName() { return "TestDataAesCbc"; }
     public Name keyName() { return new Name("/test"); }
     public EncryptParams encryptParams() {
-      EncryptParams result = new EncryptParams(EncryptAlgorithmType.AesCbc)
+      return new EncryptParams(EncryptAlgorithmType.AesCbc)
         .setInitialVector(new Blob(toBuffer(new int[] {
           0x73, 0x6f, 0x6d, 0x65, 0x72, 0x61, 0x6e, 0x64,
           0x6f, 0x6d, 0x76, 0x65, 0x63, 0x74, 0x6f, 0x72
         }), false));
-      return result;
     }
     public Blob plainText() {
       return new Blob(toBuffer(new int[] {
