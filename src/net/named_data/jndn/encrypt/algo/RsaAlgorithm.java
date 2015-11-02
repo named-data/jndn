@@ -65,7 +65,7 @@ public class RsaAlgorithm {
   }
   
   /**
-   * Generate a new random decrypt key for AES based on the given params.
+   * Generate a new random decrypt key for RSA based on the given params.
    * @param params The key params with the key size (in bits).
    * @return The new decrypt key (PKCS8-encoded private key).
    */
