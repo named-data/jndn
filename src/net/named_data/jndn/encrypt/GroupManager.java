@@ -23,10 +23,10 @@ package net.named_data.jndn.encrypt;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.der.DerDecodingException;
@@ -83,7 +83,7 @@ public class GroupManager {
   public final List
   getGroupKey(double timeSlot) throws GroupManagerDb.Error, SecurityException
   {
-    Map memberKeys = new HashMap();
+    Map memberKeys = new TreeMap();
     List result = new ArrayList();
 
     // Get the time interval.
@@ -312,10 +312,10 @@ public class GroupManager {
   createEKeyData(String startTimeStamp, String endTimeStamp, Blob publicKeyBlob)
     throws SecurityException
   {
-    Name dataName = new Name(namespace_);
-    dataName.append(E_KEY_COMPONENT).append(startTimeStamp).append(endTimeStamp);
+    Name name = new Name(namespace_);
+    name.append(E_KEY_COMPONENT).append(startTimeStamp).append(endTimeStamp);
 
-    Data data = new Data(dataName);
+    Data data = new Data(name);
     data.getMetaInfo().setFreshnessPeriod(freshnessHours_ * MILLISECONDS_IN_HOUR);
     data.setContent(publicKeyBlob);
 
@@ -352,12 +352,11 @@ public class GroupManager {
      Blob privateKeyBlob, Blob certificateKey)
     throws SecurityException
   {
-    Name dataName = new Name(namespace_);
-    dataName.append(D_KEY_COMPONENT);
-    dataName.append(startTimeStamp).append(endTimeStamp)
-      .append(keyName.getPrefix(-1));
-    
-    Data data = new Data(dataName);
+    Name name = new Name(namespace_);
+    name.append(D_KEY_COMPONENT);
+    name.append(startTimeStamp).append(endTimeStamp).append(FOR_COMPONENT)
+      .append(keyName);
+    Data data = new Data(name);
     data.getMetaInfo().setFreshnessPeriod(freshnessHours_ * MILLISECONDS_IN_HOUR);
     EncryptParams encryptParams = new EncryptParams(EncryptAlgorithmType.RsaPkcs);
     try {
@@ -474,5 +473,6 @@ public class GroupManager {
   private static final Name.Component E_KEY_COMPONENT = new Name.Component("E-KEY");
   private static final Name.Component D_KEY_COMPONENT = new Name.Component("D-KEY");
   private static final Name.Component READ_COMPONENT = new Name.Component("read");
+  private static final Name.Component FOR_COMPONENT = new Name.Component("FOR");
   private static final long MILLISECONDS_IN_HOUR = 3600 * 1000;
 }

@@ -392,8 +392,8 @@ public class TestGroupManager implements GroupManager.Friend {
     // Get the second data packet and decrypt.
     data = (Data)result.get(1);
     assertEquals
-      ("/Alice/read/data_type/D-KEY/20150825T090000/20150825T100000",
-       data.getName().getPrefix(-2).toUri());
+      ("/Alice/read/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123",
+       data.getName().toUri());
 
     /////////////////////////////////////////////////////// Start decryption.
     Blob dataContent = data.getContent();
@@ -433,7 +433,19 @@ public class TestGroupManager implements GroupManager.Friend {
       (groupDKey.getKeyBits());
     assertTrue(groupEKey.getKeyBits().equals(derivedGroupEKey.getKeyBits()));
 
-    // Invalid time stamps for getting the group key.
+    // Check the third data packet.
+    data = (Data)result.get(2);
+    assertEquals
+      ("/Alice/read/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberB/ksk-123",
+       data.getName().toUri());
+
+    // Check the fourth data packet.
+    data = (Data)result.get(3);
+    assertEquals
+      ("/Alice/read/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberC/ksk-123",
+       data.getName().toUri());
+
+    // Check invalid time stamps for getting the group key.
     double timePoint2 = fromIsoString("20150826T083000");
     assertEquals(0, manager.getGroupKey(timePoint2).size());
 
