@@ -307,7 +307,7 @@ public class TestGroupManagerDb {
 
     // Update the schedule of a member.
     database.updateMemberSchedule(new Name("/ndn/Hello"), "play-time");
-    assertEquals(database.getMemberSchedule(new Name("/ndn/Hello")), "play-time");
+    assertEquals("play-time", database.getMemberSchedule(new Name("/ndn/Hello")));
 
     // Delete member.
     assertEquals(true, database.hasMember(new Name("/ndn/Hello")));
