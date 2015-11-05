@@ -317,7 +317,7 @@ public class TestGroupManager implements GroupManager.Friend {
 
     Data data = friendAccess.createEKeyData
       (manager, "20150825T090000", "20150825T110000", encryptKeyBlob);
-    assertEquals("/Alice/read/data_type/E-KEY/20150825T090000/20150825T110000",
+    assertEquals("/Alice/READ/data_type/E-KEY/20150825T090000/20150825T110000",
                  data.getName().toUri());
 
     Blob contentBlob = data.getContent();
@@ -385,14 +385,14 @@ public class TestGroupManager implements GroupManager.Friend {
     // The first data packet contains the group's encryption key (public key).
     Data data = (Data)result.get(0);
     assertEquals
-      ("/Alice/read/data_type/E-KEY/20150825T090000/20150825T100000",
+      ("/Alice/READ/data_type/E-KEY/20150825T090000/20150825T100000",
        data.getName().toUri());
     EncryptKey groupEKey = new EncryptKey(data.getContent());
 
     // Get the second data packet and decrypt.
     data = (Data)result.get(1);
     assertEquals
-      ("/Alice/read/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123",
+      ("/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123",
        data.getName().toUri());
 
     /////////////////////////////////////////////////////// Start decryption.
@@ -436,13 +436,13 @@ public class TestGroupManager implements GroupManager.Friend {
     // Check the third data packet.
     data = (Data)result.get(2);
     assertEquals
-      ("/Alice/read/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberB/ksk-123",
+      ("/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberB/ksk-123",
        data.getName().toUri());
 
     // Check the fourth data packet.
     data = (Data)result.get(3);
     assertEquals
-      ("/Alice/read/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberC/ksk-123",
+      ("/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberC/ksk-123",
        data.getName().toUri());
 
     // Check invalid time stamps for getting the group key.

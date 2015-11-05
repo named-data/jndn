@@ -44,7 +44,7 @@ import net.named_data.jndn.util.Blob;
 public class Encryptor {
   public static final Name.Component NAME_COMPONENT_E_KEY = new Name.Component("E-KEY");
   public static final Name.Component NAME_COMPONENT_D_KEY = new Name.Component("D-KEY");
-  public static final Name.Component NAME_COMPONENT_READ = new Name.Component("read");
+  public static final Name.Component NAME_COMPONENT_READ = new Name.Component("READ");
   public static final Name.Component NAME_COMPONENT_FOR = new Name.Component("FOR");
 
   /**
