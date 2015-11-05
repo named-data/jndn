@@ -151,6 +151,11 @@ public class Encryptor {
 
     if (algorithmType == EncryptAlgorithmType.AesCbc ||
         algorithmType == EncryptAlgorithmType.AesEcb) {
+      if (algorithmType == EncryptAlgorithmType.AesCbc) {
+        if (params.getInitialVector().size() != AesAlgorithm.BLOCK_SIZE)
+          throw new Error("incorrect initial vector size");
+      }
+
       Blob encryptedPayload = AesAlgorithm.encrypt(key, payload, params);
 
       EncryptedContent result = new EncryptedContent();
