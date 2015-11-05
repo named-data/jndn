@@ -20,6 +20,7 @@
 
 package net.named_data.jndn.encrypt;
 
+import net.named_data.jndn.encrypt.algo.Encryptor;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
