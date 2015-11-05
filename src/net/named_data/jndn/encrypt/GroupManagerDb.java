@@ -81,7 +81,7 @@ public abstract class GroupManagerDb {
    * @return a new Map where the map's key is the Name of the public key and the
    * value is the Blob of the public key DER. (Use Map without generics so it
    * works with older Java compilers.) Note that the member's identity name is
-   * keyName.getPrefix(-1).
+   * keyName.getPrefix(-1). If the schedule name is not found, the map is empty.
    * @throws GroupManagerDb.Error for a database error.
    */
   public abstract Map
