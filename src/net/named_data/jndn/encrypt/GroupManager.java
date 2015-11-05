@@ -361,7 +361,7 @@ public class GroupManager {
     name.append(startTimeStamp).append(endTimeStamp);
     Data data = new Data(name);
     data.getMetaInfo().setFreshnessPeriod(freshnessHours_ * MILLISECONDS_IN_HOUR);
-    EncryptParams encryptParams = new EncryptParams(EncryptAlgorithmType.RsaPkcs);
+    EncryptParams encryptParams = new EncryptParams(EncryptAlgorithmType.RsaOaep);
     try {
       Encryptor.encryptData
         (data, privateKeyBlob, keyName, certificateKey, encryptParams);

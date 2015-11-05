@@ -279,10 +279,10 @@ public class TestGroupManager implements GroupManager.Friend {
     EncryptedContent encryptedNonce = new EncryptedContent();
     encryptedNonce.wireDecode(dataContent);
     assertEquals(0, encryptedNonce.getInitialVector().size());
-    assertEquals(EncryptAlgorithmType.RsaPkcs, encryptedNonce.getAlgorithmType());
+    assertEquals(EncryptAlgorithmType.RsaOaep, encryptedNonce.getAlgorithmType());
 
     Blob blobNonce = encryptedNonce.getPayload();
-    EncryptParams decryptParams = new EncryptParams(EncryptAlgorithmType.RsaPkcs);
+    EncryptParams decryptParams = new EncryptParams(EncryptAlgorithmType.RsaOaep);
     Blob nonce = RsaAlgorithm.decrypt(decryptKeyBlob, blobNonce, decryptParams);
 
     // Get the D-KEY.
@@ -403,9 +403,9 @@ public class TestGroupManager implements GroupManager.Friend {
     EncryptedContent encryptedNonce = new EncryptedContent();
     encryptedNonce.wireDecode(dataContent);
     assertEquals(0, encryptedNonce.getInitialVector().size());
-    assertEquals(EncryptAlgorithmType.RsaPkcs, encryptedNonce.getAlgorithmType());
+    assertEquals(EncryptAlgorithmType.RsaOaep, encryptedNonce.getAlgorithmType());
 
-    EncryptParams decryptParams = new EncryptParams(EncryptAlgorithmType.RsaPkcs);
+    EncryptParams decryptParams = new EncryptParams(EncryptAlgorithmType.RsaOaep);
     Blob blobNonce = encryptedNonce.getPayload();
     Blob nonce = RsaAlgorithm.decrypt(decryptKeyBlob, blobNonce, decryptParams);
 
