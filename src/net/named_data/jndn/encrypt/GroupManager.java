@@ -358,8 +358,7 @@ public class GroupManager {
   {
     Name name = new Name(namespace_);
     name.append(Encryptor.NAME_COMPONENT_D_KEY);
-    name.append(startTimeStamp).append(endTimeStamp)
-      .append(Encryptor.NAME_COMPONENT_FOR).append(keyName);
+    name.append(startTimeStamp).append(endTimeStamp);
     Data data = new Data(name);
     data.getMetaInfo().setFreshnessPeriod(freshnessHours_ * MILLISECONDS_IN_HOUR);
     EncryptParams encryptParams = new EncryptParams(EncryptAlgorithmType.RsaPkcs);

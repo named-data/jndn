@@ -42,10 +42,13 @@ import net.named_data.jndn.util.Blob;
  * encryptData.
  */
 public class Encryptor {
+  public static final Name.Component NAME_COMPONENT_FOR = new Name.Component("FOR");
+  public static final Name.Component NAME_COMPONENT_READ = new Name.Component("READ");
+  public static final Name.Component NAME_COMPONENT_SAMPLE = new Name.Component("SAMPLE");
+  public static final Name.Component NAME_COMPONENT_ACCESS = new Name.Component("ACCESS");
   public static final Name.Component NAME_COMPONENT_E_KEY = new Name.Component("E-KEY");
   public static final Name.Component NAME_COMPONENT_D_KEY = new Name.Component("D-KEY");
-  public static final Name.Component NAME_COMPONENT_READ = new Name.Component("READ");
-  public static final Name.Component NAME_COMPONENT_FOR = new Name.Component("FOR");
+  public static final Name.Component NAME_COMPONENT_C_KEY = new Name.Component("C-KEY");
 
   /**
    * Prepare an encrypted data packet by encrypting the payload using the key
@@ -55,7 +58,8 @@ public class Encryptor {
    * asymmetric encryption algorithm and the payload is larger than the maximum
    * plaintext size, this encrypts the payload with a symmetric key that is
    * asymmetrically encrypted and provided as a nonce in the content of the data
-   * packet.
+   * packet. The packet's /&lt;dataName>/ is updated to be
+   * /&lt;dataName>/FOR/&lt;keyName>
    * @param data The data packet which is updated.
    * @param payload The payload to encrypt.
    * @param keyName The key name for the EncryptedContent.
@@ -69,6 +73,10 @@ public class Encryptor {
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException
   {
+    Name dataName = data.getName();
+    dataName.append(NAME_COMPONENT_FOR).append(keyName);
+    data.setName(dataName);
+
     EncryptAlgorithmType algorithmType = params.getAlgorithmType();
 
     if (algorithmType == EncryptAlgorithmType.AesCbc ||

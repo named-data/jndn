@@ -166,6 +166,9 @@ public class TestEncryptor {
       Encryptor.encryptData
         (data, input.plainText(), input.keyName(), input.key(), input.encryptParams());
 
+      assertEquals
+        (input.testName(), new Name("/FOR").append(input.keyName()), data.getName());
+
       assertTrue(input.testName(), input.encryptedContent().equals(data.getContent()));
 
       EncryptedContent content = new EncryptedContent();
@@ -225,6 +228,9 @@ public class TestEncryptor {
       EncryptParams encryptParams = new EncryptParams(input.type());
 
       Encryptor.encryptData(data, raw_content, keyName, eKey, encryptParams);
+
+      assertEquals
+        (input.testName(), new Name("/FOR").append(keyName), data.getName());
 
       EncryptedContent extractContent = new EncryptedContent();
       extractContent.wireDecode(data.getContent());
@@ -299,6 +305,9 @@ public class TestEncryptor {
 
       EncryptParams encryptParams = new EncryptParams(input.type());
       Encryptor.encryptData(data, large_content, keyName, eKey, encryptParams);
+
+      assertEquals
+        (input.testName(), new Name("/FOR").append(keyName), data.getName());
 
       Blob largeDataContent = data.getContent();
 
