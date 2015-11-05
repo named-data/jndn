@@ -35,16 +35,18 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encrypt.EncryptedContent;
-import net.named_data.jndn.encrypt.algo.AesAlgorithm;
-import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
-import net.named_data.jndn.encrypt.algo.EncryptParams;
-import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
 import net.named_data.jndn.util.Blob;
 
 /**
- * Encryptor has static utility methods for encryption, such as encryptData.
+ * Encryptor has static constants and utility methods for encryption, such as
+ * encryptData.
  */
 public class Encryptor {
+  public static final Name.Component NAME_COMPONENT_E_KEY = new Name.Component("E-KEY");
+  public static final Name.Component NAME_COMPONENT_D_KEY = new Name.Component("D-KEY");
+  public static final Name.Component NAME_COMPONENT_READ = new Name.Component("read");
+  public static final Name.Component NAME_COMPONENT_FOR = new Name.Component("FOR");
+
   /**
    * Prepare an encrypted data packet by encrypting the payload using the key
    * according to the params. In addition, this prepares the encoded

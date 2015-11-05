@@ -62,7 +62,8 @@ public class GroupManager {
     (Name prefix, Name dataType, GroupManagerDb database, int keySize,
      int freshnessHours, KeyChain keyChain) throws SecurityException
   {
-    namespace_ = new Name(prefix).append(READ_COMPONENT).append(dataType);
+    namespace_ = new Name(prefix).append(Encryptor.NAME_COMPONENT_READ)
+      .append(dataType);
     database_ = database;
     keySize_ = keySize;
     freshnessHours_ = freshnessHours;
@@ -315,7 +316,8 @@ public class GroupManager {
     throws SecurityException
   {
     Name name = new Name(namespace_);
-    name.append(E_KEY_COMPONENT).append(startTimeStamp).append(endTimeStamp);
+    name.append(Encryptor.NAME_COMPONENT_E_KEY).append(startTimeStamp)
+      .append(endTimeStamp);
 
     Data data = new Data(name);
     data.getMetaInfo().setFreshnessPeriod(freshnessHours_ * MILLISECONDS_IN_HOUR);
@@ -355,9 +357,9 @@ public class GroupManager {
     throws SecurityException
   {
     Name name = new Name(namespace_);
-    name.append(D_KEY_COMPONENT);
-    name.append(startTimeStamp).append(endTimeStamp).append(FOR_COMPONENT)
-      .append(keyName);
+    name.append(Encryptor.NAME_COMPONENT_D_KEY);
+    name.append(startTimeStamp).append(endTimeStamp)
+      .append(Encryptor.NAME_COMPONENT_FOR).append(keyName);
     Data data = new Data(name);
     data.getMetaInfo().setFreshnessPeriod(freshnessHours_ * MILLISECONDS_IN_HOUR);
     EncryptParams encryptParams = new EncryptParams(EncryptAlgorithmType.RsaPkcs);
@@ -472,9 +474,5 @@ public class GroupManager {
   private final int freshnessHours_;
   private final KeyChain keyChain_;
 
-  private static final Name.Component E_KEY_COMPONENT = new Name.Component("E-KEY");
-  private static final Name.Component D_KEY_COMPONENT = new Name.Component("D-KEY");
-  private static final Name.Component READ_COMPONENT = new Name.Component("read");
-  private static final Name.Component FOR_COMPONENT = new Name.Component("FOR");
   private static final long MILLISECONDS_IN_HOUR = 3600 * 1000;
 }
