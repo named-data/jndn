@@ -42,6 +42,7 @@ import net.named_data.jndn.util.Blob;
 /**
  * A GroupManager manages keys and schedules for group members in a particular
  * namespace.
+ * @note This class is an experimental feature. The API may change.
  */
 public class GroupManager {
   /**
