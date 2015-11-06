@@ -303,7 +303,7 @@ public class TestIdentityMethods {
     Name certName = identityStorage.getDefaultCertificateNameForKey(keyName);
     keyChain.verifyData(cert, counter, counter);
     assertEquals
-      ("Verification callback was not used.", counter.onVerifiedCallCount_, 1);
+      ("Verification callback was not used.", 1, counter.onVerifiedCallCount_);
 
     keyChain.deleteIdentity(identityName);
     assertFalse(identityStorage.doesKeyExist(keyName));

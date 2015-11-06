@@ -145,7 +145,7 @@ public class IdentityManager {
       addCertificateAsIdentityDefault(selfCert);
       certName = selfCert.getName();
     }
-    
+
     return certName;
   }
 

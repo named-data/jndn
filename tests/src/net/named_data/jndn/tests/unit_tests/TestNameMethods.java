@@ -48,8 +48,8 @@ public class TestNameMethods {
   testUriConstructor()
   {
     Name name = new Name(expectedURI);
-    assertEquals("Constructed name has " + name.size() + " components instead of 3", name.size(), 3);
-    assertEquals("URI is incorrect", name.toUri(), expectedURI);
+    assertEquals("Constructed name has " + name.size() + " components instead of 3", 3, name.size());
+    assertEquals("URI is incorrect", expectedURI, name.toUri());
   }
 
   @Test
@@ -78,15 +78,15 @@ public class TestNameMethods {
     String uri = "/localhost/user/folders/files/%00%0F";
     Name name = new Name(uri);
     Name name2 = new Name("/localhost").append(new Name("/user/folders/"));
-    assertEquals("Name constructed by appending names has " + name2.size() + " components instead of 3", name2.size(), 3);
+    assertEquals("Name constructed by appending names has " + name2.size() + " components instead of 3", 3, name2.size());
     assertTrue("Name constructed with append has wrong suffix", name2.get(2).getValue().equals(new Blob("folders")));
     name2 = name2.append("files");
-    assertEquals("Name constructed by appending string has " + name2.size() + " components instead of 4", name2.size(), 4);
+    assertEquals("Name constructed by appending string has " + name2.size() + " components instead of 4", 4, name2.size());
     name2 = name2.appendSegment(15);
     assertTrue("Name constructed by appending segment has wrong segment value", name2.get(4).getValue().equals(new Blob(new int[] { 0x00, 0x0F })));
 
     assertTrue("Name constructed with append is not equal to URI constructed name", name2.equals(name));
-    assertEquals("Name constructed with append has wrong URI", name2.toUri(), name.toUri());
+    assertEquals("Name constructed with append has wrong URI", name.toUri(), name2.toUri());
   }
 
   @Test
@@ -95,12 +95,12 @@ public class TestNameMethods {
   {
     Name name = new Name("/edu/cmu/andrew/user/3498478");
     Name prefix1 = name.getPrefix(2);
-    assertEquals("Name prefix has " + prefix1.size() + " components instead of 2", prefix1.size(), 2);
+    assertEquals("Name prefix has " + prefix1.size() + " components instead of 2", 2, prefix1.size());
     for (int i = 0; i < 2; ++i)
       assertTrue(name.get(i).getValue().equals(prefix1.get(i).getValue()));
 
     Name prefix2 = name.getPrefix(100);
-    assertEquals("Prefix with more components than original should stop at end of original name", prefix2, name);
+    assertEquals("Prefix with more components than original should stop at end of original name", name, prefix2);
   }
 
   @Test
@@ -109,7 +109,7 @@ public class TestNameMethods {
   {
     Name name = new Name("/edu/cmu/andrew/user/3498478");
     Name subName1 = name.getSubName(0);
-    assertEquals("Subname from first component does not match original name", subName1, name);
+    assertEquals("Subname from first component does not match original name", name, subName1);
     Name subName2 = name.getSubName(3);
     assertEquals("/user/3498478", subName2.toUri());
 
@@ -123,10 +123,10 @@ public class TestNameMethods {
     assertEquals("Subname beginning after end of name should be empty", new Name(), subName5);
 
     Name subName6 = name.getSubName(-1, 7);
-    assertEquals("Negative subname with more components than original should stop at end of original name", subName6, new Name("/3498478"));
+    assertEquals("Negative subname with more components than original should stop at end of original name", new Name("/3498478"), subName6);
 
     Name subName7 = name.getSubName(-5, 5);
-    assertEquals("Subname from (-length) should match original name", subName7, name);
+    assertEquals("Subname from (-length) should match original name", name, subName7);
 }
 
   @Test

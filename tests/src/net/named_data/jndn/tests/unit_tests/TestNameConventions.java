@@ -36,10 +36,10 @@ public class TestNameConventions {
     long number = 1000;
     int marker = 0xAA;
     assertEquals("fromNumberWithMarker did not create the expected component",
-                 new Name().append(Name.Component.fromNumberWithMarker(number, marker)), expected);
+                 expected, new Name().append(Name.Component.fromNumberWithMarker(number, marker)));
     try {
       assertEquals("toNumberWithMarker did not return the expected value",
-              expected.get(0).toNumberWithMarker(marker), number);
+                   number, expected.get(0).toNumberWithMarker(marker));
     } catch (EncodingException ex) {
       fail("Error while parsing a nonNegativeInteger: " + ex.getMessage());
     }
@@ -52,10 +52,10 @@ public class TestNameConventions {
     Name expected = new Name("/%00%27%10");
     long number = 10000;
     assertEquals("appendSegment did not create the expected component",
-                 new Name().appendSegment(number), expected);
+                 expected, new Name().appendSegment(number));
     try {
       assertEquals("toSegment did not return the expected value",
-                   expected.get(0).toSegment(), number);
+                   number, expected.get(0).toSegment());
     } catch (EncodingException ex) {
       fail("Error while parsing a nonNegativeInteger: " + ex.getMessage());
     }
@@ -68,10 +68,10 @@ public class TestNameConventions {
     Name expected = new Name("/%FB%00%01%86%A0");
     long number = 100000;
     assertEquals("appendSegmentOffset did not create the expected component",
-                 new Name().appendSegmentOffset(number), expected);
+                 expected, new Name().appendSegmentOffset(number));
     try {
       assertEquals("toSegmentOffset did not return the expected value",
-                   expected.get(0).toSegmentOffset(), number);
+                   number, expected.get(0).toSegmentOffset());
     } catch (EncodingException ex) {
       fail("Error while parsing a nonNegativeInteger: " + ex.getMessage());
     }
@@ -84,10 +84,10 @@ public class TestNameConventions {
     Name expected = new Name("/%FD%00%0FB%40");
     long number = 1000000;
     assertEquals("appendVersion did not create the expected component",
-                 new Name().appendVersion(number), expected);
+                 expected, new Name().appendVersion(number));
     try {
       assertEquals("toVersion did not return the expected value",
-                   expected.get(0).toVersion(), number);
+                   number, expected.get(0).toVersion());
     } catch (EncodingException ex) {
       fail("Error while parsing a nonNegativeInteger: " + ex.getMessage());
     }
@@ -100,10 +100,10 @@ public class TestNameConventions {
     Name expected = new Name("/%FE%00%98%96%80");
     long number = 10000000;
     assertEquals("appendSequenceNumber did not create the expected component",
-                 new Name().appendSequenceNumber(number), expected);
+                 expected, new Name().appendSequenceNumber(number));
     try {
       assertEquals("toSequenceNumber did not return the expected value",
-                   expected.get(0).toSequenceNumber(), number);
+                  number,  expected.get(0).toSequenceNumber());
     } catch (EncodingException ex) {
       fail("Error while parsing a nonNegativeInteger: " + ex.getMessage());
     }
@@ -117,10 +117,10 @@ public class TestNameConventions {
     // 40 years (not counting leap years) in microseconds.
     long number = (long)40 * 365 * 24 * 3600 * 1000000;
     assertEquals("appendTimestamp did not create the expected component",
-                 new Name().appendTimestamp(number), expected);
+                 expected, new Name().appendTimestamp(number));
     try {
       assertEquals("toTimestamp did not return the expected value",
-                   expected.get(0).toTimestamp(), number);
+                   number, expected.get(0).toTimestamp());
     } catch (EncodingException ex) {
       fail("Error while parsing a nonNegativeInteger: " + ex.getMessage());
     }

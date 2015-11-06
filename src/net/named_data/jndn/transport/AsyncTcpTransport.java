@@ -162,7 +162,7 @@ public class AsyncTcpTransport extends Transport {
     throws IOException
   {
     // TODO: Close a previous connection.
-    
+
     channel_ = AsynchronousSocketChannel.open
       (AsynchronousChannelGroup.withThreadPool(threadPool_));
     // connect is already async, so no need to dispatch.
