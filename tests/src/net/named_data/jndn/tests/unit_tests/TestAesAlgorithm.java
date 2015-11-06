@@ -85,7 +85,7 @@ public class TestAesAlgorithm {
   testEncryptionDecryption()
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException
-  {    
+  {
     EncryptParams encryptParams = new EncryptParams
       (EncryptAlgorithmType.AesEcb, 16);
 

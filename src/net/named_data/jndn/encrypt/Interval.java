@@ -52,7 +52,7 @@ public class Interval {
 
   /**
    * Create a valid Interval with the given start and end times. The start
-   * time must be less than the end time. To create an empty interval (start 
+   * time must be less than the end time. To create an empty interval (start
    * time equals end time), use the constructor Interval(true).
    * @param startTime The start time as milliseconds since Jan 1, 1970 GMT.
    * @param endTime The end time as milliseconds since Jan 1, 1970 GMT.
@@ -61,7 +61,7 @@ public class Interval {
   {
     if (!(startTime < endTime))
       throw new java.lang.Error("Interval start time must be less than the end time");
-    
+
     startTime_ = startTime;
     endTime_ = endTime;
     isValid_ = true;
@@ -165,7 +165,7 @@ public class Interval {
       endTime_ = interval.endTime_;
       return this;
     }
-    
+
     if (interval.isEmpty())
       // The other interval is empty, so keep using this one.
       return this;
@@ -184,7 +184,7 @@ public class Interval {
 
     return this;
   }
-  
+
   /**
    * Get the start time.
    * @return The start time as milliseconds since Jan 1, 1970 GMT.

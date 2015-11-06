@@ -188,7 +188,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
    * of the member's key.
    * @param name The name of the schedule.
    * @return a new Map where the map's key is the Name of the public key and the
-   * value is the Blob of the public key DER. (Use Map without generics so it 
+   * value is the Blob of the public key DER. (Use Map without generics so it
    * works with older Java compilers.) Note that the member's identity name is
    * keyName.getPrefix(-1). If the schedule name is not found, the map is empty.
    * @throws GroupManagerDb.Error for a database error.
@@ -478,7 +478,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
 
     // Need to be changed in the future.
     Name memberName = keyName.getPrefix(-1);
-    
+
     try {
       PreparedStatement statement = database_.prepareStatement
         ("INSERT INTO members(schedule_id, member_name, key_name, pubkey) " +

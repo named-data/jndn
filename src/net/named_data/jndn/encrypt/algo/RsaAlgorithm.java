@@ -63,7 +63,7 @@ public class RsaAlgorithm {
       Logger.getLogger(RsaAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
-  
+
   /**
    * Generate a new random decrypt key for RSA based on the given params.
    * @param params The key params with the key size (in bits).
@@ -86,7 +86,7 @@ public class RsaAlgorithm {
    * @return The new encrypt key (DER-encoded public key).
    */
   public static EncryptKey
-  deriveEncryptKey(Blob keyBits) 
+  deriveEncryptKey(Blob keyBits)
     throws InvalidKeySpecException, DerDecodingException
   {
     // Decode the PKCS #8 private key. (We don't use RSAPrivateCrtKey because

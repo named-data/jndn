@@ -110,7 +110,7 @@ public class GroupManager {
 
     // Encrypt the private key with the public key from each member's certificate.
     for (Iterator i = memberKeys.entrySet().iterator(); i.hasNext(); ) {
-      Map.Entry entry = (Map.Entry)i.next();      
+      Map.Entry entry = (Map.Entry)i.next();
       Name keyName = (Name)entry.getKey();
       Blob certificateKey = (Blob)entry.getValue();
 
@@ -121,7 +121,7 @@ public class GroupManager {
         (startTimeStamp, endTimeStamp, keyName, privateKeyBlob[0], certificateKey);
       result.add(data);
     }
-    
+
     return result;
   }
 
@@ -215,7 +215,7 @@ public class GroupManager {
    * Calculate an Interval that covers the timeSlot.
    * @param timeSlot The time slot to cover as milliseconds since Jan 1, 1970 GMT.
    * @param memberKeys First clear memberKeys then fill it with the info of
-   * members who are allowed to access the interval. The map's key is the Name 
+   * members who are allowed to access the interval. The map's key is the Name
    * of the public key and the value is the Blob of the public key DER. (Use Map
    * without generics so it works with older Java compilers.)
    * @return The Interval covering the time slot.
@@ -299,7 +299,7 @@ public class GroupManager {
       // We don't expect this error.
       throw new Error("Error in RsaAlgorithm.deriveEncryptKey: " + ex.getMessage());
     }
-    
+
     publicKeyBlob[0] = publicKey.getKeyBits();
   }
 
@@ -381,7 +381,7 @@ public class GroupManager {
       throw new SecurityException
         ("Error decoding the default certificate: " + ex.getMessage());
     }
-    
+
     return data;
   }
 

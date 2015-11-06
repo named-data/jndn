@@ -256,7 +256,7 @@ public class Schedule {
     while (decoder.getOffset() < listEndOffset)
       blackIntervalList_.add(decodeRepetitiveInterval(decoder));
     decoder.finishNestedTlvs(listEndOffset);
-    
+
     decoder.finishNestedTlvs(endOffset);
   }
 
@@ -322,7 +322,7 @@ public class Schedule {
     int endHour = (int)decoder.readNonNegativeIntegerTlv
       (Tlv.Encrypt_IntervalEndHour);
     int nRepeats = (int)decoder.readNonNegativeIntegerTlv(Tlv.Encrypt_NRepeats);
-    
+
     int repeatUnitCode = (int)decoder.readNonNegativeIntegerTlv
       (Tlv.Encrypt_RepeatUnit);
     RepetitiveInterval.RepeatUnit repeatUnit;

@@ -95,7 +95,7 @@ public class RepetitiveInterval implements Comparable {
 
   /**
    * Create a RepetitiveInterval with the given values, and no repetition.
-   * Because there is no repetition, startDate must equal endDate. 
+   * Because there is no repetition, startDate must equal endDate.
    * intervalStartHour must be less than intervalEndHour.
    * @param startDate The start date as milliseconds since Jan 1, 1970 GMT.
    * @param endDate The end date as milliseconds since Jan 1, 1970 GMT.
@@ -174,7 +174,7 @@ public class RepetitiveInterval implements Comparable {
     }
     else {
       // There is an interval on the date of timePoint.
-      startTime = 
+      startTime =
         toDateOnlyMilliseconds(timePoint) + intervalStartHour_ * MILLISECONDS_IN_HOUR;
       endTime =
         toDateOnlyMilliseconds(timePoint) + intervalEndHour_ * MILLISECONDS_IN_HOUR;
@@ -324,7 +324,7 @@ public class RepetitiveInterval implements Comparable {
       if (durationDays % nRepeats_ == 0)
         return true;
     }
-    else if (repeatUnit_ == RepeatUnit.MONTH && 
+    else if (repeatUnit_ == RepeatUnit.MONTH &&
              timePointDate.get(Calendar.DAY_OF_MONTH) ==
              startDate.get(Calendar.DAY_OF_MONTH)) {
       int yearDifference =

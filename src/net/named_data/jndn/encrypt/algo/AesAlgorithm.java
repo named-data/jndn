@@ -130,7 +130,7 @@ public class AesAlgorithm {
     else if (params.getAlgorithmType() == EncryptAlgorithmType.AesCbc) {
       if (params.getInitialVector().size() != BLOCK_SIZE)
         throw new Error("incorrect initial vector size");
-      
+
       Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
       cipher.init
         (Cipher.ENCRYPT_MODE,
