@@ -39,7 +39,7 @@ public class RegisteredPrefixTable {
   {
     interestFilterTable_ = interestFilterTable;
   }
-  
+
   /**
    * Add a new entry to the table.
    * @param registeredPrefixId The ID from Node.getNextEntryId().

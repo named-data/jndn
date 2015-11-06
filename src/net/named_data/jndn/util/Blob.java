@@ -279,7 +279,7 @@ public class Blob implements Comparable {
       // b & 0xff makes the byte unsigned and returns an int.
       int xThis = buffer_.get(buffer_.position() + i) & 0xff;
       int xOther = other.buffer_.get(other.buffer_.position() + i) & 0xff;
-      
+
       if (xThis < xOther)
         return -1;
       if (xThis > xOther)

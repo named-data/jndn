@@ -68,7 +68,7 @@ public class CommandInterestGenerator {
       //   signing fails, it just means that we have bumped the timestamp.
       lastTimestamp_ = timestamp;
     }
-    
+
     // The timestamp is encoded as a TLV nonNegativeInteger.
     TlvEncoder encoder = new TlvEncoder(8);
     encoder.writeNonNegativeInteger((long)timestamp);

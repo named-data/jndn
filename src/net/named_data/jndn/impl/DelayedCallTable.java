@@ -52,8 +52,8 @@ public class DelayedCallTable {
   }
 
   /**
-   * Call and remove timed-out callback entries. Since callLater does a sorted 
-   * insert into the delayed call table, the check for timed-out entries is 
+   * Call and remove timed-out callback entries. Since callLater does a sorted
+   * insert into the delayed call table, the check for timed-out entries is
    * quick and does not require searching the entire table. This synchronizes on
    * the delayed call table when checking it, but not when calling the callback.
    */
@@ -116,7 +116,7 @@ public class DelayedCallTable {
     private final Runnable callback_;
     private final double callTime_;
   }
-  
+
   // Use ArrayList without generics so it works with older Java compilers.
   private final List table_ = new ArrayList();  // Entry
 }

@@ -102,7 +102,7 @@ public class Node implements ElementListener {
           (pendingInterestId, interestCopy, onData, onTimeout, wireFormat, face);
         // Make future calls to expressInterest send directly to the Transport.
         connectStatus_ = ConnectStatus.CONNECT_COMPLETE;
-        
+
         return;
       }
 
@@ -459,7 +459,7 @@ public class Node implements ElementListener {
   }
 
   /**
-   * Get the next unique entry ID for the pending interest table, interest 
+   * Get the next unique entry ID for the pending interest table, interest
    * filter table, etc. This uses a synchronized to be thread safe. Most entry
    * IDs are for the pending interest table (there usually are not many interest
    * filter table entries) so we use a common pool to only have to do the thread
