@@ -108,7 +108,7 @@ public class ConsumerDbSqlite3 extends ConsumerDb {
    * @param keyName The key name.
    * @param keyBlob The encoded key.
    * @throws ConsumerDb.Error if a key with the same keyName already exists in
-   * then database, or other database error.
+   * the database, or other database error.
    */
   public void
   addKey(Name keyName, Blob keyBlob) throws ConsumerDb.Error
