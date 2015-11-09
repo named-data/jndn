@@ -104,7 +104,7 @@ public class ConsumerDbSqlite3 extends ConsumerDb {
   }
 
   /**
-   * Add the key with keyName and @p keyBlob to the database.
+   * Add the key with keyName and keyBlob to the database.
    * @param keyName The key name.
    * @param keyBlob The encoded key.
    * @throws ConsumerDb.Error if a key with the same keyName already exists in

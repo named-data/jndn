@@ -51,7 +51,7 @@ public abstract class ConsumerDb {
   getKey(Name keyName) throws ConsumerDb.Error;
 
   /**
-   * Add the key with keyName and @p keyBlob to the database.
+   * Add the key with keyName and keyBlob to the database.
    * @param keyName The key name.
    * @param keyBlob The encoded key.
    * @throws ConsumerDb.Error if a key with the same keyName already exists in
