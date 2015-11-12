@@ -63,7 +63,7 @@ public class TestGroupConsumerDb {
   }
 
   static void
-  generateRsaKey(Blob[] encryptionKeyBlob, Blob[] decryptionKeyBlob)
+  generateRsaKeys(Blob[] encryptionKeyBlob, Blob[] decryptionKeyBlob)
     throws NoSuchAlgorithmException, InvalidKeySpecException, DerDecodingException
   {
     RsaKeyParams params = new RsaKeyParams();
@@ -74,7 +74,7 @@ public class TestGroupConsumerDb {
   }
 
   static void
-  generateAesKey(Blob[] encryptionKeyBlob, Blob[] decryptionKeyBlob)
+  generateAesKeys(Blob[] encryptionKeyBlob, Blob[] decryptionKeyBlob)
   {
     AesKeyParams params = new AesKeyParams();
     DecryptKey memberDecryptKey = AesAlgorithm.generateKey(params);
@@ -93,7 +93,7 @@ public class TestGroupConsumerDb {
     // Generate key blobs.
     Blob[] encryptionKeyBlob = { null };
     Blob[] decryptionKeyBlob = { null };
-    generateAesKey(encryptionKeyBlob, decryptionKeyBlob);
+    generateAesKeys(encryptionKeyBlob, decryptionKeyBlob);
 
     Name keyName = new Name
       ("/alice/health/samples/activity/steps/C-KEY/20150928080000/20150928090000!");
@@ -121,7 +121,7 @@ public class TestGroupConsumerDb {
     // Generate key blobs.
     Blob[] encryptionKeyBlob = { null };
     Blob[] decryptionKeyBlob = { null };
-    generateRsaKey(encryptionKeyBlob, decryptionKeyBlob);
+    generateRsaKeys(encryptionKeyBlob, decryptionKeyBlob);
 
     Name keyName = new Name
       ("/alice/health/samples/activity/steps/D-KEY/20150928080000/20150928090000!");
