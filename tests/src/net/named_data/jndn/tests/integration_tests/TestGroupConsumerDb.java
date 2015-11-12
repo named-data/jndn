@@ -108,6 +108,34 @@ public class TestGroupConsumerDb {
 
     assertEquals(0, resultBlob.size());
   }
+
+  @Test
+  public void
+  testOperateRsaDecryptionKey()
+    throws ConsumerDb.Error, NoSuchAlgorithmException, InvalidKeySpecException,
+      DerDecodingException
+  {
+    // Test construction.
+    ConsumerDb database = new ConsumerDbSqlite3(databaseFilePath.getPath());
+
+    // Generate key blobs.
+    Blob[] encryptionKeyBlob = { null };
+    Blob[] decryptionKeyBlob = { null };
+    generateRsaKey(encryptionKeyBlob, decryptionKeyBlob);
+
+    Name keyName = new Name
+      ("/alice/health/samples/activity/steps/D-KEY/20150928080000/20150928090000!");
+    keyName.append(new Name("FOR/test/member/KEY/123!"));
+    database.addKey(keyName, decryptionKeyBlob[0]);
+    Blob resultBlob = database.getKey(keyName);
+
+    assertTrue(decryptionKeyBlob[0].equals(resultBlob));
+
+    database.deleteKey(keyName);
+    resultBlob = database.getKey(keyName);
+
+    assertEquals(0, resultBlob.size());
+  }
   
   private File databaseFilePath;
 }
