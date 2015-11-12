@@ -202,7 +202,7 @@ public class Consumer {
    * onPlainText.onPlainText(decryptedBlob) with the decrypted blob.
    * @param onError This calls onError.onError(errorCode, message) for an error.
    */
-  private void
+  private static void
   decrypt
     (Blob encryptedBlob, Blob keyBits, OnPlainText onPlainText, OnError onError)
   {
@@ -225,7 +225,7 @@ public class Consumer {
    * onPlainText.onPlainText(decryptedBlob) with the decrypted blob.
    * @param onError This calls onError.onError(errorCode, message) for an error.
    */
-  private void
+  private static void
   decrypt
     (EncryptedContent encryptedContent, Blob keyBits, OnPlainText onPlainText,
      OnError onError)
