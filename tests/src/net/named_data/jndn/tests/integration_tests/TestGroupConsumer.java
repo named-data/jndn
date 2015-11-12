@@ -215,10 +215,6 @@ public class TestGroupConsumer implements Consumer.Friend {
     databaseFilePath = new File(policyConfigDirectory, "test.db");
     databaseFilePath.delete();
 
-    readInterestOffset1 = 0;
-    readDataOffset1 = 0;
-    readInterestOffset2 = 0;
-    readDataOffset2 = 0;
     groupName = new Name("/Prefix/READ");
     contentName = new Name("/Prefix/SAMPLE/Content");
     cKeyName = new Name("/Prefix/SAMPLE/Content/C-KEY/1");
@@ -446,14 +442,6 @@ public class TestGroupConsumer implements Consumer.Friend {
   }
 
   File databaseFilePath;
-
-  // TODO face1
-  // TODO face2
-
-  int readInterestOffset1;
-  int readDataOffset1;
-  int readInterestOffset2;
-  int readDataOffset2;
 
   KeyChain keyChain;
   Name certificateName;
