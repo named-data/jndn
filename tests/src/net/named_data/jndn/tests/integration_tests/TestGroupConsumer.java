@@ -215,8 +215,6 @@ public class TestGroupConsumer implements Consumer.Friend {
     databaseFilePath = new File(policyConfigDirectory, "test.db");
     databaseFilePath.delete();
 
-    // TODO: face1
-    // TODO: face2
     readInterestOffset1 = 0;
     readDataOffset1 = 0;
     readInterestOffset2 = 0;
