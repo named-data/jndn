@@ -332,10 +332,6 @@ public class TestGroupConsumer implements Consumer.Friend {
     // Generate the content packet.
     Data contentData = createEncryptedContent();
 
-    // Create the consumer. The face, keyChain and database are not needed.
-    Consumer consumer = new Consumer
-      (null, null, new Name("/Group"), new Name("/U"), null);
-
     // Decrypt.
     friendAccess.decrypt
       (cKeyData.getContent(), fixtureDKeyBlob,
