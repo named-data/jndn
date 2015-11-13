@@ -338,7 +338,7 @@ public class TestGroupConsumer implements Consumer.Friend {
 
     // Decrypt.
     friendAccess.decrypt
-      (consumer, cKeyData.getContent(), fixtureDKeyBlob,
+      (cKeyData.getContent(), fixtureDKeyBlob,
        new Consumer.OnPlainText() {
          public void onPlainText(Blob result) {
            assertTrue(result.equals(aesKeyBuf));
@@ -352,7 +352,7 @@ public class TestGroupConsumer implements Consumer.Friend {
 
     // Decrypt.
     friendAccess.decrypt
-      (consumer, contentData.getContent(), fixtureCKeyBlob,
+      (contentData.getContent(), fixtureCKeyBlob,
        new Consumer.OnPlainText() {
          public void onPlainText(Blob result) {
            assertTrue(result.equals(new Blob(DATA_CONTENT, false)));

@@ -251,7 +251,6 @@ public class Consumer {
       // Prepare the parameters.
       EncryptParams decryptParams = new EncryptParams(EncryptAlgorithmType.RsaOaep);
 
-      // decrypt content
       // Decrypt the content.
       Blob content;
       try {
@@ -565,8 +564,8 @@ public class Consumer {
   public abstract static class FriendAccess {
     public abstract void
     decrypt
-      (Consumer consumer, Blob encryptedBlob, Blob keyBits,
-       OnPlainText onPlainText, OnError onError);
+      (Blob encryptedBlob, Blob keyBits, OnPlainText onPlainText,
+       OnError onError);
   }
 
   /**
@@ -576,10 +575,10 @@ public class Consumer {
   private static class FriendAccessImpl extends FriendAccess {
     public void
     decrypt
-      (Consumer consumer, Blob encryptedBlob, Blob keyBits,
-       OnPlainText onPlainText, OnError onError)
+      (Blob encryptedBlob, Blob keyBits, OnPlainText onPlainText,
+       OnError onError)
     {
-      consumer.decrypt(encryptedBlob, keyBits, onPlainText, onError);
+      Consumer.decrypt(encryptedBlob, keyBits, onPlainText, onError);
     }
   }
 
