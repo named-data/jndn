@@ -270,7 +270,7 @@ public class Consumer {
   /**
    * Decrypt the data packet.
    * @param data The data packet.
-   * @param onPlainText When encryptedBlob is decrypted, this calls
+   * @param onPlainText When the data packet is decrypted, this calls
    * onPlainText.onPlainText(decryptedBlob) with the decrypted blob.
    * @param onError This calls onError.onError(errorCode, message) for an error.
    */
@@ -364,7 +364,7 @@ public class Consumer {
   /**
    * Decrypt cKeyData.
    * @param cKeyData The C-KEY data packet.
-   * @param onPlainText When encryptedBlob is decrypted, this calls
+   * @param onPlainText When the data packet is decrypted, this calls
    * onPlainText.onPlainText(decryptedBlob) with the decrypted blob.
    * @param onError This calls onError.onError(errorCode, message) for an error.
    */
@@ -461,7 +461,7 @@ public class Consumer {
   /**
    * Decrypt dKeyData.
    * @param dKeyData The D-KEY data packet.
-   * @param onPlainText When encryptedBlob is decrypted, this calls
+   * @param onPlainText When the data packet is decrypted, this calls
    * onPlainText.onPlainText(decryptedBlob) with the decrypted blob.
    * @param onError This calls onError.onError(errorCode, message) for an error.
    */
