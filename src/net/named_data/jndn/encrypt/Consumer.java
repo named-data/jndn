@@ -267,7 +267,6 @@ public class Consumer {
          encryptedContent.getAlgorithmType().toString());
   }
 
-
   /**
    * Decrypt the data packet.
    * @param data The data packet.
@@ -313,10 +312,10 @@ public class Consumer {
                      (validCKeyData,
                       new OnPlainText() {
                         public void onPlainText(Blob cKeyBits) {
-                          decrypt
-                            (dataEncryptedContent, cKeyBits, onPlainText, onError);
                           // cKeyName is already a copy inside the local dataEncryptedContent.
                           cKeyMap_.put(cKeyName, cKeyBits);
+                          decrypt
+                            (dataEncryptedContent, cKeyBits, onPlainText, onError);
                         }
                       },
                       onError);
@@ -410,10 +409,10 @@ public class Consumer {
                      (validDKeyData,
                       new OnPlainText() {
                         public void onPlainText(Blob dKeyBits) {
-                          decrypt
-                            (cKeyEncryptedContent, dKeyBits, onPlainText, onError);
                           // dKeyName is already a local copy.
                           dKeyMap_.put(dKeyName, dKeyBits);
+                          decrypt
+                            (cKeyEncryptedContent, dKeyBits, onPlainText, onError);
                         }
                       },
                       onError);
