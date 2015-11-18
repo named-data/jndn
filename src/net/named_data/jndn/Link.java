@@ -87,7 +87,7 @@ public class Link extends Data {
     if (getMetaInfo().getType() != ContentType.LINK)
       throw new EncodingException
         ("Link.wireDecode: MetaInfo ContentType is not LINK.");
-    
+
     delegations_.wireDecode(getContent());
   }
 

@@ -467,7 +467,7 @@ public class TestDataMethods {
       fail("Can't decode reDecodedData");
     }
     assertEquals("Re-decoded data does not match original dump",
-                 dumpData(reDecodedData), initialDump);
+                 initialDump, dumpData(reDecodedData));
   }
 
   @Test
@@ -513,8 +513,8 @@ public class TestDataMethods {
     }
 
     credentials.verifyData(freshData, counter, counter);
-    assertEquals("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
-    assertEquals("Verification callback was not used", counter.onVerifiedCallCount_, 1);
+    assertEquals("Signature verification failed", 0, counter.onVerifyFailedCallCount_);
+    assertEquals("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }
 
   @Test
@@ -530,8 +530,8 @@ public class TestDataMethods {
     }
 
     credentials.verifyData(freshData, counter, counter);
-    assertEquals("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
-    assertEquals("Verification callback was not used", counter.onVerifiedCallCount_, 1);
+    assertEquals("Signature verification failed", 0, counter.onVerifyFailedCallCount_);
+    assertEquals("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }
 
   @Test
@@ -547,8 +547,8 @@ public class TestDataMethods {
     }
 
     credentials.verifyData(freshData, counter, counter);
-    assertEquals("Signature verification failed", counter.onVerifyFailedCallCount_, 0);
-    assertEquals("Verification callback was not used", counter.onVerifiedCallCount_, 1);
+    assertEquals("Signature verification failed", 0, counter.onVerifyFailedCallCount_);
+    assertEquals("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }
 
   @Test

@@ -103,13 +103,13 @@ public class TestIdentityMethods {
 
     keyChain.deleteIdentity(identityName);
     assertFalse
-      ("Identity still in IdentityStorage after revoking",
+      ("Identity still in IdentityStorage after identity was deleted",
        identityStorage.doesIdentityExist(identityName));
     assertFalse
-      ("Key still in IdentityStorage after identity was deletedInfo",
+      ("Key still in IdentityStorage after identity was deleted",
        identityStorage.doesKeyExist(keyName));
     assertFalse
-      ("Certificate still in IdentityStorage after identity was deletedInfo",
+      ("Certificate still in IdentityStorage after identity was deleted",
        identityStorage.doesCertificateExist(certificateName));
 
     try {
@@ -170,7 +170,7 @@ public class TestIdentityMethods {
       fail();
     } catch (SecurityException ex) {}
 
-    // we have no private key for signing
+    // We have no private key for signing.
     try {
       identityManager.selfSign(keyName1);
       fail();
@@ -303,7 +303,7 @@ public class TestIdentityMethods {
     Name certName = identityStorage.getDefaultCertificateNameForKey(keyName);
     keyChain.verifyData(cert, counter, counter);
     assertEquals
-      ("Verification callback was not used.", counter.onVerifiedCallCount_, 1);
+      ("Verification callback was not used.", 1, counter.onVerifiedCallCount_);
 
     keyChain.deleteIdentity(identityName);
     assertFalse(identityStorage.doesKeyExist(keyName));

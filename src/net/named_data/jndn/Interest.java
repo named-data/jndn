@@ -327,7 +327,7 @@ public class Interest implements ChangeCountable {
       // Clear linkWireEncoding_ since it is now managed by the link object.
       linkWireEncoding_ = new Blob();
       linkWireEncodingFormat_ = null;
-      
+
       return link;
     }
     else

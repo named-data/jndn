@@ -102,7 +102,7 @@ public class Node implements ElementListener {
           (pendingInterestId, interestCopy, onData, onTimeout, wireFormat, face);
         // Make future calls to expressInterest send directly to the Transport.
         connectStatus_ = ConnectStatus.CONNECT_COMPLETE;
-        
+
         return;
       }
 
@@ -459,7 +459,7 @@ public class Node implements ElementListener {
   }
 
   /**
-   * Get the next unique entry ID for the pending interest table, interest 
+   * Get the next unique entry ID for the pending interest table, interest
    * filter table, etc. This uses a synchronized to be thread safe. Most entry
    * IDs are for the pending interest table (there usually are not many interest
    * filter table entries) so we use a common pool to only have to do the thread
@@ -511,13 +511,19 @@ public class Node implements ElementListener {
   {
     final PendingInterestTable.Entry pendingInterest =
       pendingInterestTable_.add(pendingInterestId, interestCopy, onData, onTimeout);
-    if (interestCopy.getInterestLifetimeMilliseconds() >= 0.0)
+    if (onTimeout != null || interestCopy.getInterestLifetimeMilliseconds() >= 0.0) {
       // Set up the timeout.
+      double delayMilliseconds = interestCopy.getInterestLifetimeMilliseconds();
+      if (delayMilliseconds <= 0.0)
+        // Use a default timeout delay.
+        delayMilliseconds = 4000.0;
+
       face.callLater
-        (interestCopy.getInterestLifetimeMilliseconds(),
+        (delayMilliseconds,
          new Runnable() {
            public void run() { processInterestTimeout(pendingInterest); }
          });
+    }
 
     // Special case: For timeoutPrefix_ we don't actually send the interest.
     if (!timeoutPrefix_.match(interestCopy.getName())) {
@@ -592,44 +598,25 @@ public class Node implements ElementListener {
     public static class Info {
       /**
        *
-       * @param node
        * @param prefix
-       * @param onInterest
        * @param onRegisterFailed
        * @param onRegisterSuccess
-       * @param flags
-       * @param wireFormat
-       * @param face The face which is passed to the onInterest callback. If
-       * onInterest is null, this is ignored. TODO: This is not needed after
-       * we remove NdndIdFetcher.
        * @param registeredPrefixId The registered prefix ID also returned by
        * registerPrefix.
        */
       public Info
-        (Node node, Name prefix, OnInterestCallback onInterest,
-         OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
-         ForwardingFlags flags, WireFormat wireFormat, Face face,
-         long registeredPrefixId)
+        (Name prefix,OnRegisterFailed onRegisterFailed,
+         OnRegisterSuccess onRegisterSuccess, long registeredPrefixId)
       {
-        node_ = node;
         prefix_ = prefix;
-        onInterest_ = onInterest;
         onRegisterFailed_ = onRegisterFailed;
         onRegisterSuccess_ = onRegisterSuccess;
-        flags_ = flags;
-        wireFormat_ = wireFormat;
-        face_ = face;
         registeredPrefixId_ = registeredPrefixId;
       }
 
-      public final Node node_;
       public final Name prefix_;
-      public final OnInterestCallback onInterest_;
       public final OnRegisterFailed onRegisterFailed_;
       public final OnRegisterSuccess onRegisterSuccess_;
-      public final ForwardingFlags flags_;
-      public final WireFormat wireFormat_;
-      public final Face face_;
       public final long registeredPrefixId_;
     }
 
@@ -719,8 +706,7 @@ public class Node implements ElementListener {
     // Send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
-       (this, prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags,
-        wireFormat, face, registeredPrefixId));
+       (prefix, onRegisterFailed, onRegisterSuccess, registeredPrefixId));
     try {
       expressInterest
         (getNextEntryId(), commandInterest, response, response, wireFormat, face);

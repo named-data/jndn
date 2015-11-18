@@ -33,7 +33,7 @@ public class TestNameComponentMethods {
   {
     Name.Component comp1 = new Name.Component("entr\u00E9e");
     String expected = "entr%C3%A9e";
-    assertEquals("Unicode URI not decoded correctly", comp1.toEscapedString(), expected);
+    assertEquals("Unicode URI not decoded correctly", expected, comp1.toEscapedString());
   }
 
   @Test

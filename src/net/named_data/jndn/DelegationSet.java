@@ -121,7 +121,7 @@ public class DelegationSet {
   add(int preference, Name name)
   {
     remove(name);
-    
+
     Delegation newDelegation = new Delegation(preference, name);
     // Find the index of the first entry where it is not less than newDelegation.
     int i = 0;
@@ -233,7 +233,7 @@ public class DelegationSet {
   }
 
   /**
-   * Decode the input using a particular wire format and update this 
+   * Decode the input using a particular wire format and update this
    * DelegationSet, using addUnsorted() to preserve the given order and
    * possible duplicates.
    * @param input The input buffer to decode.  This reads from position() to

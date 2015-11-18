@@ -59,7 +59,7 @@ public class BoostInfoParser {
    * "\r\n".
    * @param inputName Used for log messages, etc.
    * @return The new root BoostInfoTree.
-   * @throws IOException 
+   * @throws IOException
    */
   public BoostInfoTree
   read(String input, String inputName) throws IOException

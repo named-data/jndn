@@ -106,7 +106,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     } catch (EncodingException ex) {
       throw new Error(ex.getMessage());
     }
-    
+
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.InterestLifetime, interest.getInterestLifetimeMilliseconds());
 

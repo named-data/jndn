@@ -126,7 +126,7 @@ public class TestFaceInterestMethods {
 
     // check that the callback was correct
     assertEquals("Expected 1 onData callback, got " + counter.onDataCallCount_,
-                 counter.onDataCallCount_, 1);
+                 1, counter.onDataCallCount_);
 
     // just check that the interest was returned correctly.
     Interest callbackInterest = counter.interest_;
@@ -160,7 +160,7 @@ public class TestFaceInterestMethods {
 
     // we're expecting a timeout callback, and only 1
     assertEquals("Data callback called for invalid interest",
-                 counter.onDataCallCount_, 0);
+                 0, counter.onDataCallCount_);
 
     assertTrue("Expected 1 timeout call, got " + counter.onTimeoutCallCount_,
                counter.onTimeoutCallCount_ == 1);
@@ -211,7 +211,7 @@ public class TestFaceInterestMethods {
     }
 
     assertEquals("Should not have called data callback after interest was removed",
-                 counter.onDataCallCount_, 0);
+                 0, counter.onDataCallCount_);
     assertTrue("Should not have called timeout callback after interest was removed",
                counter.onTimeoutCallCount_ == 0);
   }
