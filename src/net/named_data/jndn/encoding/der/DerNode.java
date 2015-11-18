@@ -494,9 +494,13 @@ public class DerNode {
      * Create a new DerInteger for the value.
      * @param integer The value to encode.
      */
-    public DerInteger(int integer)
+    public DerInteger(int integer) throws DerEncodingException
     {
       super(DerNodeType.Integer);
+
+      if (integer < 0)
+        throw new DerEncodingException
+          ("DerInteger: Negative integers are not currently supported");
 
       // Convert the integer to bytes the easy/slow way.
       DynamicByteBuffer temp = new DynamicByteBuffer(10);
@@ -511,6 +515,10 @@ public class DerNode {
           break;
       }
 
+      if ((((int)temp.buffer().get(temp.position())) & 0xff) >= 0x80)
+        // Make it a non-negative integer.
+        temp.ensuredPutFromBack((byte)0);
+
       payload_.ensuredPut(temp.buffer().slice());
       encodeHeader(payload_.position());
     }
@@ -523,6 +531,11 @@ public class DerNode {
     public Object
     toVal() throws DerDecodingException
     {
+      if (payload_.buffer().position() > 0 &&
+          (((int)payload_.buffer().get(0)) & 0xff) >= 0x80)
+        throw new DerDecodingException
+          ("DerInteger: Negative integers are not currently supported");
+
       int result = 0;
       // payload_ is not flipped yet.
       for (int i = 0; i < payload_.buffer().position(); ++i) {
