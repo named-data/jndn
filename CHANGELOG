@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.8 (2015-10-15)
+Interim changes since jNDN v0.8 (2015-11-18)
 --------------------------------------------
 
 Changes
@@ -12,6 +12,7 @@ Changes
 
 Bug fixes
 * http://redmine.named-data.net/issues/3228 Make Name.Component.compare use unsigned compare.
+* http://redmine.named-data.net/issues/3342 In expressInterest, call onTimeout when there is no interest lifetime.
 
 jNDN v0.8 (2015-09-24)
 ----------------------
