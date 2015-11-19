@@ -48,7 +48,7 @@ public class ConsumerDbSqlite3 extends ConsumerDb {
       Class.forName("org.sqlite.JDBC");
     } catch (ClassNotFoundException ex) {
       // We don't expect this to happen.
-      Logger.getLogger(GroupManagerDbSqlite3.class.getName()).log
+      Logger.getLogger(ConsumerDbSqlite3.class.getName()).log
         (Level.SEVERE, null, ex);
       return;
     }
