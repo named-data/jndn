@@ -189,17 +189,6 @@ public class ProducerDbSqlite3 extends ProducerDb {
         ("ProducerDbSqlite3.deleteContentKey: SQLite error: " + exception);
     }
   }
-
-  /**
-   * Get the hour-based time slot.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
-   * @return The hour-based time slot as hours since Jan 1, 1970 GMT.
-   */
-  private static int
-  getFixedTimeSlot(double timeSlot)
-  {
-    return (int)Math.floor(Math.round(timeSlot) / 3600000.0);
-  }
   
   private static final String INITIALIZATION =
   "CREATE TABLE IF NOT EXISTS                         \n" +

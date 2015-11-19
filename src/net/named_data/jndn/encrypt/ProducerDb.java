@@ -78,4 +78,15 @@ public abstract class ProducerDb {
    */
   public abstract void
   deleteContentKey(double timeSlot) throws ProducerDb.Error;
+
+  /**
+   * Get the hour-based time slot.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @return The hour-based time slot as hours since Jan 1, 1970 GMT.
+   */
+  protected static int
+  getFixedTimeSlot(double timeSlot)
+  {
+    return (int)Math.floor(Math.round(timeSlot) / 3600000.0);
+  }
 }
