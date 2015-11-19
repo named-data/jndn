@@ -171,7 +171,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
         }
         else
           throw new GroupManagerDb.Error
-            ("GroupManagerDbSqlite3.getSchedule: Cannot get the result from database");
+            ("GroupManagerDbSqlite3.getSchedule: Cannot get the result from the database");
       } finally {
         statement.close();
       }
@@ -450,7 +450,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
           return result.getString(1);
         else
           throw new GroupManagerDb.Error
-            ("GroupManagerDbSqlite3.getMemberSchedule: Cannot get the result from database");
+            ("GroupManagerDbSqlite3.getMemberSchedule: Cannot get the result from the database");
       } finally {
         statement.close();
       }
