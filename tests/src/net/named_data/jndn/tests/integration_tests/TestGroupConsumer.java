@@ -45,7 +45,7 @@ import net.named_data.jndn.encrypt.Consumer;
 import net.named_data.jndn.encrypt.Consumer.OnConsumeComplete;
 import net.named_data.jndn.encrypt.Consumer.OnError;
 import net.named_data.jndn.encrypt.ConsumerDb;
-import net.named_data.jndn.encrypt.ConsumerDbSqlite3;
+import net.named_data.jndn.encrypt.Sqlite3ConsumerDb;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.Encryptor;
@@ -412,7 +412,7 @@ public class TestGroupConsumer implements Consumer.Friend {
     // Create the consumer.
     Consumer consumer = new Consumer
       (face, keyChain, groupName, uName,
-       new ConsumerDbSqlite3(databaseFilePath.getPath()));
+       new Sqlite3ConsumerDb(databaseFilePath.getPath()));
     consumer.addDecryptionKey(uKeyName, fixtureUDKeyBlob);
 
     final int[] finalCount = new int[] { 0 };

@@ -27,7 +27,7 @@ import java.security.spec.InvalidKeySpecException;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encrypt.ConsumerDb;
-import net.named_data.jndn.encrypt.ConsumerDbSqlite3;
+import net.named_data.jndn.encrypt.Sqlite3ConsumerDb;
 import net.named_data.jndn.encrypt.DecryptKey;
 import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
@@ -88,7 +88,7 @@ public class TestGroupConsumerDb {
   testOperateAesDecryptionKey() throws ConsumerDb.Error
   {
     // Test construction.
-    ConsumerDb database = new ConsumerDbSqlite3(databaseFilePath.getPath());
+    ConsumerDb database = new Sqlite3ConsumerDb(databaseFilePath.getPath());
 
     // Generate key blobs.
     Blob[] encryptionKeyBlob = { null };
@@ -116,7 +116,7 @@ public class TestGroupConsumerDb {
       DerDecodingException
   {
     // Test construction.
-    ConsumerDb database = new ConsumerDbSqlite3(databaseFilePath.getPath());
+    ConsumerDb database = new Sqlite3ConsumerDb(databaseFilePath.getPath());
 
     // Generate key blobs.
     Blob[] encryptionKeyBlob = { null };

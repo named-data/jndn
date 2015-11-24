@@ -33,22 +33,22 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.util.Blob;
 
 /**
- * ConsumerDbSqlite3 extends ConsumerDb to implement the storage of decryption
+ * Sqlite3ConsumerDb extends ConsumerDb to implement the storage of decryption
  * keys for the consumer using SQLite3.
  */
-public class ConsumerDbSqlite3 extends ConsumerDb {
+public class Sqlite3ConsumerDb extends ConsumerDb {
   /**
-   * Create a ConsumerDbSqlite3 to use the given SQLite3 file.
+   * Create a Sqlite3ConsumerDb to use the given SQLite3 file.
    * @param databaseFilePath The path of the SQLite file.
    * @throws ConsumerDb.Error for a database error.
    */
-  public ConsumerDbSqlite3(String databaseFilePath) throws ConsumerDb.Error
+  public Sqlite3ConsumerDb(String databaseFilePath) throws ConsumerDb.Error
   {
     try {
       Class.forName("org.sqlite.JDBC");
     } catch (ClassNotFoundException ex) {
       // We don't expect this to happen.
-      Logger.getLogger(ConsumerDbSqlite3.class.getName()).log
+      Logger.getLogger(Sqlite3ConsumerDb.class.getName()).log
         (Level.SEVERE, null, ex);
       return;
     }
@@ -66,7 +66,7 @@ public class ConsumerDbSqlite3 extends ConsumerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new ConsumerDb.Error("ConsumerDbSqlite3: SQLite error: " + exception);
+      throw new ConsumerDb.Error("Sqlite3ConsumerDb: SQLite error: " + exception);
     }
   }
 
@@ -99,7 +99,7 @@ public class ConsumerDbSqlite3 extends ConsumerDb {
       return key;
     } catch (SQLException exception) {
       throw new ConsumerDb.Error
-        ("ConsumerDbSqlite3.getKey: SQLite error: " + exception);
+        ("Sqlite3ConsumerDb.getKey: SQLite error: " + exception);
     }
   }
 
@@ -127,7 +127,7 @@ public class ConsumerDbSqlite3 extends ConsumerDb {
       }
     } catch (SQLException exception) {
       throw new ConsumerDb.Error
-        ("ConsumerDbSqlite3.addKey: SQLite error: " + exception);
+        ("Sqlite3ConsumerDb.addKey: SQLite error: " + exception);
     }
   }
 
@@ -153,7 +153,7 @@ public class ConsumerDbSqlite3 extends ConsumerDb {
       }
     } catch (SQLException exception) {
       throw new ConsumerDb.Error
-        ("ConsumerDbSqlite3.deleteKey: SQLite error: " + exception);
+        ("Sqlite3ConsumerDb.deleteKey: SQLite error: " + exception);
     }
   }
 
