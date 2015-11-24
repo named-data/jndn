@@ -25,7 +25,7 @@ import java.io.File;
 import java.text.ParseException;
 import net.named_data.jndn.encrypt.ConsumerDb;
 import net.named_data.jndn.encrypt.ProducerDb;
-import net.named_data.jndn.encrypt.ProducerDbSqlite3;
+import net.named_data.jndn.encrypt.Sqlite3ProducerDb;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
 import net.named_data.jndn.security.AesKeyParams;
 import net.named_data.jndn.util.Blob;
@@ -60,7 +60,7 @@ public class TestProducerDb {
   testDatabaseFunctions() throws ProducerDb.Error, ParseException
   {
     // Test construction.
-    ProducerDb database = new ProducerDbSqlite3(databaseFilePath.getPath());
+    ProducerDb database = new Sqlite3ProducerDb(databaseFilePath.getPath());
 
     // Create member.
     AesKeyParams params = new AesKeyParams(128);

@@ -31,23 +31,23 @@ import java.util.logging.Logger;
 import net.named_data.jndn.util.Blob;
 
 /**
- * ProducerDbSqlite3 extends ProducerDb to implement storage of keys for the
+ * Sqlite3ProducerDb extends ProducerDb to implement storage of keys for the
  * producer using SQLite3. It contains one table that maps time slots (to the
  * nearest hour) to the content key created for that time slot.
  */
-public class ProducerDbSqlite3 extends ProducerDb {
+public class Sqlite3ProducerDb extends ProducerDb {
   /**
-   * Create a ProducerDbSqlite3 to use the given SQLite3 file.
+   * Create a Sqlite3ProducerDb to use the given SQLite3 file.
    * @param databaseFilePath The path of the SQLite file.
    * @throws ProducerDb.Error for a database error.
    */
-  public ProducerDbSqlite3(String databaseFilePath) throws ProducerDb.Error
+  public Sqlite3ProducerDb(String databaseFilePath) throws ProducerDb.Error
   {
     try {
       Class.forName("org.sqlite.JDBC");
     } catch (ClassNotFoundException ex) {
       // We don't expect this to happen.
-      Logger.getLogger(ProducerDbSqlite3.class.getName()).log
+      Logger.getLogger(Sqlite3ProducerDb.class.getName()).log
         (Level.SEVERE, null, ex);
       return;
     }
@@ -65,7 +65,7 @@ public class ProducerDbSqlite3 extends ProducerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new ProducerDb.Error("ProducerDbSqlite3: SQLite error: " + exception);
+      throw new ProducerDb.Error("Sqlite3ProducerDb: SQLite error: " + exception);
     }
   }
 
@@ -96,7 +96,7 @@ public class ProducerDbSqlite3 extends ProducerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new ProducerDb.Error("ProducerDbSqlite3.hasContentKey: SQLite error: " + exception);
+      throw new ProducerDb.Error("Sqlite3ProducerDb.hasContentKey: SQLite error: " + exception);
     }
   }
 
@@ -124,13 +124,13 @@ public class ProducerDbSqlite3 extends ProducerDb {
           return new Blob(result.getBytes(1));
         else
           throw new ProducerDb.Error
-            ("ProducerDbSqlite3.getContentKey: Cannot get the key from the database");
+            ("Sqlite3ProducerDb.getContentKey: Cannot get the key from the database");
       } finally {
         statement.close();
       }
     } catch (SQLException exception) {
       throw new ProducerDb.Error
-        ("ProducerDbSqlite3.getContentKey: SQLite error: " + exception);
+        ("Sqlite3ProducerDb.getContentKey: SQLite error: " + exception);
     }
   }
 
@@ -159,7 +159,7 @@ public class ProducerDbSqlite3 extends ProducerDb {
       }
     } catch (SQLException exception) {
       throw new ProducerDb.Error
-        ("ProducerDbSqlite3.addContentKey: SQLite error: " + exception);
+        ("Sqlite3ProducerDb.addContentKey: SQLite error: " + exception);
     }
   }
 
@@ -186,7 +186,7 @@ public class ProducerDbSqlite3 extends ProducerDb {
       }
     } catch (SQLException exception) {
       throw new ProducerDb.Error
-        ("ProducerDbSqlite3.deleteContentKey: SQLite error: " + exception);
+        ("Sqlite3ProducerDb.deleteContentKey: SQLite error: " + exception);
     }
   }
   

@@ -50,7 +50,7 @@ import net.named_data.jndn.encrypt.ConsumerDb;
 import net.named_data.jndn.encrypt.EncryptedContent;
 import net.named_data.jndn.encrypt.Producer;
 import net.named_data.jndn.encrypt.ProducerDb;
-import net.named_data.jndn.encrypt.ProducerDbSqlite3;
+import net.named_data.jndn.encrypt.Sqlite3ProducerDb;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
@@ -204,7 +204,7 @@ public class TestProducer {
 
     // Verify that the content key is correctly encrypted for each domain, and
     // the produce method encrypts the provided data with the same content key.
-    final ProducerDb testDb = new ProducerDbSqlite3(databaseFilePath.getPath());
+    final ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
     final Blob[] contentKey = new Blob[] { null };
 
@@ -382,7 +382,7 @@ public class TestProducer {
 
     // Verify that if a key is found, but not within the right time slot, the
     // search is refined until a valid time slot is found.
-    ProducerDb testDb = new ProducerDbSqlite3(databaseFilePath.getPath());
+    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
     producer.createContentKey
       (testTime,
@@ -441,7 +441,7 @@ public class TestProducer {
 
     // Verify that if no response is received, the producer appropriately times
     // out. The result vector should not contain elements that have timed out.
-    ProducerDb testDb = new ProducerDbSqlite3(databaseFilePath.getPath());
+    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
     producer.createContentKey
       (testTime,
