@@ -29,7 +29,7 @@ import net.named_data.jndn.util.Blob;
  * GroupManagerDb is a base class for the storage of data used by the
  * GroupManager. It contains two tables to store Schedules and Members.
  * This is an abstract base class. A subclass must implement the methods.
- * For example, see GroupManagerDbSqlite3.
+ * For example, see Sqlite3GroupManagerDb.
  * @note This class is an experimental feature. The API may change.
  */
 public abstract class GroupManagerDb {
