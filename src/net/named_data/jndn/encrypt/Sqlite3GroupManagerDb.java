@@ -38,23 +38,23 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.util.Blob;
 
 /**
- * GroupManagerDbSqlite3 extends GroupManagerDb to implement the storage of
+ * Sqlite3GroupManagerDb extends GroupManagerDb to implement the storage of
  * data used by the GroupManager using SQLite3.
  */
-public class GroupManagerDbSqlite3 extends GroupManagerDb {
+public class Sqlite3GroupManagerDb extends GroupManagerDb {
 
   /**
-   * Create a GroupManagerDbSqlite3 to use the given SQLite3 file.
+   * Create a Sqlite3GroupManagerDb to use the given SQLite3 file.
    * @param databaseFilePath The path of the SQLite file.
    * @throws GroupManagerDb.Error for a database error.
    */
-  public GroupManagerDbSqlite3(String databaseFilePath) throws GroupManagerDb.Error
+  public Sqlite3GroupManagerDb(String databaseFilePath) throws GroupManagerDb.Error
   {
     try {
       Class.forName("org.sqlite.JDBC");
     } catch (ClassNotFoundException ex) {
       // We don't expect this to happen.
-      Logger.getLogger(GroupManagerDbSqlite3.class.getName()).log
+      Logger.getLogger(Sqlite3GroupManagerDb.class.getName()).log
         (Level.SEVERE, null, ex);
       return;
     }
@@ -76,7 +76,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb: SQLite error: " + exception);
     }
   }
 
@@ -107,7 +107,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new GroupManagerDb.Error("GroupManagerDbSqlite3.hasSchedule: SQLite error: " + exception);
+      throw new GroupManagerDb.Error("Sqlite3GroupManagerDb.hasSchedule: SQLite error: " + exception);
     }
   }
 
@@ -135,7 +135,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new GroupManagerDb.Error("GroupManagerDbSqlite3.listAllScheduleNames: SQLite error: " + exception);
+      throw new GroupManagerDb.Error("Sqlite3GroupManagerDb.listAllScheduleNames: SQLite error: " + exception);
     }
 
     return list;
@@ -166,12 +166,12 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
           } catch (EncodingException ex) {
             // We don't expect this to happen.
             throw new GroupManagerDb.Error
-              ("GroupManagerDbSqlite3.getSchedule: Error decoding schedule: " + ex);
+              ("Sqlite3GroupManagerDb.getSchedule: Error decoding schedule: " + ex);
           }
         }
         else
           throw new GroupManagerDb.Error
-            ("GroupManagerDbSqlite3.getSchedule: Cannot get the result from the database");
+            ("Sqlite3GroupManagerDb.getSchedule: Cannot get the result from the database");
       } finally {
         statement.close();
       }
@@ -179,7 +179,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       return schedule;
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.getSchedule: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.getSchedule: SQLite error: " + exception);
     }
   }
 
@@ -216,7 +216,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
           } catch (EncodingException ex) {
             // We don't expect this to happen.
             throw new GroupManagerDb.Error
-              ("GroupManagerDbSqlite3.getScheduleMembers: Error decoding name: " + ex);
+              ("Sqlite3GroupManagerDb.getScheduleMembers: Error decoding name: " + ex);
           }
 
           map.put(keyName, new Blob(result.getBytes(2)));
@@ -225,7 +225,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new GroupManagerDb.Error("GroupManagerDbSqlite3.getScheduleMembers: SQLite error: " + exception);
+      throw new GroupManagerDb.Error("Sqlite3GroupManagerDb.getScheduleMembers: SQLite error: " + exception);
     }
 
     return map;
@@ -243,7 +243,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
   {
     if (name.length() == 0)
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.addSchedule: The schedule name cannot be empty");
+        ("Sqlite3GroupManagerDb.addSchedule: The schedule name cannot be empty");
 
     try {
       PreparedStatement statement = database_.prepareStatement
@@ -258,7 +258,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.addSchedule: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.addSchedule: SQLite error: " + exception);
     }
   }
 
@@ -283,7 +283,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.deleteSchedule: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.deleteSchedule: SQLite error: " + exception);
     }
   }
 
@@ -300,7 +300,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
   {
     if (newName.length() == 0)
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.renameSchedule: The schedule newName cannot be empty");
+        ("Sqlite3GroupManagerDb.renameSchedule: The schedule newName cannot be empty");
 
     try {
       PreparedStatement statement = database_.prepareStatement
@@ -315,7 +315,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.renameSchedule: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.renameSchedule: SQLite error: " + exception);
     }
   }
 
@@ -348,7 +348,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.updateSchedule: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.updateSchedule: SQLite error: " + exception);
     }
   }
 
@@ -380,7 +380,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new GroupManagerDb.Error("GroupManagerDbSqlite3.hasMember: SQLite error: " + exception);
+      throw new GroupManagerDb.Error("Sqlite3GroupManagerDb.hasMember: SQLite error: " + exception);
     }
   }
 
@@ -409,7 +409,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
           } catch (EncodingException ex) {
             // We don't expect this to happen.
             throw new GroupManagerDb.Error
-              ("GroupManagerDbSqlite3.listAllMembers: Error decoding name: " + ex);
+              ("Sqlite3GroupManagerDb.listAllMembers: Error decoding name: " + ex);
           }
 
           list.add(identity);
@@ -418,7 +418,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new GroupManagerDb.Error("GroupManagerDbSqlite3.listAllMembers: SQLite error: " + exception);
+      throw new GroupManagerDb.Error("Sqlite3GroupManagerDb.listAllMembers: SQLite error: " + exception);
     }
 
     return list;
@@ -450,13 +450,13 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
           return result.getString(1);
         else
           throw new GroupManagerDb.Error
-            ("GroupManagerDbSqlite3.getMemberSchedule: Cannot get the result from the database");
+            ("Sqlite3GroupManagerDb.getMemberSchedule: Cannot get the result from the database");
       } finally {
         statement.close();
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.getMemberSchedule: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.getMemberSchedule: SQLite error: " + exception);
     }
   }
 
@@ -496,7 +496,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
         statement.close();
       }
     } catch (SQLException exception) {
-      throw new GroupManagerDb.Error("GroupManagerDbSqlite3.addMember: SQLite error: " + exception);
+      throw new GroupManagerDb.Error("Sqlite3GroupManagerDb.addMember: SQLite error: " + exception);
     }
   }
 
@@ -513,7 +513,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
     int scheduleId = getScheduleId(scheduleName);
     if (scheduleId == -1)
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.updateMemberSchedule: The schedule dose not exist");
+        ("Sqlite3GroupManagerDb.updateMemberSchedule: The schedule dose not exist");
 
     try {
       PreparedStatement statement = database_.prepareStatement
@@ -529,7 +529,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.updateMemberSchedule: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.updateMemberSchedule: SQLite error: " + exception);
     }
   }
 
@@ -555,7 +555,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.deleteMember: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.deleteMember: SQLite error: " + exception);
     }
   }
 
@@ -585,7 +585,7 @@ public class GroupManagerDbSqlite3 extends GroupManagerDb {
       }
     } catch (SQLException exception) {
       throw new GroupManagerDb.Error
-        ("GroupManagerDbSqlite3.getScheduleId: SQLite error: " + exception);
+        ("Sqlite3GroupManagerDb.getScheduleId: SQLite error: " + exception);
     }
   }
 

@@ -33,7 +33,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.DecryptKey;
 import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.encrypt.GroupManagerDb;
-import net.named_data.jndn.encrypt.GroupManagerDbSqlite3;
+import net.named_data.jndn.encrypt.Sqlite3GroupManagerDb;
 import net.named_data.jndn.encrypt.RepetitiveInterval;
 import net.named_data.jndn.encrypt.Schedule;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
@@ -130,7 +130,7 @@ public class TestGroupManagerDb {
     databaseFilePath = new File(policyConfigDirectory, "test.db");
     databaseFilePath.delete();
 
-    database = new GroupManagerDbSqlite3(databaseFilePath.getPath());
+    database = new Sqlite3GroupManagerDb(databaseFilePath.getPath());
   }
 
   @After

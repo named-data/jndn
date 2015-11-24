@@ -47,7 +47,7 @@ import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.encrypt.DecryptKey;
 import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.encrypt.EncryptedContent;
-import net.named_data.jndn.encrypt.GroupManagerDbSqlite3;
+import net.named_data.jndn.encrypt.Sqlite3GroupManagerDb;
 import net.named_data.jndn.encrypt.GroupManager;
 import net.named_data.jndn.encrypt.GroupManagerDb;
 import net.named_data.jndn.encrypt.Interval;
@@ -259,7 +259,7 @@ public class TestGroupManager implements GroupManager.Friend {
     // Create the group manager.
     GroupManager manager = new GroupManager
       (new Name("Alice"), new Name("data_type"), 
-       new GroupManagerDbSqlite3(dKeyDatabaseFilePath.getPath()), 2048, 1,
+       new Sqlite3GroupManagerDb(dKeyDatabaseFilePath.getPath()), 2048, 1,
        keyChain);
 
     Blob newCertificateBlob = certificate.wireEncode();
@@ -311,7 +311,7 @@ public class TestGroupManager implements GroupManager.Friend {
     // Create the group manager.
     GroupManager manager = new GroupManager
       (new Name("Alice"), new Name("data_type"),
-       new GroupManagerDbSqlite3(eKeyDatabaseFilePath.getPath()), 1024, 1,
+       new Sqlite3GroupManagerDb(eKeyDatabaseFilePath.getPath()), 1024, 1,
        keyChain);
     setManager(manager);
 
@@ -333,7 +333,7 @@ public class TestGroupManager implements GroupManager.Friend {
     // Create the group manager.
     GroupManager manager = new GroupManager
       (new Name("Alice"), new Name("data_type"),
-       new GroupManagerDbSqlite3(intervalDatabaseFilePath.getPath()), 1024, 1,
+       new Sqlite3GroupManagerDb(intervalDatabaseFilePath.getPath()), 1024, 1,
        keyChain);
     setManager(manager);
 
@@ -372,7 +372,7 @@ public class TestGroupManager implements GroupManager.Friend {
     // Create the group manager.
     GroupManager manager = new GroupManager
       (new Name("Alice"), new Name("data_type"),
-       new GroupManagerDbSqlite3(groupKeyDatabaseFilePath.getPath()), 1024, 1,
+       new Sqlite3GroupManagerDb(groupKeyDatabaseFilePath.getPath()), 1024, 1,
        keyChain);
     setManager(manager);
 
