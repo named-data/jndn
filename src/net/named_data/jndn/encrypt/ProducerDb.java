@@ -27,6 +27,7 @@ import net.named_data.jndn.util.Blob;
  * one table that maps time slots (to the nearest hour) to the content key
  * created for that time slot. A subclass must implement the methods. For
  * example, see Sqlite3ProducerDb.
+ * @note This class is an experimental feature. The API may change.
  */
 public abstract class ProducerDb {
   /**

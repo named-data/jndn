@@ -40,6 +40,7 @@ import net.named_data.jndn.util.Blob;
 /**
  * Sqlite3GroupManagerDb extends GroupManagerDb to implement the storage of
  * data used by the GroupManager using SQLite3.
+ * @note This class is an experimental feature. The API may change.
  */
 public class Sqlite3GroupManagerDb extends GroupManagerDb {
 

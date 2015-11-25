@@ -35,6 +35,7 @@ import net.named_data.jndn.util.Blob;
 /**
  * Sqlite3ConsumerDb extends ConsumerDb to implement the storage of decryption
  * keys for the consumer using SQLite3.
+ * @note This class is an experimental feature. The API may change.
  */
 public class Sqlite3ConsumerDb extends ConsumerDb {
   /**

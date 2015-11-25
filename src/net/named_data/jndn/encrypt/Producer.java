@@ -77,8 +77,9 @@ public class Producer {
    * A producer also needs to produce data containing a content key
    * encrypted with E-KEYs. A producer can retrieve E-KEYs through the face,
    * and will re-try for at most repeatAttemps times when E-KEY retrieval fails.
-   * @param prefix The producer name prefix.
-   * @param dataType The dataType portion of the producer name.
+   * @param prefix The producer name prefix. This makes a copy of the Name.
+   * @param dataType The dataType portion of the producer name. This makes a
+   * copy of the Name.
    * @param face The face used to retrieve keys.
    * @param keyChain The keyChain used to sign data packets.
    * @param database The ProducerDb database for storing keys.
