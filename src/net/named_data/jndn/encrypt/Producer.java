@@ -2,6 +2,7 @@
  * Copyright (C) 2015 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt src/producer https://github.com/named-data/ndn-group-encrypt
+ * @author: excludeRange from ndn-cxx https://github.com/named-data/ndn-cxx/blob/master/src/exclude.cpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -186,10 +187,7 @@ public class Producer {
     KeyRequest keyRequest = (KeyRequest)keyRequests_.get(timeCount);
 
     Exclude timeRange = new Exclude();
-    // Exclude after the time slot.
-    timeRange.appendComponent(new Name.Component(Schedule.toIsoString(timeSlot)));
-    timeRange.appendAny();
-
+    excludeAfter(timeRange, new Name.Component(Schedule.toIsoString(timeSlot)));
     // Send interests for all nodes in the tree.
     eKeyInfo_.entrySet().iterator();
     for (Iterator i = eKeyInfo_.entrySet().iterator(); i.hasNext(); ) {
@@ -362,9 +360,7 @@ public class Producer {
 
     if (timeSlot >= end) {
       Exclude timeRange = new Exclude(interest.getExclude());
-      if (true) throw new Error("debug: TODO Implement excludeBefore"); /*
-      timeRange.excludeBefore(keyName.get(iStartTimeStamp));
-*/
+      excludeBefore(timeRange, keyName.get(iStartTimeStamp));
       keyRequest.repeatAttempts.put(interestName, 0);
       sendKeyInterest
         (interestName, timeSlot, keyRequest, onProducerEKey, timeRange);
@@ -428,6 +424,223 @@ public class Producer {
       onProducerEKey.onProducerEKey(keyRequest.encryptedKeys);
       keyRequests_.remove(timeSlot);
     }
+  }
+
+  // TODO: Move this to be the main representation inside the Exclude object.
+  private static class ExcludeEntry {
+    public ExcludeEntry(Name.Component component, boolean anyFollowsComponent)
+    {
+      component_ = component;
+      anyFollowsComponent_ = anyFollowsComponent;
+    }
+
+    public Name.Component component_;
+    public boolean anyFollowsComponent_;
+  }
+
+  /**
+   * Create a list of ExcludeEntry from the Exclude object.
+   * @param exclude The Exclude object to read.
+   * @return A new list of ExcludeEntry.
+   */
+  private static ArrayList getExcludeEntries(Exclude exclude)
+  {
+    ArrayList entries = new ArrayList();
+
+    for (int i = 0; i < exclude.size(); ++i) {
+      if (exclude.get(i).getType() == Exclude.Type.ANY) {
+        if (entries.size() == 0)
+          // Add a "beginning ANY".
+          entries.add(new ExcludeEntry(new Name.Component(), true));
+        else
+          // Set anyFollowsComponent of the final component.
+          ((ExcludeEntry)entries.get(entries.size() - 1)).anyFollowsComponent_ = true;
+      }
+      else
+        entries.add(new ExcludeEntry(exclude.get(i).getComponent(), false));
+    }
+
+    return entries;
+  }
+
+  /**
+   * Set the Exclude object from the list of ExcludeEntry.
+   * @param exclude The Exclude object to update.
+   * @param entries The list of ExcludeEntry.
+   */
+  private static void setExcludeEntries(Exclude exclude, ArrayList entries)
+  {
+    exclude.clear();
+
+    for (int i = 0; i < entries.size(); ++i) {
+      ExcludeEntry entry = (ExcludeEntry)entries.get(i);
+
+      if (i == 0 && entry.component_.getValue().size() == 0 &&
+          entry.anyFollowsComponent_)
+        // This is a "beginning ANY".
+        exclude.appendAny();
+      else {
+        exclude.appendComponent(entry.component_);
+        if (entry.anyFollowsComponent_)
+          exclude.appendAny();
+      }
+    }
+  }
+
+  /**
+   * Get the latest entry in the list whose component_ is less than or equal to
+   * component.
+   * @param entries The list of ExcludeEntry.
+   * @param component The component to compare.
+   * @return The index of the found entry, or -1 if not found.
+   */
+  private static int findEntryBeforeOrAt
+    (ArrayList entries, Name.Component component)
+  {
+    int i = entries.size() - 1;
+    while (i >= 0) {
+      if (((ExcludeEntry)entries.get(i)).component_.compare(component) <= 0)
+        break;
+      --i;
+    }
+
+    return i;
+  }
+
+  /**
+   * Exclude all components in the range beginning at "from".
+   * @param exclude The Exclude object to update.
+   * @param from The first component in the exclude range.
+   */
+  private static void excludeAfter(Exclude exclude, Name.Component from)
+  {
+    ArrayList entries = getExcludeEntries(exclude);
+
+    int iNewFrom;
+    int iFoundFrom = findEntryBeforeOrAt(entries, from);
+    if (iFoundFrom < 0) {
+      // There is no entry before "from" so insert at the beginning.
+      entries.add(0, new ExcludeEntry(from, true));
+      iNewFrom = 0;
+    }
+    else {
+      ExcludeEntry foundFrom = (ExcludeEntry)entries.get(iFoundFrom);
+
+      if (!foundFrom.anyFollowsComponent_) {
+        if (foundFrom.component_.equals(from)) {
+          // There is already an entry with "from", so just set the "ANY" flag.
+          foundFrom.anyFollowsComponent_ = true;
+          iNewFrom = iFoundFrom;
+        }
+        else {
+          // Insert following the entry before "from".
+          entries.add(iFoundFrom + 1, new ExcludeEntry(from, true));
+          iNewFrom = iFoundFrom + 1;
+        }
+      }
+      else
+        // The entry before "from" already has an "ANY" flag, so do nothing.
+        iNewFrom = iFoundFrom;
+    }
+
+    // Remove entries after the new "from".
+    int iRemoveBegin = iNewFrom + 1;
+    int nRemoveNeeded = entries.size() - iRemoveBegin;
+    for (int i = 0; i < nRemoveNeeded; ++i)
+      entries.remove(iRemoveBegin);
+
+    setExcludeEntries(exclude, entries);
+  }
+
+  /**
+   * Exclude all components in the range ending at "to".
+   * @param exclude The Exclude object to update.
+   * @param to The last component in the exclude range.
+   */
+  private static void excludeBefore(Exclude exclude, Name.Component to)
+  {
+    excludeRange(exclude, new Name.Component(), to);
+  }
+
+  /**
+   * Exclude all components in the range beginning at "from" and ending at "to".
+   * @param exclude The Exclude object to update.
+   * @param from The first component in the exclude range.
+   * @param to The last component in the exclude range.
+   */
+  private static void excludeRange
+    (Exclude exclude, Name.Component from, Name.Component to)
+  {
+    if (from.compare(to) >= 0) {
+      if (from.compare(to) == 0)
+        throw new Error
+          ("excludeRange: from == to. To exclude a single component, sue excludeOne.");
+      else
+        throw new Error
+          ("excludeRange: from must be less than to. Invalid range: [" +
+           from.toEscapedString() + ", " + to.toEscapedString() + "]");
+    }
+
+    ArrayList entries = getExcludeEntries(exclude);
+
+    int iNewFrom;
+    int iFoundFrom = findEntryBeforeOrAt(entries, from);
+    if (iFoundFrom < 0) {
+      // There is no entry before "from" so insert at the beginning.
+      entries.add(0, new ExcludeEntry(from, true));
+      iNewFrom = 0;
+    }
+    else {
+      ExcludeEntry foundFrom = (ExcludeEntry)entries.get(iFoundFrom);
+
+      if (!foundFrom.anyFollowsComponent_) {
+        if (foundFrom.component_.equals(from)) {
+          // There is already an entry with "from", so just set the "ANY" flag.
+          foundFrom.anyFollowsComponent_ = true;
+          iNewFrom = iFoundFrom;
+        }
+        else {
+          // Insert following the entry before "from".
+          entries.add(iFoundFrom + 1, new ExcludeEntry(from, true));
+          iNewFrom = iFoundFrom + 1;
+        }
+      }
+      else
+        // The entry before "from" already has an "ANY" flag, so do nothing.
+        iNewFrom = iFoundFrom;
+    }
+
+    // We have at least one "from" before "to", so we know this will find an entry.
+    int iFoundTo = findEntryBeforeOrAt(entries, to);
+    ExcludeEntry foundTo = (ExcludeEntry)entries.get(iFoundTo);
+    if (iFoundTo == iNewFrom)
+      // Insert the "to" immediately after the "from".
+      entries.add(iNewFrom + 1, new ExcludeEntry(to, false));
+    else {
+      int iRemoveEnd;
+      if (!foundTo.anyFollowsComponent_) {
+        if (foundTo.component_.equals(to))
+          // The "to" entry already exists. Remove up to it.
+          iRemoveEnd = iFoundTo;
+        else {
+          // Insert following the previous entry, which will be removed.
+          entries.add(iFoundTo + 1, new ExcludeEntry(to, false));
+          iRemoveEnd = iFoundTo + 1;
+        }
+      }
+      else
+        // "to" follows a component which is already followed by "ANY", meaning
+        // the new range now encompasses it, so remove the component.
+        iRemoveEnd = iFoundTo + 1;
+
+      // Remove intermediate entries since they are inside the range.
+      int iRemoveBegin = iNewFrom + 1;
+      int nRemoveNeeded = iRemoveEnd - iRemoveBegin;
+      for (int i = 0; i < nRemoveNeeded; ++i)
+        entries.remove(iRemoveBegin);
+    }
+
+    setExcludeEntries(exclude, entries);
   }
 
   private final Face face_;
