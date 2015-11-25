@@ -77,7 +77,7 @@ public class TestProducerDb {
     database.addContentKey(point2, keyBlob1);
     database.addContentKey(point3, keyBlob2);
 
-    // Throw exception when adding a key to an existing time slot.
+    // Throw an exception when adding a key to an existing time slot.
     try {
       database.addContentKey(point1, keyBlob1);
       fail("addContentKey did not throw an exception");
