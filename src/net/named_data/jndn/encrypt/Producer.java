@@ -155,7 +155,7 @@ public class Producer {
    * Create the content key. This first checks if the content key exists. For an
    * existing content key, this returns the content key name directly. If the
    * key does not exist, this creates one and encrypts it using the
-   * corresponding E-KEY. The encrypted content keys are passed to the
+   * corresponding E-KEYs. The encrypted content keys are passed to the
    * onEncryptedKeys callback.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
    * @param onEncryptedKeys If this creates a content key, then this calls
@@ -213,9 +213,9 @@ public class Producer {
   }
 
   /**
-   * Produce a data packet encrypted using the corresponding content key. This
-   * encrypts the given content with a content key that covers timeSlot, and
-   * updates data with the encrypted content and an appropriate data name.
+   * Encrypt the given content with the content key that covers timeSlot, and
+   * update the data packet with the encrypted content and an appropriate data
+   * name.
    * @param data An empty Data object which is updated.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
    * @param content The content to encrypt.
