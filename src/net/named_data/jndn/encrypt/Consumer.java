@@ -392,7 +392,7 @@ public class Consumer {
       // Get the D-Key Data.
       Name interestName = new Name(dKeyName);
       interestName.append(Encryptor.NAME_COMPONENT_FOR).append(consumerName_);
-      final Interest interest = new Interest(dKeyName);
+      final Interest interest = new Interest(interestName);
 
       // Prepare the callback functions.
       final OnData onData = new OnData() {
