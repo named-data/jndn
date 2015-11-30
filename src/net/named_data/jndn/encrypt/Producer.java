@@ -158,8 +158,9 @@ public class Producer {
    * corresponding E-KEY. The encrypted content keys are passed to the
    * onProducerEKey callback.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
-   * @param onProducerEKey This calls onProducerEKey.onProducerEKey(keys) where
-   * keys is a list of encrypted content key Data packets.
+   * @param onProducerEKey If this creates a content key, then this calls
+   * onProducerEKey.onProducerEKey(keys) where keys is a list of encrypted
+   * content key Data packets. If onProducerEKey is null, this does not use it.
    * @return The content key name.
    */
   public final Name
@@ -215,9 +216,9 @@ public class Producer {
    * Produce a data packet encrypted using the corresponding content key. This
    * encrypts the given content with a content key that covers timeSlot, and
    * updates data with the encrypted content and an appropriate data name.
-   * @param data
-   * @param timeSlot
-   * @param content
+   * @param data An empty Data object which is updated.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param content The content to encrypt.
    */
   public final void
   produce(Data data, double timeSlot, Blob content)
@@ -279,8 +280,16 @@ public class Producer {
   }
 
   /**
-   * Send an interest with the given name through the face with necessary
-   * callbacks.
+   * Send an interest with the given name through the face with callbacks to
+   * handleCoveringKey and handleTimeout.
+   * @param name The name of the interest to send.
+   * @param timeSlot The time slot, passed to handleCoveringKey and
+   * handleTimeout.
+   * @param keyRequest The KeyRequest, passed to handleCoveringKey and
+   * handleTimeout.
+   * @param onProducerEKey The OnProducerEKey callback, passed to
+   * handleCoveringKey and handleTimeout.
+   * @param timeRange The Exclude for the interest.
    */
   private void
   sendKeyInterest
@@ -317,6 +326,12 @@ public class Producer {
   /**
    * This is called from an expressInterest timeout to update the state of
    * keyRequest.
+   * @param interest The timed-out interest.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param keyRequest The KeyRequest which is updated.
+   * @param onProducerEKey When there are no more interests to process, this
+   * calls onProducerEKey.onProducerEKey(keys) where keys is a list of encrypted
+   * content key Data packets. If onProducerEKey is null, this does not use it.
    */
   private void
   handleTimeout
@@ -344,6 +359,13 @@ public class Producer {
    * This is called from an expressInterest OnData to check that the encryption
    * key contained in data fits the timeSlot. This sends a refined interest if
    * required.
+   * @param interest The interest given to expressInterest.
+   * @param data The fetched Data packet.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param keyRequest The KeyRequest which is updated.
+   * @param onProducerEKey When there are no more interests to process, this
+   * calls onProducerEKey.onProducerEKey(keys) where keys is a list of encrypted
+   * content key Data packets. If onProducerEKey is null, this does not use it.
    */
   private void
   handleCoveringKey
@@ -380,8 +402,15 @@ public class Producer {
 
   /**
    * Get the content key from the database_ and encrypt it for the timeSlot
-   * using encryptionKey. This calls onProducerEKey when there are no more
-   * interests to process.
+   * using encryptionKey.
+   * @param keyRequest The KeyRequest which is updated.
+   * @param encryptionKey The encryption key value.
+   * @param eKeyName The key name for the EncryptedContent.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param onProducerEKey When there are no more interests to process, this
+   * calls onProducerEKey.onProducerEKey(keys) where keys is a list of encrypted
+   * content key Data packets. If onProducerEKey is null, this does not use it.
+   * @throws net.named_data.jndn.encrypt.ProducerDb.Error
    */
   private void
   encryptContentKey
