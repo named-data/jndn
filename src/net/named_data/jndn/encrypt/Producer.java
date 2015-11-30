@@ -60,9 +60,9 @@ import net.named_data.jndn.util.Blob;
  * @note This class is an experimental feature. The API may change.
  */
 public class Producer {
-  public interface OnProducerEKey {
+  public interface OnEncryptedKeys {
     // List is a list of Data packets with the content key encrypted by E-KEYS.
-    void onProducerEKey(List keys);
+    void onEncryptedKeys(List keys);
   }
 
   /**
@@ -156,15 +156,15 @@ public class Producer {
    * existing content key, this returns the content key name directly. If the
    * key does not exist, this creates one and encrypts it using the
    * corresponding E-KEY. The encrypted content keys are passed to the
-   * onProducerEKey callback.
+   * onEncryptedKeys callback.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
-   * @param onProducerEKey If this creates a content key, then this calls
-   * onProducerEKey.onProducerEKey(keys) where keys is a list of encrypted
-   * content key Data packets. If onProducerEKey is null, this does not use it.
+   * @param onEncryptedKeys If this creates a content key, then this calls
+   * onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of encrypted
+   * content key Data packets. If onEncryptedKeys is null, this does not use it.
    * @return The content key name.
    */
   public final Name
-  createContentKey(double timeSlot, OnProducerEKey onProducerEKey)
+  createContentKey(double timeSlot, OnEncryptedKeys onEncryptedKeys)
     throws ProducerDb.Error, IOException, SecurityException
   {
     double hourSlot = getRoundedTimeslot(timeSlot);
@@ -198,14 +198,14 @@ public class Producer {
       keyRequest.repeatAttempts.put(entry.getKey(), 0);
       if (timeSlot < keyInfo.beginTimeslot || timeSlot >= keyInfo.endTimeslot) {
         sendKeyInterest
-          ((Name)entry.getKey(), timeSlot, keyRequest, onProducerEKey, timeRange);
+          ((Name)entry.getKey(), timeSlot, keyRequest, onEncryptedKeys, timeRange);
       }
       else {
         Name eKeyName = new Name((Name)entry.getKey());
         eKeyName.append(Schedule.toIsoString(keyInfo.beginTimeslot));
         eKeyName.append(Schedule.toIsoString(keyInfo.endTimeslot));
         encryptContentKey
-          (keyRequest, keyInfo.keyBits, eKeyName, timeSlot, onProducerEKey);
+          (keyRequest, keyInfo.keyBits, eKeyName, timeSlot, onEncryptedKeys);
       }
     }
 
@@ -287,19 +287,19 @@ public class Producer {
    * handleTimeout.
    * @param keyRequest The KeyRequest, passed to handleCoveringKey and
    * handleTimeout.
-   * @param onProducerEKey The OnProducerEKey callback, passed to
+   * @param onEncryptedKeys The OnEncryptedKeys callback, passed to
    * handleCoveringKey and handleTimeout.
    * @param timeRange The Exclude for the interest.
    */
   private void
   sendKeyInterest
     (Name name, final double timeSlot, final KeyRequest keyRequest,
-     final OnProducerEKey onProducerEKey, Exclude timeRange) throws IOException
+     final OnEncryptedKeys onEncryptedKeys, Exclude timeRange) throws IOException
   {
     OnData onKey = new OnData() {
       public void onData(Interest interest, final Data data) {
         try {
-          handleCoveringKey(interest, data, timeSlot, keyRequest, onProducerEKey);
+          handleCoveringKey(interest, data, timeSlot, keyRequest, onEncryptedKeys);
         } catch (Exception ex) {
           Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -309,7 +309,7 @@ public class Producer {
     OnTimeout onTimeout = new OnTimeout() {
       public void onTimeout(Interest interest) {
         try {
-          handleTimeout(interest, timeSlot, keyRequest, onProducerEKey);
+          handleTimeout(interest, timeSlot, keyRequest, onEncryptedKeys);
         } catch (IOException ex) {
           Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -329,14 +329,15 @@ public class Producer {
    * @param interest The timed-out interest.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
    * @param keyRequest The KeyRequest which is updated.
-   * @param onProducerEKey When there are no more interests to process, this
-   * calls onProducerEKey.onProducerEKey(keys) where keys is a list of encrypted
-   * content key Data packets. If onProducerEKey is null, this does not use it.
+   * @param onEncryptedKeys When there are no more interests to process, this
+   * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
+   * encrypted content key Data packets. If onEncryptedKeys is null, this does
+   * not use it.
    */
   private void
   handleTimeout
     (Interest interest, double timeSlot, KeyRequest keyRequest,
-     OnProducerEKey onProducerEKey) throws IOException
+     OnEncryptedKeys onEncryptedKeys) throws IOException
   {
     Name interestName = interest.getName();
 
@@ -344,13 +345,13 @@ public class Producer {
       keyRequest.repeatAttempts.put
         (interestName, (int)keyRequest.repeatAttempts.get(interestName) + 1);
       sendKeyInterest
-        (interestName, timeSlot, keyRequest, onProducerEKey, interest.getExclude());
+        (interestName, timeSlot, keyRequest, onEncryptedKeys, interest.getExclude());
     }
     else
       keyRequest.interestCount--;
 
-    if (keyRequest.interestCount == 0 && onProducerEKey != null) {
-      onProducerEKey.onProducerEKey(keyRequest.encryptedKeys);
+    if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
+      onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
       keyRequests_.remove(timeSlot);
     }
   }
@@ -363,14 +364,15 @@ public class Producer {
    * @param data The fetched Data packet.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
    * @param keyRequest The KeyRequest which is updated.
-   * @param onProducerEKey When there are no more interests to process, this
-   * calls onProducerEKey.onProducerEKey(keys) where keys is a list of encrypted
-   * content key Data packets. If onProducerEKey is null, this does not use it.
+   * @param onEncryptedKeys When there are no more interests to process, this
+   * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
+   * encrypted content key Data packets. If onEncryptedKeys is null, this does
+   * not use it.
    */
   private void
   handleCoveringKey
     (Interest interest, Data data, double timeSlot, KeyRequest keyRequest,
-     OnProducerEKey onProducerEKey)
+     OnEncryptedKeys onEncryptedKeys)
     throws EncodingException, ProducerDb.Error, SecurityException, IOException
   {
     Name interestName = interest.getName();
@@ -386,7 +388,7 @@ public class Producer {
       excludeBefore(timeRange, keyName.get(iStartTimeStamp));
       keyRequest.repeatAttempts.put(interestName, 0);
       sendKeyInterest
-        (interestName, timeSlot, keyRequest, onProducerEKey, timeRange);
+        (interestName, timeSlot, keyRequest, onEncryptedKeys, timeRange);
       return;
     }
 
@@ -397,7 +399,7 @@ public class Producer {
     keyInfo.keyBits = encryptionKey;
 
     encryptContentKey
-      (keyRequest, encryptionKey, keyName, timeSlot, onProducerEKey);
+      (keyRequest, encryptionKey, keyName, timeSlot, onEncryptedKeys);
   }
 
   /**
@@ -407,15 +409,16 @@ public class Producer {
    * @param encryptionKey The encryption key value.
    * @param eKeyName The key name for the EncryptedContent.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
-   * @param onProducerEKey When there are no more interests to process, this
-   * calls onProducerEKey.onProducerEKey(keys) where keys is a list of encrypted
-   * content key Data packets. If onProducerEKey is null, this does not use it.
+   * @param onEncryptedKeys When there are no more interests to process, this
+   * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
+   * encrypted content key Data packets. If onEncryptedKeys is null, this does
+   * not use it.
    * @throws net.named_data.jndn.encrypt.ProducerDb.Error
    */
   private void
   encryptContentKey
     (KeyRequest keyRequest, Blob encryptionKey, Name eKeyName,
-     double timeSlot, OnProducerEKey onProducerEKey) 
+     double timeSlot, OnEncryptedKeys onEncryptedKeys)
     throws ProducerDb.Error, SecurityException
   {
     Name keyName = new Name(namespace_);
@@ -450,8 +453,8 @@ public class Producer {
     keyRequest.encryptedKeys.add(cKeyData);
 
     keyRequest.interestCount--;
-    if (keyRequest.interestCount == 0 && onProducerEKey != null) {
-      onProducerEKey.onProducerEKey(keyRequest.encryptedKeys);
+    if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
+      onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
       keyRequests_.remove(timeSlot);
     }
   }

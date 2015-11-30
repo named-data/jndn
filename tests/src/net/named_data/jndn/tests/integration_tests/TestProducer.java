@@ -258,8 +258,8 @@ public class TestProducer {
     // An initial test to confirm that keys are created for this time slot.
     Name contentKeyName1 = producer.createContentKey
       (testTime1,
-       new Producer.OnProducerEKey() {
-         public void onProducerEKey(List keys) {
+       new Producer.OnEncryptedKeys() {
+         public void onEncryptedKeys(List keys) {
            checkEncryptionKeys.checkEncryptionKeys
              (keys, testTime1, testTimeRounded1);
          }
@@ -268,8 +268,8 @@ public class TestProducer {
     // Verify that we do not repeat the search for e-keys.
     Name contentKeyName2 = producer.createContentKey
       (testTime2,
-       new Producer.OnProducerEKey() {
-         public void onProducerEKey(List keys) {
+       new Producer.OnEncryptedKeys() {
+         public void onEncryptedKeys(List keys) {
            checkEncryptionKeys.checkEncryptionKeys
              (keys, testTime2, testTimeRounded2);
          }
@@ -386,8 +386,8 @@ public class TestProducer {
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
     producer.createContentKey
       (testTime,
-       new Producer.OnProducerEKey() {
-         public void onProducerEKey(List result) {
+       new Producer.OnEncryptedKeys() {
+         public void onEncryptedKeys(List result) {
            assertEquals(3, requestCount[0]);
            assertEquals(1, result.size());
 
@@ -445,8 +445,8 @@ public class TestProducer {
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
     producer.createContentKey
       (testTime,
-       new Producer.OnProducerEKey() {
-         public void onProducerEKey(List result) {
+       new Producer.OnEncryptedKeys() {
+         public void onEncryptedKeys(List result) {
            assertEquals(4, timeoutCount[0]);
            assertEquals(0, result.size());
          }
