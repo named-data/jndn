@@ -179,6 +179,8 @@ public class TestProducer {
         (Encryptor.NAME_COMPONENT_E_KEY);
     }
 
+    final int[] expressInterestCallCount = new int[] { 0 };
+
     // Prepare a TestFace to instantly answer calls to expressInterest.
     class TestFace extends Face {
       public TestFace()
@@ -191,6 +193,8 @@ public class TestProducer {
         (Interest interest, OnData onData, OnTimeout onTimeout,
          WireFormat wireFormat) throws IOException
       {
+        ++expressInterestCallCount[0];
+        
         Name interestName = new Name(interest.getName());
         interestName.append(timeMarker);
         assertEquals(true, encryptionKeys.containsKey(interestName));
@@ -211,8 +215,11 @@ public class TestProducer {
     class CheckEncryptionKeys {
       public void
       checkEncryptionKeys
-        (List result, double testTime, Name.Component roundedTime)
+        (List result, double testTime, Name.Component roundedTime,
+         int expectedExpressInterestCallCount)
       {
+        assertEquals(expectedExpressInterestCallCount, expressInterestCallCount[0]);
+
         try {
           assertEquals(true, testDb.hasContentKey(testTime));
           contentKey[0] = testDb.getContentKey(testTime);
@@ -261,17 +268,18 @@ public class TestProducer {
        new Producer.OnEncryptedKeys() {
          public void onEncryptedKeys(List keys) {
            checkEncryptionKeys.checkEncryptionKeys
-             (keys, testTime1, testTimeRounded1);
+             (keys, testTime1, testTimeRounded1, 3);
          }
        });
 
-    // Verify that we do not repeat the search for e-keys.
+    // Verify that we do not repeat the search for e-keys. The total
+    //   expressInterestCallCount should be the same.
     Name contentKeyName2 = producer.createContentKey
       (testTime2,
        new Producer.OnEncryptedKeys() {
          public void onEncryptedKeys(List keys) {
            checkEncryptionKeys.checkEncryptionKeys
-             (keys, testTime2, testTimeRounded2);
+             (keys, testTime2, testTimeRounded2, 3);
          }
        });
 
