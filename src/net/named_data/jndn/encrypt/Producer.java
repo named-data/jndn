@@ -348,7 +348,7 @@ public class Producer {
         (interestName, timeSlot, keyRequest, onEncryptedKeys, interest.getExclude());
     }
     else
-      keyRequest.interestCount--;
+      --keyRequest.interestCount;
 
     if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
       onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
@@ -413,7 +413,6 @@ public class Producer {
    * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
    * encrypted content key Data packets. If onEncryptedKeys is null, this does
    * not use it.
-   * @throws net.named_data.jndn.encrypt.ProducerDb.Error
    */
   private void
   encryptContentKey
@@ -452,7 +451,7 @@ public class Producer {
 
     keyRequest.encryptedKeys.add(cKeyData);
 
-    keyRequest.interestCount--;
+    --keyRequest.interestCount;
     if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
       onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
       keyRequests_.remove(timeSlot);
