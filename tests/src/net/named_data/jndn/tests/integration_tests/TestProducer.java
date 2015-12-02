@@ -440,6 +440,7 @@ public class TestProducer {
       {
         assertEquals(expectedInterest, interest.getName());
         ++timeoutCount[0];
+        onTimeout.onTimeout(interest);
 
         return 0;
       }
