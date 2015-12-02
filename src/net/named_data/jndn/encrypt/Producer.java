@@ -341,9 +341,9 @@ public class Producer {
   {
     Name interestName = interest.getName();
 
-    if ((int)keyRequest.repeatAttempts.get(interestName) < maxRepeatAttempts_) {
+    if ((int)(Integer)keyRequest.repeatAttempts.get(interestName) < maxRepeatAttempts_) {
       keyRequest.repeatAttempts.put
-        (interestName, (int)keyRequest.repeatAttempts.get(interestName) + 1);
+        (interestName, (int)(Integer)keyRequest.repeatAttempts.get(interestName) + 1);
       sendKeyInterest
         (interestName, timeSlot, keyRequest, onEncryptedKeys, interest.getExclude());
     }
