@@ -129,5 +129,5 @@ public class AndroidSqlite3ProducerDb extends Sqlite3ProducerDbBase {
        new String[] { Integer.toString(fixedTimeslot) });
   }
 
-  private SQLiteDatabase database_;
+  private final SQLiteDatabase database_;
 }
