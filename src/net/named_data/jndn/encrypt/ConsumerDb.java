@@ -24,8 +24,9 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.util.Blob;
 
 /**
- * ConsumerDb is a base class the storage of decryption keys for the consumer. A
- * subclass must implement the methods. For example, see Sqlite3ConsumerDb.
+ * ConsumerDb is an abstract base class the storage of decryption keys for the
+ * consumer. A subclass must implement the methods. For example, see
+ * Sqlite3ConsumerDb.
  * @note This class is an experimental feature. The API may change.
  */
 public abstract class ConsumerDb {

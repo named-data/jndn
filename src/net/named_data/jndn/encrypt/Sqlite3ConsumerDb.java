@@ -37,7 +37,7 @@ import net.named_data.jndn.util.Blob;
  * keys for the consumer using SQLite3.
  * @note This class is an experimental feature. The API may change.
  */
-public class Sqlite3ConsumerDb extends ConsumerDb {
+public class Sqlite3ConsumerDb extends Sqlite3ConsumerDbBase {
   /**
    * Create a Sqlite3ConsumerDb to use the given SQLite3 file.
    * @param databaseFilePath The path of the SQLite file.
@@ -82,8 +82,7 @@ public class Sqlite3ConsumerDb extends ConsumerDb {
   getKey(Name keyName) throws ConsumerDb.Error
   {
     try {
-      PreparedStatement statement = database_.prepareStatement
-        ("SELECT key_buf FROM decryptionkeys WHERE key_name=?");
+      PreparedStatement statement = database_.prepareStatement(SELECT_getKey);
       statement.setBytes
         (1, keyName.wireEncode(TlvWireFormat.get()).getImmutableArray());
 
@@ -115,8 +114,7 @@ public class Sqlite3ConsumerDb extends ConsumerDb {
   addKey(Name keyName, Blob keyBlob) throws ConsumerDb.Error
   {
     try {
-      PreparedStatement statement = database_.prepareStatement
-        ("INSERT INTO decryptionkeys(key_name, key_buf) values (?, ?)");
+      PreparedStatement statement = database_.prepareStatement(INSERT_addKey);
       statement.setBytes
         (1, keyName.wireEncode(TlvWireFormat.get()).getImmutableArray());
       statement.setBytes(2, keyBlob.getImmutableArray());
@@ -142,8 +140,7 @@ public class Sqlite3ConsumerDb extends ConsumerDb {
   deleteKey(Name keyName) throws ConsumerDb.Error
   {
     try {
-      PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM decryptionkeys WHERE key_name=?");
+      PreparedStatement statement = database_.prepareStatement(DELETE_deleteKey);
       statement.setBytes
         (1, keyName.wireEncode(TlvWireFormat.get()).getImmutableArray());
 
@@ -157,16 +154,6 @@ public class Sqlite3ConsumerDb extends ConsumerDb {
         ("Sqlite3ConsumerDb.deleteKey: SQLite error: " + exception);
     }
   }
-
-  private static final String INITIALIZATION =
-    "CREATE TABLE IF NOT EXISTS                         \n" +
-    "  decryptionkeys(                                  \n" +
-    "    key_id              INTEGER PRIMARY KEY,       \n" +
-    "    key_name            BLOB NOT NULL,             \n" +
-    "    key_buf             BLOB NOT NULL              \n" +
-    "  );                                               \n" +
-    "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
-    "   KeyNameIndex ON decryptionkeys(key_name);       \n";
 
   Connection database_ = null;
 }
