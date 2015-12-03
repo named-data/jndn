@@ -167,7 +167,7 @@ public class Producer {
   createContentKey(double timeSlot, OnEncryptedKeys onEncryptedKeys)
     throws ProducerDb.Error, IOException, SecurityException
   {
-    double hourSlot = getRoundedTimeslot(timeSlot);
+    double hourSlot = getRoundedTimeSlot(timeSlot);
 
     // Create the content key name.
     Name contentKeyName = new Name(namespace_);
@@ -196,14 +196,14 @@ public class Producer {
       Map.Entry entry = (Map.Entry)i.next();
       KeyInfo keyInfo = (KeyInfo)entry.getValue();
       keyRequest.repeatAttempts.put(entry.getKey(), 0);
-      if (timeSlot < keyInfo.beginTimeslot || timeSlot >= keyInfo.endTimeslot) {
+      if (timeSlot < keyInfo.beginTimeSlot || timeSlot >= keyInfo.endTimeSlot) {
         sendKeyInterest
           ((Name)entry.getKey(), timeSlot, keyRequest, onEncryptedKeys, timeRange);
       }
       else {
         Name eKeyName = new Name((Name)entry.getKey());
-        eKeyName.append(Schedule.toIsoString(keyInfo.beginTimeslot));
-        eKeyName.append(Schedule.toIsoString(keyInfo.endTimeslot));
+        eKeyName.append(Schedule.toIsoString(keyInfo.beginTimeSlot));
+        eKeyName.append(Schedule.toIsoString(keyInfo.endTimeSlot));
         encryptContentKey
           (keyRequest, keyInfo.keyBits, eKeyName, timeSlot, onEncryptedKeys);
       }
@@ -231,7 +231,7 @@ public class Producer {
     Blob contentKey = database_.getContentKey(timeSlot);
 
     Name dataName = new Name(namespace_);
-    dataName.append(Schedule.toIsoString(getRoundedTimeslot(timeSlot)));
+    dataName.append(Schedule.toIsoString(getRoundedTimeSlot(timeSlot)));
 
     data.setName(dataName);
     EncryptParams params = new EncryptParams(EncryptAlgorithmType.AesCbc, 16);
@@ -249,8 +249,8 @@ public class Producer {
   }
 
   private static class KeyInfo {
-    public double beginTimeslot;
-    public double endTimeslot;
+    public double beginTimeSlot;
+    public double endTimeSlot;
     public Blob keyBits;
   }
 
@@ -273,7 +273,7 @@ public class Producer {
    * @return The start of the hour as milliseconds since Jan 1, 1970 GMT.
    */
   private static double
-  getRoundedTimeslot(double timeSlot)
+  getRoundedTimeSlot(double timeSlot)
   {
     return Math.round
       (Math.floor(Math.round(timeSlot) / 3600000.0) * 3600000.0);
@@ -394,8 +394,8 @@ public class Producer {
 
     Blob encryptionKey = data.getContent();
     KeyInfo keyInfo = (KeyInfo)eKeyInfo_.get(interestName);
-    keyInfo.beginTimeslot = begin;
-    keyInfo.endTimeslot = end;
+    keyInfo.beginTimeSlot = begin;
+    keyInfo.endTimeSlot = end;
     keyInfo.keyBits = encryptionKey;
 
     encryptContentKey
@@ -422,7 +422,7 @@ public class Producer {
   {
     Name keyName = new Name(namespace_);
     keyName.append(Encryptor.NAME_COMPONENT_C_KEY);
-    keyName.append(Schedule.toIsoString(getRoundedTimeslot(timeSlot)));
+    keyName.append(Schedule.toIsoString(getRoundedTimeSlot(timeSlot)));
 
     Blob contentKey = database_.getContentKey(timeSlot);
 

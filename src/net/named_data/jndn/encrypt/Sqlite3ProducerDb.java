@@ -79,12 +79,12 @@ public class Sqlite3ProducerDb extends Sqlite3ProducerDbBase {
   public boolean
   hasContentKey(double timeSlot) throws ProducerDb.Error
   {
-    int fixedTimeslot = getFixedTimeSlot(timeSlot);
+    int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
     try {
       PreparedStatement statement = database_.prepareStatement
         (SELECT_hasContentKey);
-      statement.setInt(1, fixedTimeslot);
+      statement.setInt(1, fixedTimeSlot);
 
       try {
         ResultSet result = statement.executeQuery();
@@ -111,12 +111,12 @@ public class Sqlite3ProducerDb extends Sqlite3ProducerDbBase {
   public Blob
   getContentKey(double timeSlot) throws ProducerDb.Error
   {
-    int fixedTimeslot = getFixedTimeSlot(timeSlot);
+    int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
     try {
       PreparedStatement statement = database_.prepareStatement
         (SELECT_getContentKey);
-      statement.setInt(1, fixedTimeslot);
+      statement.setInt(1, fixedTimeSlot);
 
       try {
         ResultSet result = statement.executeQuery();
@@ -145,12 +145,12 @@ public class Sqlite3ProducerDb extends Sqlite3ProducerDbBase {
   public void
   addContentKey(double timeSlot, Blob key) throws ProducerDb.Error
   {
-    int fixedTimeslot = getFixedTimeSlot(timeSlot);
+    int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
     try {
       PreparedStatement statement = database_.prepareStatement
         (INSERT_addContentKey);
-      statement.setInt(1, fixedTimeslot);
+      statement.setInt(1, fixedTimeSlot);
       statement.setBytes(2, key.getImmutableArray());
 
       try {
@@ -173,12 +173,12 @@ public class Sqlite3ProducerDb extends Sqlite3ProducerDbBase {
   public void
   deleteContentKey(double timeSlot) throws ProducerDb.Error
   {
-    int fixedTimeslot = getFixedTimeSlot(timeSlot);
+    int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
     try {
       PreparedStatement statement = database_.prepareStatement
         (DELETE_deleteContentKey);
-      statement.setInt(1, fixedTimeslot);
+      statement.setInt(1, fixedTimeSlot);
 
       try {
         statement.executeUpdate();

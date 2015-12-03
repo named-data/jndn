@@ -55,10 +55,10 @@ public class AndroidSqlite3ProducerDb extends Sqlite3ProducerDbBase {
   public boolean
   hasContentKey(double timeSlot) throws ProducerDb.Error
   {
-    int fixedTimeslot = getFixedTimeSlot(timeSlot);
+    int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
     Cursor cursor = database_.rawQuery
-      (SELECT_hasContentKey, new String[] { Integer.toString(fixedTimeslot) });
+      (SELECT_hasContentKey, new String[] { Integer.toString(fixedTimeSlot) });
 
     try {
       if (cursor.moveToNext())
@@ -80,10 +80,10 @@ public class AndroidSqlite3ProducerDb extends Sqlite3ProducerDbBase {
   public Blob
   getContentKey(double timeSlot) throws ProducerDb.Error
   {
-    int fixedTimeslot = getFixedTimeSlot(timeSlot);
+    int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
     Cursor cursor = database_.rawQuery
-      (SELECT_getContentKey, new String[] { Integer.toString(fixedTimeslot) });
+      (SELECT_getContentKey, new String[] { Integer.toString(fixedTimeSlot) });
     try {
       if (cursor.moveToNext())
         return new Blob(cursor.getBlob(0));
@@ -105,10 +105,10 @@ public class AndroidSqlite3ProducerDb extends Sqlite3ProducerDbBase {
   public void
   addContentKey(double timeSlot, Blob key) throws ProducerDb.Error
   {
-    int fixedTimeslot = getFixedTimeSlot(timeSlot);
+    int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
     ContentValues values = new ContentValues();
-    values.put("timeslot", fixedTimeslot);
+    values.put("timeslot", fixedTimeSlot);
     values.put("key", key.getImmutableArray());
     database_.insert("contentkeys", null, values);
   }
@@ -122,11 +122,11 @@ public class AndroidSqlite3ProducerDb extends Sqlite3ProducerDbBase {
   public void
   deleteContentKey(double timeSlot) throws ProducerDb.Error
   {
-    int fixedTimeslot = getFixedTimeSlot(timeSlot);
+    int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
     database_.delete
       ("contentkeys", WHERE_deleteContentKey,
-       new String[] { Integer.toString(fixedTimeslot) });
+       new String[] { Integer.toString(fixedTimeSlot) });
   }
 
   private final SQLiteDatabase database_;
