@@ -46,6 +46,7 @@ public abstract class Sqlite3ProducerDbBase extends ProducerDb {
     "SELECT key FROM contentkeys where timeslot=?";
   protected static final String INSERT_addContentKey =
     "INSERT INTO contentkeys (timeslot, key) values (?, ?)";
+  protected static final String WHERE_deleteContentKey = "timeslot=?";
   protected static final String DELETE_deleteContentKey =
-    "DELETE FROM contentkeys WHERE timeslot=?";
+    "DELETE FROM contentkeys WHERE " + WHERE_deleteContentKey;
 }
