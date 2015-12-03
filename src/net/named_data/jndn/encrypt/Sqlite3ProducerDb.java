@@ -34,8 +34,9 @@ import net.named_data.jndn.util.Blob;
  * Sqlite3ProducerDb extends ProducerDb to implement storage of keys for the
  * producer using SQLite3. It contains one table that maps time slots (to the
  * nearest hour) to the content key created for that time slot.
+ * @note This class is an experimental feature. The API may change.
  */
-public class Sqlite3ProducerDb extends ProducerDb {
+public class Sqlite3ProducerDb extends Sqlite3ProducerDbBase {
   /**
    * Create a Sqlite3ProducerDb to use the given SQLite3 file.
    * @param databaseFilePath The path of the SQLite file.
@@ -82,7 +83,7 @@ public class Sqlite3ProducerDb extends ProducerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT key FROM contentkeys where timeslot=?");
+        (SELECT_hasContentKey);
       statement.setInt(1, fixedTimeslot);
 
       try {
@@ -114,7 +115,7 @@ public class Sqlite3ProducerDb extends ProducerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT key FROM contentkeys where timeslot=?");
+        (SELECT_getContentKey);
       statement.setInt(1, fixedTimeslot);
 
       try {
@@ -148,7 +149,7 @@ public class Sqlite3ProducerDb extends ProducerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ( "INSERT INTO contentkeys (timeslot, key) values (?, ?)");
+        (INSERT_addContentKey);
       statement.setInt(1, fixedTimeslot);
       statement.setBytes(2, key.getImmutableArray());
 
@@ -176,7 +177,7 @@ public class Sqlite3ProducerDb extends ProducerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM contentkeys WHERE timeslot=?");
+        (DELETE_deleteContentKey);
       statement.setInt(1, fixedTimeslot);
 
       try {
@@ -189,16 +190,6 @@ public class Sqlite3ProducerDb extends ProducerDb {
         ("Sqlite3ProducerDb.deleteContentKey: SQLite error: " + exception);
     }
   }
-  
-  private static final String INITIALIZATION =
-  "CREATE TABLE IF NOT EXISTS                         \n" +
-  "  contentkeys(                                     \n" +
-  "    rowId            INTEGER PRIMARY KEY,          \n" +
-  "    timeslot         INTEGER,                      \n" +
-  "    key              BLOB NOT NULL                 \n" +
-  "  );                                               \n" +
-  "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
-  "   timeslotIndex ON contentkeys(timeslot);         \n";
 
   Connection database_ = null;
 }

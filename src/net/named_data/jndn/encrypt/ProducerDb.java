@@ -23,9 +23,9 @@ package net.named_data.jndn.encrypt;
 import net.named_data.jndn.util.Blob;
 
 /**
- * ProducerDb is a base class the storage of keys for the producer. It contains
- * one table that maps time slots (to the nearest hour) to the content key
- * created for that time slot. A subclass must implement the methods. For
+ * ProducerDb is an abstract base class the storage of keys for the producer. It
+ * contains one table that maps time slots (to the nearest hour) to the content
+ * key created for that time slot. A subclass must implement the methods. For
  * example, see Sqlite3ProducerDb.
  * @note This class is an experimental feature. The API may change.
  */
