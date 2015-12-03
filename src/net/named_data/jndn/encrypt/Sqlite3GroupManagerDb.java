@@ -42,7 +42,7 @@ import net.named_data.jndn.util.Blob;
  * data used by the GroupManager using SQLite3.
  * @note This class is an experimental feature. The API may change.
  */
-public class Sqlite3GroupManagerDb extends GroupManagerDb {
+public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
 
   /**
    * Create a Sqlite3GroupManagerDb to use the given SQLite3 file.
@@ -94,7 +94,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT schedule_id FROM schedules where schedule_name=?");
+        (SELECT_hasSchedule);
       statement.setString(1, name);
 
       try {
@@ -125,7 +125,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT schedule_name FROM schedules");
+        (SELECT_listAllScheduleNames);
 
       try {
         ResultSet result = statement.executeQuery();
@@ -154,7 +154,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT schedule FROM schedules WHERE schedule_name=?");
+        (SELECT_getSchedule);
       statement.setString(1, name);
 
       Schedule schedule = new Schedule();
@@ -201,10 +201,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT key_name, pubkey " +
-         "FROM members JOIN schedules " +
-         "ON members.schedule_id=schedules.schedule_id " +
-         "WHERE schedule_name=?");
+        (SELECT_getScheduleMembers);
       statement.setString(1, name);
 
       try {
@@ -242,13 +239,11 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   public void
   addSchedule(String name, Schedule schedule) throws GroupManagerDb.Error
   {
-    if (name.length() == 0)
-      throw new GroupManagerDb.Error
-        ("Sqlite3GroupManagerDb.addSchedule: The schedule name cannot be empty");
+    checkAddSchedule(name);
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("INSERT INTO schedules (schedule_name, schedule) values (?, ?)");
+        (INSERT_addSchedule);
       statement.setString(1, name);
       statement.setBytes(2, schedule.wireEncode().getImmutableArray());
 
@@ -274,7 +269,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM schedules WHERE schedule_name=?");
+        (DELETE_deleteSchedule);
       statement.setString(1, name);
 
       try {
@@ -299,13 +294,11 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   public void
   renameSchedule(String oldName, String newName) throws GroupManagerDb.Error
   {
-    if (newName.length() == 0)
-      throw new GroupManagerDb.Error
-        ("Sqlite3GroupManagerDb.renameSchedule: The schedule newName cannot be empty");
+    checkRenameSchedule(newName);
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE schedules SET schedule_name=? WHERE schedule_name=?");
+        (UPDATE_renameSchedule);
       statement.setString(1, newName);
       statement.setString(2, oldName);
 
@@ -338,7 +331,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE schedules SET schedule=? WHERE schedule_name=?");
+        (UPDATE_updateSchedule);
       statement.setBytes(1, schedule.wireEncode().getImmutableArray());
       statement.setString(2, name);
 
@@ -366,7 +359,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT member_id FROM members WHERE member_name=?");
+        (SELECT_hasMember);
       statement.setBytes
         (1, identity.wireEncode(TlvWireFormat.get()).getImmutableArray());
 
@@ -398,7 +391,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT member_name FROM members");
+        (SELECT_listAllMembers);
 
       try {
         ResultSet result = statement.executeQuery();
@@ -437,10 +430,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT schedule_name " +
-         "FROM schedules JOIN members " +
-         "ON schedules.schedule_id = members.schedule_id " +
-         "WHERE member_name=?");
+        (SELECT_getMemberSchedule);
       statement.setBytes
         (1, identity.wireEncode(TlvWireFormat.get()).getImmutableArray());
 
@@ -482,8 +472,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("INSERT INTO members(schedule_id, member_name, key_name, pubkey) " +
-         "values (?, ?, ?, ?)");
+        (INSERT_addMember);
       statement.setInt(1, scheduleId);
       statement.setBytes
         (2, memberName.wireEncode(TlvWireFormat.get()).getImmutableArray());
@@ -518,7 +507,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE members SET schedule_id=? WHERE member_name=?");
+        (UPDATE_updateMemberSchedule);
       statement.setInt(1, scheduleId);
       statement.setBytes
         (2, identity.wireEncode(TlvWireFormat.get()).getImmutableArray());
@@ -545,7 +534,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM members WHERE member_name=?");
+        (DELETE_deleteMember);
       statement.setBytes
         (1, identity.wireEncode(TlvWireFormat.get()).getImmutableArray());
 
@@ -571,7 +560,7 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT schedule_id FROM schedules WHERE schedule_name=?");
+        (SELECT_getScheduleId);
       statement.setString(1, name);
 
       try {
@@ -589,31 +578,6 @@ public class Sqlite3GroupManagerDb extends GroupManagerDb {
         ("Sqlite3GroupManagerDb.getScheduleId: SQLite error: " + exception);
     }
   }
-
-  private static final String INITIALIZATION =
-    "CREATE TABLE IF NOT EXISTS                         \n" +
-    "  schedules(                                       \n" +
-    "    schedule_id         INTEGER PRIMARY KEY,       \n" +
-    "    schedule_name       TEXT NOT NULL,             \n" +
-    "    schedule            BLOB NOT NULL              \n" +
-    "  );                                               \n" +
-    "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
-    "   scheduleNameIndex ON schedules(schedule_name);  \n" +
-    "                                                   \n" +
-    "CREATE TABLE IF NOT EXISTS                         \n" +
-    "  members(                                         \n" +
-    "    member_id           INTEGER PRIMARY KEY,       \n" +
-    "    schedule_id         INTEGER NOT NULL,          \n" +
-    "    member_name         BLOB NOT NULL,             \n" +
-    "    key_name            BLOB NOT NULL,             \n" +
-    "    pubkey              BLOB NOT NULL,             \n" +
-    "    FOREIGN KEY(schedule_id)                       \n" +
-    "      REFERENCES schedules(schedule_id)            \n" +
-    "      ON DELETE CASCADE                            \n" +
-    "      ON UPDATE CASCADE                            \n" +
-    "  );                                               \n" +
-    "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
-    "   memNameIndex ON members(member_name);           \n";
 
   Connection database_ = null;
 }
