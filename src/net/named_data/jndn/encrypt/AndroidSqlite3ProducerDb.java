@@ -127,9 +127,7 @@ public class AndroidSqlite3ProducerDb extends Sqlite3ProducerDbBase {
   {
     int fixedTimeSlot = getFixedTimeSlot(timeSlot);
 
-    database_.delete
-      ("contentkeys", WHERE_deleteContentKey,
-       new String[] { Integer.toString(fixedTimeSlot) });
+    database_.execSQL(DELETE_deleteContentKey, new Object[] { fixedTimeSlot });
   }
 
   private final SQLiteDatabase database_;
