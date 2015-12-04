@@ -43,7 +43,6 @@ public abstract class Sqlite3ConsumerDbBase extends ConsumerDb {
     "SELECT key_buf FROM decryptionkeys WHERE key_name=?";
   protected static final String INSERT_addKey =
     "INSERT INTO decryptionkeys(key_name, key_buf) values (?, ?)";
-  protected static final String WHERE_deleteKey = "key_name=?";
   protected static final String DELETE_deleteKey =
-    "DELETE FROM decryptionkeys WHERE " + WHERE_deleteKey;
+    "DELETE FROM decryptionkeys WHERE key_name=?";
 }
