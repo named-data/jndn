@@ -28,13 +28,14 @@ package net.named_data.jndn.encrypt;
  * @note This class is an experimental feature. The API may change.
  */
 public abstract class Sqlite3ConsumerDbBase extends ConsumerDb {
-  protected static final String INITIALIZATION =
+  protected static final String INITIALIZATION1 =
     "CREATE TABLE IF NOT EXISTS                         \n" +
     "  decryptionkeys(                                  \n" +
     "    key_id              INTEGER PRIMARY KEY,       \n" +
     "    key_name            BLOB NOT NULL,             \n" +
     "    key_buf             BLOB NOT NULL              \n" +
-    "  );                                               \n" +
+    "  );                                               \n";
+  protected static final String INITIALIZATION2 =
     "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
     "   KeyNameIndex ON decryptionkeys(key_name);       \n";
 
@@ -42,6 +43,7 @@ public abstract class Sqlite3ConsumerDbBase extends ConsumerDb {
     "SELECT key_buf FROM decryptionkeys WHERE key_name=?";
   protected static final String INSERT_addKey =
     "INSERT INTO decryptionkeys(key_name, key_buf) values (?, ?)";
+  protected static final String WHERE_deleteKey = "key_name=?";
   protected static final String DELETE_deleteKey =
-    "DELETE FROM decryptionkeys WHERE key_name=?";
+    "DELETE FROM decryptionkeys WHERE " + WHERE_deleteKey;
 }
