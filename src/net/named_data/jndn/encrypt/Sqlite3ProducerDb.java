@@ -38,7 +38,7 @@ import net.named_data.jndn.util.Blob;
  */
 public class Sqlite3ProducerDb extends Sqlite3ProducerDbBase {
   /**
-   * Create a Sqlite3ProducerDb to use the given SQLite3 file.
+   * Create an Sqlite3ProducerDb to use the given SQLite3 file.
    * @param databaseFilePath The path of the SQLite file.
    * @throws ProducerDb.Error for a database error.
    */

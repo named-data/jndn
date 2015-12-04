@@ -39,7 +39,7 @@ import net.named_data.jndn.util.Blob;
  */
 public class Sqlite3ConsumerDb extends Sqlite3ConsumerDbBase {
   /**
-   * Create a Sqlite3ConsumerDb to use the given SQLite3 file.
+   * Create an Sqlite3ConsumerDb to use the given SQLite3 file.
    * @param databaseFilePath The path of the SQLite file.
    * @throws ConsumerDb.Error for a database error.
    */
