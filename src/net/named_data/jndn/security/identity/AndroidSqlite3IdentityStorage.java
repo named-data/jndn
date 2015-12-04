@@ -155,7 +155,9 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
 
     ContentValues values = new ContentValues();
     values.put("identity_name", identityName.toUri());
-    database_.insert("Identity", null, values);
+    if (database_.insert("Identity", null, values) < 0)
+      throw new SecurityException
+        ("AndroidSqlite3IdentityStorage.addIdentity: SQLite error for insert");
   }
 
   /**
@@ -219,7 +221,9 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
     values.put("key_identifier", keyId);
     values.put("key_type", keyType.getNumericType());
     values.put("public_key", publicKeyDer.getImmutableArray());
-    database_.insert("Key", null, values);
+    if (database_.insert("Key", null, values) < 0)
+      throw new SecurityException
+          ("AndroidSqlite3IdentityStorage.addKey: SQLite error for insert");
   }
 
   /**
@@ -320,7 +324,9 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
     // wireEncode returns the cached encoding if available.
     values.put("certificate_data", certificate.wireEncode().getImmutableArray());
 
-    database_.insert("Certificate", null, values);
+    if (database_.insert("Certificate", null, values) < 0)
+      throw new SecurityException
+          ("AndroidSqlite3IdentityStorage.addCertificate: SQLite error for insert");
   }
 
   /**
