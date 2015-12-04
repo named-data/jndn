@@ -43,9 +43,8 @@ import net.named_data.jndn.util.Blob;
  * @note This class is an experimental feature. The API may change.
  */
 public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
-
   /**
-   * Create a Sqlite3GroupManagerDb to use the given SQLite3 file.
+   * Create an Sqlite3GroupManagerDb to use the given SQLite3 file.
    * @param databaseFilePath The path of the SQLite file.
    * @throws GroupManagerDb.Error for a database error.
    */
@@ -68,10 +67,13 @@ public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
       // not supported before Java 7.
       try {
         // Enable foreign keys.
-        statement.executeUpdate("PRAGMA foreign_keys = ON");
+        statement.executeUpdate(PRAGMA_foreign_keys);
 
-        // Initialize database specific tables.
-        statement.executeUpdate(INITIALIZATION);
+        // Initialize database-specific tables.
+        statement.executeUpdate(INITIALIZATION1);
+        statement.executeUpdate(INITIALIZATION2);
+        statement.executeUpdate(INITIALIZATION3);
+        statement.executeUpdate(INITIALIZATION4);
       } finally {
         statement.close();
       }

@@ -57,16 +57,18 @@ public abstract class Sqlite3GroupManagerDbBase extends GroupManagerDb {
         ("renameSchedule: The schedule newName cannot be empty");
   }
 
-  protected static final String INITIALIZATION =
+  protected static final String INITIALIZATION1 =
     "CREATE TABLE IF NOT EXISTS                         \n" +
     "  schedules(                                       \n" +
     "    schedule_id         INTEGER PRIMARY KEY,       \n" +
     "    schedule_name       TEXT NOT NULL,             \n" +
     "    schedule            BLOB NOT NULL              \n" +
-    "  );                                               \n" +
+    "  );                                               \n";
+  protected static final String INITIALIZATION2 =
     "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
-    "   scheduleNameIndex ON schedules(schedule_name);  \n" +
-    "                                                   \n" +
+    "   scheduleNameIndex ON schedules(schedule_name);  \n";
+
+  protected static final String INITIALIZATION3 =
     "CREATE TABLE IF NOT EXISTS                         \n" +
     "  members(                                         \n" +
     "    member_id           INTEGER PRIMARY KEY,       \n" +
@@ -78,9 +80,13 @@ public abstract class Sqlite3GroupManagerDbBase extends GroupManagerDb {
     "      REFERENCES schedules(schedule_id)            \n" +
     "      ON DELETE CASCADE                            \n" +
     "      ON UPDATE CASCADE                            \n" +
-    "  );                                               \n" +
+    "  );                                               \n";
+  protected static final String INITIALIZATION4 =
     "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
     "   memNameIndex ON members(member_name);           \n";
+
+  protected static final String PRAGMA_foreign_keys =
+    "PRAGMA foreign_keys = ON";
 
   protected static final String SELECT_hasSchedule =
     "SELECT schedule_id FROM schedules where schedule_name=?";
