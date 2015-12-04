@@ -30,13 +30,14 @@ package net.named_data.jndn.encrypt;
  * @note This class is an experimental feature. The API may change.
  */
 public abstract class Sqlite3ProducerDbBase extends ProducerDb {
-  protected static final String INITIALIZATION =
+  protected static final String INITIALIZATION1 =
   "CREATE TABLE IF NOT EXISTS                         \n" +
   "  contentkeys(                                     \n" +
   "    rowId            INTEGER PRIMARY KEY,          \n" +
   "    timeslot         INTEGER,                      \n" +
   "    key              BLOB NOT NULL                 \n" +
-  "  );                                               \n" +
+  "  );                                               \n";
+  protected static final String INITIALIZATION2 =
   "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
   "   timeslotIndex ON contentkeys(timeslot);         \n";
 

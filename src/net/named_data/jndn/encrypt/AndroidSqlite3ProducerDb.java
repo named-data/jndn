@@ -43,7 +43,8 @@ public class AndroidSqlite3ProducerDb extends Sqlite3ProducerDbBase {
       (databaseFilePath, null,
        SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.CREATE_IF_NECESSARY);
 
-    database_.execSQL(INITIALIZATION);
+    database_.execSQL(INITIALIZATION1);
+    database_.execSQL(INITIALIZATION2);
   }
 
   /**
@@ -110,7 +111,9 @@ public class AndroidSqlite3ProducerDb extends Sqlite3ProducerDbBase {
     ContentValues values = new ContentValues();
     values.put("timeslot", fixedTimeSlot);
     values.put("key", key.getImmutableArray());
-    database_.insert("contentkeys", null, values);
+    if (database_.insert("contentkeys", null, values) < 0)
+      throw new ProducerDb.Error
+        ("AndroidSqlite3ProducerDb.addContentKey: SQLite error");
   }
 
   /**

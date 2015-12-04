@@ -61,7 +61,8 @@ public class Sqlite3ProducerDb extends Sqlite3ProducerDbBase {
       // not supported before Java 7.
       try {
         // Initialize database specific tables.
-        statement.executeUpdate(INITIALIZATION);
+        statement.executeUpdate(INITIALIZATION1);
+        statement.executeUpdate(INITIALIZATION2);
       } finally {
         statement.close();
       }
