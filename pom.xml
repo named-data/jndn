@@ -90,7 +90,7 @@
                             <target>1.7</target>
                             <excludes>
                                 <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
+                                <exclude>**/AndroidSqlite3*.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -184,7 +184,7 @@
                             <target>1.7</target>
                             <excludes>
                                 <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
+                                <exclude>**/AndroidSqlite3*.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -212,7 +212,7 @@
                             <target>1.7</target>
                             <excludes>
                                 <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
+                                <exclude>**/AndroidSqlite3*.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

@@ -86,7 +86,7 @@
                                 <exclude>**/ChronoSync2013.java</exclude>
                                 <exclude>**/SyncStateProto.java</exclude>
                                 <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
+                                <exclude>**/AndroidSqlite3*.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -176,7 +176,7 @@
                                 <exclude>**/ChronoSync2013.java</exclude>
                                 <exclude>**/SyncStateProto.java</exclude>
                                 <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
+                                <exclude>**/AndroidSqlite3*.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -190,7 +190,7 @@
                                 <exclude>**/ChronoSync2013.java</exclude>
                                 <exclude>**/SyncStateProto.java</exclude>
                                 <!-- Assume that an Android project does not use Maven -->
-                                <exclude>**/AndroidSqlite3IdentityStorage.java</exclude>
+                                <exclude>**/AndroidSqlite3*.java</exclude>
                                 <!-- Don't run integration tests -->
                                 <exclude>**/integration_tests/*.java</exclude>
                             </excludes>
