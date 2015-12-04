@@ -98,8 +98,10 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
       idTableExists = true;
     cursor.close();
 
-    if (!idTableExists)
-      database_.execSQL(INIT_ID_TABLE);
+    if (!idTableExists) {
+      database_.execSQL(INIT_ID_TABLE1);
+      database_.execSQL(INIT_ID_TABLE2);
+    }
 
     //Check if the Key table exists.
     cursor = database_.rawQuery(SELECT_MASTER_KEY_TABLE, null);
@@ -108,8 +110,10 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
       idTableExists = true;
     cursor.close();
 
-    if (!idTableExists)
-      database_.execSQL(INIT_KEY_TABLE);
+    if (!idTableExists) {
+      database_.execSQL(INIT_KEY_TABLE1);
+      database_.execSQL(INIT_KEY_TABLE2);
+    }
 
     //Check if the Certificate table exists.
     cursor = database_.rawQuery(SELECT_MASTER_CERT_TABLE, null);
@@ -118,8 +122,11 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
       idTableExists = true;
     cursor.close();
 
-    if (!idTableExists)
-      database_.execSQL(INIT_CERT_TABLE);
+    if (!idTableExists) {
+      database_.execSQL(INIT_CERT_TABLE1);
+      database_.execSQL(INIT_CERT_TABLE2);
+      database_.execSQL(INIT_CERT_TABLE3);
+    }
   }
 
   /**
@@ -320,7 +327,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
        dateFormat_.format(new Timestamp((long)certificate.getNotBefore())));
     values.put
       ("not_after",
-       dateFormat_.format(new Timestamp((long)certificate.getNotAfter())));
+       dateFormat_.format(new Timestamp((long) certificate.getNotAfter())));
     // wireEncode returns the cached encoding if available.
     values.put("certificate_data", certificate.wireEncode().getImmutableArray());
 

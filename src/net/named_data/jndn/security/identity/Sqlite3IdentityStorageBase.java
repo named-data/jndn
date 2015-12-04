@@ -130,7 +130,7 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
   protected static final String SELECT_MASTER_CERT_TABLE =
     "SELECT name FROM sqlite_master WHERE type='table' And name='Certificate'";
 
-  protected static final String INIT_ID_TABLE =
+  protected static final String INIT_ID_TABLE1 =
 "CREATE TABLE IF NOT EXISTS                                           \n" +
 "  Identity(                                                          \n" +
 "      identity_name     BLOB NOT NULL,                               \n" +
@@ -138,10 +138,11 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
 "                                                                     \n" +
 "      PRIMARY KEY (identity_name)                                    \n" +
 "  );                                                                 \n" +
-"                                                                     \n" +
+"                                                                     \n";
+  protected static final String INIT_ID_TABLE2 =
 "CREATE INDEX identity_index ON Identity(identity_name);              \n";
 
-  protected static final String INIT_KEY_TABLE =
+  protected static final String INIT_KEY_TABLE1 =
 "CREATE TABLE IF NOT EXISTS                                           \n" +
 "  Key(                                                               \n" +
 "      identity_name     BLOB NOT NULL,                               \n" +
@@ -153,10 +154,11 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
 "                                                                     \n" +
 "      PRIMARY KEY (identity_name, key_identifier)                    \n" +
 "  );                                                                 \n" +
-"                                                                     \n" +
+"                                                                     \n";
+  protected static final String INIT_KEY_TABLE2 =
 "CREATE INDEX key_index ON Key(identity_name);                        \n";
 
-  protected static final String INIT_CERT_TABLE =
+  protected static final String INIT_CERT_TABLE1 =
 "CREATE TABLE IF NOT EXISTS                                           \n" +
 "  Certificate(                                                       \n" +
 "      cert_name         BLOB NOT NULL,                               \n" +
@@ -171,8 +173,10 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
 "                                                                     \n" +
 "      PRIMARY KEY (cert_name)                                        \n" +
 "  );                                                                 \n" +
-"                                                                     \n" +
-"CREATE INDEX cert_index ON Certificate(cert_name);           \n" +
+"                                                                     \n";
+  protected static final String INIT_CERT_TABLE2 =
+"CREATE INDEX cert_index ON Certificate(cert_name);           \n";
+  protected static final String INIT_CERT_TABLE3 =
 "CREATE INDEX subject ON Certificate(identity_name);          \n";
 
   protected static final String SELECT_doesIdentityExist =
