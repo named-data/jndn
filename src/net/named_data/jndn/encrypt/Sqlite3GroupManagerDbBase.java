@@ -102,10 +102,12 @@ public abstract class Sqlite3GroupManagerDbBase extends GroupManagerDb {
     "INSERT INTO schedules (schedule_name, schedule) values (?, ?)";
   protected static final String DELETE_deleteSchedule =
     "DELETE FROM schedules WHERE schedule_name=?";
+  protected static final String WHERE_renameSchedule = "schedule_name=?";
   protected static final String UPDATE_renameSchedule =
-    "UPDATE schedules SET schedule_name=? WHERE schedule_name=?";
+    "UPDATE schedules SET schedule_name=? WHERE " + WHERE_renameSchedule;
+  protected static final String WHERE_updateSchedule = "schedule_name=?";
   protected static final String UPDATE_updateSchedule =
-    "UPDATE schedules SET schedule=? WHERE schedule_name=?";
+    "UPDATE schedules SET schedule=? WHERE " + WHERE_updateSchedule;
   protected static final String SELECT_getScheduleId =
     "SELECT schedule_id FROM schedules WHERE schedule_name=?";
 
