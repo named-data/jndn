@@ -93,8 +93,8 @@ public class EncryptedContent {
 
   /**
    * Set the key locator.
-   * @param keyLocator The key locator. If not specified, set to the default
-   * KeyLocator().
+   * @param keyLocator The key locator. This makes a copy of the object. If not
+   *   specified, set to the default KeyLocator().
    * @return This EncryptedContent so that you can chain calls to update values.
    */
   public final EncryptedContent
