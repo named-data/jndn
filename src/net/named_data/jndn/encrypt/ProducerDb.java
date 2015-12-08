@@ -44,7 +44,7 @@ public abstract class ProducerDb {
 
   /**
    * Check if a content key exists for the hour covering timeSlot.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @return True if there is a content key for timeSlot.
    * @throws ProducerDb.Error for a database error.
    */
@@ -53,7 +53,7 @@ public abstract class ProducerDb {
 
   /**
    * Get the content key for the hour covering timeSlot.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @return A Blob with the encoded key.
    * @throws ProducerDb.Error if there is no key covering timeSlot or other
    * database error.
@@ -63,7 +63,7 @@ public abstract class ProducerDb {
 
   /**
    * Add key as the content key for the hour covering timeSlot.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @param key The encoded key.
    * @throws ProducerDb.Error if a key for the same hour already exists in the
    * database, or other database error.
@@ -74,7 +74,7 @@ public abstract class ProducerDb {
   /**
    * Delete the content key for the hour covering timeSlot. If there is no key
    * for the time slot, do nothing.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @throws ProducerDb.Error for a database error.
    */
   public abstract void
@@ -82,8 +82,8 @@ public abstract class ProducerDb {
 
   /**
    * Get the hour-based time slot.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
-   * @return The hour-based time slot as hours since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
+   * @return The hour-based time slot as hours since Jan 1, 1970 UTC.
    */
   protected static int
   getFixedTimeSlot(double timeSlot)

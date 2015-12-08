@@ -92,7 +92,7 @@ public class Schedule {
    * repetitive interval sets and find the shortest interval that allows a group
    * member to access the data. If there is no interval covering the time point,
    * this returns false for isPositive and returns a negative interval.
-   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
    * @param isPositive Set isPositive[0] true if the returned interval is
    * positive, false if negative.
    * @return The interval covering the time point, or a negative interval if not

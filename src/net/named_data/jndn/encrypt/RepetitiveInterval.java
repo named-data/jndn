@@ -69,8 +69,8 @@ public class RepetitiveInterval implements Comparable {
    * Create a RepetitiveInterval with the given values. startDate must be
    * earlier than or same as endDate. intervalStartHour must be less than
    * intervalEndHour.
-   * @param startDate The start date as milliseconds since Jan 1, 1970 GMT.
-   * @param endDate The end date as milliseconds since Jan 1, 1970 GMT.
+   * @param startDate The start date as milliseconds since Jan 1, 1970 UTC.
+   * @param endDate The end date as milliseconds since Jan 1, 1970 UTC.
    * @param intervalStartHour The start hour in the day, from 0 to 23.
    * @param intervalEndHour The end hour in the day from 1 to 24.
    * @param nRepeats Repeat the interval nRepeats repetitions, every unit, until
@@ -97,8 +97,8 @@ public class RepetitiveInterval implements Comparable {
    * Create a RepetitiveInterval with the given values, and no repetition.
    * Because there is no repetition, startDate must equal endDate.
    * intervalStartHour must be less than intervalEndHour.
-   * @param startDate The start date as milliseconds since Jan 1, 1970 GMT.
-   * @param endDate The end date as milliseconds since Jan 1, 1970 GMT.
+   * @param startDate The start date as milliseconds since Jan 1, 1970 UTC.
+   * @param endDate The end date as milliseconds since Jan 1, 1970 UTC.
    * @param intervalStartHour The start hour in the day, from 0 to 23.
    * @param intervalEndHour The end hour in the day from 1 to 24.
    * @throws Error if the above conditions are not met.
@@ -154,7 +154,7 @@ public class RepetitiveInterval implements Comparable {
    * Get an interval that covers the time point. If there is no interval
    * covering the time point, this returns false for isPositive and returns a
    * negative interval.
-   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
    * @param isPositive Set isPositive[0] true if the returned interval is
    * positive, false if negative.
    * @return The interval covering the time point, or a negative interval if not
@@ -259,14 +259,14 @@ public class RepetitiveInterval implements Comparable {
 
   /**
    * Get the start date.
-   * @return The start date as milliseconds since Jan 1, 1970 GMT.
+   * @return The start date as milliseconds since Jan 1, 1970 UTC.
    */
   public final double
   getStartDate() { return startDate_; }
 
   /**
    * Get the end date.
-   * @return The end date as milliseconds since Jan 1, 1970 GMT.
+   * @return The end date as milliseconds since Jan 1, 1970 UTC.
    */
   public final double
   getEndDate() { return endDate_; }
@@ -301,7 +301,7 @@ public class RepetitiveInterval implements Comparable {
 
   /**
    * Check if the date of the time point is in any interval.
-   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
    * @return True if the date of the time point is in any interval.
    */
   private boolean
@@ -347,8 +347,8 @@ public class RepetitiveInterval implements Comparable {
 
   /**
    * Return a time point on the beginning of the date (without hours, minutes, etc.)
-   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
-   * @return A time point as milliseconds since Jan 1, 1970 GMT.
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
+   * @return A time point as milliseconds since Jan 1, 1970 UTC.
    */
   private double
   toDateOnlyMilliseconds(double timePoint)
@@ -360,7 +360,7 @@ public class RepetitiveInterval implements Comparable {
 
   /**
    * Return a Calendar for the time point.
-   * @param timePoint The time point as milliseconds since Jan 1, 1970 GMT.
+   * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
    * @return The Calendar.
    */
   private Calendar
@@ -373,8 +373,8 @@ public class RepetitiveInterval implements Comparable {
 
   private static final long MILLISECONDS_IN_HOUR = 3600 * 1000;
   private static final long MILLISECONDS_IN_DAY = 24 * 3600 * 1000;
-  private final double startDate_; // MillisecondsSince1970 GMT
-  private final double endDate_;   // MillisecondsSince1970 GMT
+  private final double startDate_; // MillisecondsSince1970 UTC
+  private final double endDate_;   // MillisecondsSince1970 UTC
   private final int intervalStartHour_;
   private final int intervalEndHour_;
   private final int nRepeats_;

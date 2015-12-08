@@ -75,7 +75,7 @@ public class GroupManager {
    * Create a group key for the interval into which timeSlot falls. This creates
    * a group key if it doesn't exist, and encrypts the key using the public key
    * of each eligible member.
-   * @param timeSlot The time slot to cover as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot to cover as milliseconds since Jan 1, 1970 UTC.
    * @return A List of Data packets where the first is the E-KEY data packet
    * with the group's public key and the rest are the D-KEY data packets with
    * the group's private key encrypted with the public key of each eligible
@@ -213,7 +213,7 @@ public class GroupManager {
 
   /**
    * Calculate an Interval that covers the timeSlot.
-   * @param timeSlot The time slot to cover as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot to cover as milliseconds since Jan 1, 1970 UTC.
    * @param memberKeys First clear memberKeys then fill it with the info of
    * members who are allowed to access the interval. The map's key is the Name
    * of the public key and the value is the Blob of the public key DER. (Use Map

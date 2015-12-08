@@ -157,7 +157,7 @@ public class Producer {
    * key does not exist, this creates one and encrypts it using the
    * corresponding E-KEYs. The encrypted content keys are passed to the
    * onEncryptedKeys callback.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @param onEncryptedKeys If this creates a content key, then this calls
    * onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of encrypted
    * content key Data packets. If onEncryptedKeys is null, this does not use it.
@@ -217,7 +217,7 @@ public class Producer {
    * update the data packet with the encrypted content and an appropriate data
    * name.
    * @param data An empty Data object which is updated.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @param content The content to encrypt.
    */
   public final void
@@ -269,8 +269,8 @@ public class Producer {
   /**
    * Round timeSlot to the nearest whole hour, so that we can store content keys
    * uniformly (by start of the hour).
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
-   * @return The start of the hour as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
+   * @return The start of the hour as milliseconds since Jan 1, 1970 UTC.
    */
   private static double
   getRoundedTimeSlot(double timeSlot)
@@ -327,7 +327,7 @@ public class Producer {
    * This is called from an expressInterest timeout to update the state of
    * keyRequest.
    * @param interest The timed-out interest.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @param keyRequest The KeyRequest which is updated.
    * @param onEncryptedKeys When there are no more interests to process, this
    * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
@@ -362,7 +362,7 @@ public class Producer {
    * required.
    * @param interest The interest given to expressInterest.
    * @param data The fetched Data packet.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @param keyRequest The KeyRequest which is updated.
    * @param onEncryptedKeys When there are no more interests to process, this
    * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
@@ -408,7 +408,7 @@ public class Producer {
    * @param keyRequest The KeyRequest which is updated.
    * @param encryptionKey The encryption key value.
    * @param eKeyName The key name for the EncryptedContent.
-   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 GMT.
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @param onEncryptedKeys When there are no more interests to process, this
    * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
    * encrypted content key Data packets. If onEncryptedKeys is null, this does
