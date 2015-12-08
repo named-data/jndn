@@ -208,7 +208,7 @@ public class TestEncryptor {
       DerDecodingException, EncodingException
   {
     for (AsymmetricEncryptInput input : encryptorRsaTestInputs) {
-      Blob raw_content = new Blob(toBuffer(new int[] {
+      Blob rawContent = new Blob(toBuffer(new int[] {
         0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
         0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10,
         0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x73
@@ -227,7 +227,7 @@ public class TestEncryptor {
 
       EncryptParams encryptParams = new EncryptParams(input.type());
 
-      Encryptor.encryptData(data, raw_content, keyName, eKey, encryptParams);
+      Encryptor.encryptData(data, rawContent, keyName, eKey, encryptParams);
 
       assertEquals
         (input.testName(), new Name("/FOR").append(keyName), data.getName());
@@ -240,7 +240,7 @@ public class TestEncryptor {
 
       Blob recovered = extractContent.getPayload();
       Blob decrypted = RsaAlgorithm.decrypt(dKey, recovered, encryptParams);
-      assertTrue(input.testName(), raw_content.equals(decrypted));
+      assertTrue(input.testName(), rawContent.equals(decrypted));
     }
   }
 
@@ -253,7 +253,7 @@ public class TestEncryptor {
       DerDecodingException, EncodingException
   {
     for (AsymmetricEncryptInput input : encryptorRsaTestInputs) {
-      Blob large_content = new Blob(toBuffer(new int[] {
+      Blob largeContent = new Blob(toBuffer(new int[] {
         0x73, 0x5a, 0xbd, 0x47, 0x0c, 0xfe, 0xf8, 0x7d,
         0x2e, 0x17, 0xaa, 0x11, 0x6f, 0x23, 0xc5, 0x10,
         0x23, 0x36, 0x88, 0xc4, 0x2a, 0x0f, 0x9a, 0x72,
@@ -304,7 +304,7 @@ public class TestEncryptor {
       Blob dKey = decryptKey.getKeyBits();
 
       EncryptParams encryptParams = new EncryptParams(input.type());
-      Encryptor.encryptData(data, large_content, keyName, eKey, encryptParams);
+      Encryptor.encryptData(data, largeContent, keyName, eKey, encryptParams);
 
       assertEquals
         (input.testName(), new Name("/FOR").append(keyName), data.getName());
@@ -346,7 +346,7 @@ public class TestEncryptor {
       Blob largePayload = AesAlgorithm.decrypt
         (nonce, bufferPayload, encryptParams);
 
-      assertTrue(input.testName(), large_content.equals(largePayload));
+      assertTrue(input.testName(), largeContent.equals(largePayload));
     }
   }
 }
