@@ -363,7 +363,7 @@ public class Schedule {
   getDateFormat()
   {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     return dateFormat;
   }
 

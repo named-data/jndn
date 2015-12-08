@@ -366,7 +366,7 @@ public class RepetitiveInterval implements Comparable {
   private Calendar
   toCalendar(double timePoint)
   {
-    Calendar result = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar result = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     result.setTimeInMillis((long)timePoint);
     return result;
   }
