@@ -31,7 +31,7 @@ import java.util.TimeZone;
 public class UnitTestsCommon {
   /**
    * Convert a UNIX timestamp to ISO time representation with the "T" in the middle.
-   * @param msSince1970 Timestamp as milliseconds since Jan 1, 1970 GMT.
+   * @param msSince1970 Timestamp as milliseconds since Jan 1, 1970 UTC.
    * @return The string representation.
    */
   public static String
@@ -44,7 +44,7 @@ public class UnitTestsCommon {
    * Convert an ISO time representation with the "T" in the middle to a UNIX
    * timestamp.
    * @param timeString The ISO time representation.
-   * @return The timestamp as milliseconds since Jan 1, 1970 GMT.
+   * @return The timestamp as milliseconds since Jan 1, 1970 UTC.
    */
   public static double
   fromIsoString(String timeString) throws ParseException
