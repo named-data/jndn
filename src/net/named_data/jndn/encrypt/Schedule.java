@@ -107,14 +107,13 @@ public class Schedule {
     Interval blackNegativeResult = new Interval();
     Interval whiteNegativeResult = new Interval();
 
-    boolean[] localIsPositive = { false };
-
     // Get the black result.
     for (Iterator i = blackIntervalList_.iterator(); i.hasNext(); ) {
       RepetitiveInterval element = (RepetitiveInterval)i.next();
 
-      Interval tempInterval = element.getInterval(timePoint, localIsPositive);
-      if (localIsPositive[0] == true) {
+      RepetitiveInterval.Result result = element.getInterval(timePoint);
+      Interval tempInterval = result.interval;
+      if (result.isPositive == true) {
         // tempInterval covers the time point, so union the black negative
         // result with it.
         // Get the union interval of all the black intervals covering the
@@ -151,8 +150,9 @@ public class Schedule {
     for (Iterator i = whiteIntervalList_.iterator(); i.hasNext(); ) {
       RepetitiveInterval element = (RepetitiveInterval)i.next();
 
-      Interval tempInterval = element.getInterval(timePoint, localIsPositive);
-      if (localIsPositive[0] == true) {
+      RepetitiveInterval.Result result = element.getInterval(timePoint);
+      Interval tempInterval = result.interval;
+      if (result.isPositive == true) {
         // tempInterval covers the time point, so union the white positive
         // result with it.
         // Get the union interval of all the white intervals covering the time

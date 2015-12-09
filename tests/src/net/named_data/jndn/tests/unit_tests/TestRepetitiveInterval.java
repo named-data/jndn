@@ -81,27 +81,26 @@ public class TestRepetitiveInterval {
     RepetitiveInterval repetitiveInterval1 = new RepetitiveInterval
       (fromIsoString("20150825T000000"), fromIsoString("20150925T000000"), 5, 10, 2,
        RepetitiveInterval.RepeatUnit.DAY);
-    Interval resultInterval;
-    boolean[] isPositive = { false };
+    RepetitiveInterval.Result result;
 
     double timePoint1 = fromIsoString("20150825T050000");
 
-    resultInterval = repetitiveInterval1.getInterval(timePoint1, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150825T050000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150825T100000", toIsoString(resultInterval.getEndTime()));
+    result = repetitiveInterval1.getInterval(timePoint1);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150825T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
 
     double timePoint2 = fromIsoString("20150902T060000");
 
-    resultInterval = repetitiveInterval1.getInterval(timePoint2, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150902T050000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150902T100000", toIsoString(resultInterval.getEndTime()));
+    result = repetitiveInterval1.getInterval(timePoint2);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150902T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150902T100000", toIsoString(result.interval.getEndTime()));
 
     double timePoint3 = fromIsoString("20150929T040000");
 
-    repetitiveInterval1.getInterval(timePoint3, isPositive);
-    assertEquals(false, isPositive[0]);
+    result = repetitiveInterval1.getInterval(timePoint3);
+    assertEquals(false, result.isPositive);
 
     ///////////////////////////////////////////// With the repeat unit MONTH.
 
@@ -111,27 +110,27 @@ public class TestRepetitiveInterval {
 
     double timePoint4 = fromIsoString("20150825T050000");
 
-    resultInterval = repetitiveInterval2.getInterval(timePoint4, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150825T050000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150825T100000", toIsoString(resultInterval.getEndTime()));
+    result = repetitiveInterval2.getInterval(timePoint4);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150825T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
 
     double timePoint5 = fromIsoString("20151025T060000");
 
-    resultInterval = repetitiveInterval2.getInterval(timePoint5, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20151025T050000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20151025T100000", toIsoString(resultInterval.getEndTime()));
+    result = repetitiveInterval2.getInterval(timePoint5);
+    assertEquals(true, result.isPositive);
+    assertEquals("20151025T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20151025T100000", toIsoString(result.interval.getEndTime()));
 
     double timePoint6 = fromIsoString("20151226T050000");
 
-    repetitiveInterval2.getInterval(timePoint6, isPositive);
-    assertEquals(false, isPositive[0]);
+    result = repetitiveInterval2.getInterval(timePoint6);
+    assertEquals(false, result.isPositive);
 
     double timePoint7 = fromIsoString("20151225T040000");
 
-    repetitiveInterval2.getInterval(timePoint7, isPositive);
-    assertEquals(false, isPositive[0]);
+    result = repetitiveInterval2.getInterval(timePoint7);
+    assertEquals(false, result.isPositive);
 
     ///////////////////////////////////////////// With the repeat unit YEAR.
 
@@ -141,28 +140,28 @@ public class TestRepetitiveInterval {
 
     double timePoint8 = fromIsoString("20150825T050000");
 
-    resultInterval = repetitiveInterval3.getInterval(timePoint8, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150825T050000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150825T100000", toIsoString(resultInterval.getEndTime()));
+    result = repetitiveInterval3.getInterval(timePoint8);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150825T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
 
     double timePoint9 = fromIsoString("20180825T060000");
 
-    resultInterval = repetitiveInterval3.getInterval(timePoint9, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20180825T050000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20180825T100000", toIsoString(resultInterval.getEndTime()));
+    result = repetitiveInterval3.getInterval(timePoint9);
+    assertEquals(true, result.isPositive);
+    assertEquals("20180825T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20180825T100000", toIsoString(result.interval.getEndTime()));
 
     double timePoint10 = fromIsoString("20180826T050000");
-    repetitiveInterval3.getInterval(timePoint10, isPositive);
-    assertEquals(false, isPositive[0]);
+    result = repetitiveInterval3.getInterval(timePoint10);
+    assertEquals(false, result.isPositive);
 
     double timePoint11 = fromIsoString("20210825T040000");
-    repetitiveInterval3.getInterval(timePoint11, isPositive);
-    assertEquals(false, isPositive[0]);
+    result = repetitiveInterval3.getInterval(timePoint11);
+    assertEquals(false, result.isPositive);
 
     double timePoint12 = fromIsoString("20300825T040000");
-    repetitiveInterval3.getInterval(timePoint12, isPositive);
-    assertEquals(false, isPositive[0]);
+    result = repetitiveInterval3.getInterval(timePoint12);
+    assertEquals(false, result.isPositive);
   }
 }

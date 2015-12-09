@@ -52,6 +52,17 @@ public class RepetitiveInterval implements Comparable {
     private final int type_;
   }
 
+  public static class Result {
+    public Result(boolean isPositive, Interval interval)
+    {
+      this.isPositive = isPositive;
+      this.interval = interval;
+    }
+
+    public boolean isPositive;
+    public Interval interval;
+  }
+
   /**
    * Create a default RepetitiveInterval with one day duration, non-repeating.
    */
@@ -155,14 +166,15 @@ public class RepetitiveInterval implements Comparable {
    * covering the time point, this returns false for isPositive and returns a
    * negative interval.
    * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
-   * @param isPositive Set isPositive[0] true if the returned interval is
-   * positive, false if negative.
-   * @return The interval covering the time point, or a negative interval if not
-   * found.
+   * @return An object with fields (isPositive, interval) where isPositive is
+   * true if the returned interval is positive or false if negative, and
+   * interval is the Interval covering the time point or a negative interval if
+   * not found.
    */
-  public final Interval
-  getInterval(double timePoint, boolean[] isPositive)
+  public final Result
+  getInterval(double timePoint)
   {
+    boolean isPositive;
     double startTime;
     double endTime;
 
@@ -170,7 +182,7 @@ public class RepetitiveInterval implements Comparable {
       // There is no interval on the date of timePoint.
       startTime = toDateOnlyMilliseconds(timePoint);
       endTime = toDateOnlyMilliseconds(timePoint) + 24 * MILLISECONDS_IN_HOUR;
-      isPositive[0] = false;
+      isPositive = false;
     }
     else {
       // There is an interval on the date of timePoint.
@@ -183,18 +195,18 @@ public class RepetitiveInterval implements Comparable {
       if (timePoint < startTime) {
         endTime = startTime;
         startTime = toDateOnlyMilliseconds(timePoint);
-        isPositive[0] = false;
+        isPositive = false;
       }
       else if (timePoint > endTime) {
         startTime = endTime;
         endTime = toDateOnlyMilliseconds(timePoint) + MILLISECONDS_IN_DAY;
-        isPositive[0] = false;
+        isPositive = false;
       }
       else
-        isPositive[0] = true;
+        isPositive = true;
     }
 
-    return new Interval(startTime, endTime);
+    return new Result(isPositive, new Interval(startTime, endTime));
   }
 
   /**
