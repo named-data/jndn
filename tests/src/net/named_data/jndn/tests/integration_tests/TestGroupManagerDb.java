@@ -146,7 +146,7 @@ public class TestGroupManagerDb {
   {
     Blob scheduleBlob = new Blob(SCHEDULE, false);
 
-    // Create schedule.
+    // Create a schedule.
     Schedule schedule = new Schedule();
     try {
       schedule.wireDecode(scheduleBlob);
@@ -155,7 +155,7 @@ public class TestGroupManagerDb {
       fail("Error decoding Schedule: " + ex.getMessage());
     }
 
-    // Create member.
+    // Create a member.
     RsaKeyParams params = new RsaKeyParams();
     DecryptKey decryptKey;
     EncryptKey encryptKey;
@@ -239,7 +239,7 @@ public class TestGroupManagerDb {
     assertEquals(true, database.hasMember(new Name("/ndn/BoyB")));
     assertEquals(false, database.hasMember(new Name("/ndn/BoyC")));
 
-    // Get schedule.
+    // Get a schedule.
     Schedule scheduleResult = database.getSchedule("work-time");
     assertTrue(scheduleResult.wireEncode().equals(scheduleBlob));
 
@@ -276,14 +276,14 @@ public class TestGroupManagerDb {
     assertTrue(members.contains(new Name("/ndn/BoyA")));
     assertTrue(members.contains(new Name("/ndn/BoyB")));
 
-    // Rename schedule.
+    // Rename a schedule.
     assertEquals(true, database.hasSchedule("boelter-time"));
     database.renameSchedule("boelter-time", "rieber-time");
     assertEquals(false, database.hasSchedule("boelter-time"));
     assertEquals(true, database.hasSchedule("rieber-time"));
     assertEquals("rieber-time", database.getMemberSchedule(new Name("/ndn/Hello")));
 
-    // Update schedule.
+    // Update a schedule.
     Schedule newSchedule = new Schedule();
     try {
       newSchedule.wireDecode(scheduleBlob);
@@ -309,7 +309,7 @@ public class TestGroupManagerDb {
     database.updateMemberSchedule(new Name("/ndn/Hello"), "play-time");
     assertEquals("play-time", database.getMemberSchedule(new Name("/ndn/Hello")));
 
-    // Delete member.
+    // Delete a member.
     assertEquals(true, database.hasMember(new Name("/ndn/Hello")));
     database.deleteMember(new Name("/ndn/Hello"));
     assertEquals(false, database.hasMember(new Name("/ndn/Hello")));
