@@ -154,7 +154,7 @@ public abstract class GroupManagerDb {
    * @param identity The member's identity name.
    * @return The name of the schedule.
    * @throws GroupManagerDb.Error if there's no member with the given identity
-   * name in the database.
+   * name in the database, or other database error.
    */
   public abstract String
   getMemberSchedule(Name identity) throws GroupManagerDb.Error;
@@ -176,7 +176,8 @@ public abstract class GroupManagerDb {
    * @param identity The member's identity name.
    * @param scheduleName The new schedule name.
    * @throws GroupManagerDb.Error if there's no member with the given identity
-   * name in the database, or there's no schedule named scheduleName.
+   * name in the database, or there's no schedule named scheduleName, or other
+   * database error.
    */
   public abstract void
   updateMemberSchedule(Name identity, String scheduleName) throws GroupManagerDb.Error;

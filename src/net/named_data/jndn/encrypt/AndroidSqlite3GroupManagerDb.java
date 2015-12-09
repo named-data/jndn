@@ -319,7 +319,7 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
    * @param identity The member's identity name.
    * @return The name of the schedule.
    * @throws GroupManagerDb.Error if there's no member with the given identity
-   * name in the database.
+   * name in the database, or other database error.
    */
   public String
   getMemberSchedule(Name identity) throws GroupManagerDb.Error
@@ -357,7 +357,7 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
     if (scheduleId == -1)
       throw new GroupManagerDb.Error("The schedule dose not exist");
 
-    // Need to be changed in the future.
+    // Needs to be changed in the future.
     Name memberName = keyName.getPrefix(-1);
 
     ContentValues values = new ContentValues();
@@ -378,7 +378,8 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
    * @param identity The member's identity name.
    * @param scheduleName The new schedule name.
    * @throws GroupManagerDb.Error if there's no member with the given identity
-   * name in the database, or there's no schedule named scheduleName.
+   * name in the database, or there's no schedule named scheduleName, or other
+   * database error.
    */
   public void
   updateMemberSchedule(Name identity, String scheduleName) throws GroupManagerDb.Error
