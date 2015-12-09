@@ -60,52 +60,51 @@ public class TestSchedule {
     schedule.addWhiteInterval(interval4);
     schedule.addBlackInterval(interval3);
 
-    Interval resultInterval;
-    boolean[] isPositive = { false };
+    Schedule.Result result;
 
     // timePoint1 --> positive 8.25 4-10
     double timePoint1 = fromIsoString("20150825T063000");
-    resultInterval = schedule.getCoveringInterval(timePoint1, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150825T040000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150825T100000", toIsoString(resultInterval.getEndTime()));
+    result = schedule.getCoveringInterval(timePoint1);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150825T040000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
 
     // timePoint2 --> positive 8.26 6-8
     double timePoint2 = fromIsoString("20150826T073000");
-    resultInterval = schedule.getCoveringInterval(timePoint2, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150826T060000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150826T080000", toIsoString(resultInterval.getEndTime()));
+    result = schedule.getCoveringInterval(timePoint2);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150826T060000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150826T080000", toIsoString(result.interval.getEndTime()));
 
     // timePoint3 --> positive 8.27 5-7
     double timePoint3 = fromIsoString("20150827T053000");
-    resultInterval = schedule.getCoveringInterval(timePoint3, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150827T050000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150827T070000", toIsoString(resultInterval.getEndTime()));
+    result = schedule.getCoveringInterval(timePoint3);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150827T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150827T070000", toIsoString(result.interval.getEndTime()));
 
     // timePoint4 --> positive 8.27 5-7
     double timePoint4 = fromIsoString("20150827T063000");
-    resultInterval = schedule.getCoveringInterval(timePoint4, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150827T050000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150827T070000", toIsoString(resultInterval.getEndTime()));
+    result = schedule.getCoveringInterval(timePoint4);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150827T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150827T070000", toIsoString(result.interval.getEndTime()));
 
     // timePoint5 --> negative 8.27 7-8
     double timePoint5 = fromIsoString("20150827T073000");
-    resultInterval = schedule.getCoveringInterval(timePoint5, isPositive);
-    assertEquals(false, isPositive[0]);
-    assertEquals(false, resultInterval.isEmpty());
-    assertEquals("20150827T070000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150827T080000", toIsoString(resultInterval.getEndTime()));
+    result = schedule.getCoveringInterval(timePoint5);
+    assertEquals(false, result.isPositive);
+    assertEquals(false, result.interval.isEmpty());
+    assertEquals("20150827T070000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150827T080000", toIsoString(result.interval.getEndTime()));
 
     // timePoint6 --> negative 8.25 10-24
     double timePoint6 = fromIsoString("20150825T113000");
-    resultInterval = schedule.getCoveringInterval(timePoint6, isPositive);
-    assertEquals(false, isPositive[0]);
-    assertEquals(false, resultInterval.isEmpty());
-    assertEquals("20150825T100000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150826T000000", toIsoString(resultInterval.getEndTime()));
+    result = schedule.getCoveringInterval(timePoint6);
+    assertEquals(false, result.isPositive);
+    assertEquals(false, result.interval.isEmpty());
+    assertEquals("20150825T100000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150826T000000", toIsoString(result.interval.getEndTime()));
   }
 
   // Convert the int array to a ByteBuffer.
@@ -218,21 +217,21 @@ public class TestSchedule {
     } catch (EncodingException ex) {
       fail("Error decoding Schedule: " + ex.getMessage());
     }
-    Interval resultInterval;
-    boolean[] isPositive = { false };
+
+    Schedule.Result result;
 
     // timePoint1 --> positive 8.25 4-10
     double timePoint1 = fromIsoString("20150825T063000");
-    resultInterval = schedule.getCoveringInterval(timePoint1, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150825T040000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150825T100000", toIsoString(resultInterval.getEndTime()));
+    result = schedule.getCoveringInterval(timePoint1);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150825T040000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
 
     // timePoint2 --> positive 8.26 6-8
     double timePoint2 = fromIsoString("20150826T073000");
-    resultInterval = schedule.getCoveringInterval(timePoint2, isPositive);
-    assertEquals(true, isPositive[0]);
-    assertEquals("20150826T060000", toIsoString(resultInterval.getStartTime()));
-    assertEquals("20150826T080000", toIsoString(resultInterval.getEndTime()));
+    result = schedule.getCoveringInterval(timePoint2);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150826T060000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150826T080000", toIsoString(result.interval.getEndTime()));
   }
 }

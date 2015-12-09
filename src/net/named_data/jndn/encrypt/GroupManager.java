@@ -227,7 +227,6 @@ public class GroupManager {
     // Prepare.
     Interval positiveResult = new Interval();
     Interval negativeResult = new Interval();
-    boolean[] isPositive = { false };
     memberKeys.clear();
 
     // Get the all intervals from the schedules.
@@ -236,9 +235,10 @@ public class GroupManager {
       String scheduleName = (String)scheduleNames.get(i);
 
       Schedule schedule = database_.getSchedule(scheduleName);
-      Interval tempInterval = schedule.getCoveringInterval(timeSlot, isPositive);
+      Schedule.Result result = schedule.getCoveringInterval(timeSlot);
+      Interval tempInterval = result.interval;
 
-      if (isPositive[0]) {
+      if (result.isPositive) {
         if (!positiveResult.isValid())
           positiveResult = tempInterval;
         positiveResult.intersectWith(tempInterval);

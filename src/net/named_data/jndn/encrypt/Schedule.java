@@ -41,6 +41,17 @@ import net.named_data.jndn.util.Blob;
  * @note This class is an experimental feature. The API may change.
  */
 public class Schedule {
+  public static class Result {
+    public Result(boolean isPositive, Interval interval)
+    {
+      this.isPositive = isPositive;
+      this.interval = interval;
+    }
+
+    public boolean isPositive;
+    public Interval interval;
+  }
+
   /**
    * Create a Schedule with empty whiteIntervalList and blackIntervalList.
    */
@@ -93,13 +104,13 @@ public class Schedule {
    * member to access the data. If there is no interval covering the time point,
    * this returns false for isPositive and returns a negative interval.
    * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
-   * @param isPositive Set isPositive[0] true if the returned interval is
-   * positive, false if negative.
-   * @return The interval covering the time point, or a negative interval if not
-   * found.
+   * @return An object with fields (isPositive, interval) where isPositive is
+   * true if the returned interval is positive or false if negative, and
+   * interval is the Interval covering the time point, or a negative interval if
+   * not found.
    */
-  public final Interval
-  getCoveringInterval(double timePoint, boolean[] isPositive)
+  public final Result
+  getCoveringInterval(double timePoint)
   {
     Interval blackPositiveResult = new Interval(true);
     Interval whitePositiveResult = new Interval(true);
@@ -141,10 +152,8 @@ public class Schedule {
     }
 
     // If the black positive result is not full, then isPositive must be false.
-    if (!blackPositiveResult.isEmpty()) {
-      isPositive[0] = false;
-      return blackPositiveResult;
-    }
+    if (!blackPositiveResult.isEmpty())
+      return new Result(false, blackPositiveResult);
 
     // Get the whiteResult.
     for (Iterator i = whiteIntervalList_.iterator(); i.hasNext(); ) {
@@ -181,14 +190,11 @@ public class Schedule {
 
     // If the positive result is empty then return false for isPositive. If it
     // is not empty then return true for isPositive.
-    if (!whitePositiveResult.isEmpty()) {
-      isPositive[0] = true;
-      return whitePositiveResult.intersectWith(blackNegativeResult);
-    }
-    else {
-      isPositive[0] = false;
-      return whiteNegativeResult;
-    }
+    if (!whitePositiveResult.isEmpty())
+      return new Result
+        (true, whitePositiveResult.intersectWith(blackNegativeResult));
+    else
+      return new Result(false, whiteNegativeResult);
   }
 
   /**
