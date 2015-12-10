@@ -54,7 +54,8 @@ public class GroupManager {
    * @param database The GroupManagerDb for storing the group management
    * information (including user public keys and schedules).
    * @param keySize The group key will be an RSA key with keySize bits.
-   * @param freshnessHours The FreshnessPeriod of data packets carrying the keys
+   * @param freshnessHours The number of hours of the freshness period of data
+   *   packets carrying the keys.
    * @param keyChain The KeyChain to use for signing data packets. This signs
    * with the default identity.
    */
@@ -79,7 +80,7 @@ public class GroupManager {
    * @return A List of Data packets where the first is the E-KEY data packet
    * with the group's public key and the rest are the D-KEY data packets with
    * the group's private key encrypted with the public key of each eligible
-   * member.
+   * member. (Use List without generics so it works with older Java compilers.)
    * @throws GroupManagerDb.Error for a database error.
    * @throws SecurityException for an error using the security KeyChain.
    */
