@@ -69,13 +69,23 @@ public class Consumer {
   }
 
   public enum ErrorCode {
-    Timeout,
-    Validation,
-    UnsupportedEncryptionScheme,
-    InvalidEncryptedFormat,
-    NoDecryptKey,
-    SecurityException,
-    IOException
+    Timeout(1),
+    Validation(2),
+    UnsupportedEncryptionScheme(32),
+    InvalidEncryptedFormat(33),
+    NoDecryptKey(34),
+    SecurityException(100),
+    IOException(102);
+
+    ErrorCode (int type)
+    {
+      type_ = type;
+    }
+
+    public final int
+    getNumericType() { return type_; }
+
+    private final int type_;
   }
 
   public interface OnConsumeComplete {
