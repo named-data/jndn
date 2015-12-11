@@ -23,7 +23,7 @@ package net.named_data.jndn.encrypt;
 /**
  * Sqlite3ProducerDbBase is an abstract base class the storage of keys for the
  * producer. It contains one table that maps time slots (to the nearest hour) to
- * the content key created for that time slot. A subclass must implement the 
+ * the content key created for that time slot. A subclass must implement the
  * methods. For example, see Sqlite3ProducerDb. This base class has protected
  * SQL strings and helpers so the subclasses can work with similar tables using
  * their own SQLite libraries.

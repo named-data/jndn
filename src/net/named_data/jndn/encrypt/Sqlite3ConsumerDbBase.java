@@ -21,7 +21,7 @@
 package net.named_data.jndn.encrypt;
 
 /**
- * Sqlite3ConsumerDbBase is a base class the storage of decryption keys for the 
+ * Sqlite3ConsumerDbBase is a base class the storage of decryption keys for the
  * consumer. A subclass must implement the methods. For example, see
  * Sqlite3ConsumerDb. This base class has protected SQL strings and helpers so
  * the subclasses can work with similar tables using their own SQLite libraries.

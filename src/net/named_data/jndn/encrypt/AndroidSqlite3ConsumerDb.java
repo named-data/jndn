@@ -121,7 +121,7 @@ public class AndroidSqlite3ConsumerDb extends Sqlite3ConsumerDbBase {
   deleteKey(Name keyName) throws ConsumerDb.Error
   {
     database_.execSQL
-      (DELETE_deleteKey, 
+      (DELETE_deleteKey,
        new Object[] { keyName.wireEncode(TlvWireFormat.get()).getImmutableArray() });
   }
 

@@ -437,7 +437,7 @@ public class Producer {
       throw new SecurityException
         ("encryptContentKey: Error in encryptData: " + ex.getMessage());
     }
-    
+
     // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
     try {
       Name certificateName = keyChain_.getAnyCertificate

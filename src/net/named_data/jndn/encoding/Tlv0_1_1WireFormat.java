@@ -644,7 +644,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       (Tlv.Encrypt_InitialVector, encryptedContent.getInitialVector().buf());
     // Assume the algorithmType value is the same as the TLV type.
     encoder.writeNonNegativeIntegerTlv
-      (Tlv.Encrypt_EncryptionAlgorithm, 
+      (Tlv.Encrypt_EncryptionAlgorithm,
        encryptedContent.getAlgorithmType().getNumericType());
     Tlv0_1_1WireFormat.encodeKeyLocator
       (Tlv.KeyLocator, encryptedContent.getKeyLocator(), encoder);
