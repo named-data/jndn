@@ -302,7 +302,7 @@ public class Consumer {
     if (cKey != null)
       decrypt(dataEncryptedContent, cKey, onPlainText, onError);
     else {
-      // Retrieve the C-KEY Data from network.
+      // Retrieve the C-KEY Data from the network.
       Name interestName = new Name(cKeyName);
       interestName.append(Encryptor.NAME_COMPONENT_FOR).append(groupName_);
       final Interest interest = new Interest(interestName);
@@ -478,7 +478,7 @@ public class Consumer {
   private void
   decryptDKey(Data dKeyData, OnPlainText onPlainText, final OnError onError)
   {
-    // Get encrypted content.
+    // Get the encrypted content.
     Blob dataContent = dKeyData.getContent();
 
     // Process the nonce.
