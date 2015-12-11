@@ -233,7 +233,7 @@ public class TestGroupConsumer implements Consumer.Friend {
     fixtureUEKeyBlob = RsaAlgorithm.deriveEncryptKey(fixtureUDKeyBlob).getKeyBits();
 
     // Load the C-KEY.
-    fixtureCKeyBlob = new Blob(AES_KEY,false);
+    fixtureCKeyBlob = new Blob(AES_KEY, false);
 
     // Set up the key chain.
     MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
@@ -325,7 +325,7 @@ public class TestGroupConsumer implements Consumer.Friend {
       InvalidAlgorithmParameterException, InvalidKeySpecException, SecurityException
   {
     // Generate the AES key.
-    final Blob aesKeyBuf = new Blob(AES_KEY, false);
+    final Blob aesKeyBlob = new Blob(AES_KEY, false);
 
     // Generate the C-KEY packet for the same AES_KEY.
     Data cKeyData = createEncryptedCKey();
@@ -337,7 +337,7 @@ public class TestGroupConsumer implements Consumer.Friend {
       (cKeyData.getContent(), fixtureDKeyBlob,
        new Consumer.OnPlainText() {
          public void onPlainText(Blob result) {
-           assertTrue(result.equals(aesKeyBuf));
+           assertTrue(result.equals(aesKeyBlob));
          }
        },
        new Consumer.OnError() {
