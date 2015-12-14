@@ -67,24 +67,28 @@ public class TlvDecoder {
    * @param firstOctet The first octet which is >= 253, used to decode the
    * remaining bytes.
    * @return The decoded VAR-NUMBER as a Java 32-bit int.
-   * @throws EncodingException if the VAR-NUMBER is 64-bit.
-   * @throws BufferUnderflowException if read past the end of the input.
+   * @throws EncodingException if the VAR-NUMBER is 64-bit or read past the end 
+   * of the input.
    */
   public final int
   readExtendedVarNumber(int firstOctet) throws EncodingException
   {
-    if (firstOctet == 253)
-      return (((int)input_.get() & 0xff) << 8) +
-              ((int)input_.get() & 0xff);
-    else if (firstOctet == 254)
-      return (((int)input_.get() & 0xff) << 24) +
-             (((int)input_.get() & 0xff) << 16) +
-             (((int)input_.get() & 0xff) << 8) +
-              ((int)input_.get() & 0xff);
-    else
-      // We are returning a 32-bit int, so can't handle 64-bit.
-      throw new EncodingException
-        ("Decoding a 64-bit VAR-NUMBER is not supported");
+    try {
+      if (firstOctet == 253)
+        return (((int)input_.get() & 0xff) << 8) +
+                ((int)input_.get() & 0xff);
+      else if (firstOctet == 254)
+        return (((int)input_.get() & 0xff) << 24) +
+               (((int)input_.get() & 0xff) << 16) +
+               (((int)input_.get() & 0xff) << 8) +
+                ((int)input_.get() & 0xff);
+      else
+        // we are returning a 32-bit int, so can't handle 64-bit.
+        throw new EncodingException
+          ("Decoding a 64-bit VAR-NUMBER is not supported");
+    } catch (BufferUnderflowException ex) {
+      throw new EncodingException("Read past the end of the input");
+    }
   }
 
   /**
