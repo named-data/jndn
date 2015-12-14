@@ -50,6 +50,7 @@
       <exclude name="net/named_data/jndn/encoding/ProtobufTlv.java" unless="${protobuf.available}"/>
       <!-- Assume that an Android project does not use Ant. -->
       <exclude name="net/named_data/jndn/security/identity/AndroidSqlite3IdentityStorage.java"/>
+      <exclude name="net/named_data/jndn/encrypt/AndroidSqlite3*.java"/>
       <classpath refid="classpath.lib"/>
     </javac>
   </target>
