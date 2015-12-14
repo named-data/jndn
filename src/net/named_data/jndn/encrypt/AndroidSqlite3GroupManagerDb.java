@@ -355,7 +355,7 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
   {
     int scheduleId = getScheduleId(scheduleName);
     if (scheduleId == -1)
-      throw new GroupManagerDb.Error("The schedule dose not exist");
+      throw new GroupManagerDb.Error("The schedule does not exist");
 
     // Needs to be changed in the future.
     Name memberName = keyName.getPrefix(-1);
@@ -387,7 +387,7 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
     int scheduleId = getScheduleId(scheduleName);
     if (scheduleId == -1)
       throw new GroupManagerDb.Error
-        ("Sqlite3GroupManagerDb.updateMemberSchedule: The schedule dose not exist");
+        ("Sqlite3GroupManagerDb.updateMemberSchedule: The schedule does not exist");
 
     // Use a statement because it allows binding a blob for the where clause.
     SQLiteStatement statement = database_.compileStatement
