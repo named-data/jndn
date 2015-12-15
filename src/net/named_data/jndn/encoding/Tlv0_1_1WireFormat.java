@@ -64,7 +64,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
 
   /**
-   * Decode input as a name in NDN-TLV and set the fields of the interest object.
+   * Decode input as a name in NDN-TLV and set the fields of the Name object.
    * @param name The Name object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.
