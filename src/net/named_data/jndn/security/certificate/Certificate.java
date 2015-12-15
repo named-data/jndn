@@ -276,7 +276,7 @@ public class Certificate extends Data {
     s += "Validity:\n";
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     String notBeforeStr = dateFormat.format(new Date((long)Math.round(notBefore_)));
     String notAfterStr = dateFormat.format(new Date((long)Math.round(notAfter_)));
 

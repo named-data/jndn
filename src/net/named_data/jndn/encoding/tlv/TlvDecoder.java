@@ -20,6 +20,7 @@
 package net.named_data.jndn.encoding.tlv;
 
 import java.nio.ByteBuffer;
+import java.nio.BufferUnderflowException;
 import net.named_data.jndn.encoding.EncodingException;
 
 /**
@@ -43,16 +44,21 @@ public class TlvDecoder {
    * Decode a VAR-NUMBER in NDN-TLV and return it. Update the input buffer
    * position.
    * @return The decoded VAR-NUMBER as a Java 32-bit int.
-   * @throws EncodingException if the VAR-NUMBER is 64-bit.
+   * @throws EncodingException if the VAR-NUMBER is 64-bit or read past the end
+   * of the input.
    */
   public final int
   readVarNumber() throws EncodingException
   {
-    int firstOctet = (int)input_.get() & 0xff;
-    if (firstOctet < 253)
-      return firstOctet;
-    else
-      return readExtendedVarNumber(firstOctet);
+    try {
+      int firstOctet = (int)input_.get() & 0xff;
+      if (firstOctet < 253)
+        return firstOctet;
+      else
+        return readExtendedVarNumber(firstOctet);
+    } catch (BufferUnderflowException ex) {
+      throw new EncodingException("Read past the end of the input");
+    }
   }
 
   /**
@@ -61,23 +67,28 @@ public class TlvDecoder {
    * @param firstOctet The first octet which is >= 253, used to decode the
    * remaining bytes.
    * @return The decoded VAR-NUMBER as a Java 32-bit int.
-   * @throws EncodingException if the VAR-NUMBER is 64-bit.
+   * @throws EncodingException if the VAR-NUMBER is 64-bit or read past the end 
+   * of the input.
    */
   public final int
   readExtendedVarNumber(int firstOctet) throws EncodingException
   {
-    if (firstOctet == 253)
-      return (((int)input_.get() & 0xff) << 8) +
-              ((int)input_.get() & 0xff);
-    else if (firstOctet == 254)
-      return (((int)input_.get() & 0xff) << 24) +
-             (((int)input_.get() & 0xff) << 16) +
-             (((int)input_.get() & 0xff) << 8) +
-              ((int)input_.get() & 0xff);
-    else
-      // We are returning a 32-bit int, so can't handle 64-bit.
-      throw new EncodingException
-        ("Decoding a 64-bit VAR-NUMBER is not supported");
+    try {
+      if (firstOctet == 253)
+        return (((int)input_.get() & 0xff) << 8) +
+                ((int)input_.get() & 0xff);
+      else if (firstOctet == 254)
+        return (((int)input_.get() & 0xff) << 24) +
+               (((int)input_.get() & 0xff) << 16) +
+               (((int)input_.get() & 0xff) << 8) +
+                ((int)input_.get() & 0xff);
+      else
+        // we are returning a 32-bit int, so can't handle 64-bit.
+        throw new EncodingException
+          ("Decoding a 64-bit VAR-NUMBER is not supported");
+    } catch (BufferUnderflowException ex) {
+      throw new EncodingException("Read past the end of the input");
+    }
   }
 
   /**
@@ -194,32 +205,36 @@ public class TlvDecoder {
    * @param length The number of bytes in the encoded integer.
    * @return The integer as a Java 64-bit long.
    * @throws EncodingException if length is an invalid length for a TLV
-   * non-negative integer.
+   * non-negative integer or read past the end of the input.
    */
   public final long
   readNonNegativeInteger(int length) throws EncodingException
   {
-    if (length == 1)
-      return (long)input_.get() & 0xff;
-    else if (length == 2)
-       return (((long)input_.get() & 0xff) << 8) +
-               ((long)input_.get() & 0xff);
-    else if (length == 4)
-       return (((long)input_.get() & 0xff) << 24) +
-              (((long)input_.get() & 0xff) << 16) +
-              (((long)input_.get() & 0xff) << 8) +
-               ((long)input_.get() & 0xff);
-    else if (length == 8)
-       return (((long)input_.get() & 0xff) << 56) +
-              (((long)input_.get() & 0xff) << 48) +
-              (((long)input_.get() & 0xff) << 40) +
-              (((long)input_.get() & 0xff) << 32) +
-              (((long)input_.get() & 0xff) << 24) +
-              (((long)input_.get() & 0xff) << 16) +
-              (((long)input_.get() & 0xff) << 8) +
-               ((long)input_.get() & 0xff);
-    else
-      throw new EncodingException("Invalid length for a TLV nonNegativeInteger");
+    try {
+      if (length == 1)
+        return (long)input_.get() & 0xff;
+      else if (length == 2)
+         return (((long)input_.get() & 0xff) << 8) +
+                 ((long)input_.get() & 0xff);
+      else if (length == 4)
+         return (((long)input_.get() & 0xff) << 24) +
+                (((long)input_.get() & 0xff) << 16) +
+                (((long)input_.get() & 0xff) << 8) +
+                 ((long)input_.get() & 0xff);
+      else if (length == 8)
+         return (((long)input_.get() & 0xff) << 56) +
+                (((long)input_.get() & 0xff) << 48) +
+                (((long)input_.get() & 0xff) << 40) +
+                (((long)input_.get() & 0xff) << 32) +
+                (((long)input_.get() & 0xff) << 24) +
+                (((long)input_.get() & 0xff) << 16) +
+                (((long)input_.get() & 0xff) << 8) +
+                 ((long)input_.get() & 0xff);
+      else
+        throw new EncodingException("Invalid length for a TLV nonNegativeInteger");
+    } catch (BufferUnderflowException ex) {
+      throw new EncodingException("Read past the end of the input");
+    }
   }
 
   /**

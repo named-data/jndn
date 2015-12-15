@@ -1,7 +1,9 @@
-Interim changes since jNDN v0.8 (2015-11-18)
+Interim changes since jNDN v0.8 (2015-12-14)
 --------------------------------------------
 
 Changes
+* Added the net.named_data.jndn.encrypt package for the Group-Based Encryption Protocol, ported from
+  https://github.com/named-data/ndn-group-encrypt
 * Added classes Link and DelegationSet to support link objects.
 * In Interest, added methods to support link objects and SelectedDelegation:
   hasLink, getLink, unsetLink, get/setLinkWireEncoding get/setSelectedDelegationIndex.

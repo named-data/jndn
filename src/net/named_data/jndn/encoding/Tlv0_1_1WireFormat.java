@@ -42,6 +42,8 @@ import net.named_data.jndn.SignatureHolder;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
+import net.named_data.jndn.encrypt.EncryptedContent;
+import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -63,7 +65,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
 
   /**
-   * Decode input as a name in NDN-TLV and set the fields of the interest object.
+   * Decode input as a name in NDN-TLV and set the fields of the Name object.
    * @param name The Name object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.
@@ -621,6 +623,79 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       // index will work.
       delegationSet.addUnsorted(preference, name);
     }
+  }
+
+  /**
+   * Encode the EncryptedContent in NDN-TLV and return the encoding.
+   * @param encryptedContent The EncryptedContent object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeEncryptedContent(EncryptedContent encryptedContent)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    encoder.writeBlobTlv
+      (Tlv.Encrypt_EncryptedPayload, encryptedContent.getPayload().buf());
+    encoder.writeOptionalBlobTlv
+      (Tlv.Encrypt_InitialVector, encryptedContent.getInitialVector().buf());
+    // Assume the algorithmType value is the same as the TLV type.
+    encoder.writeNonNegativeIntegerTlv
+      (Tlv.Encrypt_EncryptionAlgorithm,
+       encryptedContent.getAlgorithmType().getNumericType());
+    Tlv0_1_1WireFormat.encodeKeyLocator
+      (Tlv.KeyLocator, encryptedContent.getKeyLocator(), encoder);
+
+    encoder.writeTypeAndLength
+      (Tlv.Encrypt_EncryptedContent, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as a EncryptedContent in NDN-TLV and set the fields of the
+   * localControlHeader object.
+   * @param encryptedContent The EncryptedContent object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding
+   */
+  public void
+  decodeEncryptedContent
+    (EncryptedContent encryptedContent, ByteBuffer input)
+    throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = decoder.readNestedTlvsStart
+      (Tlv.Encrypt_EncryptedContent);
+
+    Tlv0_1_1WireFormat.decodeKeyLocator
+      (Tlv.KeyLocator, encryptedContent.getKeyLocator(), decoder);
+
+    int algorithmType = (int)decoder.readNonNegativeIntegerTlv
+       (Tlv.Encrypt_EncryptionAlgorithm);
+    if (algorithmType == EncryptAlgorithmType.AesEcb.getNumericType())
+      encryptedContent.setAlgorithmType(EncryptAlgorithmType.AesEcb);
+    else if (algorithmType == EncryptAlgorithmType.AesCbc.getNumericType())
+      encryptedContent.setAlgorithmType(EncryptAlgorithmType.AesCbc);
+    else if (algorithmType == EncryptAlgorithmType.RsaPkcs.getNumericType())
+      encryptedContent.setAlgorithmType(EncryptAlgorithmType.RsaPkcs);
+    else if (algorithmType == EncryptAlgorithmType.RsaOaep.getNumericType())
+      encryptedContent.setAlgorithmType(EncryptAlgorithmType.RsaOaep);
+    else
+      throw new EncodingException
+        ("Unrecognized EncryptionAlgorithm code " + algorithmType);
+
+    encryptedContent.setInitialVector
+      (new Blob(decoder.readOptionalBlobTlv
+        (Tlv.Encrypt_InitialVector, endOffset), true));
+    encryptedContent.setPayload
+      (new Blob(decoder.readBlobTlv(Tlv.Encrypt_EncryptedPayload), true));
+
+    decoder.finishNestedTlvs(endOffset);
   }
 
   /**

@@ -93,4 +93,23 @@ public class Tlv {
 
   public static final int Link_Preference = 30;
   public static final int Link_Delegation = 31;
+
+  public static final int Encrypt_EncryptedContent = 130;
+  public static final int Encrypt_EncryptionAlgorithm = 131;
+  public static final int Encrypt_EncryptedPayload = 132;
+  public static final int Encrypt_InitialVector = 133;
+
+  // For RepetitiveInterval.
+  public static final int Encrypt_StartDate = 134;
+  public static final int Encrypt_EndDate = 135;
+  public static final int Encrypt_IntervalStartHour = 136;
+  public static final int Encrypt_IntervalEndHour = 137;
+  public static final int Encrypt_NRepeats = 138;
+  public static final int Encrypt_RepeatUnit = 139;
+  public static final int Encrypt_RepetitiveInterval = 140;
+
+  // For Schedule.
+  public static final int Encrypt_WhiteIntervalList = 141;
+  public static final int Encrypt_BlackIntervalList = 142;
+  public static final int Encrypt_Schedule = 143;
 }

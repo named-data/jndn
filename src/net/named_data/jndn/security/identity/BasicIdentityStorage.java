@@ -90,8 +90,10 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
           idTableExists = true;
         result.close();
 
-        if (!idTableExists)
-          statement.executeUpdate(INIT_ID_TABLE);
+        if (!idTableExists) {
+          statement.executeUpdate(INIT_ID_TABLE1);
+          statement.executeUpdate(INIT_ID_TABLE2);
+        }
 
         //Check if the Key table exists.
         result = statement.executeQuery(SELECT_MASTER_KEY_TABLE);
@@ -100,8 +102,10 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
           idTableExists = true;
         result.close();
 
-        if (!idTableExists)
-          statement.executeUpdate(INIT_KEY_TABLE);
+        if (!idTableExists) {
+          statement.executeUpdate(INIT_KEY_TABLE1);
+          statement.executeUpdate(INIT_KEY_TABLE2);
+        }
 
         //Check if the Certificate table exists.
         result = statement.executeQuery(SELECT_MASTER_CERT_TABLE);
@@ -110,8 +114,11 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
           idTableExists = true;
         result.close();
 
-        if (!idTableExists)
-          statement.executeUpdate(INIT_CERT_TABLE);
+        if (!idTableExists) {
+          statement.executeUpdate(INIT_CERT_TABLE1);
+          statement.executeUpdate(INIT_CERT_TABLE2);
+          statement.executeUpdate(INIT_CERT_TABLE3);
+        }
       } finally {
         statement.close();
       }

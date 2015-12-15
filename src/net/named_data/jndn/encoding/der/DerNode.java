@@ -232,6 +232,16 @@ public class DerNode {
   }
 
   /**
+   * Get a copy of the payload bytes.
+   * @return A copy of the payload.
+   */
+  public final Blob
+  getPayload()
+  {
+    return new Blob(payload_.flippedBuffer(), true);
+  }
+
+  /**
    * If this object is a DerSequence, get the children of this node. Otherwise,
    * throw an exception. (DerSequence overrides to implement this method.)
    * @return The children as a List of DerNode.
@@ -442,8 +452,7 @@ public class DerNode {
     public Object
     toVal() throws DerDecodingException
     {
-      // Make a copy since payload_ can change.
-      return new Blob(payload_.flippedBuffer(), true);
+      return getPayload();
     }
   }
 
