@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.security.SecureRandom;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
@@ -520,6 +521,11 @@ public class KeyChain {
   {
     IdentityCertificate signingCertificate = 
       identityManager_.getDefaultCertificate();
+    if (signingCertificate == null) {
+      setDefaultCertificate();
+      signingCertificate = identityManager_.getDefaultCertificate();
+    }
+
     Name certificateName = signingCertificate.getName().getPrefix(-1);
     identityManager_.signByCertificate(data, certificateName, wireFormat);
   }
@@ -859,10 +865,10 @@ public class KeyChain {
         onVerifyFailed_.onVerifyFailed(originalData_);
     }
 
-    private ValidationRequest nextStep_;
-    private int retry_;
-    private OnVerifyFailed onVerifyFailed_;
-    private Data originalData_;
+    private final ValidationRequest nextStep_;
+    private final int retry_;
+    private final OnVerifyFailed onVerifyFailed_;
+    private final Data originalData_;
   }
 
   /**
@@ -913,14 +919,37 @@ public class KeyChain {
         onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
     }
 
-    private ValidationRequest nextStep_;
-    private int retry_;
-    private OnVerifyInterestFailed onVerifyFailed_;
-    private Interest originalInterest_;
+    private final ValidationRequest nextStep_;
+    private final int retry_;
+    private final OnVerifyInterestFailed onVerifyFailed_;
+    private final Interest originalInterest_;
   }
 
-  private IdentityManager identityManager_;
-  private PolicyManager policyManager_;
+  /**
+   * Set default certificate if it is not initialized, by creating a tmp-identity.
+   */
+  private void
+  setDefaultCertificate() throws SecurityException
+  {
+    if (identityManager_.getDefaultCertificate() == null) {
+      Name defaultIdentity;
+      try {
+        defaultIdentity = identityManager_.getDefaultIdentity();
+      } catch (SecurityException e) {
+        // Create a default identity name.
+        ByteBuffer randomComponent = ByteBuffer.allocate(4);
+        random_.nextBytes(randomComponent.array());
+        defaultIdentity = new Name().append("tmp-identity")
+          .append(new Blob(randomComponent, false));
+      }
+
+      createIdentityAndCertificate(defaultIdentity);
+      identityManager_.setDefaultIdentity(defaultIdentity);
+    }
+  }
+
+  private final IdentityManager identityManager_;
+  private final PolicyManager policyManager_;
   private Face face_ = null;
-  private int maxSteps_ = 100;
+  private static final SecureRandom random_ = new SecureRandom();
 }
