@@ -509,6 +509,35 @@ public class KeyChain {
   }
 
   /**
+   * Wire encode the Data object, sign it with the default identity and set its
+   * signature.
+   * @param data The Data object to be signed.  This updates its signature and
+   * key locator field and wireEncoding.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
+  public final void
+  sign(Data data, WireFormat wireFormat) throws SecurityException
+  {
+    IdentityCertificate signingCertificate = 
+      identityManager_.getDefaultCertificate();
+    Name certificateName = signingCertificate.getName().getPrefix(-1);
+    identityManager_.signByCertificate(data, certificateName, wireFormat);
+  }
+
+  /**
+   * Wire encode the Data object, sign it with the default identity and set its
+   * signature.
+   * Use the default WireFormat.getDefaultWireFormat()
+   * @param data The Data object to be signed.  This updates its signature and
+   * key locator field and wireEncoding.
+   */
+  public final void
+  sign(Data data) throws SecurityException
+  {
+    sign(data, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
    * Append a SignatureInfo to the Interest name, sign the name components and
    * append a final name component with the signature bits.
    * @param interest The Interest object to be signed. This appends name
