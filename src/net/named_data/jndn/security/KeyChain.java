@@ -926,7 +926,8 @@ public class KeyChain {
   }
 
   /**
-   * Set default certificate if it is not initialized, by creating a tmp-identity.
+   * Create the default certificate if it is not initialized. If there is no
+   * default identity yet, creating a new tmp-identity.
    */
   private void
   setDefaultCertificate() throws SecurityException
