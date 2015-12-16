@@ -220,6 +220,16 @@ public class IdentityManager {
   }
 
   /**
+   * Get the certificate of the default identity.
+   * @return The requested certificate. If not found, return null.
+   */
+  public final IdentityCertificate
+  getDefaultCertificate() throws SecurityException
+  {
+    return identityStorage_.getDefaultCertificate();
+  }
+
+  /**
    * Generate a pair of RSA keys for the specified identity.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
