@@ -236,16 +236,7 @@ public class Producer {
     data.setName(dataName);
     EncryptParams params = new EncryptParams(EncryptAlgorithmType.AesCbc, 16);
     Encryptor.encryptData(data, content, contentKeyName, contentKey, params);
-    // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
-    try {
-      Name certificateName = keyChain_.getAnyCertificate
-        (keyChain_.getDefaultCertificateName()).getName().getPrefix(-1);
-      keyChain_.sign(data, certificateName);
-    } catch (DerDecodingException ex) {
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("Error decoding the default certificate: " + ex.getMessage());
-    }
+    keyChain_.sign(data);
   }
 
   private static class KeyInfo {
@@ -438,17 +429,7 @@ public class Producer {
         ("encryptContentKey: Error in encryptData: " + ex.getMessage());
     }
 
-    // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
-    try {
-      Name certificateName = keyChain_.getAnyCertificate
-        (keyChain_.getDefaultCertificateName()).getName().getPrefix(-1);
-      keyChain_.sign(cKeyData, certificateName);
-    } catch (DerDecodingException ex) {
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("Error decoding the default certificate: " + ex.getMessage());
-    }
-
+    keyChain_.sign(cKeyData);
     keyRequest.encryptedKeys.add(cKeyData);
 
     --keyRequest.interestCount;

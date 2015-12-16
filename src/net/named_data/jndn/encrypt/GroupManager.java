@@ -323,18 +323,7 @@ public class GroupManager {
     Data data = new Data(name);
     data.getMetaInfo().setFreshnessPeriod(freshnessHours_ * MILLISECONDS_IN_HOUR);
     data.setContent(publicKeyBlob);
-
-    // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
-    try {
-      Name certificateName = keyChain_.getAnyCertificate
-        (keyChain_.getDefaultCertificateName()).getName().getPrefix(-1);
-      keyChain_.sign(data, certificateName);
-    } catch (DerDecodingException ex) {
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("Error decoding the default certificate: " + ex.getMessage());
-    }
-
+    keyChain_.sign(data);
     return data;
   }
 
@@ -372,17 +361,7 @@ public class GroupManager {
         ("createDKeyData: Error in encryptData: " + ex.getMessage());
     }
 
-    // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
-    try {
-      Name certificateName = keyChain_.getAnyCertificate
-        (keyChain_.getDefaultCertificateName()).getName().getPrefix(-1);
-      keyChain_.sign(data, certificateName);
-    } catch (DerDecodingException ex) {
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("Error decoding the default certificate: " + ex.getMessage());
-    }
-
+    keyChain_.sign(data);
     return data;
   }
 
