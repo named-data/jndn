@@ -519,15 +519,8 @@ public class KeyChain {
   public final void
   sign(Data data, WireFormat wireFormat) throws SecurityException
   {
-    IdentityCertificate signingCertificate = 
-      identityManager_.getDefaultCertificate();
-    if (signingCertificate == null) {
-      setDefaultCertificate();
-      signingCertificate = identityManager_.getDefaultCertificate();
-    }
-
-    Name certificateName = signingCertificate.getName();
-    identityManager_.signByCertificate(data, certificateName, wireFormat);
+    identityManager_.signByCertificate
+      (data, prepareDefaultCertificateName(), wireFormat);
   }
 
   /**
@@ -923,6 +916,24 @@ public class KeyChain {
     private final int retry_;
     private final OnVerifyInterestFailed onVerifyFailed_;
     private final Interest originalInterest_;
+  }
+
+  /**
+   * Get the default certificate from the identity storage and return its name.
+   * If there is no default identity or default certificate, then create one.
+   * @return The default certificate name.
+   */
+  private Name
+  prepareDefaultCertificateName() throws SecurityException
+  {
+    IdentityCertificate signingCertificate =
+      identityManager_.getDefaultCertificate();
+    if (signingCertificate == null) {
+      setDefaultCertificate();
+      signingCertificate = identityManager_.getDefaultCertificate();
+    }
+
+    return signingCertificate.getName();
   }
 
   /**
