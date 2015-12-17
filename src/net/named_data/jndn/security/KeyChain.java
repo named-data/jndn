@@ -526,7 +526,7 @@ public class KeyChain {
       signingCertificate = identityManager_.getDefaultCertificate();
     }
 
-    Name certificateName = signingCertificate.getName().getPrefix(-1);
+    Name certificateName = signingCertificate.getName();
     identityManager_.signByCertificate(data, certificateName, wireFormat);
   }
 
