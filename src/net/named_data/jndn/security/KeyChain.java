@@ -565,6 +565,34 @@ public class KeyChain {
   }
 
   /**
+   * Append a SignatureInfo to the Interest name, sign the name components with
+   * the default identity and append a final name component with the signature
+   * bits.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
+  public final void
+  sign(Interest interest, WireFormat wireFormat) throws SecurityException
+  {
+    identityManager_.signInterestByCertificate
+      (interest, prepareDefaultCertificateName(), wireFormat);
+  }
+
+  /**
+   * Append a SignatureInfo to the Interest name, sign the name components with
+   * the default identity and append a final name component with the signature
+   * bits.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   */
+  public final void
+  sign(Interest interest) throws SecurityException
+  {
+    sign(interest, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
    * Sign the byte buffer using a certificate name and return a Signature object.
    * @param buffer The byte array to be signed.
    * @param certificateName The certificate name used to get the signing key and which will be put into KeyLocator.
