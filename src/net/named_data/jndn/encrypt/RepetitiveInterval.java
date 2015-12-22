@@ -46,7 +46,13 @@ public class RepetitiveInterval implements Comparable {
     public final int
     compare(RepeatUnit other)
     {
-      return Integer.compare(getNumericType(), other.getNumericType());
+      // Compare without using Integer.compare so it works in older Java compilers.
+      if (getNumericType() < other.getNumericType())
+        return -1;
+      else if (getNumericType() == other.getNumericType())
+        return 0;
+      else
+        return 1;
     }
 
     private final int type_;
