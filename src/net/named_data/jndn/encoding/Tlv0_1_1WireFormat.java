@@ -341,7 +341,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
        controlParameters.getLocalControlFeature());
 
     // Encode URI
-    if(!controlParameters.getUri().isEmpty()){
+    if(controlParameters.getUri().length() != 0){
       encoder.writeBlobTlv(Tlv.ControlParameters_Uri,
         new Blob(controlParameters.getUri()).buf());
     }
