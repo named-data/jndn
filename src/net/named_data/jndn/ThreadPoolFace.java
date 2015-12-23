@@ -71,27 +71,29 @@ public class ThreadPoolFace extends Face {
    */
   public long
   expressInterest
-    (final Interest interest, final OnData onData, final OnTimeout onTimeout,
+    (final Interest interest, OnData onData, OnTimeout onTimeout,
      final WireFormat wireFormat) throws IOException
   {
     final long pendingInterestId = node_.getNextEntryId();
 
     // Wrap onData and onTimeout to submit to the thread pool.
+    final OnData finalOnData = onData;
     final OnData onDataSubmit = new OnData() {
       public void onData(final Interest localInterest, final Data data) {
         threadPool_.submit(new Runnable() {
           // Call the passed-in onData.
-          public void run() { onData.onData(localInterest, data); }
+          public void run() { finalOnData.onData(localInterest, data); }
         });
       }
     };
 
+    final OnTimeout finalOnTimeout = onTimeout;
     final OnTimeout onTimeoutSubmit = onTimeout == null ? null :
       new OnTimeout() {
         public void onTimeout(final Interest localInterest) {
           threadPool_.submit(new Runnable() {
             // Call the passed-in onTimeout.
-            public void run() { onTimeout.onTimeout(localInterest); }
+            public void run() { finalOnTimeout.onTimeout(localInterest); }
           });
         }
       };
