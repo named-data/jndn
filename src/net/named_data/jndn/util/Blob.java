@@ -295,10 +295,11 @@ public class Blob implements Comparable {
   }
 
   public final int
-  compareTo(Object o)
-  {
-    return this.compare((Blob)o);
-  }
+  compareTo(Object o) { return this.compare((Blob)o); }
+
+  // Also include this version for portability.
+  public final int
+  CompareTo(Object o) { return this.compare((Blob)o); }
 
   /**
    * If the hash code is already computed then return it, otherwise compute and
