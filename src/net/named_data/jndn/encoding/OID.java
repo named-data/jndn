@@ -21,6 +21,7 @@
 package net.named_data.jndn.encoding;
 
 import java.util.Arrays;
+import net.named_data.jndn.util.Common;
 
 public class OID {
   public OID(String oid)
@@ -73,5 +74,7 @@ public class OID {
     return equals((OID)other);
   }
 
-  int[] oid_ = new int[0];
+  private int[] oid_ = new int[0];
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

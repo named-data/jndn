@@ -20,6 +20,7 @@
 
 package net.named_data.jndn;
 
+import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.NdnRegexMatcher;
 
 /**
@@ -176,4 +177,6 @@ public class InterestFilter {
   private final Name prefix_;
   private final String regexFilter_;
   private final String regexFilterPattern_;
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
