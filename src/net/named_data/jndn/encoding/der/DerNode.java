@@ -867,7 +867,7 @@ public class DerNode {
     toVal() throws DerDecodingException
     {
       // Use Blob to convert to a string.
-      String timeStr = new Blob(payload_.flippedBuffer(), false).toString();
+      String timeStr = "" + new Blob(payload_.flippedBuffer(), false);
       try {
         Date date = dateFormat_.parse(timeStr);
         return (double)date.getTime();

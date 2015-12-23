@@ -393,7 +393,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     // decode URI
     if (decoder.peekType(Tlv.ControlParameters_Uri, endOffset)) {
       Blob uri = new Blob(decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), true);
-      controlParameters.setUri(uri.toString());
+      controlParameters.setUri("" + uri);
     }
 
     // decode integers
