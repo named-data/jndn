@@ -736,12 +736,12 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   public boolean
-  equals(Object object)
+  equals(Object other)
   {
-    if (!(object instanceof Name))
+    if (!(other instanceof Name))
       return false;
 
-    return equals((Name)object);
+    return equals((Name)other);
   }
 
   public int hashCode()
