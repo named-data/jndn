@@ -37,7 +37,6 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
-import net.named_data.jndn.SignatureHolder;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
@@ -442,10 +441,10 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
 
   private static class SimpleSignatureHolder implements SignatureHolder {
-    public SignatureHolder setSignature(Signature signature)
+    public Data setSignature(Signature signature)
     {
       signature_ = signature;
-      return this;
+      return null;
     }
 
     public Signature getSignature()
