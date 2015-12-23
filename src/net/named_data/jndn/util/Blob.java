@@ -324,7 +324,7 @@ public class Blob implements Comparable {
    * Decode the byte array as UTF8 and return the Unicode string.
    * @return A unicode string, or "" if the buffer is null.
    */
-  public final String
+  public String
   toString()
   {
     if (buffer_ == null)
