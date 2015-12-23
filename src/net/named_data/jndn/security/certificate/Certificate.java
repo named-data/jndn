@@ -240,7 +240,7 @@ public class Certificate extends Data {
       DerSequence sd = DerNode.getSequence(subjectChildren, i);
       List descriptionChildren = sd.getChildren();
       String oidStr = (String)((DerNode)descriptionChildren.get(0)).toVal();
-      String value = ((Blob)((DerNode)descriptionChildren.get(1)).toVal()).toString();
+      String value = "" + ((Blob)((DerNode)descriptionChildren.get(1)).toVal());
 
       addSubjectDescription(new CertificateSubjectDescription(oidStr, value));
     }

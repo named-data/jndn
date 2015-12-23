@@ -58,7 +58,7 @@ public class PublicKey {
       List rootChildren = parsedNode.getChildren();
       List algorithmIdChildren =
         DerNode.getSequence(rootChildren, 0).getChildren();
-      oidString = ((DerNode)algorithmIdChildren.get(0)).toVal().toString();
+      oidString = "" + ((DerNode)algorithmIdChildren.get(0)).toVal();
     }
     catch (DerDecodingException ex) {
       throw new UnrecognizedKeyFormatException

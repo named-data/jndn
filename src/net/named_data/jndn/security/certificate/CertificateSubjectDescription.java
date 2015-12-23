@@ -77,7 +77,7 @@ public class CertificateSubjectDescription {
   public final String
   getOidString()
   {
-    return oid_.toString();
+    return "" + oid_;
   }
 
   public final String
