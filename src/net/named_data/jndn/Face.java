@@ -840,19 +840,20 @@ public class Face {
    */
   public long
   registerPrefix
-    (Name prefix, final OnInterest onInterest,
-     OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
-     WireFormat wireFormat) throws IOException, SecurityException
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
+     ForwardingFlags flags, WireFormat wireFormat)
+      throws IOException, SecurityException
   {
     // Wrap the deprecated OnInterest in an OnInterestCallback.
     OnInterestCallback onInterestCallback = null;
-    if (onInterest != null)
+    final OnInterest finalOnInterest = onInterest;
+    if (finalOnInterest != null)
       onInterestCallback = new OnInterestCallback() {
         public void onInterest
           (Name localPrefix, Interest interest, Face face,
            long interestFilterId, InterestFilter filter)
         {
-          onInterest.onInterest
+          finalOnInterest.onInterest
             (localPrefix, interest, face.node_.getTransport(), interestFilterId);
         }
       };
