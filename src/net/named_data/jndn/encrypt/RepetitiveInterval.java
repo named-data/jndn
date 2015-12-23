@@ -254,6 +254,10 @@ public class RepetitiveInterval implements Comparable {
   public int
   compareTo(Object other) { return compare((RepetitiveInterval)other); }
 
+  // Also include this version for portability.
+  public int
+  CompareTo(Object other) { return compare((RepetitiveInterval)other); }
+
   public boolean equals(Object other)
   {
     if (!(other instanceof RepetitiveInterval))
