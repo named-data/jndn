@@ -316,10 +316,11 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     public final int
-    compareTo(Object o)
-    {
-      return this.compare((Component)o);
-    }
+    compareTo(Object o) { return this.compare((Component)o); }
+
+    // Also include this version for portability.
+    public final int
+    CompareTo(Object o) { return this.compare((Component)o); }
 
     /**
      * Reverse the bytes in buffer starting at position, up to but not including
@@ -716,17 +717,12 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Check if this name has the same component count and components as the given
    * name.
-   * @param object The Name to check.
-   * @return true if the object is a Name and the names are equal, otherwise
-   * false.
+   * @param name The Name to check.
+   * @return true if the names are equal, otherwise false.
    */
   public boolean
-  equals(Object object)
+  equals(Name name)
   {
-    if (!(object instanceof Name))
-      return false;
-
-    Name name = (Name)object;
     if (components_.size() != name.components_.size())
       return false;
 
@@ -737,6 +733,15 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     return true;
+  }
+
+  public boolean
+  equals(Object object)
+  {
+    if (!(object instanceof Name))
+      return false;
+
+    return equals((Name)object);
   }
 
   public int hashCode()
@@ -900,10 +905,11 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   public final int
-  compareTo(Object o)
-  {
-    return this.compare((Name)o);
-  }
+  compareTo(Object o) { return this.compare((Name)o); }
+
+  // Also include this version for portability.
+  public final int
+  CompareTo(Object o) { return this.compare((Name)o); }
 
   /**
    * Get the change count, which is incremented each time this object is changed.
