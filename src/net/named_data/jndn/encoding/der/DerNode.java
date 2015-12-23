@@ -105,7 +105,7 @@ public class DerNode {
     int nodeType = ((int)inputBuf.get(idx)) & 0xff;
     idx += 1;
 
-    nodeType_ = DerNodeType.fromNumericType(nodeType);
+    nodeType_ = fromNumericNodeType(nodeType);
 
     int sizeLen = ((int)inputBuf.get(idx)) & 0xff;
     idx += 1;
@@ -274,6 +274,18 @@ public class DerNode {
         ("getSequence: Child DerNode is not DerSequence");
 
     return (DerSequence)children.get(index);
+  }
+
+  private static DerNodeType
+  fromNumericNodeType(int type)
+  {
+    DerNodeType[] array = DerNodeType.values();
+    for(int i = 0; i < array.length; ++i) {
+      if (array[i].getNumericType() == type)
+        return array[i];
+    }
+
+    return null;
   }
 
   /**

@@ -63,17 +63,5 @@ public enum DerNodeType {
   public final int
   getNumericType() { return type_; }
 
-  public static DerNodeType
-  fromNumericType(int type)
-  {
-    DerNodeType[] array = DerNodeType.values();
-    for(int i = 0; i < array.length; ++i) {
-      if (array[i].getNumericType() == type)
-        return array[i];
-    }
-
-    return null;
-  }
-
   private final int type_;
 }
