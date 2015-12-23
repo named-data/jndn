@@ -291,7 +291,7 @@ public class ControlParameters {
     expirationPeriod_ = -1.0;
   }
 
-  public final boolean
+  public boolean
   equals(Object other)
   {
     return false;
