@@ -62,7 +62,7 @@ public class PublicKey {
     }
     catch (DerDecodingException ex) {
       throw new UnrecognizedKeyFormatException
-        ("PublicKey: Error decoding the public key" +
+        ("PublicKey: Error decoding the public key: " +
          ex.getMessage());
     }
 
