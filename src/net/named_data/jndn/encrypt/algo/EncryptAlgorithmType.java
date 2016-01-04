@@ -21,7 +21,6 @@
 package net.named_data.jndn.encrypt.algo;
 
 public enum EncryptAlgorithmType {
-  NONE(-1),
   // These correspond to the TLV codes.
   AesEcb(0),
   AesCbc(1),

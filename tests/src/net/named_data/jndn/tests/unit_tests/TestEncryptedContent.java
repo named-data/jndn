@@ -94,7 +94,7 @@ public class TestEncryptedContent {
   testConstructor() throws EncodingException
   {
     EncryptedContent content = new EncryptedContent();
-    assertEquals(EncryptAlgorithmType.NONE, content.getAlgorithmType());
+    assertEquals(null, content.getAlgorithmType());
     assertEquals(true, content.getPayload().isNull());
     assertEquals(true, content.getInitialVector().isNull());
     assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());
@@ -310,7 +310,7 @@ public class TestEncryptedContent {
   testSetterGetter() throws EncodingException
   {
     EncryptedContent content = new EncryptedContent();
-    assertEquals(EncryptAlgorithmType.NONE, content.getAlgorithmType());
+    assertEquals(null, content.getAlgorithmType());
     assertEquals(true, content.getPayload().isNull());
     assertEquals(true, content.getInitialVector().isNull());
     assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());
