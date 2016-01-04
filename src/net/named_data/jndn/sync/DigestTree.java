@@ -282,4 +282,6 @@ public class DigestTree {
   // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList digestNode_ = new ArrayList(); // of DigestTree.Node
   private String root_;
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
