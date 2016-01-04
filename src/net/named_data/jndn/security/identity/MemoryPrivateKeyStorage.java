@@ -25,7 +25,6 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -200,10 +199,10 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       throw new SecurityException
         ("MemoryPrivateKeyStorage: Cannot find private key " + keyName.toUri());
 
-    Signature signature = null;
+    java.security.Signature signature = null;
     if (privateKey.getKeyType() == KeyType.RSA) {
       try {
-        signature = Signature.getInstance("SHA256withRSA");
+        signature = java.security.Signature.getInstance("SHA256withRSA");
       }
       catch (NoSuchAlgorithmException e) {
         // Don't expect this to happen.
@@ -212,7 +211,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     }
     else if (privateKey.getKeyType() == KeyType.ECDSA) {
       try {
-        signature = Signature.getInstance("SHA256withECDSA");
+        signature = java.security.Signature.getInstance("SHA256withECDSA");
       }
       catch (NoSuchAlgorithmException e) {
         // Don't expect this to happen.
