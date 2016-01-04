@@ -22,67 +22,36 @@
 package net.named_data.jndn.encoding.der;
 
 /**
- * The NodeType enum defines the known DER node types.
+ * The DerNodeType class defines static values for the known DER node types.
  */
-public enum DerNodeType {
-    Eoc(0),
-    Boolean(1),
-    Integer(2),
-    BitString(3),
-    OctetString(4),
-    Null(5),
-    ObjectIdentifier(6),
-    ObjectDescriptor(7),
-    Unused8(8),
-    Real(9),
-    Enumerated(10),
-    Unused11(11),
-    Utf8String(12),
-    RelativeOid(13),
-    Unused14(14),
-    Unused15(15),
-    Unused16(16),
-    Unused17(17),
-    NumericString(18),
-    PrintableString(19),
-    T61String(20),
-    VideoTexString(21),
-    Ia5String(22),
-    UtcTime(23),
-    GeneralizedTime(24),
-    GraphicString(25),
-    VisibleString(26),
-    GeneralString(27),
-    UniversalString(28),
-    CharacterString(29),
-    BmpString(30),
-    Unused31(31),
-    Unused32(32),
-    Unused33(33),
-    Unused34(34),
-    Unused35(35),
-    Unused36(36),
-    Unused37(37),
-    Unused38(38),
-    Unused39(39),
-    External(40),
-    Unused41(41),
-    Unused42(42),
-    EmbeddedPdv(43),
-    Unused44(44),
-    Unused45(45),
-    Unused46(46),
-    Unused47(47),
-    Sequence(48),
-    Set(49);
-
-  DerNodeType (int type)
-  {
-    type_ = type;
-  }
-
-  public final int
-  getNumericType() { return type_; }
-
-  private final int type_;
+public class DerNodeType {
+    public static final int Eoc = 0;
+    public static final int Boolean = 1;
+    public static final int Integer = 2;
+    public static final int BitString = 3;
+    public static final int OctetString = 4;
+    public static final int Null = 5;
+    public static final int ObjectIdentifier = 6;
+    public static final int ObjectDescriptor = 7;
+    public static final int Real = 9;
+    public static final int Enumerated = 10;
+    public static final int Utf8String = 12;
+    public static final int RelativeOid = 13;
+    public static final int NumericString = 18;
+    public static final int PrintableString = 19;
+    public static final int T61String = 20;
+    public static final int VideoTexString = 21;
+    public static final int Ia5String = 22;
+    public static final int UtcTime = 23;
+    public static final int GeneralizedTime = 24;
+    public static final int GraphicString = 25;
+    public static final int VisibleString = 26;
+    public static final int GeneralString = 27;
+    public static final int UniversalString = 28;
+    public static final int CharacterString = 29;
+    public static final int BmpString = 30;
+    public static final int External = 40;
+    public static final int EmbeddedPdv = 43;
+    public static final int Sequence = 48;
+    public static final int Set = 49;
 }
