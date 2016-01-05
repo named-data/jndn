@@ -328,7 +328,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
 
         try {
           privateKey_ =
-            keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keyDer.array()));
+            keyFactory.generatePrivate
+              (new PKCS8EncodedKeySpec(new Blob(keyDer, false).getImmutableArray()));
         }
         catch (InvalidKeySpecException exception) {
           // Don't expect this to happen.
@@ -350,7 +351,8 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
 
         try {
           privateKey_ =
-            keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keyDer.array()));
+            keyFactory.generatePrivate
+              (new PKCS8EncodedKeySpec(new Blob(keyDer, false).getImmutableArray()));
         }
         catch (InvalidKeySpecException exception) {
           // Don't expect this to happen.
