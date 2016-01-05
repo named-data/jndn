@@ -23,7 +23,6 @@ package net.named_data.jndn.security.policy;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -211,7 +210,7 @@ public abstract class PolicyManager {
         ("RSA is not supported: " + exception.getMessage());
     }
 
-    PublicKey publicKey = null;
+    java.security.PublicKey publicKey = null;
     try {
       publicKey = keyFactory.generatePublic
         (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
@@ -269,7 +268,7 @@ public abstract class PolicyManager {
         ("EC is not supported: " + exception.getMessage());
     }
 
-    PublicKey publicKey = null;
+    java.security.PublicKey publicKey = null;
     try {
       publicKey = keyFactory.generatePublic
         (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
