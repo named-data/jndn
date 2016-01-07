@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.8 (2015-12-14)
---------------------------------------------
+v0.9 (2016-01-07)
+-----------------
 
 Changes
 * Added the net.named_data.jndn.encrypt package for the Group-Based Encryption Protocol, ported from
