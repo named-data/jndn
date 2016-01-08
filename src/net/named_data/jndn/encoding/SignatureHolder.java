@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,9 +17,13 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
-package net.named_data.jndn;
+package net.named_data.jndn.encoding;
+
+import net.named_data.jndn.Data;
+import net.named_data.jndn.Signature;
 
 public interface SignatureHolder {
-  SignatureHolder setSignature(Signature Signature);
+  // When setSignature is called through a SignatureHolder, the returned Data is ignored.
+  Data setSignature(Signature Signature);
   Signature getSignature();
 }

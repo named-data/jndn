@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Regents of the University of California.
+ * Copyright (C) 2015-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt src/repetitive-interval https://github.com/named-data/ndn-group-encrypt
  *
@@ -46,7 +46,13 @@ public class RepetitiveInterval implements Comparable {
     public final int
     compare(RepeatUnit other)
     {
-      return Integer.compare(getNumericType(), other.getNumericType());
+      // Compare without using Integer.compare so it works in older Java compilers.
+      if (getNumericType() < other.getNumericType())
+        return -1;
+      else if (getNumericType() == other.getNumericType())
+        return 0;
+      else
+        return 1;
     }
 
     private final int type_;
@@ -247,6 +253,10 @@ public class RepetitiveInterval implements Comparable {
 
   public int
   compareTo(Object other) { return compare((RepetitiveInterval)other); }
+
+  // Also include this version for portability.
+  public int
+  CompareTo(Object other) { return compare((RepetitiveInterval)other); }
 
   public boolean equals(Object other)
   {

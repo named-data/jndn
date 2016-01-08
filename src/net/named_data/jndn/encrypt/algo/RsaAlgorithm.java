@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Regents of the University of California.
+ * Copyright (C) 2015-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt src/algo/rsa https://github.com/named-data/ndn-group-encrypt
  *
@@ -30,7 +30,6 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -107,7 +106,7 @@ public class RsaAlgorithm {
     Blob modulus = ((DerNode)rsaPrivateKeyChildren.get(1)).getPayload();
     Blob publicExponent = ((DerNode)rsaPrivateKeyChildren.get(2)).getPayload();
 
-    PublicKey publicKey = keyFactory_.generatePublic(new RSAPublicKeySpec
+    java.security.PublicKey publicKey = keyFactory_.generatePublic(new RSAPublicKeySpec
       (new BigInteger(modulus.getImmutableArray()),
        new BigInteger(publicExponent.getImmutableArray())));
 
@@ -156,7 +155,7 @@ public class RsaAlgorithm {
            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
            BadPaddingException
   {
-    PublicKey publicKey = keyFactory_.generatePublic
+    java.security.PublicKey publicKey = keyFactory_.generatePublic
       (new X509EncodedKeySpec(keyBits.getImmutableArray()));
 
     String transformation;

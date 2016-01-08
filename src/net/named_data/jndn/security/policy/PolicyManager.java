@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2013-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -23,8 +23,6 @@ package net.named_data.jndn.security.policy;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -212,7 +210,7 @@ public abstract class PolicyManager {
         ("RSA is not supported: " + exception.getMessage());
     }
 
-    PublicKey publicKey = null;
+    java.security.PublicKey publicKey = null;
     try {
       publicKey = keyFactory.generatePublic
         (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
@@ -223,9 +221,9 @@ public abstract class PolicyManager {
         ("X509EncodedKeySpec is not supported: " + exception.getMessage());
     }
 
-    Signature rsaSignature = null;
+    java.security.Signature rsaSignature = null;
     try {
-      rsaSignature = Signature.getInstance("SHA256withRSA");
+      rsaSignature = java.security.Signature.getInstance("SHA256withRSA");
     }
     catch (NoSuchAlgorithmException e) {
       // Don't expect this to happen.
@@ -270,7 +268,7 @@ public abstract class PolicyManager {
         ("EC is not supported: " + exception.getMessage());
     }
 
-    PublicKey publicKey = null;
+    java.security.PublicKey publicKey = null;
     try {
       publicKey = keyFactory.generatePublic
         (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
@@ -281,9 +279,9 @@ public abstract class PolicyManager {
         ("X509EncodedKeySpec is not supported: " + exception.getMessage());
     }
 
-    Signature ecSignature = null;
+    java.security.Signature ecSignature = null;
     try {
-      ecSignature = Signature.getInstance("SHA256withECDSA");
+      ecSignature = java.security.Signature.getInstance("SHA256withECDSA");
     }
     catch (NoSuchAlgorithmException e) {
       // Don't expect this to happen.

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Regents of the University of California.
+ * Copyright (C) 2015-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt src/producer https://github.com/named-data/ndn-group-encrypt
  * @author: excludeRange from ndn-cxx https://github.com/named-data/ndn-cxx/blob/master/src/exclude.cpp
@@ -236,16 +236,7 @@ public class Producer {
     data.setName(dataName);
     EncryptParams params = new EncryptParams(EncryptAlgorithmType.AesCbc, 16);
     Encryptor.encryptData(data, content, contentKeyName, contentKey, params);
-    // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
-    try {
-      Name certificateName = keyChain_.getAnyCertificate
-        (keyChain_.getDefaultCertificateName()).getName().getPrefix(-1);
-      keyChain_.sign(data, certificateName);
-    } catch (DerDecodingException ex) {
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("Error decoding the default certificate: " + ex.getMessage());
-    }
+    keyChain_.sign(data);
   }
 
   private static class KeyInfo {
@@ -438,17 +429,7 @@ public class Producer {
         ("encryptContentKey: Error in encryptData: " + ex.getMessage());
     }
 
-    // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
-    try {
-      Name certificateName = keyChain_.getAnyCertificate
-        (keyChain_.getDefaultCertificateName()).getName().getPrefix(-1);
-      keyChain_.sign(cKeyData, certificateName);
-    } catch (DerDecodingException ex) {
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("Error decoding the default certificate: " + ex.getMessage());
-    }
-
+    keyChain_.sign(cKeyData);
     keyRequest.encryptedKeys.add(cKeyData);
 
     --keyRequest.interestCount;

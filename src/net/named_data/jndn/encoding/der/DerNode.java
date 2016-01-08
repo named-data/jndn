@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2013-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From PyNDN der_node.py by Adeola Bannis <thecodemaiden@gmail.com>.
  * @author: Originally from code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
@@ -40,9 +40,9 @@ public class DerNode {
   /**
    * Create a generic DER node with the given nodeType. This is a private
    * constructor used by one of the public DerNode subclasses defined below.
-   * @param nodeType The DER node type.
+   * @param nodeType The DER node type, a value from DerNodeType.
    */
-  private DerNode(DerNodeType nodeType)
+  private DerNode(int nodeType)
   {
     nodeType_ = nodeType;
   }
@@ -62,7 +62,7 @@ public class DerNode {
   encodeHeader(int size)
   {
     DynamicByteBuffer buffer = new DynamicByteBuffer(10);
-    buffer.ensuredPut((byte)nodeType_.getNumericType());
+    buffer.ensuredPut((byte)nodeType_);
     if (size < 0)
       // We don't expect this to happen since this is a protected method and
       // always called with the non-negative size() of some buffer.
@@ -105,7 +105,7 @@ public class DerNode {
     int nodeType = ((int)inputBuf.get(idx)) & 0xff;
     idx += 1;
 
-    nodeType_ = DerNodeType.fromNumericType(nodeType);
+    nodeType_ = nodeType;
 
     int sizeLen = ((int)inputBuf.get(idx)) & 0xff;
     idx += 1;
@@ -182,23 +182,23 @@ public class DerNode {
     // Don't increment idx. We're just peeking.
 
     DerNode newNode;
-    if (nodeType == DerNodeType.Boolean.getNumericType())
+    if (nodeType == DerNodeType.Boolean)
       newNode = new DerBoolean();
-    else if (nodeType == DerNodeType.Integer.getNumericType())
+    else if (nodeType == DerNodeType.Integer)
       newNode = new DerInteger();
-    else if (nodeType == DerNodeType.BitString.getNumericType())
+    else if (nodeType == DerNodeType.BitString)
       newNode = new DerBitString();
-    else if (nodeType == DerNodeType.OctetString.getNumericType())
+    else if (nodeType == DerNodeType.OctetString)
       newNode = new DerOctetString();
-    else if (nodeType == DerNodeType.Null.getNumericType())
+    else if (nodeType == DerNodeType.Null)
       newNode = new DerNull();
-    else if (nodeType == DerNodeType.ObjectIdentifier.getNumericType())
+    else if (nodeType == DerNodeType.ObjectIdentifier)
       newNode = new DerOid();
-    else if (nodeType == DerNodeType.Sequence.getNumericType())
+    else if (nodeType == DerNodeType.Sequence)
       newNode = new DerSequence();
-    else if (nodeType == DerNodeType.PrintableString.getNumericType())
+    else if (nodeType == DerNodeType.PrintableString)
       newNode = new DerPrintableString();
-    else if (nodeType == DerNodeType.GeneralizedTime.getNumericType())
+    else if (nodeType == DerNodeType.GeneralizedTime)
       newNode = new DerGeneralizedTime();
     else
       throw new DerDecodingException("Unimplemented DER type " + nodeType);
@@ -283,9 +283,9 @@ public class DerNode {
     /**
      * Create a DerStructure with the given nodeType. This is a private
      * constructor. To create an object, use DerSequence.
-     * @param nodeType The DER node type.
+     * @param nodeType The DER node type, a value from DerNodeType.
      */
-    private DerStructure(DerNodeType nodeType)
+    private DerStructure(int nodeType)
     {
       super(nodeType);
     }
@@ -397,7 +397,7 @@ public class DerNode {
      * position.
      * @param startIdx The offset into the buffer.
      */
-    public void
+    protected void
     decode(ByteBuffer inputBuf, int startIdx) throws DerDecodingException
     {
       int idx = startIdx;
@@ -433,9 +433,9 @@ public class DerNode {
      * DerOctetString or DerPrintableString.
      * @param inputData An input buffer containing the string to encode.  This
      * copies from the buffer's position to limit, but does not change position.
-     * @param nodeType The specific DER node type.
+     * @param nodeType The specific DER node type, a value from DerNodeType.
      */
-    private DerByteString(ByteBuffer inputData, DerNodeType nodeType)
+    private DerByteString(ByteBuffer inputData, int nodeType)
     {
       super(nodeType);
 
@@ -855,7 +855,7 @@ public class DerNode {
     toVal() throws DerDecodingException
     {
       // Use Blob to convert to a string.
-      String timeStr = new Blob(payload_.flippedBuffer(), false).toString();
+      String timeStr = "" + new Blob(payload_.flippedBuffer(), false);
       try {
         Date date = dateFormat_.parse(timeStr);
         return (double)date.getTime();
@@ -869,7 +869,8 @@ public class DerNode {
   }
 
   protected DerStructure parent_ = null;
-  private DerNodeType nodeType_;
+  // A value from DerNodeType.
+  private int nodeType_;
   protected ByteBuffer header_ = ByteBuffer.allocate(0);
   // NOTE: We never "flip" the internal buffer.  Its data is from 0 to position().
   protected DynamicByteBuffer payload_ = new DynamicByteBuffer(0);

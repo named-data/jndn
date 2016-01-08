@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Regents of the University of California.
+ * Copyright (C) 2015-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-cxx link.hpp https://github.com/named-data/ndn-cxx/blob/master/src/link.hpp
  *
@@ -160,7 +160,7 @@ public class DelegationSet {
     boolean wasRemoved = false;
     // Go backwards through the list so we can remove entries.
     for (int i = delegations_.size() - 1; i >= 0; --i) {
-      if (((Delegation)delegations_.get(i)).name_.equals(name)) {
+      if (((Delegation)delegations_.get(i)).getName().equals(name)) {
         wasRemoved = true;
         delegations_.remove(i);
       }
@@ -203,7 +203,7 @@ public class DelegationSet {
   find(Name name)
   {
     for (int i = 0; i < delegations_.size(); ++i) {
-      if (((Delegation)delegations_.get(i)).name_.equals(name))
+      if (((Delegation)delegations_.get(i)).getName().equals(name))
         return i;
     }
 

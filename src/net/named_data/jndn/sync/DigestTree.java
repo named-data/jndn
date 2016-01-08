@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * Derived from ChronoChat-js by Qiuhan Ding and Wentao Shang.
  *
@@ -282,4 +282,6 @@ public class DigestTree {
   // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList digestNode_ = new ArrayList(); // of DigestTree.Node
   private String root_;
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

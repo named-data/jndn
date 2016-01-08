@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2013-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ package net.named_data.jndn;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.encoding.SignatureHolder;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCounter;
 import net.named_data.jndn.util.ChangeCountable;

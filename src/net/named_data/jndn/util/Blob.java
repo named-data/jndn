@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2013-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -295,10 +295,11 @@ public class Blob implements Comparable {
   }
 
   public final int
-  compareTo(Object o)
-  {
-    return this.compare((Blob)o);
-  }
+  compareTo(Object o) { return this.compare((Blob)o); }
+
+  // Also include this version for portability.
+  public final int
+  CompareTo(Object o) { return this.compare((Blob)o); }
 
   /**
    * If the hash code is already computed then return it, otherwise compute and
@@ -323,7 +324,7 @@ public class Blob implements Comparable {
    * Decode the byte array as UTF8 and return the Unicode string.
    * @return A unicode string, or "" if the buffer is null.
    */
-  public final String
+  public String
   toString()
   {
     if (buffer_ == null)

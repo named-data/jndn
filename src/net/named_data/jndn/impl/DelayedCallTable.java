@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Regents of the University of California.
+ * Copyright (C) 2015-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -119,4 +119,6 @@ public class DelayedCallTable {
 
   // Use ArrayList without generics so it works with older Java compilers.
   private final List table_ = new ArrayList();  // Entry
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -38,7 +38,6 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
-import net.named_data.jndn.SignatureHolder;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
@@ -340,7 +339,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
        controlParameters.getLocalControlFeature());
 
     // Encode URI
-    if(!controlParameters.getUri().isEmpty()){
+    if(controlParameters.getUri().length() != 0){
       encoder.writeBlobTlv(Tlv.ControlParameters_Uri,
         new Blob(controlParameters.getUri()).buf());
     }
@@ -392,7 +391,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     // decode URI
     if (decoder.peekType(Tlv.ControlParameters_Uri, endOffset)) {
       Blob uri = new Blob(decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), true);
-      controlParameters.setUri(uri.toString());
+      controlParameters.setUri("" + uri);
     }
 
     // decode integers
@@ -441,10 +440,10 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
 
   private static class SimpleSignatureHolder implements SignatureHolder {
-    public SignatureHolder setSignature(Signature signature)
+    public Data setSignature(Signature signature)
     {
       signature_ = signature;
-      return this;
+      return null;
     }
 
     public Signature getSignature()

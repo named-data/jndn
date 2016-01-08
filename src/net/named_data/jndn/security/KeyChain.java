@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.security.SecureRandom;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
@@ -509,6 +510,33 @@ public class KeyChain {
   }
 
   /**
+   * Wire encode the Data object, sign it with the default identity and set its
+   * signature.
+   * @param data The Data object to be signed.  This updates its signature and
+   * key locator field and wireEncoding.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
+  public final void
+  sign(Data data, WireFormat wireFormat) throws SecurityException
+  {
+    identityManager_.signByCertificate
+      (data, prepareDefaultCertificateName(), wireFormat);
+  }
+
+  /**
+   * Wire encode the Data object, sign it with the default identity and set its
+   * signature.
+   * Use the default WireFormat.getDefaultWireFormat()
+   * @param data The Data object to be signed.  This updates its signature and
+   * key locator field and wireEncoding.
+   */
+  public final void
+  sign(Data data) throws SecurityException
+  {
+    sign(data, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
    * Append a SignatureInfo to the Interest name, sign the name components and
    * append a final name component with the signature bits.
    * @param interest The Interest object to be signed. This appends name
@@ -534,6 +562,34 @@ public class KeyChain {
   sign(Interest interest, Name certificateName) throws SecurityException
   {
     sign(interest, certificateName, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Append a SignatureInfo to the Interest name, sign the name components with
+   * the default identity and append a final name component with the signature
+   * bits.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
+  public final void
+  sign(Interest interest, WireFormat wireFormat) throws SecurityException
+  {
+    identityManager_.signInterestByCertificate
+      (interest, prepareDefaultCertificateName(), wireFormat);
+  }
+
+  /**
+   * Append a SignatureInfo to the Interest name, sign the name components with
+   * the default identity and append a final name component with the signature
+   * bits.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   */
+  public final void
+  sign(Interest interest) throws SecurityException
+  {
+    sign(interest, WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -830,10 +886,10 @@ public class KeyChain {
         onVerifyFailed_.onVerifyFailed(originalData_);
     }
 
-    private ValidationRequest nextStep_;
-    private int retry_;
-    private OnVerifyFailed onVerifyFailed_;
-    private Data originalData_;
+    private final ValidationRequest nextStep_;
+    private final int retry_;
+    private final OnVerifyFailed onVerifyFailed_;
+    private final Data originalData_;
   }
 
   /**
@@ -884,14 +940,56 @@ public class KeyChain {
         onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
     }
 
-    private ValidationRequest nextStep_;
-    private int retry_;
-    private OnVerifyInterestFailed onVerifyFailed_;
-    private Interest originalInterest_;
+    private final ValidationRequest nextStep_;
+    private final int retry_;
+    private final OnVerifyInterestFailed onVerifyFailed_;
+    private final Interest originalInterest_;
   }
 
-  private IdentityManager identityManager_;
-  private PolicyManager policyManager_;
+  /**
+   * Get the default certificate from the identity storage and return its name.
+   * If there is no default identity or default certificate, then create one.
+   * @return The default certificate name.
+   */
+  private Name
+  prepareDefaultCertificateName() throws SecurityException
+  {
+    IdentityCertificate signingCertificate =
+      identityManager_.getDefaultCertificate();
+    if (signingCertificate == null) {
+      setDefaultCertificate();
+      signingCertificate = identityManager_.getDefaultCertificate();
+    }
+
+    return signingCertificate.getName();
+  }
+
+  /**
+   * Create the default certificate if it is not initialized. If there is no
+   * default identity yet, creating a new tmp-identity.
+   */
+  private void
+  setDefaultCertificate() throws SecurityException
+  {
+    if (identityManager_.getDefaultCertificate() == null) {
+      Name defaultIdentity;
+      try {
+        defaultIdentity = identityManager_.getDefaultIdentity();
+      } catch (SecurityException e) {
+        // Create a default identity name.
+        ByteBuffer randomComponent = ByteBuffer.allocate(4);
+        random_.nextBytes(randomComponent.array());
+        defaultIdentity = new Name().append("tmp-identity")
+          .append(new Blob(randomComponent, false));
+      }
+
+      createIdentityAndCertificate(defaultIdentity);
+      identityManager_.setDefaultIdentity(defaultIdentity);
+    }
+  }
+
+  private final IdentityManager identityManager_;
+  private final PolicyManager policyManager_;
   private Face face_ = null;
-  private int maxSteps_ = 100;
+  private static final SecureRandom random_ = new SecureRandom();
 }

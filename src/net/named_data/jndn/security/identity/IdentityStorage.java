@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -261,6 +261,24 @@ public abstract class IdentityStorage {
    */
   public abstract void
   setDefaultCertificateNameForKey(Name keyName, Name certificateName) throws SecurityException;
+
+  /**
+   * Get the certificate of the default identity.
+   * @return The requested certificate. If not found, return null.
+   */
+  public final IdentityCertificate
+  getDefaultCertificate() throws SecurityException
+  {
+    Name certName;
+    try {
+      certName = getDefaultCertificateNameForIdentity(getDefaultIdentity());
+    } catch (SecurityException ex) {
+      // The default is not defined.
+      return null;
+    }
+
+    return getCertificate(certName, true);
+  }
 
   /*****************************************
    *            Delete Methods             *

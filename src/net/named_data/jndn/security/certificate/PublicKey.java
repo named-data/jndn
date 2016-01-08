@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2013-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -58,11 +58,11 @@ public class PublicKey {
       List rootChildren = parsedNode.getChildren();
       List algorithmIdChildren =
         DerNode.getSequence(rootChildren, 0).getChildren();
-      oidString = ((DerNode)algorithmIdChildren.get(0)).toVal().toString();
+      oidString = "" + ((DerNode)algorithmIdChildren.get(0)).toVal();
     }
     catch (DerDecodingException ex) {
       throw new UnrecognizedKeyFormatException
-        ("PublicKey: Error decoding the public key" +
+        ("PublicKey: Error decoding the public key: " +
          ex.getMessage());
     }
 

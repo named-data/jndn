@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -291,7 +291,7 @@ public class ControlParameters {
     expirationPeriod_ = -1.0;
   }
 
-  public final boolean
+  public boolean
   equals(Object other)
   {
     return false;

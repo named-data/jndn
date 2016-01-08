@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2013-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -21,6 +21,7 @@
 package net.named_data.jndn.encoding;
 
 import java.util.Arrays;
+import net.named_data.jndn.util.Common;
 
 public class OID {
   public OID(String oid)
@@ -73,5 +74,7 @@ public class OID {
     return equals((OID)other);
   }
 
-  int[] oid_ = new int[0];
+  private int[] oid_ = new int[0];
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

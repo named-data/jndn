@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,6 @@ import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -308,10 +307,10 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     PrivateKey privateKey = getPrivateKey(keyName, keyType);
 
     // Sign.
-    Signature signature = null;
+    java.security.Signature signature = null;
     if (keyType[0] == KeyType.RSA) {
       try {
-        signature = Signature.getInstance("SHA256withRSA");
+        signature = java.security.Signature.getInstance("SHA256withRSA");
       }
       catch (NoSuchAlgorithmException e) {
         // Don't expect this to happen.
@@ -321,7 +320,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     }
     else if (keyType[0] == KeyType.ECDSA) {
       try {
-        signature = Signature.getInstance("SHA256withECDSA");
+        signature = java.security.Signature.getInstance("SHA256withECDSA");
       }
       catch (NoSuchAlgorithmException e) {
         // Don't expect this to happen.

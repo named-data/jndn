@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -217,6 +217,16 @@ public class IdentityManager {
   getDefaultIdentity() throws SecurityException
   {
     return identityStorage_.getDefaultIdentity();
+  }
+
+  /**
+   * Get the certificate of the default identity.
+   * @return The requested certificate. If not found, return null.
+   */
+  public final IdentityCertificate
+  getDefaultCertificate() throws SecurityException
+  {
+    return identityStorage_.getDefaultCertificate();
   }
 
   /**

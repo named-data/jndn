@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Regents of the University of California.
+ * Copyright (C) 2013-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.util.Common;
 
 public abstract class Transport {
   /**
@@ -118,4 +119,7 @@ public abstract class Transport {
   close() throws IOException
   {
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

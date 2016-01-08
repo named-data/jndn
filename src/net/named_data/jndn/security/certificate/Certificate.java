@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From PyNDN certificate.py by Adeola Bannis <thecodemaiden@gmail.com>.
  * @author: Originally from code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
@@ -240,7 +240,7 @@ public class Certificate extends Data {
       DerSequence sd = DerNode.getSequence(subjectChildren, i);
       List descriptionChildren = sd.getChildren();
       String oidStr = (String)((DerNode)descriptionChildren.get(0)).toVal();
-      String value = ((Blob)((DerNode)descriptionChildren.get(1)).toVal()).toString();
+      String value = "" + ((Blob)((DerNode)descriptionChildren.get(1)).toVal());
 
       addSubjectDescription(new CertificateSubjectDescription(oidStr, value));
     }

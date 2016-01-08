@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ package net.named_data.jndn.encoding.tlv;
 import java.nio.ByteBuffer;
 import java.nio.BufferUnderflowException;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.util.Common;
 
 /**
  * A TlvDecoder has methods to decode an input according to NDN-TLV.
@@ -385,4 +386,6 @@ public class TlvDecoder {
   }
 
   private final ByteBuffer input_;
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

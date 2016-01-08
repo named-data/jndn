@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Regents of the University of California.
+ * Copyright (C) 2015-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt src/group-manager https://github.com/named-data/ndn-group-encrypt
  *
@@ -323,18 +323,7 @@ public class GroupManager {
     Data data = new Data(name);
     data.getMetaInfo().setFreshnessPeriod(freshnessHours_ * MILLISECONDS_IN_HOUR);
     data.setContent(publicKeyBlob);
-
-    // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
-    try {
-      Name certificateName = keyChain_.getAnyCertificate
-        (keyChain_.getDefaultCertificateName()).getName().getPrefix(-1);
-      keyChain_.sign(data, certificateName);
-    } catch (DerDecodingException ex) {
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("Error decoding the default certificate: " + ex.getMessage());
-    }
-
+    keyChain_.sign(data);
     return data;
   }
 
@@ -372,17 +361,7 @@ public class GroupManager {
         ("createDKeyData: Error in encryptData: " + ex.getMessage());
     }
 
-    // TODO: When implemented, use KeyChain.sign(data) which does the same thing.
-    try {
-      Name certificateName = keyChain_.getAnyCertificate
-        (keyChain_.getDefaultCertificateName()).getName().getPrefix(-1);
-      keyChain_.sign(data, certificateName);
-    } catch (DerDecodingException ex) {
-      // We don't expect this to happen.
-      throw new SecurityException
-        ("Error decoding the default certificate: " + ex.getMessage());
-    }
-
+    keyChain_.sign(data);
     return data;
   }
 

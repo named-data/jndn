@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Regents of the University of California.
+ * Copyright (C) 2015-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,6 +27,7 @@ import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.OnInterestCallback;
+import net.named_data.jndn.util.Common;
 
 /**
  * An InterestFilterTable is an internal class to hold a list of entries with
@@ -152,4 +153,6 @@ public class InterestFilterTable {
   private final List table_ = new ArrayList();  // Entry
   private static final Logger logger_ = Logger.getLogger
     (InterestFilterTable.class.getName());
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

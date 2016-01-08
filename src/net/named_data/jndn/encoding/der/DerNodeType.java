@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2015 Regents of the University of California.
+ * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From PyNDN der.py by Adeola Bannis <thecodemaiden@gmail.com>.
  * @author: Originally from code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
@@ -22,58 +22,36 @@
 package net.named_data.jndn.encoding.der;
 
 /**
- * The NodeType enum defines the known DER node types.
+ * The DerNodeType class defines static values for the known DER node types.
  */
-public enum DerNodeType {
-    Eoc(0),
-    Boolean(1),
-    Integer(2),
-    BitString(3),
-    OctetString(4),
-    Null(5),
-    ObjectIdentifier(6),
-    ObjectDescriptor(7),
-    External(40),
-    Real(9),
-    Enumerated(10),
-    EmbeddedPdv(43),
-    Utf8String(12),
-    RelativeOid(13),
-    Sequence(48),
-    Set(49),
-    NumericString(18),
-    PrintableString(19),
-    T61String(20),
-    VideoTexString(21),
-    Ia5String(22),
-    UtcTime(23),
-    GeneralizedTime(24),
-    GraphicString(25),
-    VisibleString(26),
-    GeneralString(27),
-    UniversalString(28),
-    CharacterString(29),
-    BmpString(30);
-
-  DerNodeType (int type)
-  {
-    type_ = type;
-  }
-
-  public final int
-  getNumericType() { return type_; }
-
-  public static DerNodeType
-  fromNumericType(int type)
-  {
-    DerNodeType[] array = DerNodeType.values();
-    for(int i = 0; i < array.length; ++i) {
-      if (array[i].getNumericType() == type)
-        return array[i];
-    }
-
-    return null;
-  }
-
-  private final int type_;
+public class DerNodeType {
+    public static final int Eoc = 0;
+    public static final int Boolean = 1;
+    public static final int Integer = 2;
+    public static final int BitString = 3;
+    public static final int OctetString = 4;
+    public static final int Null = 5;
+    public static final int ObjectIdentifier = 6;
+    public static final int ObjectDescriptor = 7;
+    public static final int Real = 9;
+    public static final int Enumerated = 10;
+    public static final int Utf8String = 12;
+    public static final int RelativeOid = 13;
+    public static final int NumericString = 18;
+    public static final int PrintableString = 19;
+    public static final int T61String = 20;
+    public static final int VideoTexString = 21;
+    public static final int Ia5String = 22;
+    public static final int UtcTime = 23;
+    public static final int GeneralizedTime = 24;
+    public static final int GraphicString = 25;
+    public static final int VisibleString = 26;
+    public static final int GeneralString = 27;
+    public static final int UniversalString = 28;
+    public static final int CharacterString = 29;
+    public static final int BmpString = 30;
+    public static final int External = 40;
+    public static final int EmbeddedPdv = 43;
+    public static final int Sequence = 48;
+    public static final int Set = 49;
 }
