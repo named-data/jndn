@@ -867,7 +867,7 @@ public class DerNode {
     getDateFormat()
     {
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss'Z'");
-      dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+      dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
       return dateFormat;
     }
 
