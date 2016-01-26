@@ -200,7 +200,7 @@ public class BoostInfoTree {
     return prettyPrint(1);
   }
 
-  public final String
+  public String
   toString() { return prettyPrint(); }
 
   private class TreeEntry {
