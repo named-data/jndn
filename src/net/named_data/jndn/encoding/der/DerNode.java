@@ -523,6 +523,30 @@ public class DerNode {
       encodeHeader(payload_.position());
     }
 
+    /**
+     * Create a new DerInteger from the bytes in the buffer. If bytes represent
+     * a positive integer, you must ensure that the first byte is less than 0x80.
+     * @param buffer The buffer containing the bytes of the integer.  This
+     * copies from the buffer's position to limit, but does not change position.
+     * @throws DerEncodingException if the first byte is not less than 0x80.
+     */
+    public DerInteger(ByteBuffer buffer) throws DerEncodingException
+    {
+      super(DerNodeType.Integer);
+
+      if (buffer.remaining() > 0 &&
+          (((int)buffer.get(buffer.position())) & 0xff) >= 0x80)
+        throw new DerEncodingException
+          ("DerInteger: Negative integers are not currently supported");
+
+      if (buffer.remaining() == 0)
+        payload_.ensuredPut((byte)0);
+      else
+        payload_.ensuredPut(buffer);
+
+      encodeHeader(payload_.position());
+    }
+
     public DerInteger()
     {
       super(DerNodeType.Integer);
@@ -843,7 +867,7 @@ public class DerNode {
     getDateFormat()
     {
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss'Z'");
-      dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+      dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
       return dateFormat;
     }
 

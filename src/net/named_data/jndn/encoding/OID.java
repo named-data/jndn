@@ -20,7 +20,6 @@
 
 package net.named_data.jndn.encoding;
 
-import java.util.Arrays;
 import net.named_data.jndn.util.Common;
 
 public class OID {
@@ -34,7 +33,7 @@ public class OID {
 
   public OID(int[] oid)
   {
-    oid_ = Arrays.copyOf(oid, oid.length);
+    setIntegerList(oid);
   }
 
   public final int[]
@@ -43,7 +42,9 @@ public class OID {
   public final void
   setIntegerList(int[] oid)
   {
-    oid_ = Arrays.copyOf(oid, oid.length);
+    oid_ = new int[oid.length];
+	for (int i = 0; i < oid_.length; ++i)
+	  oid_[i] = oid[i];
   }
 
   public String
@@ -62,7 +63,14 @@ public class OID {
   public final boolean
   equals(OID other)
   {
-    return Arrays.equals(oid_, other.oid_);
+	if (other == null || oid_.length != other.oid_.length)
+	  return false;
+
+    for (int i = 0; i < oid_.length; ++i) {
+      if (oid_[i] != other.oid_[i])
+    	return false;
+    }
+    return true;
   }
 
   public boolean
