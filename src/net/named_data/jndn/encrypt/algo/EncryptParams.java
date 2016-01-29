@@ -77,7 +77,7 @@ public class EncryptParams {
 
   /**
    * Set the algorithm type.
-   * @param algorithmType The algorithm type. If not specified, set to NONE.
+   * @param algorithmType The algorithm type. If not specified, set to null.
    * @return This EncryptParams so that you can chain calls to update values.
    */
   public final EncryptParams
