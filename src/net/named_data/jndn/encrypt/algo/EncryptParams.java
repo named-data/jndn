@@ -32,7 +32,7 @@ import net.named_data.jndn.util.Blob;
 public class EncryptParams {
   /**
    * Create an EncryptParams with the given parameters.
-   * @param algorithmType The algorithm type, or NONE if not specified.
+   * @param algorithmType The algorithm type, or null if not specified.
    * @param initialVectorLength The initial vector length, or 0 if the initial
    * vector is not specified.
    */
@@ -53,7 +53,7 @@ public class EncryptParams {
   /**
    * Create an EncryptParams with the given algorithmType and an unspecified
    * initial vector.
-   * @param algorithmType The algorithm type, or NONE if not specified.
+   * @param algorithmType The algorithm type, or null if not specified.
    */
   public EncryptParams(EncryptAlgorithmType algorithmType)
   {
@@ -63,7 +63,7 @@ public class EncryptParams {
 
   /**
    * Get the algorithm type.
-   * @return The algorithm type, or NONE if not specified.
+   * @return The algorithm type, or null if not specified.
    */
   public final EncryptAlgorithmType
   getAlgorithmType() { return algorithmType_; }
