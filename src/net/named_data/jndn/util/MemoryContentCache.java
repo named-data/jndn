@@ -93,6 +93,9 @@ public class MemoryContentCache implements OnInterestCallback {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onDataNotFound If a data packet for an interest is not found in the
    * cache, this forwards the interest by calling
    * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
@@ -103,6 +106,9 @@ public class MemoryContentCache implements OnInterestCallback {
    * you want to automatically store all pending interests, you can simply use
    * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
    * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param flags See Face.registerPrefix.
    * @param wireFormat See Face.registerPrefix.
    * @throws IOException For I/O error in sending the registration request.
@@ -161,6 +167,9 @@ public class MemoryContentCache implements OnInterestCallback {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onDataNotFound If a data packet for an interest is not found in the
    * cache, this forwards the interest by calling
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
@@ -171,6 +180,9 @@ public class MemoryContentCache implements OnInterestCallback {
    * you want to automatically store all pending interests, you can simply use
    * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
    * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
@@ -194,6 +206,9 @@ public class MemoryContentCache implements OnInterestCallback {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
@@ -394,9 +409,14 @@ public class MemoryContentCache implements OnInterestCallback {
     else {
       // Call the onDataNotFound callback (if defined).
       Object onDataNotFound = onDataNotFoundForPrefix_.get(prefix.toUri());
-      if (onDataNotFound != null)
-        ((OnInterestCallback)onDataNotFound).onInterest
-          (prefix, interest, face, interestFilterId, filter);
+      if (onDataNotFound != null) {
+        try {
+          ((OnInterestCallback)onDataNotFound).onInterest
+            (prefix, interest, face, interestFilterId, filter);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
     }
   }
 
@@ -553,13 +573,14 @@ public class MemoryContentCache implements OnInterestCallback {
   private double nextCleanupTime_;
   // Use HashMap without generics so it works with older Java compilers.
   private final HashMap onDataNotFoundForPrefix_ =
-  new HashMap(); /**< The map key is the prefix.toUri().
+    new HashMap(); /**< The map key is the prefix.toUri().
                     * The value is the OnInterest callback. */
   // Use ArrayList without generics so it works with older Java compilers.
   private final ArrayList registeredPrefixIdList_ = new ArrayList(); // of long
   private final ArrayList noStaleTimeCache_ = new ArrayList(); // of Content
   private final ArrayList staleTimeCache_ = new ArrayList(); // of StaleTimeContent
   private final Name.Component emptyComponent_ = new Name.Component();
-  ArrayList pendingInterestTable_ = new ArrayList(); // of PendingInterest
-  OnInterestCallback storePendingInterestCallback_;
+  private final ArrayList pendingInterestTable_ = new ArrayList(); // of PendingInterest
+  private OnInterestCallback storePendingInterestCallback_;
+  private static final Logger logger_ = Logger.getLogger(MemoryContentCache.class.getName());
 }
