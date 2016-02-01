@@ -87,10 +87,16 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onTimeout If the interest times out according to the interest
    * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
    * interest given to expressInterest. If onTimeout is null, this does not use
    * it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
@@ -119,10 +125,16 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onTimeout If the interest times out according to the interest
    * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
    * interest given to expressInterest. If onTimeout is null, this does not use
    * it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -144,6 +156,9 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
@@ -166,6 +181,9 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -189,10 +207,16 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onTimeout If the interest times out according to the interest
    * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
    * interest given to expressInterest. If onTimeout is null, this does not use
    * it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
@@ -228,10 +252,16 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onTimeout If the interest times out according to the interest
    * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
    * interest given to expressInterest. If onTimeout is null, this does not use
    * it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
@@ -258,6 +288,9 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
@@ -284,10 +317,16 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onTimeout If the interest times out according to the interest
    * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
    * interest given to expressInterest. If onTimeout is null, this does not use
    * it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -316,6 +355,9 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -340,10 +382,16 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onTimeout If the interest times out according to the interest
    * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
    * interest given to expressInterest. If onTimeout is null, this does not use
    * it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -368,6 +416,9 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
@@ -393,6 +444,9 @@ public class Face {
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object. NOTE: You must not
    * change the interest object - if you need to change it then make a copy.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
    * @throws IOException For I/O error in sending the interest.
@@ -497,13 +551,22 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterSuccess This calls
    * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
    * receives a success message from the forwarder. If onRegisterSuccess is null,
    * this does not use it. (The onRegisterSuccess parameter comes after
    * onRegisterFailed because it can be null or omitted, unlike onRegisterFailed.)
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.
@@ -559,13 +622,22 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterSuccess This calls
    * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
    * receives a success message from the forwarder. If onRegisterSuccess is null,
    * this does not use it. (The onRegisterSuccess parameter comes after
    * onRegisterFailed because it can be null or omitted, unlike onRegisterFailed.)
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @return The registered prefix ID which can be used with
@@ -611,13 +683,22 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterSuccess This calls
    * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
    * receives a success message from the forwarder. If onRegisterSuccess is null,
    * this does not use it. (The onRegisterSuccess parameter comes after
    * onRegisterFailed because it can be null or omitted, unlike onRegisterFailed.)
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
@@ -665,13 +746,22 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterSuccess This calls
    * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
    * receives a success message from the forwarder. If onRegisterSuccess is null,
    * this does not use it. (The onRegisterSuccess parameter comes after
    * onRegisterFailed because it can be null or omitted, unlike onRegisterFailed.)
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
@@ -717,8 +807,14 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @param wireFormat A WireFormat object used to encode the message.
@@ -751,8 +847,14 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param flags The flags for finer control of which interests are forwarded
    * to the application.
    * @return The registered prefix ID which can be used with
@@ -782,8 +884,14 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
@@ -815,8 +923,14 @@ public class Face {
    * NOTE: You must not change the prefix or filter objects - if you need to
    * change them then make a copy.
    * If onInterest is null, it is ignored and you must call setInterestFilter.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
@@ -840,7 +954,7 @@ public class Face {
    */
   public long
   registerPrefix
-    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed, 
+    (Name prefix, OnInterest onInterest, OnRegisterFailed onRegisterFailed,
      ForwardingFlags flags, WireFormat wireFormat)
       throws IOException, SecurityException
   {
@@ -931,6 +1045,9 @@ public class Face {
    * @param onInterest When an Interest is received which matches the filter,
    * this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The interest filter ID which can be used with unsetInterestFilter.
    */
   public long
@@ -954,6 +1071,9 @@ public class Face {
    * @param onInterest This creates an interest filter from prefix so that when
    * an Interest is received which matches the filter, this calls
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The interest filter ID which can be used with unsetInterestFilter.
    */
   public long

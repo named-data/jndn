@@ -399,9 +399,13 @@ public class Node implements ElementListener {
       for (int i = 0; i < matchedFilters.size(); ++i) {
         InterestFilterTable.Entry entry =
           (InterestFilterTable.Entry)matchedFilters.get(i);
-        entry.getOnInterest().onInterest
-         (entry.getFilter().getPrefix(), interest, entry.getFace(),
-          entry.getInterestFilterId(), entry.getFilter());
+        try {
+          entry.getOnInterest().onInterest
+           (entry.getFilter().getPrefix(), interest, entry.getFace(),
+            entry.getInterestFilterId(), entry.getFilter());
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
       }
     }
     else if (data != null) {
@@ -411,7 +415,11 @@ public class Node implements ElementListener {
       for (int i = 0; i < pitEntries.size(); ++i) {
         PendingInterestTable.Entry pendingInterest =
           (PendingInterestTable.Entry)pitEntries.get(i);
-        pendingInterest.getOnData().onData(pendingInterest.getInterest(), data);
+        try{
+          pendingInterest.getOnData().onData(pendingInterest.getInterest(), data);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
       }
     }
   }
@@ -563,7 +571,11 @@ public class Node implements ElementListener {
       catch (EncodingException ex) {
         logger_.log(Level.INFO,
           "Register prefix failed: Error decoding the NFD response: {0}", ex);
-        info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+        try {
+          info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+        } catch (Throwable exception) {
+          logger_.log(Level.SEVERE, null, exception);
+        }
         return;
       }
 
@@ -571,16 +583,25 @@ public class Node implements ElementListener {
       if (statusCode != 200) {
         logger_.log(Level.INFO,
           "Register prefix failed: Expected NFD status code 200, got: {0}", statusCode);
-        info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+        try {
+          info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
         return;
       }
 
       logger_.log(Level.INFO,
         "Register prefix succeeded with the NFD forwarder for prefix {0}",
         info_.prefix_.toUri());
-      if (info_.onRegisterSuccess_ != null)
-        info_.onRegisterSuccess_.onRegisterSuccess
-          (info_.prefix_, info_.registeredPrefixId_);
+      if (info_.onRegisterSuccess_ != null) {
+        try {
+          info_.onRegisterSuccess_.onRegisterSuccess
+            (info_.prefix_, info_.registeredPrefixId_);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
     }
 
     /**
@@ -592,7 +613,11 @@ public class Node implements ElementListener {
     {
       logger_.log(Level.INFO,
         "Timeout for NFD register prefix command.");
-      info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+      try {
+        info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
     }
 
     public static class Info {
@@ -669,7 +694,11 @@ public class Node implements ElementListener {
     } catch (IOException ex) {
       logger_.log(Level.INFO,
         "Register prefix failed: Error attempting to determine if the face is local: {0}", ex);
-      onRegisterFailed.onRegisterFailed(prefix);
+      try {
+        onRegisterFailed.onRegisterFailed(prefix);
+      } catch (Throwable exception) {
+        logger_.log(Level.SEVERE, null, exception);
+      }
       return;
     }
 
@@ -715,7 +744,11 @@ public class Node implements ElementListener {
       // Can't send the interest. Call onRegisterFailed.
       logger_.log(Level.INFO,
         "Register prefix failed: Error sending the register prefix interest to the forwarder: {0}", ex);
-      onRegisterFailed.onRegisterFailed(prefix);
+      try {
+        onRegisterFailed.onRegisterFailed(prefix);
+      } catch (Throwable exception) {
+        logger_.log(Level.SEVERE, null, exception);
+      }
     }
   }
 

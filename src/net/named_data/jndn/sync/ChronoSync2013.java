@@ -38,7 +38,6 @@ import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Blob;
-import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.MemoryContentCache;
 
 /**
@@ -76,9 +75,15 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
    * isRecovery is true, a chat application would not want to re-display all
    * the associated chat messages.) The callback should send interests to fetch
    * the application data for the sequence numbers in the sync state.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onInitialized This calls onInitialized.onInitialized() when the
    * first sync data is received (or the interest times out because there are no
    * other publishers yet).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param applicationDataPrefix The prefix used by this application instance
    * for application data. For example, "/my/local/prefix/ndnchat4/0K4wChff2v".
    * This is used when sending a sync message for a new sequence number.
@@ -99,6 +104,9 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
    * @param onRegisterFailed If failed to register the prefix to receive
    * interests for the applicationBroadcastPrefix, this calls
    * onRegisterFailed.onRegisterFailed(applicationBroadcastPrefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    */
   public ChronoSync2013
     (OnReceivedSyncState onReceivedSyncState, OnInitialized onInitialized,
@@ -519,7 +527,11 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
       SyncStateProto.SyncStateMsg tempContent = builder.build();
       update(tempContent.getSsList());
 
-      onInitialized_.onInitialized();
+      try {
+        onInitialized_.onInitialized();
+      } catch (Throwable ex) {
+        Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
+      }
 
       Name name = new Name(applicationBroadcastPrefix_);
       name.append(digestTree_.getRoot());
