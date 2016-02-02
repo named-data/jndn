@@ -26,6 +26,8 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.ElementReader;
 import net.named_data.jndn.encoding.EncodingException;
@@ -44,23 +46,22 @@ public class AsyncTcpTransport extends Transport {
     // This is the CompletionHandler for asyncRead().
     readCompletionHandler_ = new CompletionHandler<Integer, Void>() {
       public void completed(Integer bytesRead, Void attachment) {
-        if (bytesRead > 0) {
-          inputBuffer_.flip();
-          try {
+        // Need to catch and log exceptions at this async entry point.
+        try {
+          if (bytesRead > 0) {
+            inputBuffer_.flip();
             elementReader_.onReceivedData(inputBuffer_);
-          } catch (EncodingException ex) {
-            // TODO: How to notify the application of failure?
-            ex.printStackTrace();
           }
-        }
 
-        // Repeatedly do  async read.
-        asyncRead();
+          // Repeatedly do  async read.
+          asyncRead();
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
       }
 
       public void failed(Throwable ex, Void attachment) {
-        // TODO: How to notify the application of failure?
-        ex.printStackTrace();
+        logger_.log(Level.SEVERE, null, ex);
       }};
   }
 
@@ -173,14 +174,18 @@ public class AsyncTcpTransport extends Transport {
        null,
        new CompletionHandler<Void, Void>() {
          public void completed(Void dummy, Void attachment) {
-           if (onConnected != null)
-             onConnected.run();
-           asyncRead();
+           // Need to catch and log exceptions at this async entry point.
+           try {
+             if (onConnected != null)
+               onConnected.run();
+             asyncRead();
+           } catch (Throwable ex) {
+             logger_.log(Level.SEVERE, null, ex);
+           }
          }
 
          public void failed(Throwable ex, Void attachment) {
-           // TODO: How to notify the application of failure?
-           ex.printStackTrace();
+           logger_.log(Level.SEVERE, null, ex);
          }});
 
     elementReader_ = new ElementReader(elementListener);
@@ -251,4 +256,6 @@ public class AsyncTcpTransport extends Transport {
   private ConnectionInfo connectionInfo_;
   private boolean isLocal_;
   private final Object isLocalLock_ = new Object();
+  private static final Logger logger_ = Logger.getLogger
+    (AsyncTcpTransport.class.getName());
 }
