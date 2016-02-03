@@ -71,7 +71,7 @@ public class GenericSignature extends Signature {
    * code).
    * @param signatureInfoEncoding A Blob with the encoding bytes.
    * @param typeCode the type code of the signature type, or -1 if not known.
-   * Wire decode will set the type code.
+   * (When a GenericSignature is created by wire decoding, it sets the typeCode.)
    */
   public final void
   setSignatureInfoEncoding(Blob signatureInfoEncoding, int typeCode)
@@ -81,6 +81,17 @@ public class GenericSignature extends Signature {
     typeCode_ = typeCode;
     
     ++changeCount_;
+  }
+
+  /**
+   * Set the bytes of the entire signature info encoding (including the type
+   * code). getTypeCode() will return -1 for not known.
+   * @param signatureInfoEncoding A Blob with the encoding bytes.
+   */
+  public final void
+  setSignatureInfoEncoding(Blob signatureInfoEncoding)
+  {
+    setSignatureInfoEncoding(signatureInfoEncoding, -1);
   }
 
   /**
