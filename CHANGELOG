@@ -1,7 +1,8 @@
-Interim changes since jNDN v0.9 (2016-02-01)
+Interim changes since jNDN v0.9 (2016-02-03)
 --------------------------------------------
 
 Changes
+* http://redmine.named-data.net/issues/3260 Added GenericSignature.
 * http://redmine.named-data.net/issues/3152 In API callbacks, catch and log exceptions.
 
 jNDN v0.9 (2016-01-07)
