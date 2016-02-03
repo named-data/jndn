@@ -44,7 +44,6 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
-import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
@@ -161,6 +160,9 @@ public class Producer {
    * @param onEncryptedKeys If this creates a content key, then this calls
    * onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of encrypted
    * content key Data packets. If onEncryptedKeys is null, this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The content key name.
    */
   public final Name
@@ -292,7 +294,7 @@ public class Producer {
         try {
           handleCoveringKey(interest, data, timeSlot, keyRequest, onEncryptedKeys);
         } catch (Exception ex) {
-          Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, null, ex);
         }
       }
     };
@@ -302,7 +304,7 @@ public class Producer {
         try {
           handleTimeout(interest, timeSlot, keyRequest, onEncryptedKeys);
         } catch (IOException ex) {
-          Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, null, ex);
         }
       }
     };
@@ -342,7 +344,11 @@ public class Producer {
       --keyRequest.interestCount;
 
     if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
-      onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
+      try {
+        onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
+      } catch (Throwable exception) {
+        logger_.log(Level.SEVERE, null, exception);
+      }
       keyRequests_.remove(timeSlot);
     }
   }
@@ -434,7 +440,11 @@ public class Producer {
 
     --keyRequest.interestCount;
     if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
-      onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
+      try {
+        onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
+      } catch (Throwable exception) {
+        logger_.log(Level.SEVERE, null, exception);
+      }
       keyRequests_.remove(timeSlot);
     }
   }
@@ -666,6 +676,7 @@ public class Producer {
     new HashMap(); /**< The map key is the double time stamp. The value is a KeyRequest. */
   private final ProducerDb database_;
   private final int maxRepeatAttempts_;
+  private static final Logger logger_ = Logger.getLogger(Producer.class.getName());
 
   private static final int iStartTimeStamp = -2;
   private static final int iEndTimeStamp = -1;

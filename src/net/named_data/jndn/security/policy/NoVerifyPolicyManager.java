@@ -20,6 +20,8 @@
 
 package net.named_data.jndn.security.policy;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
@@ -81,6 +83,9 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress.
    * @param onVerified This does override to call onVerified.onVerified(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed Override to ignore this.
    * @return null for no further step.
    */
@@ -88,7 +93,11 @@ public class NoVerifyPolicyManager extends PolicyManager {
     (Data data, int stepCount, OnVerified onVerified, OnVerifyFailed onVerifyFailed)
     throws SecurityException
   {
-    onVerified.onVerified(data);
+    try {
+      onVerified.onVerified(data);
+    } catch (Throwable ex) {
+      logger_.log(Level.SEVERE, null, ex);
+    }
     return null;
   }
 
@@ -99,6 +108,9 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress.
    * @param onVerified This does override to call onVerified.onVerifiedInterest(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed Override to ignore this.
    * @return null for no further step.
    */
@@ -107,7 +119,11 @@ public class NoVerifyPolicyManager extends PolicyManager {
      OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat)
     throws SecurityException
   {
-    onVerified.onVerifiedInterest(interest);
+    try {
+      onVerified.onVerifiedInterest(interest);
+    } catch (Throwable ex) {
+      logger_.log(Level.SEVERE, null, ex);
+    }
     return null;
   }
 
@@ -134,4 +150,6 @@ public class NoVerifyPolicyManager extends PolicyManager {
     return new Name();
   }
 
+  private static final Logger logger_ = Logger.getLogger
+    (NoVerifyPolicyManager.class.getName());
 }

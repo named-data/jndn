@@ -755,14 +755,28 @@ public class KeyChain {
           face_.expressInterest(nextStep.interest_, callbacks, callbacks);
         }
         catch (IOException ex) {
-          onVerifyFailed.onVerifyFailed(data);
+          try {
+            onVerifyFailed.onVerifyFailed(data);
+          } catch (Throwable exception) {
+            logger_.log(Level.SEVERE, null, exception);
+          }
         }
       }
     }
-    else if (policyManager_.skipVerifyAndTrust(data))
-      onVerified.onVerified(data);
-    else
-      onVerifyFailed.onVerifyFailed(data);
+    else if (policyManager_.skipVerifyAndTrust(data)) {
+      try {
+        onVerified.onVerified(data);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
+    }
+    else {
+      try {
+        onVerifyFailed.onVerifyFailed(data);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
+    }
   }
 
   /**
@@ -775,8 +789,14 @@ public class KeyChain {
    * To set the wireEncoding, you can call data.wireDecode.
    * @param onVerified If the signature is verified, this calls
    * onVerified.onVerified(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed.onVerifyFailed(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    */
   public final void
   verifyData(Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed)
@@ -803,14 +823,28 @@ public class KeyChain {
           face_.expressInterest(nextStep.interest_, callbacks, callbacks);
         }
         catch (IOException ex) {
-          onVerifyFailed.onVerifyInterestFailed(interest);
+          try {
+            onVerifyFailed.onVerifyInterestFailed(interest);
+          } catch (Throwable exception) {
+            logger_.log(Level.SEVERE, null, exception);
+          }
         }
       }
     }
-    else if (policyManager_.skipVerifyAndTrust(interest))
-      onVerified.onVerifiedInterest(interest);
-    else
-      onVerifyFailed.onVerifyInterestFailed(interest);
+    else if (policyManager_.skipVerifyAndTrust(interest)) {
+      try {
+        onVerified.onVerifiedInterest(interest);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
+    }
+    else {
+      try {
+        onVerifyFailed.onVerifyInterestFailed(interest);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
+    }
   }
 
   /**
@@ -821,8 +855,14 @@ public class KeyChain {
    * @param interest The interest with the signature to check.
    * @param onVerified If the signature is verified, this calls
    * onVerified.onVerifiedInterest(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed.onVerifyInterestFailed(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    */
   public final void
   verifyInterest
@@ -879,11 +919,20 @@ public class KeyChain {
           face_.expressInterest(interest, callbacks, callbacks);
         }
         catch (IOException ex) {
-          onVerifyFailed_.onVerifyFailed(originalData_);
+          try {
+            onVerifyFailed_.onVerifyFailed(originalData_);
+          } catch (Throwable exception) {
+            logger_.log(Level.SEVERE, null, exception);
+          }
         }
       }
-      else
-        onVerifyFailed_.onVerifyFailed(originalData_);
+      else {
+        try {
+          onVerifyFailed_.onVerifyFailed(originalData_);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
     }
 
     private final ValidationRequest nextStep_;
@@ -933,11 +982,20 @@ public class KeyChain {
           face_.expressInterest(interest, callbacks, callbacks);
         }
         catch (IOException ex) {
-          onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+          try {
+            onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+          } catch (Throwable exception) {
+            logger_.log(Level.SEVERE, null, exception);
+          }
         }
       }
-      else
-        onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+      else {
+        try {
+          onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
     }
 
     private final ValidationRequest nextStep_;
@@ -992,4 +1050,5 @@ public class KeyChain {
   private final PolicyManager policyManager_;
   private Face face_ = null;
   private static final SecureRandom random_ = new SecureRandom();
+  private static final Logger logger_ = Logger.getLogger(KeyChain.class.getName());
 }

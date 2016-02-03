@@ -1,12 +1,18 @@
-v0.9 (2016-01-07)
------------------
+Interim changes since jNDN v0.9 (2016-02-01)
+--------------------------------------------
+
+Changes
+* http://redmine.named-data.net/issues/3152 In API callbacks, catch and log exceptions.
+
+jNDN v0.9 (2016-01-07)
+----------------------
 
 Changes
 * Added the net.named_data.jndn.encrypt package for the Group-Based Encryption Protocol, ported from
   https://github.com/named-data/ndn-group-encrypt
 * Added classes Link and DelegationSet to support link objects.
 * In Interest, added methods to support link objects and SelectedDelegation:
-  hasLink, getLink, unsetLink, get/setLinkWireEncoding get/setSelectedDelegationIndex.
+  hasLink, getLink, unsetLink, get/setLinkWireEncoding, get/setSelectedDelegationIndex.
 * In Name, added method toString() which calls toUri().
 * INSTALL: Removed unsupported OS X 10.8.4.
 * INSTALL: Added OS X 10.11 and Ubuntu 15.04 (64 bit).

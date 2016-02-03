@@ -95,11 +95,11 @@ public class PendingInterestTable {
     callTimeout()
     {
       if (onTimeout_ != null) {
-        // Ignore all exceptions.
         try {
           onTimeout_.onTimeout(interest_);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
         }
-        catch (Throwable e) { }
       }
     }
 

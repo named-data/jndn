@@ -28,6 +28,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.named_data.jndn.Data;
@@ -271,8 +273,14 @@ public class ConfigPolicyManager extends PolicyManager {
    * to track the verification progress.
    * @param onVerified If the signature is verified, this calls
    * onVerified.onVerified(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed.onVerifyFailed(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return the indication of next verification step, null if there is no
    * further step.
    */
@@ -284,7 +292,11 @@ public class ConfigPolicyManager extends PolicyManager {
     Interest certificateInterest = getCertificateInterest
       (stepCount, "data", data.getName(), data.getSignature());
     if (certificateInterest == null) {
-      onVerifyFailed.onVerifyFailed(data);
+      try {
+        onVerifyFailed.onVerifyFailed(data);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
       return null;
     }
 
@@ -297,10 +309,20 @@ public class ConfigPolicyManager extends PolicyManager {
     else {
       // Certificate is known. Verify the signature.
       // wireEncode returns the cached encoding if available.
-      if (verify(data.getSignature(), data.wireEncode()))
-        onVerified.onVerified(data);
-      else
-        onVerifyFailed.onVerifyFailed(data);
+      if (verify(data.getSignature(), data.wireEncode())) {
+        try {
+          onVerified.onVerified(data);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
+      else {
+        try {
+          onVerifyFailed.onVerifyFailed(data);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
 
       return null;
     }
@@ -313,8 +335,14 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress.
    * @param onVerified If the signature is verified, this calls onVerified(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return the indication of next verification step, null if there is no
    * further step.
    */
@@ -326,7 +354,11 @@ public class ConfigPolicyManager extends PolicyManager {
     Signature signature = extractSignature(interest, wireFormat);
     if (signature == null) {
       // Can't get the signature from the interest name.
-      onVerifyFailed.onVerifyInterestFailed(interest);
+      try {
+        onVerifyFailed.onVerifyInterestFailed(interest);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
       return null;
     }
 
@@ -335,7 +367,11 @@ public class ConfigPolicyManager extends PolicyManager {
     Interest certificateInterest = getCertificateInterest
       (stepCount, "interest", interest.getName().getPrefix(-4), signature);
     if (certificateInterest == null) {
-      onVerifyFailed.onVerifyInterestFailed(interest);
+      try {
+        onVerifyFailed.onVerifyInterestFailed(interest);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
       return null;
     }
 
@@ -355,18 +391,31 @@ public class ConfigPolicyManager extends PolicyManager {
       double timestamp = interest.getName().get(-4).toNumber();
 
       if (!interestTimestampIsFresh(keyName, timestamp)) {
-        onVerifyFailed.onVerifyInterestFailed(interest);
+        try {
+          onVerifyFailed.onVerifyInterestFailed(interest);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
         return null;
       }
 
       // Certificate is known. Verify the signature.
       // wireEncode returns the cached encoding if available.
       if (verify(signature, interest.wireEncode())) {
-        onVerified.onVerifiedInterest(interest);
+        try {
+          onVerified.onVerifiedInterest(interest);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
         updateTimestampForKey(keyName, timestamp);
       }
-      else
-        onVerifyFailed.onVerifyInterestFailed(interest);
+      else {
+        try {
+          onVerifyFailed.onVerifyInterestFailed(interest);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
 
       return null;
     }
@@ -1056,7 +1105,11 @@ public class ConfigPolicyManager extends PolicyManager {
       try {
         certificate = new IdentityCertificate(data);
       } catch (DerDecodingException ex) {
-        onVerifyFailed_.onVerifyFailed(originalData_);
+        try {
+          onVerifyFailed_.onVerifyFailed(originalData_);
+        } catch (Throwable exception) {
+          logger_.log(Level.SEVERE, null, exception);
+        }
         return;
       }
       certificateCache_.insertCertificate(certificate);
@@ -1067,7 +1120,11 @@ public class ConfigPolicyManager extends PolicyManager {
         checkVerificationPolicy
           (originalData_, stepCount_ + 1, onVerified_, onVerifyFailed_);
       } catch (SecurityException ex) {
-        onVerifyFailed_.onVerifyFailed(originalData_);
+        try {
+          onVerifyFailed_.onVerifyFailed(originalData_);
+        } catch (Throwable exception) {
+          logger_.log(Level.SEVERE, null, exception);
+        }
       }
     }
 
@@ -1110,7 +1167,11 @@ public class ConfigPolicyManager extends PolicyManager {
       try {
         certificate = new IdentityCertificate(data);
       } catch (DerDecodingException ex) {
-        onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+        try {
+          onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+        } catch (Throwable exception) {
+          logger_.log(Level.SEVERE, null, exception);
+        }
         return;
       }
       certificateCache_.insertCertificate(certificate);
@@ -1121,7 +1182,11 @@ public class ConfigPolicyManager extends PolicyManager {
         checkVerificationPolicy
                 (originalInterest_, stepCount_ + 1, onVerified_, onVerifyFailed_, wireFormat_);
       } catch (SecurityException ex) {
-        onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+        try {
+          onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+        } catch (Throwable exception) {
+          logger_.log(Level.SEVERE, null, exception);
+        }
       }
     }
 
@@ -1233,4 +1298,6 @@ public class ConfigPolicyManager extends PolicyManager {
   private boolean requiresVerification_ = true;
   private TrustAnchorRefreshManager refreshManager_ =
     new TrustAnchorRefreshManager();
+  private static final Logger logger_ = Logger.getLogger
+    (ConfigPolicyManager.class.getName());
 }

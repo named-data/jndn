@@ -119,8 +119,14 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress. (stepCount is ignored.)
    * @param onVerified If the signature is verified, this calls onVerified(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed If the signature check fails or can't find the public
    * key, this calls onVerifyFailed(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return null for no further step for looking up a certificate chain.
    */
   public ValidationRequest checkVerificationPolicy
@@ -128,10 +134,20 @@ public class SelfVerifyPolicyManager extends PolicyManager {
      OnVerifyFailed onVerifyFailed) throws SecurityException
   {
     // wireEncode returns the cached encoding if available.
-    if (verify(data.getSignature(), data.wireEncode()))
-      onVerified.onVerified(data);
-    else
-      onVerifyFailed.onVerifyFailed(data);
+    if (verify(data.getSignature(), data.wireEncode())) {
+      try {
+        onVerified.onVerified(data);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
+    }
+    else {
+      try {
+        onVerifyFailed.onVerifyFailed(data);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
+    }
 
     // No more steps, so return a null ValidationRequest.
     return null;
@@ -147,8 +163,14 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * to track the verification progress. (stepCount is ignored.)
    * @param onVerified If the signature is verified, this calls
    * onVerified.onVerifiedInterest(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed If the signature check fails or can't find the public
    * key, this calls onVerifyFailed.onVerifyInterestFailed(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return null for no further step for looking up a certificate chain.
    */
   public ValidationRequest
@@ -165,17 +187,31 @@ public class SelfVerifyPolicyManager extends PolicyManager {
          interest.getName().get(-1).getValue().buf());
     }
     catch (EncodingException ex) {
-      Logger.getLogger(SelfVerifyPolicyManager.class.getName()).log
+      logger_.log
         (Level.INFO, "Cannot decode the signed interest SignatureInfo and value", ex);
-      onVerifyFailed.onVerifyInterestFailed(interest);
+      try {
+        onVerifyFailed.onVerifyInterestFailed(interest);
+      } catch (Throwable exception) {
+        logger_.log(Level.SEVERE, null, exception);
+      }
       return null;
     }
 
     // wireEncode returns the cached encoding if available.
-    if (verify(signature, interest.wireEncode(wireFormat)))
-      onVerified.onVerifiedInterest(interest);
-    else
-      onVerifyFailed.onVerifyInterestFailed(interest);
+    if (verify(signature, interest.wireEncode(wireFormat))) {
+      try {
+        onVerified.onVerifiedInterest(interest);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
+    }
+    else {
+      try {
+        onVerifyFailed.onVerifyInterestFailed(interest);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, null, ex);
+      }
+    }
 
     // No more steps, so return a null ValidationRequest.
     return null;
@@ -250,4 +286,6 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   private final IdentityStorage identityStorage_;
+  private static final Logger logger_ = Logger.getLogger
+    (SelfVerifyPolicyManager.class.getName());
 }

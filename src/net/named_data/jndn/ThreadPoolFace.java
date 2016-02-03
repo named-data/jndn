@@ -22,6 +22,8 @@ package net.named_data.jndn;
 import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.transport.Transport;
 
@@ -82,7 +84,14 @@ public class ThreadPoolFace extends Face {
       public void onData(final Interest localInterest, final Data data) {
         threadPool_.submit(new Runnable() {
           // Call the passed-in onData.
-          public void run() { finalOnData.onData(localInterest, data); }
+          public void run() {
+            // Need to catch and log exceptions at this async entry point.
+            try {
+              finalOnData.onData(localInterest, data);
+            } catch (Throwable ex) {
+              logger_.log(Level.SEVERE, null, ex);
+            }
+          }
         });
       }
     };
@@ -93,20 +102,27 @@ public class ThreadPoolFace extends Face {
         public void onTimeout(final Interest localInterest) {
           threadPool_.submit(new Runnable() {
             // Call the passed-in onTimeout.
-            public void run() { finalOnTimeout.onTimeout(localInterest); }
+            public void run() {
+              // Need to catch and log exceptions at this async entry point.
+              try {
+                finalOnTimeout.onTimeout(localInterest);
+              } catch (Throwable ex) {
+                logger_.log(Level.SEVERE, null, ex);
+              }
+            }
           });
         }
       };
 
     threadPool_.submit(new Runnable() {
       public void run() {
+        // Need to catch and log exceptions at this async entry point.
         try {
           node_.expressInterest
             (pendingInterestId, interest, onDataSubmit, onTimeoutSubmit,
              wireFormat, ThreadPoolFace.this);
-        } catch (IOException ex) {
-          // TODO: How to notify the application of failure?
-          ex.printStackTrace();
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
         }
       }
     });
@@ -126,10 +142,19 @@ public class ThreadPoolFace extends Face {
   {
     threadPool_.schedule
       (new Runnable() {
-        public void run() { callback.run(); }
+        public void run() {
+          // Need to catch and log exceptions at this async entry point.
+          try {
+            callback.run();
+          } catch (Throwable ex) {
+            logger_.log(Level.SEVERE, null, ex);
+          }
+        }
        },
        (long)delayMilliseconds, TimeUnit.MILLISECONDS);
   }
 
   private final ScheduledExecutorService threadPool_;
+  private static final Logger logger_ = Logger.getLogger
+    (ThreadPoolFace.class.getName());
 }
