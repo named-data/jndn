@@ -234,9 +234,12 @@ public class TestFaceInterestMethods {
                  targetSize, interestSize);
 
     CallbackCounter counter = new CallbackCounter();
+    boolean gotError = true;
     try {
       face.expressInterest(interest, counter, counter);
-      fail("expressInterest didn't throw an exception when the interest size exceeds getMaxNdnPacketSize()");
+      gotError = false;
     } catch (Error ex) {}
+    if (!gotError)
+      fail("expressInterest didn't throw an exception when the interest size exceeds getMaxNdnPacketSize()");
   }
 }
