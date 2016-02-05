@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.ControlParameters;
+import net.named_data.jndn.ControlResponse;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.DigestSha256Signature;
@@ -308,53 +309,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   encodeControlParameters(ControlParameters controlParameters)
   {
     TlvEncoder encoder = new TlvEncoder(256);
-    int saveLength = encoder.getLength();
-
-    // Encode backwards.
-    encoder.writeOptionalNonNegativeIntegerTlvFromDouble
-      (Tlv.ControlParameters_ExpirationPeriod,
-       controlParameters.getExpirationPeriod());
-
-    // Encode strategy
-    if(controlParameters.getStrategy().size() != 0){
-      int strategySaveLength = encoder.getLength();
-      encodeName(controlParameters.getStrategy(), new int[1], new int[1],
-        encoder);
-      encoder.writeTypeAndLength(Tlv.ControlParameters_Strategy,
-        encoder.getLength() - strategySaveLength);
-    }
-
-    // Encode ForwardingFlags
-    int flags = controlParameters.getForwardingFlags().getNfdForwardingFlags();
-    if (flags != new ForwardingFlags().getNfdForwardingFlags())
-        // The flags are not the default value.
-        encoder.writeNonNegativeIntegerTlv(Tlv.ControlParameters_Flags, flags);
-
-    encoder.writeOptionalNonNegativeIntegerTlv
-      (Tlv.ControlParameters_Cost, controlParameters.getCost());
-    encoder.writeOptionalNonNegativeIntegerTlv
-      (Tlv.ControlParameters_Origin, controlParameters.getOrigin());
-    encoder.writeOptionalNonNegativeIntegerTlv
-      (Tlv.ControlParameters_LocalControlFeature,
-       controlParameters.getLocalControlFeature());
-
-    // Encode URI
-    if(controlParameters.getUri().length() != 0){
-      encoder.writeBlobTlv(Tlv.ControlParameters_Uri,
-        new Blob(controlParameters.getUri()).buf());
-    }
-
-    encoder.writeOptionalNonNegativeIntegerTlv
-      (Tlv.ControlParameters_FaceId, controlParameters.getFaceId());
-
-    // Encode name
-    if (controlParameters.getName() != null) {
-      encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
-    }
-
-    encoder.writeTypeAndLength
-      (Tlv.ControlParameters_ControlParameters, encoder.getLength() - saveLength);
-
+    encodeControlParameters(controlParameters, encoder);
     return new Blob(encoder.getOutput(), false);
   }
 
@@ -372,55 +327,70 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     (ControlParameters controlParameters, ByteBuffer input)
     throws EncodingException
   {
-    controlParameters.clear();
-
     TlvDecoder decoder = new TlvDecoder(input);
-    int endOffset = decoder.
-      readNestedTlvsStart(Tlv.ControlParameters_ControlParameters);
+    decodeControlParameters(controlParameters, decoder);
+  }
 
-    // decode name
-    if (decoder.peekType(Tlv.Name, endOffset)) {
-      Name name = new Name();
-      decodeName(name, new int[1], new int[1], decoder);
-      controlParameters.setName(name);
+  /**
+   * Encode controlResponse in NDN-TLV and return the encoding.
+   * @param controlResponse The ControlResponse object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeControlResponse(ControlResponse controlResponse)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+
+    // Encode the body.
+    if (controlResponse.getBodyAsControlParameters() != null)
+      encodeControlParameters
+        (controlResponse.getBodyAsControlParameters(), encoder);
+
+    encoder.writeBlobTlv(Tlv.NfdCommand_StatusText,
+      new Blob(controlResponse.getStatusText()).buf());
+    encoder.writeNonNegativeIntegerTlv
+      (Tlv.NfdCommand_StatusCode, controlResponse.getStatusCode());
+
+    encoder.writeTypeAndLength
+      (Tlv.NfdCommand_ControlResponse, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as a control parameters in NDN-TLV and set the fields of the
+   * controlResponse object.
+   * @param controlResponse The ControlResponse object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding
+   */
+  public void
+  decodeControlResponse
+    (ControlResponse controlResponse, ByteBuffer input)
+    throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = decoder.readNestedTlvsStart(Tlv.NfdCommand_ControlResponse);
+
+    controlResponse.setStatusCode
+      ((int)decoder.readNonNegativeIntegerTlv(Tlv.NfdCommand_StatusCode));
+    Blob statusText = new Blob
+      (decoder.readBlobTlv(Tlv.NfdCommand_StatusText), true);
+    controlResponse.setStatusText(statusText.toString());
+
+    // Decode the body.
+    if (decoder.peekType(Tlv.ControlParameters_ControlParameters, endOffset)) {
+      controlResponse.setBodyAsControlParameters(new ControlParameters());
+      // Decode into the existing ControlParameters to avoid copying.
+      decodeControlParameters(controlResponse.getBodyAsControlParameters(), decoder);
     }
-
-    // decode face ID
-    controlParameters.setFaceId((int) decoder.readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_FaceId, endOffset));
-
-    // decode URI
-    if (decoder.peekType(Tlv.ControlParameters_Uri, endOffset)) {
-      Blob uri = new Blob(decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), true);
-      controlParameters.setUri("" + uri);
-    }
-
-    // decode integers
-    controlParameters.setLocalControlFeature((int) decoder.
-      readOptionalNonNegativeIntegerTlv(
-        Tlv.ControlParameters_LocalControlFeature, endOffset));
-    controlParameters.setOrigin((int) decoder.
-      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Origin,
-        endOffset));
-    controlParameters.setCost((int) decoder.readOptionalNonNegativeIntegerTlv(
-      Tlv.ControlParameters_Cost, endOffset));
-
-    // set forwarding flags
-    if (decoder.peekType(Tlv.ControlParameters_Flags, endOffset)) {
-      ForwardingFlags flags = new ForwardingFlags();
-      flags.setNfdForwardingFlags((int) decoder.
-        readNonNegativeIntegerTlv(Tlv.ControlParameters_Flags));
-      controlParameters.setForwardingFlags(flags);
-    }
-
-    // decode strategy
-    if (decoder.peekType(Tlv.ControlParameters_Strategy, endOffset)) {
-      int strategyEndOffset = decoder.readNestedTlvsStart(Tlv.ControlParameters_Strategy);
-      decodeName(controlParameters.getStrategy(), new int[1], new int[1], decoder);
-      decoder.finishNestedTlvs(strategyEndOffset);
-    }
-
-    // decode expiration period
-    controlParameters.setExpirationPeriod(decoder.readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_ExpirationPeriod, endOffset));
+    else
+      controlResponse.setBodyAsControlParameters(null);
 
     decoder.finishNestedTlvs(endOffset);
   }
@@ -1092,6 +1062,120 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     }
     else
       metaInfo.setFinalBlockId(null);
+
+    decoder.finishNestedTlvs(endOffset);
+  }
+
+  private static void
+  encodeControlParameters(ControlParameters controlParameters, TlvEncoder encoder)
+  {
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    encoder.writeOptionalNonNegativeIntegerTlvFromDouble
+      (Tlv.ControlParameters_ExpirationPeriod,
+       controlParameters.getExpirationPeriod());
+
+    // Encode strategy
+    if(controlParameters.getStrategy().size() != 0){
+      int strategySaveLength = encoder.getLength();
+      encodeName(controlParameters.getStrategy(), new int[1], new int[1],
+        encoder);
+      encoder.writeTypeAndLength(Tlv.ControlParameters_Strategy,
+        encoder.getLength() - strategySaveLength);
+    }
+
+    // Encode ForwardingFlags
+    int flags = controlParameters.getForwardingFlags().getNfdForwardingFlags();
+    if (flags != new ForwardingFlags().getNfdForwardingFlags())
+        // The flags are not the default value.
+        encoder.writeNonNegativeIntegerTlv(Tlv.ControlParameters_Flags, flags);
+
+    encoder.writeOptionalNonNegativeIntegerTlv
+      (Tlv.ControlParameters_Cost, controlParameters.getCost());
+    encoder.writeOptionalNonNegativeIntegerTlv
+      (Tlv.ControlParameters_Origin, controlParameters.getOrigin());
+    encoder.writeOptionalNonNegativeIntegerTlv
+      (Tlv.ControlParameters_LocalControlFeature,
+       controlParameters.getLocalControlFeature());
+
+    // Encode URI
+    if(controlParameters.getUri().length() != 0){
+      encoder.writeBlobTlv(Tlv.ControlParameters_Uri,
+        new Blob(controlParameters.getUri()).buf());
+    }
+
+    encoder.writeOptionalNonNegativeIntegerTlv
+      (Tlv.ControlParameters_FaceId, controlParameters.getFaceId());
+
+    // Encode name
+    if (controlParameters.getName() != null) {
+      encodeName(controlParameters.getName(), new int[1], new int[1], encoder);
+    }
+
+    encoder.writeTypeAndLength
+      (Tlv.ControlParameters_ControlParameters, encoder.getLength() - saveLength);
+  }
+
+  private static void
+  decodeControlParameters
+    (ControlParameters controlParameters, TlvDecoder decoder)
+    throws EncodingException
+  {
+    controlParameters.clear();
+
+    int endOffset = decoder.readNestedTlvsStart
+      (Tlv.ControlParameters_ControlParameters);
+
+    // decode name
+    if (decoder.peekType(Tlv.Name, endOffset)) {
+      Name name = new Name();
+      decodeName(name, new int[1], new int[1], decoder);
+      controlParameters.setName(name);
+    }
+
+    // decode face ID
+    controlParameters.setFaceId
+      ((int)decoder.readOptionalNonNegativeIntegerTlv
+       (Tlv.ControlParameters_FaceId, endOffset));
+
+    // decode URI
+    if (decoder.peekType(Tlv.ControlParameters_Uri, endOffset)) {
+      Blob uri = new Blob
+        (decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), true);
+      controlParameters.setUri("" + uri);
+    }
+
+    // decode integers
+    controlParameters.setLocalControlFeature((int) decoder.
+      readOptionalNonNegativeIntegerTlv(
+        Tlv.ControlParameters_LocalControlFeature, endOffset));
+    controlParameters.setOrigin((int) decoder.
+      readOptionalNonNegativeIntegerTlv(Tlv.ControlParameters_Origin,
+        endOffset));
+    controlParameters.setCost((int) decoder.readOptionalNonNegativeIntegerTlv(
+      Tlv.ControlParameters_Cost, endOffset));
+
+    // set forwarding flags
+    if (decoder.peekType(Tlv.ControlParameters_Flags, endOffset)) {
+      ForwardingFlags flags = new ForwardingFlags();
+      flags.setNfdForwardingFlags((int) decoder.
+        readNonNegativeIntegerTlv(Tlv.ControlParameters_Flags));
+      controlParameters.setForwardingFlags(flags);
+    }
+
+    // decode strategy
+    if (decoder.peekType(Tlv.ControlParameters_Strategy, endOffset)) {
+      int strategyEndOffset = decoder.readNestedTlvsStart
+        (Tlv.ControlParameters_Strategy);
+      decodeName(controlParameters.getStrategy(), new int[1], new int[1], decoder);
+      decoder.finishNestedTlvs(strategyEndOffset);
+    }
+
+    // decode expiration period
+    controlParameters.setExpirationPeriod
+      (decoder.readOptionalNonNegativeIntegerTlv
+       (Tlv.ControlParameters_ExpirationPeriod, endOffset));
 
     decoder.finishNestedTlvs(endOffset);
   }
