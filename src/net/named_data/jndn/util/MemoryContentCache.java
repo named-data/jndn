@@ -32,6 +32,7 @@ import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
+import net.named_data.jndn.OnRegisterSuccess;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.SecurityException;
 
@@ -96,6 +97,177 @@ public class MemoryContentCache implements OnInterestCallback {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onDataNotFound If a data packet for an interest is not found in the
+   * cache, this forwards the interest by calling
+   * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
+   * Your callback can find the Data packet for the interest and call
+   * face.putData(data).  If your callback cannot find the Data packet, it can
+   * optionally call storePendingInterest(interest, face) to store the pending
+   * interest in this object to be satisfied by a later call to add(data). If
+   * you want to automatically store all pending interests, you can simply use
+   * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
+   * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param flags See Face.registerPrefix.
+   * @param wireFormat See Face.registerPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
+   */
+  public final void
+  registerPrefix
+    (Name prefix, OnRegisterFailed onRegisterFailed,
+     OnRegisterSuccess onRegisterSuccess, OnInterestCallback onDataNotFound,
+     ForwardingFlags flags, WireFormat wireFormat)
+     throws IOException, SecurityException
+  {
+    if (onDataNotFound != null)
+      onDataNotFoundForPrefix_.put(prefix.toUri(), onDataNotFound);
+    long registeredPrefixId = face_.registerPrefix
+      (prefix, this, onRegisterFailed, onRegisterSuccess, flags, wireFormat);
+    registeredPrefixIdList_.add(registeredPrefixId);
+  }
+
+  /**
+   * Call registerPrefix on the Face given to the constructor so that this
+   * MemoryContentCache will answer interests whose name has the prefix.
+   * This uses the default WireFormat.getDefaultWireFormat().
+   * @param prefix The Name for the prefix to register. This copies the Name.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onDataNotFound If a data packet for an interest is not found in the
+   * cache, this forwards the interest by calling
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * Your callback can find the Data packet for the interest and call
+   * face.putData(data).  If your callback cannot find the Data packet, it can
+   * optionally call storePendingInterest(interest, face) to store the pending
+   * interest in this object to be satisfied by a later call to add(data). If
+   * you want to automatically store all pending interests, you can simply use
+   * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
+   * this does not use it.
+   * @param flags See Face.registerPrefix.
+   * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
+   */
+  public final void
+  registerPrefix
+    (Name prefix, OnRegisterFailed onRegisterFailed,
+     OnRegisterSuccess onRegisterSuccess, OnInterestCallback onDataNotFound,
+     ForwardingFlags flags) throws IOException, SecurityException
+  {
+    registerPrefix
+      (prefix, onRegisterFailed, onRegisterSuccess, onDataNotFound, flags,
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Call registerPrefix on the Face given to the constructor so that this
+   * MemoryContentCache will answer interests whose name has the prefix.
+   * This uses the default WireFormat.getDefaultWireFormat().
+   * Use default ForwardingFlags.
+   * @param prefix The Name for the prefix to register. This copies the Name.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onDataNotFound If a data packet for an interest is not found in the
+   * cache, this forwards the interest by calling
+   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * Your callback can find the Data packet for the interest and call
+   * face.putData(data).  If your callback cannot find the Data packet, it can
+   * optionally call storePendingInterest(interest, face) to store the pending
+   * interest in this object to be satisfied by a later call to add(data). If
+   * you want to automatically store all pending interests, you can simply use
+   * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
+   * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
+   */
+  public final void
+  registerPrefix
+    (Name prefix, OnRegisterFailed onRegisterFailed,
+     OnRegisterSuccess onRegisterSuccess, OnInterestCallback onDataNotFound)
+    throws IOException, SecurityException
+  {
+    registerPrefix
+      (prefix, onRegisterFailed, onRegisterSuccess, onDataNotFound,
+       new ForwardingFlags(), WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Call registerPrefix on the Face given to the constructor so that this
+   * MemoryContentCache will answer interests whose name has the prefix.
+   * Do not call a callback if a data packet is not found in the cache.
+   * This uses the default WireFormat.getDefaultWireFormat().
+   * Use default ForwardingFlags.
+   * @param prefix The Name for the prefix to register. This copies the Name.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onRegisterSuccess This calls
+   * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
+   * receives a success message from the forwarder. If onRegisterSuccess is null,
+   * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @throws IOException For I/O error in sending the registration request.
+   * @throws SecurityException If signing a command interest for NFD and cannot
+   * find the private key for the certificateName.
+   */
+  public final void
+  registerPrefix(Name prefix, OnRegisterFailed onRegisterFailed,
+     OnRegisterSuccess onRegisterSuccess)
+    throws IOException, SecurityException
+  {
+    registerPrefix
+      (prefix, onRegisterFailed, onRegisterSuccess, null, new ForwardingFlags(),
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Call registerPrefix on the Face given to the constructor so that this
+   * MemoryContentCache will answer interests whose name has the prefix.
+   * @param prefix The Name for the prefix to register. This copies the Name.
+   * @param onRegisterFailed If register prefix fails for any reason, this
+   * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onDataNotFound If a data packet for an interest is not found in the
    * cache, this forwards the interest by calling
    * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
@@ -120,11 +292,8 @@ public class MemoryContentCache implements OnInterestCallback {
     (Name prefix, OnRegisterFailed onRegisterFailed, OnInterestCallback onDataNotFound,
      ForwardingFlags flags, WireFormat wireFormat) throws IOException, SecurityException
   {
-    if (onDataNotFound != null)
-      onDataNotFoundForPrefix_.put(prefix.toUri(), onDataNotFound);
-    long registeredPrefixId = face_.registerPrefix
-      (prefix, this, onRegisterFailed, flags, wireFormat);
-    registeredPrefixIdList_.add(registeredPrefixId);
+    registerPrefix
+      (prefix, onRegisterFailed, null, onDataNotFound, flags, wireFormat);
   }
 
   /**
@@ -134,6 +303,9 @@ public class MemoryContentCache implements OnInterestCallback {
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onDataNotFound If a data packet for an interest is not found in the
    * cache, this forwards the interest by calling
    * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
