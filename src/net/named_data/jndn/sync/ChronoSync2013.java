@@ -790,8 +790,13 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
                             .setSession(sessionNo_);
         SyncStateProto.SyncStateMsg tempContent = builder.build();
 
-        if (update(tempContent.getSsList()))
-          onInitialized_.onInitialized();
+        if (update(tempContent.getSsList())) {
+          try {
+            onInitialized_.onInitialized();
+          } catch (Throwable ex) {
+            Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
+          }
+        }
       }
     }
 
@@ -834,8 +839,13 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
                           .setSession(sessionNo_);
       SyncStateProto.SyncStateMsg tempContent = builder.build();
 
-      if (update(tempContent.getSsList()))
-        onInitialized_.onInitialized();
+      if (update(tempContent.getSsList())) {
+        try {
+          onInitialized_.onInitialized();
+        } catch (Throwable ex) {
+          Logger.getLogger(ChronoSync2013.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      }
     }
   }
 
