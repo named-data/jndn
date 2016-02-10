@@ -98,7 +98,7 @@ public class PendingInterestTable {
         try {
           onTimeout_.onTimeout(interest_);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onTimeout", ex);
         }
       }
     }

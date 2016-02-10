@@ -295,7 +295,7 @@ public class ConfigPolicyManager extends PolicyManager {
       try {
         onVerifyFailed.onVerifyFailed(data);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
       }
       return null;
     }
@@ -313,14 +313,14 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onVerified.onVerified(data);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onVerified", ex);
         }
       }
       else {
         try {
           onVerifyFailed.onVerifyFailed(data);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
         }
       }
 
@@ -357,7 +357,7 @@ public class ConfigPolicyManager extends PolicyManager {
       try {
         onVerifyFailed.onVerifyInterestFailed(interest);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
       }
       return null;
     }
@@ -370,7 +370,7 @@ public class ConfigPolicyManager extends PolicyManager {
       try {
         onVerifyFailed.onVerifyInterestFailed(interest);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
       }
       return null;
     }
@@ -394,7 +394,7 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onVerifyFailed.onVerifyInterestFailed(interest);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
         }
         return null;
       }
@@ -405,7 +405,7 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onVerified.onVerifiedInterest(interest);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onVerifiedInterest", ex);
         }
         updateTimestampForKey(keyName, timestamp);
       }
@@ -413,7 +413,7 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onVerifyFailed.onVerifyInterestFailed(interest);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
         }
       }
 
@@ -1108,7 +1108,7 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onVerifyFailed_.onVerifyFailed(originalData_);
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
         }
         return;
       }
@@ -1123,7 +1123,7 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onVerifyFailed_.onVerifyFailed(originalData_);
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
         }
       }
     }
@@ -1170,7 +1170,7 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
         }
         return;
       }
@@ -1185,7 +1185,7 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
         }
       }
     }

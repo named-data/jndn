@@ -140,7 +140,7 @@ public class Consumer {
                         try {
                           onConsumeComplete.onConsumeComplete(contentData, plainText);
                         } catch (Exception ex) {
-                          logger_.log(Level.SEVERE, null, ex);
+                          logger_.log(Level.SEVERE, "Error in onConsumeComplete", ex);
                         }
                       }
                     },
@@ -151,9 +151,9 @@ public class Consumer {
                public void onVerifyFailed(Data d) {
                  try {
                    onError.onError(ErrorCode.Validation, "verifyData failed");
-                   } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, null, ex);
-                   }
+                 } catch (Exception ex) {
+                   logger_.log(Level.SEVERE, "Error in onError", ex);
+                 }
                }
              });
         } catch (SecurityException ex) {
@@ -161,7 +161,7 @@ public class Consumer {
             onError.onError
              (ErrorCode.SecurityException, "verifyData error: " + ex.getMessage());
           } catch (Exception exception) {
-            logger_.log(Level.SEVERE, null, exception);
+            logger_.log(Level.SEVERE, "Error in onError", exception);
           }
         }
       }
@@ -178,7 +178,7 @@ public class Consumer {
                  try {
                    onError.onError(ErrorCode.Timeout, interest.getName().toUri());
                  } catch (Exception ex) {
-                   logger_.log(Level.SEVERE, null, ex);
+                   logger_.log(Level.SEVERE, "Error in onError", ex);
                  }
                }
              });
@@ -187,7 +187,7 @@ public class Consumer {
             onError.onError
              (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
           } catch (Exception exception) {
-            logger_.log(Level.SEVERE, null, exception);
+            logger_.log(Level.SEVERE, "Error in onError", exception);
           }
         }
       }
@@ -201,7 +201,7 @@ public class Consumer {
         onError.onError
          (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
       } catch (Exception exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
     }
   }
@@ -255,7 +255,7 @@ public class Consumer {
       try {
         onError.onError(ErrorCode.InvalidEncryptedFormat, ex.getMessage());
       } catch (Exception exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
       return;
     }
@@ -291,14 +291,14 @@ public class Consumer {
         try {
           onError.onError(ErrorCode.InvalidEncryptedFormat, ex.getMessage());
         } catch (Exception exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onError", exception);
         }
         return;
       }
       try {
         onPlainText.onPlainText(content);
       } catch (Exception ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onPlainText", ex);
       }
     }
     else if (encryptedContent.getAlgorithmType() == EncryptAlgorithmType.RsaOaep) {
@@ -313,14 +313,14 @@ public class Consumer {
         try {
           onError.onError(ErrorCode.InvalidEncryptedFormat, ex.getMessage());
         } catch (Exception exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onError", exception);
         }
         return;
       }
       try {
         onPlainText.onPlainText(content);
       } catch (Exception ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onPlainText", ex);
       }
     }
     else {
@@ -329,7 +329,7 @@ public class Consumer {
           (ErrorCode.UnsupportedEncryptionScheme,
            encryptedContent.getAlgorithmType().toString());
       } catch (Exception ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onError", ex);
       }
     }
   }
@@ -352,7 +352,7 @@ public class Consumer {
       try {
         onError.onError(ErrorCode.InvalidEncryptedFormat, ex.getMessage());
       } catch (Exception exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
       return;
     }
@@ -397,7 +397,7 @@ public class Consumer {
                    try {
                      onError.onError(ErrorCode.Validation, "verifyData failed");
                    } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, null, ex);
+                     logger_.log(Level.SEVERE, "Error in onError", ex);
                    }
                  }
                });
@@ -406,7 +406,7 @@ public class Consumer {
               onError.onError
                (ErrorCode.SecurityException, "verifyData error: " + ex.getMessage());
             } catch (Exception exception) {
-              logger_.log(Level.SEVERE, null, exception);
+              logger_.log(Level.SEVERE, "Error in onError", exception);
             }
           }
         }
@@ -423,7 +423,7 @@ public class Consumer {
                    try {
                      onError.onError(ErrorCode.Timeout, interest.getName().toUri());
                    } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, null, ex);
+                     logger_.log(Level.SEVERE, "Error in onError", ex);
                    }
                  }
                });
@@ -432,7 +432,7 @@ public class Consumer {
               onError.onError
                (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
             } catch (Exception exception) {
-              logger_.log(Level.SEVERE, null, exception);
+              logger_.log(Level.SEVERE, "Error in onError", exception);
             }
           }
         }
@@ -446,7 +446,7 @@ public class Consumer {
           onError.onError
            (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
         } catch (Exception exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onError", exception);
         }
       }
     }
@@ -471,7 +471,7 @@ public class Consumer {
       try {
         onError.onError(ErrorCode.InvalidEncryptedFormat, ex.getMessage());
       } catch (Exception exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
       return;
     }
@@ -518,7 +518,7 @@ public class Consumer {
                    try {
                      onError.onError(ErrorCode.Validation, "verifyData failed");
                    } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, null, ex);
+                     logger_.log(Level.SEVERE, "Error in onError", ex);
                    }
                  }
                });
@@ -527,7 +527,7 @@ public class Consumer {
               onError.onError
                (ErrorCode.SecurityException, "verifyData error: " + ex.getMessage());
             } catch (Exception exception) {
-              logger_.log(Level.SEVERE, null, exception);
+              logger_.log(Level.SEVERE, "Error in onError", exception);
             }
           }
         }
@@ -544,7 +544,7 @@ public class Consumer {
                    try {
                      onError.onError(ErrorCode.Timeout, interest.getName().toUri());
                    } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, null, ex);
+                     logger_.log(Level.SEVERE, "Error in onError", ex);
                    }
                  }
                });
@@ -553,7 +553,7 @@ public class Consumer {
               onError.onError
                (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
               } catch (Exception exception) {
-                logger_.log(Level.SEVERE, null, exception);
+                logger_.log(Level.SEVERE, "Error in onError", exception);
               }
           }
         }
@@ -567,7 +567,7 @@ public class Consumer {
           onError.onError
            (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
         } catch (Exception exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onError", exception);
         }
       }
     }
@@ -595,7 +595,7 @@ public class Consumer {
       try {
         onError.onError(ErrorCode.InvalidEncryptedFormat, ex.getMessage());
       } catch (Exception exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
       return;
     }
@@ -609,7 +609,7 @@ public class Consumer {
       try {
         onError.onError(ErrorCode.NoDecryptKey, "Database error: " + ex.getMessage());
       } catch (Exception exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
       return;
     }
@@ -618,7 +618,7 @@ public class Consumer {
         onError.onError(ErrorCode.NoDecryptKey,
           "The desired consumer decryption key in not in the database");
       } catch (Exception exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
       return;
     }
@@ -633,7 +633,7 @@ public class Consumer {
         onError.onError(ErrorCode.InvalidEncryptedFormat,
           "The data packet does not satisfy the D-KEY packet format");
       } catch (Exception ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onError", ex);
       }
     }
 

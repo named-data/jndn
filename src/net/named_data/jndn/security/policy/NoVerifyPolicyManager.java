@@ -96,7 +96,7 @@ public class NoVerifyPolicyManager extends PolicyManager {
     try {
       onVerified.onVerified(data);
     } catch (Throwable ex) {
-      logger_.log(Level.SEVERE, null, ex);
+      logger_.log(Level.SEVERE, "Error in onVerified", ex);
     }
     return null;
   }
@@ -122,7 +122,7 @@ public class NoVerifyPolicyManager extends PolicyManager {
     try {
       onVerified.onVerifiedInterest(interest);
     } catch (Throwable ex) {
-      logger_.log(Level.SEVERE, null, ex);
+      logger_.log(Level.SEVERE, "Error in onVerifiedInterest", ex);
     }
     return null;
   }

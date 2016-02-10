@@ -347,7 +347,7 @@ public class Producer {
       try {
         onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
       } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onEncryptedKeys", exception);
       }
       keyRequests_.remove(timeSlot);
     }
@@ -443,7 +443,7 @@ public class Producer {
       try {
         onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
       } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onEncryptedKeys", exception);
       }
       keyRequests_.remove(timeSlot);
     }

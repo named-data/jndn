@@ -586,7 +586,7 @@ public class MemoryContentCache implements OnInterestCallback {
           ((OnInterestCallback)onDataNotFound).onInterest
             (prefix, interest, face, interestFilterId, filter);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onDataNotFound", ex);
         }
       }
     }

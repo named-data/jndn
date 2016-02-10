@@ -138,14 +138,14 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       try {
         onVerified.onVerified(data);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerified", ex);
       }
     }
     else {
       try {
         onVerifyFailed.onVerifyFailed(data);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
       }
     }
 
@@ -192,7 +192,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       try {
         onVerifyFailed.onVerifyInterestFailed(interest);
       } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
       }
       return null;
     }
@@ -202,14 +202,14 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       try {
         onVerified.onVerifiedInterest(interest);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifiedInterest", ex);
       }
     }
     else {
       try {
         onVerifyFailed.onVerifyInterestFailed(interest);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
       }
     }
 

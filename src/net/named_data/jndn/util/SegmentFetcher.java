@@ -196,7 +196,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
         onError_.onError
           (ErrorCode.IO_ERROR, "I/O error fetching the first segment " + ex);
       } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
     }
   }
@@ -216,7 +216,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
         onError_.onError
           (ErrorCode.IO_ERROR, "I/O error fetching the next segment " + ex);
       } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onError", exception);
       }
     }
   }
@@ -228,14 +228,14 @@ public class SegmentFetcher implements OnData, OnTimeout {
     try {
       verified = verifySegment_.verifySegment(data);
     } catch (Throwable ex) {
-      logger_.log(Level.SEVERE, null, ex);
+      logger_.log(Level.SEVERE, "Error in verifySegment", ex);
     }
     if (!verified) {
       try {
         onError_.onError
           (ErrorCode.SEGMENT_VERIFICATION_FAILED, "Segment verification failed");
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onError", ex);
       }
       return;
     }
@@ -247,7 +247,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
           (ErrorCode.DATA_HAS_NO_SEGMENT,
            "Got an unexpected packet without a segment number: " + data.getName().toUri());
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onError", ex);
       }
     }
     else {
@@ -262,7 +262,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
              "Error decoding the name segment number " +
              data.getName().get(-1).toEscapedString() + ": " + ex);
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onError", exception);
         }
         return;
       }
@@ -289,7 +289,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
                  "Error decoding the FinalBlockId segment number " +
                  data.getMetaInfo().getFinalBlockId().toEscapedString() + ": " + ex);
             } catch (Throwable exception) {
-              logger_.log(Level.SEVERE, null, exception);
+              logger_.log(Level.SEVERE, "Error in onError", exception);
             }
             return;
           }
@@ -309,7 +309,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
             try {
               onComplete_.onComplete(new Blob(content, false));
             } catch (Throwable ex) {
-              logger_.log(Level.SEVERE, null, ex);
+              logger_.log(Level.SEVERE, "Error in onComplete", ex);
             }
             return;
           }
@@ -329,7 +329,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
         (ErrorCode.INTEREST_TIMEOUT,
          "Time out for interest " + interest.getName().toUri());
     } catch (Throwable ex) {
-      logger_.log(Level.SEVERE, null, ex);
+      logger_.log(Level.SEVERE, "Error in onError", ex);
     }
   }
 

@@ -404,7 +404,7 @@ public class Node implements ElementListener {
            (entry.getFilter().getPrefix(), interest, entry.getFace(),
             entry.getInterestFilterId(), entry.getFilter());
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onInterest", ex);
         }
       }
     }
@@ -418,7 +418,7 @@ public class Node implements ElementListener {
         try{
           pendingInterest.getOnData().onData(pendingInterest.getInterest(), data);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onData", ex);
         }
       }
     }
@@ -574,7 +574,7 @@ public class Node implements ElementListener {
         try {
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, null, exception);
+          logger_.log(Level.SEVERE, "Error in onRegisterFailed", exception);
         }
         return;
       }
@@ -586,7 +586,7 @@ public class Node implements ElementListener {
         try {
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onRegisterFailed", ex);
         }
         return;
       }
@@ -599,7 +599,7 @@ public class Node implements ElementListener {
           info_.onRegisterSuccess_.onRegisterSuccess
             (info_.prefix_, info_.registeredPrefixId_);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onRegisterSuccess", ex);
         }
       }
     }
@@ -616,7 +616,7 @@ public class Node implements ElementListener {
       try {
         info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onRegisterFailed", ex);
       }
     }
 
@@ -697,7 +697,7 @@ public class Node implements ElementListener {
       try {
         onRegisterFailed.onRegisterFailed(prefix);
       } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onRegisterFailed", exception);
       }
       return;
     }
@@ -747,7 +747,7 @@ public class Node implements ElementListener {
       try {
         onRegisterFailed.onRegisterFailed(prefix);
       } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, null, exception);
+        logger_.log(Level.SEVERE, "Error in onRegisterFailed", exception);
       }
     }
   }

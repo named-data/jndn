@@ -758,7 +758,7 @@ public class KeyChain {
           try {
             onVerifyFailed.onVerifyFailed(data);
           } catch (Throwable exception) {
-            logger_.log(Level.SEVERE, null, exception);
+            logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
           }
         }
       }
@@ -767,14 +767,14 @@ public class KeyChain {
       try {
         onVerified.onVerified(data);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerified", ex);
       }
     }
     else {
       try {
         onVerifyFailed.onVerifyFailed(data);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
       }
     }
   }
@@ -826,7 +826,7 @@ public class KeyChain {
           try {
             onVerifyFailed.onVerifyInterestFailed(interest);
           } catch (Throwable exception) {
-            logger_.log(Level.SEVERE, null, exception);
+            logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
           }
         }
       }
@@ -835,14 +835,14 @@ public class KeyChain {
       try {
         onVerified.onVerifiedInterest(interest);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifiedInterest", ex);
       }
     }
     else {
       try {
         onVerifyFailed.onVerifyInterestFailed(interest);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
       }
     }
   }
@@ -922,7 +922,7 @@ public class KeyChain {
           try {
             onVerifyFailed_.onVerifyFailed(originalData_);
           } catch (Throwable exception) {
-            logger_.log(Level.SEVERE, null, exception);
+            logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
           }
         }
       }
@@ -930,7 +930,7 @@ public class KeyChain {
         try {
           onVerifyFailed_.onVerifyFailed(originalData_);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
         }
       }
     }
@@ -985,7 +985,7 @@ public class KeyChain {
           try {
             onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
           } catch (Throwable exception) {
-            logger_.log(Level.SEVERE, null, exception);
+            logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
           }
         }
       }
@@ -993,7 +993,7 @@ public class KeyChain {
         try {
           onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, null, ex);
+          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
         }
       }
     }

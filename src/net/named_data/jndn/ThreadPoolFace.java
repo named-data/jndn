@@ -89,7 +89,7 @@ public class ThreadPoolFace extends Face {
             try {
               finalOnData.onData(localInterest, data);
             } catch (Throwable ex) {
-              logger_.log(Level.SEVERE, null, ex);
+              logger_.log(Level.SEVERE, "Error in onData", ex);
             }
           }
         });
@@ -107,7 +107,7 @@ public class ThreadPoolFace extends Face {
               try {
                 finalOnTimeout.onTimeout(localInterest);
               } catch (Throwable ex) {
-                logger_.log(Level.SEVERE, null, ex);
+                logger_.log(Level.SEVERE, "Error in onTimeout", ex);
               }
             }
           });
