@@ -560,15 +560,10 @@ public class Node implements ElementListener {
     onData(Interest interest, Data responseData)
     {
       // Decode responseData.getContent() and check for a success code.
-      // TODO: Move this into the TLV code.
-      TlvDecoder decoder = new TlvDecoder(responseData.getContent().buf());
-      long statusCode;
+      ControlResponse controlResponse = new ControlResponse();
       try {
-        decoder.readNestedTlvsStart(Tlv.NfdCommand_ControlResponse);
-        statusCode = decoder.readNonNegativeIntegerTlv
-             (Tlv.NfdCommand_StatusCode);
-      }
-      catch (EncodingException ex) {
+        controlResponse.wireDecode(responseData.getContent(), TlvWireFormat.get());
+      } catch (EncodingException ex) {
         logger_.log(Level.INFO,
           "Register prefix failed: Error decoding the NFD response: {0}", ex);
         try {
@@ -580,9 +575,10 @@ public class Node implements ElementListener {
       }
 
       // Status code 200 is "OK".
-      if (statusCode != 200) {
+      if (controlResponse.getStatusCode() != 200) {
         logger_.log(Level.INFO,
-          "Register prefix failed: Expected NFD status code 200, got: {0}", statusCode);
+          "Register prefix failed: Expected NFD status code 200, got: {0}",
+          controlResponse.getStatusCode());
         try {
           info_.onRegisterFailed_.onRegisterFailed(info_.prefix_);
         } catch (Throwable ex) {
