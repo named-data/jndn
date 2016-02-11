@@ -31,6 +31,8 @@ import net.named_data.jndn.util.Blob;
  * register prefix control command to a forwarder. See
  * <a href="http://redmine.named-data.net/projects/nfd/wiki/ControlCommand">http://redmine.named-data.net/projects/nfd/wiki/ControlCommand</a>
  *
+ * @author Andrew Brown <andrew.brown@intel.com>
+ * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 public class ControlResponse {
   /**
