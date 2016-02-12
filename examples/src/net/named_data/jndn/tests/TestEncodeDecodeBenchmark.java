@@ -231,7 +231,9 @@ public class TestEncodeDecodeBenchmark {
       ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
     try {
       privateKeyStorage.setKeyPairForKeyName
-        (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
+        (keyName, keyType,
+         keyType == KeyType.ECDSA ? DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER,
+         keyType == KeyType.ECDSA ? DEFAULT_EC_PRIVATE_KEY_DER : DEFAULT_RSA_PRIVATE_KEY_DER);
     }
     catch (SecurityException exception) {
       throw new Error
@@ -239,7 +241,6 @@ public class TestEncodeDecodeBenchmark {
     }
 
     Blob signatureBits = new Blob(new byte[256]);
-    Blob emptyBlob = new Blob(new byte[0]);
 
     double start = getNowSeconds();
     for (int i = 0; i < nIterations; ++i) {
@@ -311,10 +312,9 @@ public class TestEncodeDecodeBenchmark {
       (new IdentityManager(identityStorage, new MemoryPrivateKeyStorage()),
        new SelfVerifyPolicyManager(identityStorage));
     Name keyName = new Name("/testname/DSK-123");
-    Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
-      ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
     try {
-      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
+      identityStorage.addKey(keyName, keyType, new Blob
+        (keyType == KeyType.ECDSA ? DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER, false));
     }
     catch (SecurityException exception) {
       throw new Error("SecurityException: " + exception.getMessage());
@@ -356,23 +356,21 @@ public class TestEncodeDecodeBenchmark {
     String format = "TLV";
     Blob[] encoding = new Blob[1];
     {
-      int nIterations = useCrypto ? 2000 : 5000000;
+      int nIterations = useCrypto ? (keyType == KeyType.ECDSA ? 5000 : 400) : 5000000;
       double duration = benchmarkEncodeDataSeconds
         (nIterations, useComplex, useCrypto, keyType, encoding);
       System.out.println("Encode " + (useComplex ? "complex " : "simple  ") +
-        format + " data: Crypto? " +
-        (useCrypto ? (keyType == KeyType.ECDSA ? "EC " : "RSA") : "no ") +
+        format + " data: Crypto " +
+        (useCrypto ? (keyType == KeyType.ECDSA ? "EC " : "RSA") : "-  ") +
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));
     }
     {
-      // Use an extra long duration for decoding until we understand why it gets
-      //   a different rate at a shorter duration.
-      int nIterations = useCrypto ? 500000 : 40000000;
+      int nIterations = useCrypto ? (keyType == KeyType.ECDSA ? 2000 : 50000) : 10000000;
       double duration = benchmarkDecodeDataSeconds
         (nIterations, useCrypto, keyType, encoding[0]);
       System.out.println("Decode " + (useComplex ? "complex " : "simple  ") +
-        format + " data: Crypto? " +
-        (useCrypto ? (keyType == KeyType.ECDSA ? "EC " : "RSA") : "no ") +
+        format + " data: Crypto " +
+        (useCrypto ? (keyType == KeyType.ECDSA ? "EC " : "RSA") : "-  ") +
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));
     }
   }
@@ -382,11 +380,12 @@ public class TestEncodeDecodeBenchmark {
   {
     Logger.getLogger("").setLevel(Level.OFF);
     try {
-      KeyType keyType = KeyType.RSA;
-      benchmarkEncodeDecodeData(false, false, keyType);
-      benchmarkEncodeDecodeData(true, false, keyType);
-      benchmarkEncodeDecodeData(false, true, keyType);
-      benchmarkEncodeDecodeData(true, true, keyType);
+      benchmarkEncodeDecodeData(false, false, KeyType.RSA);
+      benchmarkEncodeDecodeData(true, false, KeyType.RSA);
+      benchmarkEncodeDecodeData(false, true, KeyType.ECDSA);
+      benchmarkEncodeDecodeData(true, true, KeyType.ECDSA);
+      benchmarkEncodeDecodeData(false, true, KeyType.RSA);
+      benchmarkEncodeDecodeData(true, true, KeyType.RSA);
     } catch (EncodingException e) {}
   }
 }
