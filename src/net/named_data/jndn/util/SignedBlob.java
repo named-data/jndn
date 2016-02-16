@@ -93,8 +93,12 @@ public class SignedBlob extends Blob {
   }
 
   /**
-   * Create a new SignedBlob with a copy of the bytes in the array.
-   * @param value The byte array to copy.
+   * Create a new SignedBlob from the the byte array. IMPORTANT: If copy is false,
+   * after calling this constructor, if you keep a pointer to the buffer then
+   * you must treat it as immutable and promise not to change it.
+   * @param value The byte array. If copy is true, this makes a copy.
+   * @param copy If true, copy the contents into a new byte array.  If false,
+   * just use ByteBuffer.wrap which uses the existing byte array.
    * @param signedPortionBeginOffset The offset in the buffer of the beginning
    * of the signed portion.
    * @param signedPortionEndOffset The offset in the buffer of the end of the
@@ -102,9 +106,9 @@ public class SignedBlob extends Blob {
    */
   public
   SignedBlob
-    (byte[] value, int signedPortionBeginOffset, int signedPortionEndOffset)
+    (byte[] value, boolean copy, int signedPortionBeginOffset, int signedPortionEndOffset)
   {
-    super(value);
+    super(value, copy);
     signedPortionBeginOffset_ = signedPortionBeginOffset;
     signedPortionEndOffset_ = signedPortionEndOffset;
     setSignedBuffer();

@@ -82,6 +82,26 @@ public class Blob implements Comparable {
   }
 
   /**
+   * Create a new Blob from the the byte array. IMPORTANT: If copy is false,
+   * after calling this constructor, if you keep a pointer to the buffer then
+   * you must treat it as immutable and promise not to change it.
+   * @param value The byte array. If copy is true, this makes a copy.
+   * @param copy If true, copy the contents into a new byte array.  If false,
+   * just use ByteBuffer.wrap which uses the existing byte array.
+   */
+  public
+  Blob(byte[] value, boolean copy)
+  {
+    if (copy) {
+      buffer_ = ByteBuffer.allocate(value.length);
+      buffer_.put(value);
+      buffer_.flip();
+    }
+    else
+      buffer_ = ByteBuffer.wrap(value);
+  }
+
+  /**
    * Create a new Blob with a copy of the bytes in the array.
    * @param value The byte array to copy.
    */
@@ -92,7 +112,7 @@ public class Blob implements Comparable {
     buffer_.put(value);
     buffer_.flip();
   }
-
+ 
   /**
    * Create a new Blob with a copy of the bytes in the array.
    * @param value The array of integer to copy where each integer is in
