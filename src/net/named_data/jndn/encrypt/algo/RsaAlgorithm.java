@@ -75,7 +75,7 @@ public class RsaAlgorithm {
     generator.initialize(params.getKeySize());
     KeyPair pair = generator.generateKeyPair();
 
-    return new DecryptKey(new Blob(pair.getPrivate().getEncoded()));
+    return new DecryptKey(new Blob(pair.getPrivate().getEncoded(), false));
   }
 
   /**
@@ -110,7 +110,7 @@ public class RsaAlgorithm {
       (new BigInteger(modulus.getImmutableArray()),
        new BigInteger(publicExponent.getImmutableArray())));
 
-    return new EncryptKey(new Blob(publicKey.getEncoded()));
+    return new EncryptKey(new Blob(publicKey.getEncoded(), false));
   }
 
   /**
@@ -139,7 +139,7 @@ public class RsaAlgorithm {
 
     Cipher cipher = Cipher.getInstance(transformation);
     cipher.init(Cipher.DECRYPT_MODE, privateKey);
-    return new Blob(cipher.doFinal(encryptedData.getImmutableArray()));
+    return new Blob(cipher.doFinal(encryptedData.getImmutableArray()), false);
   }
 
   /**
@@ -168,7 +168,7 @@ public class RsaAlgorithm {
 
     Cipher cipher = Cipher.getInstance(transformation);
     cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-    return new Blob(cipher.doFinal(plainData.getImmutableArray()));
+    return new Blob(cipher.doFinal(plainData.getImmutableArray()), false);
   }
 
   // TODO: Move this to a common utility?

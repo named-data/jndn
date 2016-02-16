@@ -75,7 +75,7 @@ public class Name implements ChangeCountable, Comparable {
     public
     Component(byte[] value)
     {
-      value_ = new Blob(value);
+      value_ = new Blob(value, true);
     }
 
     /**

@@ -90,7 +90,7 @@ public class AesAlgorithm {
       cipher.init
         (Cipher.DECRYPT_MODE,
          new SecretKeySpec(keyBits.getImmutableArray(), "AES"));
-      return new Blob(cipher.doFinal(encryptedData.getImmutableArray()));
+      return new Blob(cipher.doFinal(encryptedData.getImmutableArray()), false);
     }
     else if (params.getAlgorithmType() == EncryptAlgorithmType.AesCbc) {
       if (params.getInitialVector().size() != BLOCK_SIZE)
@@ -101,7 +101,7 @@ public class AesAlgorithm {
         (Cipher.DECRYPT_MODE,
          new SecretKeySpec(keyBits.getImmutableArray(), "AES"),
          new IvParameterSpec(params.getInitialVector().getImmutableArray()));
-      return new Blob(cipher.doFinal(encryptedData.getImmutableArray()));
+      return new Blob(cipher.doFinal(encryptedData.getImmutableArray()), false);
     }
     else
       throw new Error("unsupported encryption mode");
@@ -125,7 +125,7 @@ public class AesAlgorithm {
       cipher.init
         (Cipher.ENCRYPT_MODE,
          new SecretKeySpec(keyBits.getImmutableArray(), "AES"));
-      return new Blob(cipher.doFinal(plainData.getImmutableArray()));
+      return new Blob(cipher.doFinal(plainData.getImmutableArray()), false);
     }
     else if (params.getAlgorithmType() == EncryptAlgorithmType.AesCbc) {
       if (params.getInitialVector().size() != BLOCK_SIZE)
@@ -136,7 +136,7 @@ public class AesAlgorithm {
         (Cipher.ENCRYPT_MODE,
          new SecretKeySpec(keyBits.getImmutableArray(), "AES"),
          new IvParameterSpec(params.getInitialVector().getImmutableArray()));
-      return new Blob(cipher.doFinal(plainData.getImmutableArray()));
+      return new Blob(cipher.doFinal(plainData.getImmutableArray()), false);
     }
     else
       throw new Error("unsupported encryption mode");

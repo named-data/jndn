@@ -120,8 +120,8 @@ public class TestRsaAlgorithm {
     EncryptParams encryptParams = new EncryptParams
       (EncryptAlgorithmType.RsaOaep, 0);
 
-    Blob privateKeyBlob = new Blob(Common.base64Decode(PRIVATE_KEY));
-    Blob publicKeyBlob = new Blob(Common.base64Decode(PUBLIC_KEY));
+    Blob privateKeyBlob = new Blob(Common.base64Decode(PRIVATE_KEY), false);
+    Blob publicKeyBlob = new Blob(Common.base64Decode(PUBLIC_KEY), false);
 
     DecryptKey decryptKey = new DecryptKey(privateKeyBlob);
     EncryptKey encryptKey = RsaAlgorithm.deriveEncryptKey(decryptKey.getKeyBits());

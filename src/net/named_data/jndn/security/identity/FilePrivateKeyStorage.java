@@ -185,7 +185,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     // Read the file contents.
     byte[] der = this.read(keyName, KeyClass.PUBLIC);
 
-    return new PublicKey(new Blob(der));
+    return new PublicKey(new Blob(der, false));
   }
 
   /**
@@ -342,7 +342,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     }
     try {
       signature.update(data);
-      return new Blob(signature.sign());
+      return new Blob(signature.sign(), false);
     }
     catch (SignatureException exception) {
       throw new SecurityException

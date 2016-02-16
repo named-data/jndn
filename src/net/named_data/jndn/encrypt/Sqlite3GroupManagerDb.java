@@ -165,7 +165,7 @@ public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
 
         if (result.next()) {
           try {
-            schedule.wireDecode(new Blob(result.getBytes(1)));
+            schedule.wireDecode(new Blob(result.getBytes(1), false));
           } catch (EncodingException ex) {
             // We don't expect this to happen.
             throw new GroupManagerDb.Error
@@ -212,14 +212,14 @@ public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
         while (result.next()) {
           Name keyName = new Name();
           try {
-            keyName.wireDecode(new Blob(result.getBytes(1)), TlvWireFormat.get());
+            keyName.wireDecode(new Blob(result.getBytes(1), false), TlvWireFormat.get());
           } catch (EncodingException ex) {
             // We don't expect this to happen.
             throw new GroupManagerDb.Error
               ("Sqlite3GroupManagerDb.getScheduleMembers: Error decoding name: " + ex);
           }
 
-          map.put(keyName, new Blob(result.getBytes(2)));
+          map.put(keyName, new Blob(result.getBytes(2), false));
         }
       } finally {
         statement.close();
@@ -401,7 +401,7 @@ public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
         while (result.next()) {
           Name identity = new Name();
           try {
-            identity.wireDecode(new Blob(result.getBytes(1)), TlvWireFormat.get());
+            identity.wireDecode(new Blob(result.getBytes(1), false), TlvWireFormat.get());
           } catch (EncodingException ex) {
             // We don't expect this to happen.
             throw new GroupManagerDb.Error

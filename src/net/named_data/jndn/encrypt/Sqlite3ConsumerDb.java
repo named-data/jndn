@@ -92,7 +92,7 @@ public class Sqlite3ConsumerDb extends Sqlite3ConsumerDbBase {
         ResultSet result = statement.executeQuery();
 
         if (result.next())
-          key = new Blob(result.getBytes(1));
+          key = new Blob(result.getBytes(1), false);
       } finally {
         statement.close();
       }

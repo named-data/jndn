@@ -231,7 +231,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
     }
     try {
       signature.update(data);
-      return new Blob(signature.sign());
+      return new Blob(signature.sign(), false);
     }
     catch (SignatureException exception) {
       throw new SecurityException

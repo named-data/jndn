@@ -153,7 +153,7 @@ public class TestIdentityMethods {
     Name identityName = keyName1.getPrefix(-1);
 
     byte[] decodedKey = Common.base64Decode(RSA_DER);
-    identityStorage.addKey(keyName1, KeyType.RSA, new Blob(decodedKey));
+    identityStorage.addKey(keyName1, KeyType.RSA, new Blob(decodedKey, false));
     identityStorage.setDefaultKeyNameForIdentity(keyName1);
 
     assertTrue("Key was not added", identityStorage.doesKeyExist(keyName1));

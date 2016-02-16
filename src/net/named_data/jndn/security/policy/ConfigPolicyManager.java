@@ -480,7 +480,7 @@ public class ConfigPolicyManager extends PolicyManager {
       byte[] decodedData = Common.base64Decode(encodedData.toString());
       IdentityCertificate cert = new IdentityCertificate();
       try {
-        cert.wireDecode(new Blob(decodedData));
+        cert.wireDecode(new Blob(decodedData, false));
       } catch (EncodingException ex) {
         throw new SecurityException("Can't decode the IdentityCertificate from file "
           + filename + ": " + ex.getMessage());
@@ -783,7 +783,7 @@ public class ConfigPolicyManager extends PolicyManager {
         byte[] certData = Common.base64Decode(certID);
         cert = new IdentityCertificate();
         try {
-          cert.wireDecode(new Blob(certData));
+          cert.wireDecode(new Blob(certData, false));
         } catch (EncodingException ex) {
           throw new SecurityException("Cannot base64 decode the cert data: " +
             ex.getMessage());

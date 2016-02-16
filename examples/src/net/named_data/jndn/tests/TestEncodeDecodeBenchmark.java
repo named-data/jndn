@@ -218,7 +218,7 @@ public class TestEncodeDecodeBenchmark {
       content = new Blob("abc");
     }
     Name.Component finalBlockId =
-      new Name.Component(new Blob(new byte[] { (byte)0 }));
+      new Name.Component(new Blob(new byte[] { (byte)0 }, false));
 
     // Initialize the KeyChain storage in case useCrypto is true.
     MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
@@ -240,7 +240,7 @@ public class TestEncodeDecodeBenchmark {
         ("SecurityException in setKeyPairForKeyName: " + exception.getMessage());
     }
 
-    Blob signatureBits = new Blob(new byte[256]);
+    Blob signatureBits = new Blob(new byte[256], false);
 
     double start = getNowSeconds();
     for (int i = 0; i < nIterations; ++i) {

@@ -433,7 +433,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
 
     byte[] decodedData = Common.base64Decode(encodedData.toString());
     Data data = new Data();
-    data.wireDecode(new Blob(decodedData));
+    data.wireDecode(new Blob(decodedData, false));
 
     // This test is needed, since the KeyChain will express interests in unknown
     // certificates.
@@ -454,7 +454,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     // create an interest for the signing certificate.
     IdentityCertificate cert = new IdentityCertificate();
     byte[] certData = Common.base64Decode(CERT_DUMP);
-    cert.wireDecode(new Blob(certData));
+    cert.wireDecode(new Blob(certData, false));
     keyChain_.signByIdentity(cert, identityName_);
     Blob signedCertBlob = cert.wireEncode();
     String encodedCert = Common.base64Encode(signedCertBlob.getImmutableArray());

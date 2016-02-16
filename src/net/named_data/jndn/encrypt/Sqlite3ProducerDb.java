@@ -123,7 +123,7 @@ public class Sqlite3ProducerDb extends Sqlite3ProducerDbBase {
         ResultSet result = statement.executeQuery();
 
         if (result.next())
-          return new Blob(result.getBytes(1));
+          return new Blob(result.getBytes(1), false);
         else
           throw new ProducerDb.Error
             ("Sqlite3ProducerDb.getContentKey: Cannot get the key from the database");

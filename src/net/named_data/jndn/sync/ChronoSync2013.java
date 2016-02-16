@@ -307,7 +307,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
   {
     Data data = new Data(applicationBroadcastPrefix_);
     data.getName().append(digest);
-    data.setContent(new Blob(syncMessage.toByteArray()));
+    data.setContent(new Blob(syncMessage.toByteArray(), false));
     keyChain_.sign(data, certificateName_);
     contentCache_.add(data);
   }
@@ -559,7 +559,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
       if (tempContent.getSsCount() != 0) {
         byte[] array = tempContent.toByteArray();
         Data data = new Data(interest.getName());
-        data.setContent(new Blob(array));
+        data.setContent(new Blob(array, false));
         if (interest.getName().get(-1).toEscapedString().equals("00"))
           // Limit the lifetime of replies to interest for "00" since they can be different.
           data.getMetaInfo().setFreshnessPeriod(1000);
@@ -640,7 +640,7 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
       name.append(syncDigest);
       byte[] array = tempContent.toByteArray();
       Data data = new Data(name);
-      data.setContent(new Blob(array));
+      data.setContent(new Blob(array, false));
       keyChain_.sign(data, certificateName_);
 
       try {

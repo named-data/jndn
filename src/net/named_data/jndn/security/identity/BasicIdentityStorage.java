@@ -285,7 +285,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
         ResultSet result = statement.executeQuery();
 
         if (result.next())
-          return new Blob(result.getBytes("public_key"));
+          return new Blob(result.getBytes("public_key"), false);
         else
           return new Blob();
       } finally {
@@ -436,7 +436,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
           if (result.next()) {
             try {
-              certificate.wireDecode(new Blob(result.getBytes("certificate_data")));
+              certificate.wireDecode(new Blob(result.getBytes("certificate_data"), false));
             } catch (EncodingException ex) {
               throw new SecurityException
                 ("BasicIdentityStorage: Error decoding certificate data: " + ex);

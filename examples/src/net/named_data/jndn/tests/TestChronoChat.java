@@ -230,7 +230,7 @@ class Chat implements ChronoSync2013.OnInitialized,
       ChatMessage content = builder.build();
       byte[] array = content.toByteArray();
       Data data = new Data(interest.getName());
-      data.setContent(new Blob(array));
+      data.setContent(new Blob(array, false));
       try {
         keyChain_.sign(data, certificateName_);
       } catch (SecurityException ex) {

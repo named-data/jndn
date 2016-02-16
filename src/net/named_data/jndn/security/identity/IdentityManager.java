@@ -955,7 +955,7 @@ public class IdentityManager {
 
     // Digest and set the signature.
     byte[] signedPortionDigest = Common.digestSha256(encoding.signedBuf());
-    data.getSignature().setSignature(new Blob(signedPortionDigest));
+    data.getSignature().setSignature(new Blob(signedPortionDigest, false));
 
     // Encode again to include the signature.
     data.wireEncode(wireFormat);
@@ -983,7 +983,7 @@ public class IdentityManager {
 
     // Digest and set the signature.
     byte[] signedPortionDigest = Common.digestSha256(encoding.signedBuf());
-    signature.setSignature(new Blob(signedPortionDigest));
+    signature.setSignature(new Blob(signedPortionDigest, false));
 
     // Remove the empty signature and append the real one.
     interest.setName(interest.getName().getPrefix(-1).append

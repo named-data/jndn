@@ -139,7 +139,7 @@ public class PublicKey {
   getDigest(DigestAlgorithm digestAlgorithm) throws UnrecognizedDigestAlgorithmException
   {
     if (digestAlgorithm == DigestAlgorithm.SHA256) {
-      return new Blob(Common.digestSha256(keyDer_.buf()));
+      return new Blob(Common.digestSha256(keyDer_.buf()), false);
     }
     else
       throw new UnrecognizedDigestAlgorithmException("Wrong format!");
