@@ -69,7 +69,7 @@
     </build>
     <profiles>
 
-        <!-- Deployment profile for OSSRH, deploy with 'mvn -f pom-android.xml deploy -P ossrh' -->
+        <!-- Deployment profile for OSSRH, deploy with 'mvn clean && mvn -f pom-android.xml deploy -P ossrh' -->
         <!-- You may need to temporarily set the password in ~/.m2/settings.xml -->
         <profile>
             <id>ossrh</id>
