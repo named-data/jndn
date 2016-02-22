@@ -1,3 +1,10 @@
+Interim changes after jNDN v0.10 (2016-02-22)
+---------------------------------------------
+
+Deprecated
+* http://redmine.named-data.net/issues/3445 Deprecated Data.getIncomingFaceId,
+  Interest.getIncomingFaceId and getNextHopFaceId, to be replaced by NDNLPv2 (NFD 0.4.0).
+
 jNDN v0.10 (2016-02-16)
 -----------------------
 
