@@ -195,7 +195,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   /**
    * Get the incoming face ID of the local control header.
    * @return The incoming face ID. If not specified, return -1.
-   * @note This is an experimental feature. This API may change in the future.
+   * @deprecated This will be replaced by the equivalent NDNLPv2 functionality.
    */
   public final long
   getIncomingFaceId() { return localControlHeader_.getIncomingFaceId(); }
