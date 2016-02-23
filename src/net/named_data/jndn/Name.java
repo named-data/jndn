@@ -275,6 +275,74 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Create a component with the encoded segment number according to NDN
+     * naming conventions for "Segment number" (marker 0x00).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @param segment The segment number.
+     * @return The new Component.
+     */
+    public static Component
+    fromSegment(long segment)
+    {
+      return fromNumberWithMarker(segment, 0x00);
+    }
+
+    /**
+     * Create a component with the encoded segment byte offset according to NDN
+     * naming conventions for segment "Byte offset" (marker 0xFB).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @param segmentOffset The segment byte offset.
+     * @return The new Component.
+     */
+    public static Component
+    fromSegmentOffset(long segmentOffset)
+    {
+      return fromNumberWithMarker(segmentOffset, 0xFB);
+    }
+
+    /**
+     * Create a component with the encoded version number according to NDN
+     * naming conventions for "Versioning" (marker 0xFD).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * Note that this encodes the exact value of version without converting from a
+     * time representation.
+     * @param version The version number.
+     * @return The new Component.
+     */
+    public static Component
+    fromVersion(long version)
+    {
+      return fromNumberWithMarker(version, 0xFD);
+    }
+
+    /**
+     * Create a component with the encoded timestamp according to NDN naming
+     * conventions for "Timestamp" (marker 0xFC).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @param timestamp The number of microseconds since the UNIX epoch (Thursday,
+     * 1 January 1970) not counting leap seconds.
+     * @return The new Component.
+     */
+    public static Component
+    fromTimestamp(long timestamp)
+    {
+      return fromNumberWithMarker(timestamp, 0xFC);
+    }
+
+    /**
+     * Create a component with the encoded sequence number according to NDN naming
+     * conventions for "Sequencing" (marker 0xFE).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @param sequenceNumber The sequence number.
+     * @return The new Component.
+     */
+    public static Component
+    fromSequenceNumber(long sequenceNumber)
+    {
+      return fromNumberWithMarker(sequenceNumber, 0xFE);
+    }
+
+    /**
      * Check if this is the same component as other.
      * @param other The other Component to compare with.
      * @return True if the components are equal, otherwise false.
@@ -656,7 +724,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendSegment(long segment)
   {
-    return append(Component.fromNumberWithMarker(segment, 0x00));
+    return append(Component.fromSegment(segment));
   }
 
   /**
@@ -669,7 +737,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendSegmentOffset(long segmentOffset)
   {
-    return append(Component.fromNumberWithMarker(segmentOffset, 0xFB));
+    return append(Component.fromSegmentOffset(segmentOffset));
   }
 
   /**
@@ -684,7 +752,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendVersion(long version)
   {
-    return append(Component.fromNumberWithMarker(version, 0xFD));
+    return append(Component.fromVersion(version));
   }
 
   /**
@@ -698,7 +766,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendTimestamp(long timestamp)
   {
-    return append(Component.fromNumberWithMarker(timestamp, 0xFC));
+    return append(Component.fromTimestamp(timestamp));
   }
 
   /**
@@ -711,7 +779,7 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   appendSequenceNumber(long sequenceNumber)
   {
-    return append(Component.fromNumberWithMarker(sequenceNumber, 0xFE));
+    return append(Component.fromSequenceNumber(sequenceNumber));
   }
 
   /**
