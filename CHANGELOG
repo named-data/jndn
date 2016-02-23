@@ -1,5 +1,8 @@
-Interim changes after jNDN v0.10 (2016-02-22)
+Interim changes after jNDN v0.10 (2016-02-23)
 ---------------------------------------------
+
+Changes
+* http://redmine.named-data.net/issues/3452 Added Interest.refreshNonce.
 
 Deprecated
 * http://redmine.named-data.net/issues/3445 Deprecated Data.getIncomingFaceId,
