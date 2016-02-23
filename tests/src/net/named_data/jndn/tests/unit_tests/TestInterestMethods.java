@@ -289,6 +289,21 @@ public class TestInterestMethods {
 
   @Test
   public void
+  testRefreshNonce()
+  {
+    Interest interest = new Interest(referenceInterest);
+    Blob oldNonce = interest.getNonce();
+    assertEquals(4, oldNonce.size());
+
+    interest.refreshNonce();
+    assertEquals("The refershed nonce should be the same size",
+                 oldNonce.size(), interest.getNonce().size());
+    assertFalse("The refreshed nonce sould be different",
+               interest.getNonce().equals(oldNonce));
+  }
+
+  @Test
+  public void
   testExcludeMatches()
   {
     Exclude exclude = new Exclude();
