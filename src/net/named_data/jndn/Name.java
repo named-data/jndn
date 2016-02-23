@@ -858,6 +858,16 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   /**
+   * Check if the N components of this name are the same as the first N
+   * components of the given name.
+   * @param name The Name to check.
+   * @return true if this matches the given name, otherwise false.  This always
+   * returns true if this name is empty.
+   */
+  public final boolean
+  isPrefixOf(Name name) { return match(name); }
+
+  /**
    * Encode this Name for a particular wire format.
    * @param wireFormat A WireFormat object used to encode this Name.
    * @return The encoded buffer.
