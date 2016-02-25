@@ -296,9 +296,9 @@ public class TestInterestMethods {
     assertEquals(4, oldNonce.size());
 
     interest.refreshNonce();
-    assertEquals("The refershed nonce should be the same size",
+    assertEquals("The refreshed nonce should be the same size",
                  oldNonce.size(), interest.getNonce().size());
-    assertFalse("The refreshed nonce sould be different",
+    assertFalse("The refreshed nonce should be different",
                interest.getNonce().equals(oldNonce));
   }
 
