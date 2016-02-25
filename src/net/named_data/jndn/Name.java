@@ -128,7 +128,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isSegment()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == 0x00;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0x00;
     }
 
     /**
@@ -140,7 +140,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isSegmentOffset()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == 0xFB;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFB;
     }
 
     /**
@@ -151,7 +151,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isVersion()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == 0xFD;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFD;
     }
 
     /**
@@ -163,7 +163,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isTimestamp()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == 0xFC;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFC;
     }
 
     /**
@@ -175,7 +175,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isSequenceNumber()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == 0xFE;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFE;
     }
 
     /**
