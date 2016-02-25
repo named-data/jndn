@@ -24,6 +24,7 @@ package net.named_data.jndn.tests.unit_tests;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
@@ -50,6 +51,7 @@ public class TestNameConventions {
   testSegment()
   {
     Name expected = new Name("/%00%27%10");
+    assertTrue(expected.get(0).isSegment());
     long number = 10000;
     assertEquals("appendSegment did not create the expected component",
                  expected, new Name().appendSegment(number));
@@ -66,6 +68,7 @@ public class TestNameConventions {
   testSegmentOffset()
   {
     Name expected = new Name("/%FB%00%01%86%A0");
+    assertTrue(expected.get(0).isSegmentOffset());
     long number = 100000;
     assertEquals("appendSegmentOffset did not create the expected component",
                  expected, new Name().appendSegmentOffset(number));
@@ -82,6 +85,7 @@ public class TestNameConventions {
   testVersion()
   {
     Name expected = new Name("/%FD%00%0FB%40");
+    assertTrue(expected.get(0).isVersion());
     long number = 1000000;
     assertEquals("appendVersion did not create the expected component",
                  expected, new Name().appendVersion(number));
@@ -98,6 +102,7 @@ public class TestNameConventions {
   testSequenceNumber()
   {
     Name expected = new Name("/%FE%00%98%96%80");
+    assertTrue(expected.get(0).isSequenceNumber());
     long number = 10000000;
     assertEquals("appendSequenceNumber did not create the expected component",
                  expected, new Name().appendSequenceNumber(number));
@@ -114,6 +119,7 @@ public class TestNameConventions {
   testTimestamp()
   {
     Name expected = new Name("/%FC%00%04%7BE%E3%1B%00%00");
+    assertTrue(expected.get(0).isTimestamp());
     // 40 years (not counting leap years) in microseconds.
     long number = (long)40 * 365 * 24 * 3600 * 1000000;
     assertEquals("appendTimestamp did not create the expected component",
