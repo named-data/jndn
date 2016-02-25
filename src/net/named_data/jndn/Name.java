@@ -120,6 +120,65 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Check if this component is a segment number according to NDN naming
+     * conventions for "Segment number" (marker 0x00).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @return True if this is a segment number.
+     */
+    public final boolean
+    isSegment()
+    {
+      return value_.size() >= 1 && value_.buf().get(0) == 0x00;
+    }
+
+    /**
+     * Check if this component is a segment byte offset according to NDN
+     * naming conventions for segment "Byte offset" (marker 0xFB).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @return True if this is a segment byte offset.
+     */
+    public final boolean
+    isSegmentOffset()
+    {
+      return value_.size() >= 1 && value_.buf().get(0) == 0xFB;
+    }
+
+    /**
+     * Check if this component is a version number according to NDN naming
+     * conventions for "Versioning" (marker 0xFD).
+     * @return True if this is a version number.
+     */
+    public final boolean
+    isVersion()
+    {
+      return value_.size() >= 1 && value_.buf().get(0) == 0xFD;
+    }
+
+    /**
+     * Check if this component is a timestamp according to NDN naming
+     * conventions for "Timestamp" (marker 0xFC).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @return True if this is a timestamp.
+     */
+    public final boolean
+    isTimestamp()
+    {
+      return value_.size() >= 1 && value_.buf().get(0) == 0xFC;
+    }
+
+    /**
+     * Check if this component is a sequence number according to NDN naming
+     * conventions for "Sequencing" (marker 0xFE).
+     * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+     * @return True if this is a sequence number.
+     */
+    public final boolean
+    isSequenceNumber()
+    {
+      return value_.size() >= 1 && value_.buf().get(0) == 0xFE;
+    }
+
+    /**
      * Interpret this name component as a network-ordered number and return an
      * integer.
      * @return The integer number.
