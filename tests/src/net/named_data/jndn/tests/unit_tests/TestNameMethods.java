@@ -151,6 +151,52 @@ public class TestNameMethods {
     for (int i = 0; i < names.length; ++i)
       sortedURIs.add(names[i].toUri());
     assertArrayEquals("Name comparison gave incorrect order", sortedURIs.toArray(), expectedOrder);
+
+    // Tests from ndn-cxx name.t.cpp Compare.
+    assertEquals(new Name("/A")  .compare(new Name("/A")),    0);
+    assertEquals(new Name("/A")  .compare(new Name("/A")),    0);
+    assertTrue  (new Name("/A")  .compare(new Name("/B"))   < 0);
+    assertTrue  (new Name("/B")  .compare(new Name("/A"))   > 0);
+    assertTrue  (new Name("/A")  .compare(new Name("/AA"))  < 0);
+    assertTrue  (new Name("/AA") .compare(new Name("/A"))   > 0);
+    assertTrue  (new Name("/A")  .compare(new Name("/A/C")) < 0);
+    assertTrue  (new Name("/A/C").compare(new Name("/A"))   > 0);
+
+    assertEquals(new Name("/Z/A/Y")  .compare(1, 1, new Name("/A")),    0);
+    assertEquals(new Name("/Z/A/Y")  .compare(1, 1, new Name("/A")),    0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/B"))   < 0);
+    assertTrue  (new Name("/Z/B/Y")  .compare(1, 1, new Name("/A"))   > 0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/AA"))  < 0);
+    assertTrue  (new Name("/Z/AA/Y") .compare(1, 1, new Name("/A"))   > 0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/A/C")) < 0);
+    assertTrue  (new Name("/Z/A/C/Y").compare(1, 2, new Name("/A"))   > 0);
+
+    assertEquals(new Name("/Z/A")  .compare(1, 9, new Name("/A")),    0);
+    assertEquals(new Name("/Z/A")  .compare(1, 9, new Name("/A")),    0);
+    assertTrue  (new Name("/Z/A")  .compare(1, 9, new Name("/B"))   < 0);
+    assertTrue  (new Name("/Z/B")  .compare(1, 9, new Name("/A"))   > 0);
+    assertTrue  (new Name("/Z/A")  .compare(1, 9, new Name("/AA"))  < 0);
+    assertTrue  (new Name("/Z/AA") .compare(1, 9, new Name("/A"))   > 0);
+    assertTrue  (new Name("/Z/A")  .compare(1, 9, new Name("/A/C")) < 0);
+    assertTrue  (new Name("/Z/A/C").compare(1, 9, new Name("/A"))   > 0);
+
+    assertEquals(new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/A/W"),   1, 1),  0);
+    assertEquals(new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/A/W"),   1, 1),  0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/B/W"),   1, 1) < 0);
+    assertTrue  (new Name("/Z/B/Y")  .compare(1, 1, new Name("/X/A/W"),   1, 1) > 0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/AA/W"),  1, 1) < 0);
+    assertTrue  (new Name("/Z/AA/Y") .compare(1, 1, new Name("/X/A/W"),   1, 1) > 0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/A/C/W"), 1, 2) < 0);
+    assertTrue  (new Name("/Z/A/C/Y").compare(1, 2, new Name("/X/A/W"),   1, 1) > 0);
+
+    assertEquals(new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/A"),   1),  0);
+    assertEquals(new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/A"),   1),  0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/B"),   1) < 0);
+    assertTrue  (new Name("/Z/B/Y")  .compare(1, 1, new Name("/X/A"),   1) > 0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/AA"),  1) < 0);
+    assertTrue  (new Name("/Z/AA/Y") .compare(1, 1, new Name("/X/A"),   1) > 0);
+    assertTrue  (new Name("/Z/A/Y")  .compare(1, 1, new Name("/X/A/C"), 1) < 0);
+    assertTrue  (new Name("/Z/A/C/Y").compare(1, 2, new Name("/X/A"),   1) > 0);
   }
 
   @Test
