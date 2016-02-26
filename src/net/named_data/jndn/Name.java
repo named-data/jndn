@@ -1013,9 +1013,45 @@ public class Name implements ChangeCountable, Comparable {
   public final int
   compare(Name other)
   {
-    for (int i = 0; i < size() && i < other.size(); ++i) {
-      int comparison = ((Component)components_.get(i)).compare
-        ((Component)other.components_.get(i));
+    return compare(0, components_.size(), other);
+  }
+
+  /**
+   * Compare a subset of this name to a subset of the other name, equivalent to
+   * this.getSubName(iStartComponent, nComponents).compare
+   * (other.getSubName(iOtherStartComponent, nOtherComponents)).
+   * @param iStartComponent The index if the first component of this name to
+   * get. If iStartComponent is -N then return return components starting from
+   * name.size() - N.
+   * @param nComponents The number of components starting at iStartComponent.
+   * If greater than the size of this name, get until the end of the name.
+   * @param other The other Name to compare with.
+   * @param iOtherStartComponent The index if the first component of the other
+   * name to get. If iOtherStartComponent is -N then return return components
+   * starting from other.size() - N.
+   * @param nOtherComponents The number of components starting at
+   * iOtherStartComponent. If greater than the size of the other name, get until
+   * the end of the name.
+   * @return 0 If the sub names compare equal, -1 if this sub name comes before
+   * the other sub name in the canonical ordering, or 1 if after.
+   */
+  public final int
+  compare
+    (int iStartComponent, int nComponents, Name other,
+     int iOtherStartComponent, int nOtherComponents)
+  {
+    if (iStartComponent < 0)
+      iStartComponent = size() - (-iStartComponent);
+    if (iOtherStartComponent < 0)
+      iOtherStartComponent = other.size() - (-iOtherStartComponent);
+
+    nComponents = Math.min(nComponents, size() - iStartComponent);
+    nOtherComponents = Math.min(nOtherComponents, other.size() - iOtherStartComponent);
+
+    int count = Math.min(nComponents, nOtherComponents);
+    for (int i = 0; i < count; ++i) {
+      int comparison = ((Component)components_.get(iStartComponent + i)).compare
+        ((Component)other.components_.get(iOtherStartComponent + i));
       if (comparison == 0)
         // The components at this index are equal, so check the next components.
         continue;
@@ -1026,12 +1062,59 @@ public class Name implements ChangeCountable, Comparable {
 
     // The components up to min(this.size(), other.size()) are equal, so the
     //   shorter name is less.
-    if (size() < other.size())
+    if (nComponents < nOtherComponents)
       return -1;
-    else if (size() > other.size())
+    else if (nComponents > nOtherComponents)
       return 1;
     else
       return 0;
+  }
+
+  /**
+   * Compare a subset of this name to a subset of the other name, equivalent to
+   * this.getSubName(iStartComponent, nComponents).compare
+   * (other.getSubName(iOtherStartComponent)), getting all components of other
+   * from iOtherStartComponent to the end of the name.
+   * @param iStartComponent The index if the first component of this name to
+   * get. If iStartComponent is -N then return return components starting from
+   * name.size() - N.
+   * @param nComponents The number of components starting at iStartComponent.
+   * If greater than the size of this name, get until the end of the name.
+   * @param other The other Name to compare with.
+   * @param iOtherStartComponent The index if the first component of the other
+   * name to get. If iOtherStartComponent is -N then return return components
+   * starting from other.size() - N.
+   * @return 0 If the sub names compare equal, -1 if this sub name comes before
+   * the other sub name in the canonical ordering, or 1 if after.
+   */
+  public final int
+  compare
+    (int iStartComponent, int nComponents, Name other,
+     int iOtherStartComponent)
+  {
+    return compare
+      (iStartComponent, nComponents, other, iOtherStartComponent,
+       other.components_.size());
+  }
+
+  /**
+   * Compare a subset of this name to all of the other name, equivalent to
+   * this.getSubName(iStartComponent, nComponents).compare(other).
+   * @param iStartComponent The index if the first component of this name to
+   * get. If iStartComponent is -N then return return components starting from
+   * name.size() - N.
+   * @param nComponents The number of components starting at iStartComponent.
+   * If greater than the size of this name, get until the end of the name.
+   * @param other The other Name to compare with.
+   * @return 0 If the sub names compare equal, -1 if this sub name comes before
+   * the other name in the canonical ordering, or 1 if after.
+   */
+  public final int
+  compare
+    (int iStartComponent, int nComponents, Name other)
+  {
+    return compare
+      (iStartComponent, nComponents, other, 0, other.components_.size());
   }
 
   public final int
