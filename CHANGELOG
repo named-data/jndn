@@ -1,9 +1,11 @@
-Interim changes after jNDN v0.10 (2016-02-25)
+Interim changes after jNDN v0.10 (2016-02-26)
 ---------------------------------------------
 
 Changes
 * http://redmine.named-data.net/issues/3451 Added static Name.Component.fromSegment,
   fromSegmentOffset, fromVersion, fromTimestamp and fromSequenceNumber.
+* http://redmine.named-data.net/issues/3449 Added Name.isPrefixOf, getSuccessor
+  and compare(int, size_t, Name, int, size_t).
 * http://redmine.named-data.net/issues/3450 Added Name.Component.isSegment,
   isSegmentOffset, isVersion, isTimestamp and isSequenceNumber.
 * http://redmine.named-data.net/issues/3452 Added Interest.refreshNonce.
