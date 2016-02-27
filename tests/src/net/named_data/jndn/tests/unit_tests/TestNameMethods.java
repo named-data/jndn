@@ -215,6 +215,17 @@ public class TestNameMethods {
 
   @Test
   public void
+  testGetSuccessor()
+  {
+    assertEquals(new Name("ndn:/%00%01/%01%03"), new Name("ndn:/%00%01/%01%02").getSuccessor());
+    assertEquals(new Name("ndn:/%00%01/%02%00"), new Name("ndn:/%00%01/%01%FF").getSuccessor());
+    assertEquals(new Name("ndn:/%00%01/%00%00%00"), new Name("ndn:/%00%01/%FF%FF").getSuccessor());
+    assertEquals(new Name("/%00"), new Name().getSuccessor());
+    assertEquals(new Name("/%00%01/%00"), new Name("/%00%01/...").getSuccessor());
+  }
+  
+  @Test
+  public void
   testHashCode()
   {
     Name foo1 = new Name("/ndn/foo");
