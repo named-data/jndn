@@ -402,6 +402,41 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Get the successor of this component, as described in Name.getSuccessor.
+     * @return A new Name.Component which is the successor of this.
+     */
+    public final Component
+    getSuccessor()
+    {
+      // Allocate an extra byte in case the result is larger.
+      ByteBuffer result = ByteBuffer.allocate(value_.size() + 1);
+
+      boolean carry = true;
+      for (int i = value_.size() - 1; i >= 0; --i) {
+        if (carry) {
+          // b & 0xff makes the byte unsigned and returns an int.
+          int x = value_.buf().get(value_.buf().position() + i) & 0xff;
+          x = (x + 1) & 0xff;
+          result.put(i, (byte)x);
+          carry = (x == 0);
+        }
+        else
+          result.put(i, value_.buf().get(value_.buf().position() + i));
+      }
+
+      if (carry)
+        // Assume all the bytes were set to zero (or the component was empty).
+        // In NDN ordering, carry does not mean to prepend a 1, but to make a
+        // component one byte longer of all zeros.
+        result.put(result.limit() - 1, (byte)0);
+      else
+        // We didn't need the extra byte.
+        result.limit(value_.size());
+
+      return new Component(new Blob(result, false));
+    }
+
+    /**
      * Check if this is the same component as other.
      * @param other The other Component to compare with.
      * @return True if the components are equal, otherwise false.
@@ -883,6 +918,38 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     return hashCode_;
+  }
+
+  /**
+   * Get the successor of this name which is defined as follows.
+   *
+   *     N represents the set of NDN Names, and X,Y ∈ N.
+   *     Operator < is defined by the NDN canonical order on N.
+   *     Y is the successor of X, if (a) X < Y, and (b) ∄ Z ∈ N s.t. X < Z < Y.
+   *
+   * In plain words, the successor of a name is the same name, but with its last
+   * component advanced to a next possible value.
+   *
+   * Examples:
+   *
+   * - The successor of / is /%00
+   * - The successor of /%00%01/%01%02 is /%00%01/%01%03
+   * - The successor of /%00%01/%01%FF is /%00%01/%02%00
+   * - The successor of /%00%01/%FF%FF is /%00%01/%00%00%00
+   *
+   * @return A new name which is the successor of this.
+   */
+  public final Name
+  getSuccessor()
+  {
+    if (size() == 0) {
+      // Return "/%00".
+      Name result = new Name();
+      result.append(new byte[1]);
+      return result;
+    }
+    else
+      return getPrefix(-1).append(get(-1).getSuccessor());
   }
 
   /**
