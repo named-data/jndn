@@ -63,6 +63,23 @@ public class AsyncTcpTransport extends Transport {
       public void failed(Throwable ex, Void attachment) {
         logger_.log(Level.SEVERE, null, ex);
       }};
+
+    // This is the CompletionHandler for send().
+    writeCompletionHandler_ = new CompletionHandler<Integer, ByteBuffer>() {
+      public void completed(Integer bytesRead, ByteBuffer data) {
+        // Need to catch and log exceptions at this async entry point.
+        try {
+          if (data.hasRemaining())
+            // write didn't write all the bytes so repeatedly try again.
+            channel_.write(data, data, writeCompletionHandler_);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
+
+      public void failed(Throwable ex, ByteBuffer data) {
+        logger_.log(Level.SEVERE, null, ex);
+      }};
   }
 
   /**
@@ -217,10 +234,10 @@ public class AsyncTcpTransport extends Transport {
     // updated by write(). We assume that the sender won't change the bytes of
     // the buffer during send, so that we can avoid a costly copy operation.
     data = data.duplicate();
-    while (data.hasRemaining())
+
       // write is already async, so no need to dispatch.
-      // TODO: The CompletionHandler should write remaining bytes.
-      channel_.write(data);
+    // The completion handler will call write again if needed.
+    channel_.write(data, data, writeCompletionHandler_);
   }
 
   /**
@@ -246,6 +263,7 @@ public class AsyncTcpTransport extends Transport {
 
   private AsynchronousSocketChannel channel_;
   private final CompletionHandler<Integer, Void> readCompletionHandler_;
+  private final CompletionHandler<Integer, ByteBuffer> writeCompletionHandler_;
   private final ScheduledExecutorService threadPool_;
   private ByteBuffer inputBuffer_ = ByteBuffer.allocate(Common.MAX_NDN_PACKET_SIZE);
   private ElementReader elementReader_;
