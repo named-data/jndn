@@ -213,7 +213,7 @@ public class AsyncTcpTransport extends Transport {
   {
     inputBuffer_.limit(inputBuffer_.capacity());
     inputBuffer_.position(0);
-    // read is already async, so no need to dispatch.
+    // We only call asyncRead after a previous call, so no need to dispatch.
     channel_.read(inputBuffer_, null, readCompletionHandler_);
   }
 
@@ -235,7 +235,8 @@ public class AsyncTcpTransport extends Transport {
     // the buffer during send, so that we can avoid a costly copy operation.
     data = data.duplicate();
 
-      // write is already async, so no need to dispatch.
+    // TODO: Each write could be dispatched to a different pool thread and
+    //   compete. So do we need to synchronize writes?
     // The completion handler will call write again if needed.
     channel_.write(data, data, writeCompletionHandler_);
   }
