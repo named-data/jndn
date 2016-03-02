@@ -201,7 +201,7 @@ public class AsyncTcpTransport extends Transport {
   }
 
   /**
-   * Set data to the host.
+   * Send data to the host.
    * @param data The buffer of data to send.  This reads from position() to
    * limit(), but does not change the position.
    * @throws IOException For I/O error.
