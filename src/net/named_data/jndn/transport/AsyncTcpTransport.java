@@ -213,18 +213,14 @@ public class AsyncTcpTransport extends Transport {
       throw new IOException
         ("Cannot send because the socket is not open.  Use connect.");
 
-    // Save and restore the position.
-    // TODO: Copy the buffer so that the sending thread doesn't change it?
-    int savePosition = data.position();
-    try {
-      while (data.hasRemaining())
-        // write is already async, so no need to dispatch.
-        // TODO: The CompletionHandler should write remaining bytes.
-        channel_.write(data);
-    }
-    finally {
-      data.position(savePosition);
-    }
+    // This does not copy the bytes, but only duplicates the position which is
+    // updated by write(). We assume that the sender won't change the bytes of
+    // the buffer during send, so that we can avoid a costly copy operation.
+    data = data.duplicate();
+    while (data.hasRemaining())
+      // write is already async, so no need to dispatch.
+      // TODO: The CompletionHandler should write remaining bytes.
+      channel_.write(data);
   }
 
   /**
