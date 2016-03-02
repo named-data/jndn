@@ -69,15 +69,27 @@ public class AsyncTcpTransport extends Transport {
       public void completed(Integer bytesRead, ByteBuffer data) {
         // Need to catch and log exceptions at this async entry point.
         try {
-          if (data.hasRemaining())
+          if (data.hasRemaining()) {
             // write didn't write all the bytes so repeatedly try again.
             channel_.write(data, data, writeCompletionHandler_);
+            return;
+          }
+
+          synchronized (writingLock_) {
+            isWriting_ = false;
+            writingLock_.notify();
+          }
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);
         }
       }
 
       public void failed(Throwable ex, ByteBuffer data) {
+        synchronized (writingLock_) {
+          isWriting_ = false;
+          writingLock_.notify();
+        }
+
         logger_.log(Level.SEVERE, null, ex);
       }};
   }
@@ -235,10 +247,19 @@ public class AsyncTcpTransport extends Transport {
     // the buffer during send, so that we can avoid a costly copy operation.
     data = data.duplicate();
 
-    // TODO: Each write could be dispatched to a different pool thread and
-    //   compete. So do we need to synchronize writes?
-    // The completion handler will call write again if needed.
-    channel_.write(data, data, writeCompletionHandler_);
+    try {
+      // The completion handler will call write again if needed, or will notify
+      // to release the wait when finished writing.
+      synchronized (writingLock_) {
+        while (isWriting_)
+          writingLock_.wait();
+        isWriting_ = true;
+        // write dispatches to another thread.
+        channel_.write(data, data, writeCompletionHandler_);
+      }
+    } catch (InterruptedException ex) {
+      throw new IOException("InterruptedException " + ex.getMessage());
+    }
   }
 
   /**
@@ -271,6 +292,8 @@ public class AsyncTcpTransport extends Transport {
   private ConnectionInfo connectionInfo_;
   private boolean isLocal_;
   private final Object isLocalLock_ = new Object();
+  private final Object writingLock_ = new Object();
+  private boolean isWriting_ = false;
   private static final Logger logger_ = Logger.getLogger
     (AsyncTcpTransport.class.getName());
 }
