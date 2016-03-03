@@ -26,6 +26,9 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.encoding.ElementListener;
@@ -67,17 +70,12 @@ public class AsyncTcpTransport extends Transport {
     // This is the CompletionHandler for send().
     writeCompletionHandler_ = new CompletionHandler<Integer, ByteBuffer>() {
       public void completed(Integer bytesRead, ByteBuffer data) {
+        writeLock_.unlock();
+
         // Need to catch and log exceptions at this async entry point.
         try {
           if (data.hasRemaining()) {
-            // write didn't write all the bytes so repeatedly try again.
-            channel_.write(data, data, writeCompletionHandler_);
-            return;
-          }
-
-          synchronized (writingLock_) {
-            isWriting_ = false;
-            writingLock_.notify();
+            sendDataSequentially(data);
           }
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);
@@ -85,11 +83,7 @@ public class AsyncTcpTransport extends Transport {
       }
 
       public void failed(Throwable ex, ByteBuffer data) {
-        synchronized (writingLock_) {
-          isWriting_ = false;
-          writingLock_.notify();
-        }
-
+        writeLock_.unlock();
         logger_.log(Level.SEVERE, null, ex);
       }};
   }
@@ -247,18 +241,30 @@ public class AsyncTcpTransport extends Transport {
     // the buffer during send, so that we can avoid a costly copy operation.
     data = data.duplicate();
 
+    // The completion handler will call write again if needed, or will notify
+    // to release the wait when finished writing.
     try {
-      // The completion handler will call write again if needed, or will notify
-      // to release the wait when finished writing.
-      synchronized (writingLock_) {
-        while (isWriting_)
-          writingLock_.wait();
-        isWriting_ = true;
-        // write dispatches to another thread.
-        channel_.write(data, data, writeCompletionHandler_);
-      }
-    } catch (InterruptedException ex) {
-      throw new IOException("InterruptedException " + ex.getMessage());
+      sendDataSequentially(data);
+    } catch (InterruptedException e) {
+      throw new IOException(e); // TODO would prefer not to wrap InterruptedException inside IOException but not sure how else to handle this; logging?
+    }
+  }
+
+  /**
+   * Send data buffers one-by-one; this is necessary because async IO writes
+   * cannot overlap without a WritePendingException (see
+   * https://docs.oracle.com/javase/7/docs/api/java/nio/channels/AsynchronousSocketChannel.html#write(java.nio.ByteBuffer))
+   * @param data the buffer to send
+   * @throws InterruptedException if an external agent interrupts the thread; usually this means that someone is trying
+   * to close the
+   * @throws IOException if the channel write fails
+   */
+  private void sendDataSequentially(ByteBuffer data) throws InterruptedException, IOException {
+    if(writeLock_.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS)) {
+      channel_.write(data, data, writeCompletionHandler_);
+    }
+    else{
+      throw new IOException("Failed to acquire lock on channel to write buffer");
     }
   }
 
@@ -292,8 +298,8 @@ public class AsyncTcpTransport extends Transport {
   private ConnectionInfo connectionInfo_;
   private boolean isLocal_;
   private final Object isLocalLock_ = new Object();
-  private final Object writingLock_ = new Object();
-  private boolean isWriting_ = false;
+  private final Lock writeLock_ = new ReentrantLock();
   private static final Logger logger_ = Logger.getLogger
     (AsyncTcpTransport.class.getName());
+  public static final int DEFAULT_LOCK_TIMEOUT = 3;
 }
