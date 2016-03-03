@@ -43,8 +43,8 @@ public class OID {
   setIntegerList(int[] oid)
   {
     oid_ = new int[oid.length];
-	for (int i = 0; i < oid_.length; ++i)
-	  oid_[i] = oid[i];
+    for (int i = 0; i < oid_.length; ++i)
+      oid_[i] = oid[i];
   }
 
   public String
@@ -63,12 +63,12 @@ public class OID {
   public final boolean
   equals(OID other)
   {
-	if (other == null || oid_.length != other.oid_.length)
-	  return false;
+    if (other == null || oid_.length != other.oid_.length)
+      return false;
 
     for (int i = 0; i < oid_.length; ++i) {
       if (oid_[i] != other.oid_[i])
-    	return false;
+        return false;
     }
     return true;
   }
