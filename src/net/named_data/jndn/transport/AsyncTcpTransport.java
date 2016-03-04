@@ -26,9 +26,8 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.encoding.ElementListener;
@@ -70,12 +69,13 @@ public class AsyncTcpTransport extends Transport {
     // This is the CompletionHandler for send().
     writeCompletionHandler_ = new CompletionHandler<Integer, ByteBuffer>() {
       public void completed(Integer bytesRead, ByteBuffer data) {
-        writeLock_.unlock();
-
         // Need to catch and log exceptions at this async entry point.
         try {
           if (data.hasRemaining()) {
-            sendDataSequentially(data);
+            channel_.write(data, data, writeCompletionHandler_);
+          }
+          else {
+            writeLock_.release();
           }
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);
@@ -83,7 +83,7 @@ public class AsyncTcpTransport extends Transport {
       }
 
       public void failed(Throwable ex, ByteBuffer data) {
-        writeLock_.unlock();
+        writeLock_.release();
         logger_.log(Level.SEVERE, null, ex);
       }};
   }
@@ -246,7 +246,7 @@ public class AsyncTcpTransport extends Transport {
     try {
       sendDataSequentially(data);
     } catch (InterruptedException e) {
-      throw new IOException(e); // TODO would prefer not to wrap InterruptedException inside IOException but not sure how else to handle this; logging?
+      throw new IOException(e);
     }
   }
 
@@ -260,7 +260,7 @@ public class AsyncTcpTransport extends Transport {
    * @throws IOException if the channel write fails
    */
   private void sendDataSequentially(ByteBuffer data) throws InterruptedException, IOException {
-    if(writeLock_.tryLock(DEFAULT_LOCK_TIMEOUT, TimeUnit.SECONDS)) {
+    if(writeLock_.tryAcquire(DEFAULT_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
       channel_.write(data, data, writeCompletionHandler_);
     }
     else{
@@ -298,8 +298,8 @@ public class AsyncTcpTransport extends Transport {
   private ConnectionInfo connectionInfo_;
   private boolean isLocal_;
   private final Object isLocalLock_ = new Object();
-  private final Lock writeLock_ = new ReentrantLock();
+  private final Semaphore writeLock_ = new Semaphore(1);
   private static final Logger logger_ = Logger.getLogger
     (AsyncTcpTransport.class.getName());
-  public static final int DEFAULT_LOCK_TIMEOUT = 3;
+  public static final int DEFAULT_LOCK_TIMEOUT_MS = 10000;
 }
