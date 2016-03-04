@@ -79,7 +79,7 @@ public class GenericSignature extends Signature {
     signatureInfoEncoding_ =
       (signatureInfoEncoding == null ? new Blob() : signatureInfoEncoding);
     typeCode_ = typeCode;
-    
+  
     ++changeCount_;
   }
 

@@ -917,7 +917,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     if (signature instanceof GenericSignature) {
       // Handle GenericSignature separately since it has the entire encoding.
       Blob encoding = ((GenericSignature)signature).getSignatureInfoEncoding();
-      
+  
       // Do a test decoding to sanity check that it is valid TLV.
       try {
         TlvDecoder decoder = new TlvDecoder(encoding.buf());
