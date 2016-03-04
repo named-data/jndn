@@ -1,4 +1,4 @@
-Interim changes after jNDN v0.10 (2016-02-26)
+Interim changes after jNDN v0.10 (2016-03-04)
 ---------------------------------------------
 
 Changes
@@ -13,6 +13,9 @@ Changes
 Deprecated
 * http://redmine.named-data.net/issues/3445 Deprecated Data.getIncomingFaceId,
   Interest.getIncomingFaceId and getNextHopFaceId, to be replaced by NDNLPv2 (NFD 0.4.0).
+
+Bug fixes
+* http://redmine.named-data.net/issues/3496 WritePendingException in TestGetAsyncThreadPool (Thanks to Andrew Brown.)
 
 jNDN v0.10 (2016-02-16)
 -----------------------
