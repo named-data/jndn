@@ -26,6 +26,8 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.encoding.ElementListener;
@@ -69,15 +71,19 @@ public class AsyncTcpTransport extends Transport {
       public void completed(Integer bytesRead, ByteBuffer data) {
         // Need to catch and log exceptions at this async entry point.
         try {
-          if (data.hasRemaining())
-            // write didn't write all the bytes so repeatedly try again.
+          if (data.hasRemaining()) {
             channel_.write(data, data, writeCompletionHandler_);
+          }
+          else {
+            writeLock_.release();
+          }
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);
         }
       }
 
       public void failed(Throwable ex, ByteBuffer data) {
+        writeLock_.release();
         logger_.log(Level.SEVERE, null, ex);
       }};
   }
@@ -235,10 +241,31 @@ public class AsyncTcpTransport extends Transport {
     // the buffer during send, so that we can avoid a costly copy operation.
     data = data.duplicate();
 
-    // TODO: Each write could be dispatched to a different pool thread and
-    //   compete. So do we need to synchronize writes?
-    // The completion handler will call write again if needed.
-    channel_.write(data, data, writeCompletionHandler_);
+    // The completion handler will call write again if needed, or will notify
+    // to release the wait when finished writing.
+    try {
+      sendDataSequentially(data);
+    } catch (InterruptedException e) {
+      throw new IOException(e);
+    }
+  }
+
+  /**
+   * Send data buffers one-by-one; this is necessary because async IO writes
+   * cannot overlap without a WritePendingException (see
+   * https://docs.oracle.com/javase/7/docs/api/java/nio/channels/AsynchronousSocketChannel.html#write(java.nio.ByteBuffer))
+   * @param data the buffer to send
+   * @throws InterruptedException if an external agent interrupts the thread; usually this means that someone is trying
+   * to close the
+   * @throws IOException if the channel write fails
+   */
+  private void sendDataSequentially(ByteBuffer data) throws InterruptedException, IOException {
+    if(writeLock_.tryAcquire(DEFAULT_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+      channel_.write(data, data, writeCompletionHandler_);
+    }
+    else{
+      throw new IOException("Failed to acquire lock on channel to write buffer");
+    }
   }
 
   /**
@@ -271,6 +298,8 @@ public class AsyncTcpTransport extends Transport {
   private ConnectionInfo connectionInfo_;
   private boolean isLocal_;
   private final Object isLocalLock_ = new Object();
+  private final Semaphore writeLock_ = new Semaphore(1);
   private static final Logger logger_ = Logger.getLogger
     (AsyncTcpTransport.class.getName());
+  public static final int DEFAULT_LOCK_TIMEOUT_MS = 10000;
 }
