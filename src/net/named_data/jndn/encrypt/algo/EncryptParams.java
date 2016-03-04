@@ -21,8 +21,8 @@
 package net.named_data.jndn.encrypt.algo;
 
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 /**
  * An EncryptParams holds an algorithm type and other parameters used to
@@ -43,7 +43,7 @@ public class EncryptParams {
 
     if (initialVectorLength > 0) {
       ByteBuffer initialVector = ByteBuffer.allocate(initialVectorLength);
-      random_.nextBytes(initialVector.array());
+      Common.getRandom().nextBytes(initialVector.array());
       initialVector_ = new Blob(initialVector, false);
     }
     else
@@ -102,6 +102,4 @@ public class EncryptParams {
 
   private EncryptAlgorithmType algorithmType_;
   private Blob initialVector_;
-  // TODO: Move this to a common utility?
-  private static final SecureRandom random_ = new SecureRandom();
 }

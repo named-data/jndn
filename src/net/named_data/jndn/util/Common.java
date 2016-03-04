@@ -22,6 +22,8 @@ package net.named_data.jndn.util;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Random;
 
 /**
  * The Common class has static utility functions.
@@ -34,6 +36,36 @@ public class Common {
    */
   public static double
   getNowMilliseconds() { return (double)System.currentTimeMillis(); }
+
+  /**
+   * Get the library-wide random number generator. This method is synchronized so that multiple accesses to the
+   * generator when a generator is not yet set will not throw an UnsupportedOperationException
+   * @return the random number generator set in {@link #setRandom(Random)} or (by default) a SecureRandom
+   */
+  public static synchronized Random
+  getRandom() {
+    if(randomNumberGenerator_ == null){
+      setRandom(new SecureRandom());
+    }
+    return randomNumberGenerator_;
+  }
+
+  /**
+   * Set the library-wide random number generator; this method will only allow the generator to be set once.
+   * Additionally, this method is thread-safe in that it guarantees that only the first caller will be able to set
+   * the generator.
+   * @param randomNumberGenerator the random number generator
+   * @throws UnsupportedOperationException if a user attempts to set the generator a second time
+   */
+  public static synchronized void
+  setRandom(Random randomNumberGenerator) {
+    if(randomNumberGenerator_ == null) {
+      randomNumberGenerator_ = randomNumberGenerator;
+    }
+    else{
+      throw new UnsupportedOperationException("The random number generator may only be set once");
+    }
+  }
 
   /**
    * Compute the sha-256 digest of data.
@@ -181,4 +213,5 @@ public class Common {
 
   private static Base64ConverterType base64ConverterType_ = Base64ConverterType.UNINITIALIZED;
   private static Class base64Converter_ = null;
+  private static Random randomNumberGenerator_;
 }

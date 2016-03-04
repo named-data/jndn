@@ -21,6 +21,8 @@ package net.named_data.jndn.encoding;
 
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
+import java.util.Random;
+
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.ControlParameters;
 import net.named_data.jndn.ControlResponse;
@@ -1180,6 +1182,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     decoder.finishNestedTlvs(endOffset);
   }
 
-  private static final SecureRandom random_ = new SecureRandom();
+  private static final Random random_ = new Random();
   private static Tlv0_1_1WireFormat instance_ = new Tlv0_1_1WireFormat();
 }

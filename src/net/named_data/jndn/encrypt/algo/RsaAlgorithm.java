@@ -30,7 +30,6 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPublicKeySpec;
@@ -171,7 +170,5 @@ public class RsaAlgorithm {
     return new Blob(cipher.doFinal(plainData.getImmutableArray()), false);
   }
 
-  // TODO: Move this to a common utility?
-  private static final SecureRandom random_ = new SecureRandom();
   private static KeyFactory keyFactory_;
 }
