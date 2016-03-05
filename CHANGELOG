@@ -1,5 +1,5 @@
-Interim changes after jNDN v0.10 (2016-03-04)
----------------------------------------------
+jNDN v0.11 (2016-03-05)
+-----------------------
 
 Changes
 * http://redmine.named-data.net/issues/3451 Added static Name.Component.fromSegment,
