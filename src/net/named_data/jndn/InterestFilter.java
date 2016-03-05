@@ -100,7 +100,7 @@ public class InterestFilter {
    * remaining components match the regexFilter regular expression.
    * For example, the following InterestFilter:
    *
-   *    InterestFilter("/hello", "<world><>+")
+   *    InterestFilter("/hello", "&lt;world&gt;&lt;&gt;+")
    *
    * will match all Interests, whose name has the prefix `/hello` which is
    * followed by a component `world` and has at least one more component after it.

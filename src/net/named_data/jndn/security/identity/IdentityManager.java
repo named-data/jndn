@@ -492,7 +492,7 @@ public class IdentityManager {
   /**
    * Use the keyName to get the public key from the identity storage and
    * prepare an unsigned identity certificate.
-   * @param keyName The key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param keyName The key name, e.g., `/{identity_name}/ksk-123456`.
    * @param signingIdentity The signing identity.
    * @param notBefore See IdentityCertificate.
    * @param notAfter See IdentityCertificate.
@@ -534,7 +534,7 @@ public class IdentityManager {
    * identity. If the signingIdentity is a prefix of the subject identity, `KEY`
    * will be inserted after the signingIdentity, otherwise `KEY` is inserted
    * after subject identity (i.e., before `ksk-...`).
-   * @param keyName The key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param keyName The key name, e.g., `/{identity_name}/ksk-123456`.
    * @param signingIdentity The signing identity.
    * @param notBefore See IdentityCertificate.
    * @param notAfter See IdentityCertificate.
@@ -556,7 +556,7 @@ public class IdentityManager {
 
   /**
    * Prepare an unsigned identity certificate.
-   * @param keyName The key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param keyName The key name, e.g., `/{identity_name}/ksk-123456`.
    * @param publicKey The public key to sign.
    * @param signingIdentity The signing identity.
    * @param notBefore See IdentityCertificate.
@@ -649,7 +649,7 @@ public class IdentityManager {
    * identity. If the signingIdentity is a prefix of the subject identity, `KEY`
    * will be inserted after the signingIdentity, otherwise `KEY` is inserted
    * after subject identity (i.e., before `ksk-...`).
-   * @param keyName The key name, e.g., `/<identity_name>/ksk-123456`.
+   * @param keyName The key name, e.g., `/{identity_name}/ksk-123456`.
    * @param publicKey The public key to sign.
    * @param signingIdentity The signing identity.
    * @param notBefore See IdentityCertificate.

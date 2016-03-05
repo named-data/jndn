@@ -68,7 +68,7 @@ public class Producer {
    * Create a Producer to use the given ProducerDb, Face and other values.
    *
    * A producer can produce data with a naming convention:
-   *   /&lt;prefix>/SAMPLE/&lt;dataType>/[timestamp]
+   *   /{prefix}/SAMPLE/{dataType}/[timestamp]
    *
    * The produced data packet is encrypted with a content key,
    * which is stored in the ProducerDb database.
@@ -100,7 +100,7 @@ public class Producer {
    * Create a Producer to use the given ProducerDb, Face and other values.
    *
    * A producer can produce data with a naming convention:
-   *   /&lt;prefix>/SAMPLE/&lt;dataType>/[timestamp]
+   *   /{prefix}/SAMPLE/{dataType}/[timestamp]
    *
    * The produced data packet is encrypted with a content key,
    * which is stored in the ProducerDb database.

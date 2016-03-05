@@ -924,8 +924,8 @@ public class Name implements ChangeCountable, Comparable {
    * Get the successor of this name which is defined as follows.
    *
    *     N represents the set of NDN Names, and X,Y ∈ N.
-   *     Operator < is defined by the NDN canonical order on N.
-   *     Y is the successor of X, if (a) X < Y, and (b) ∄ Z ∈ N s.t. X < Z < Y.
+   *     Operator &lt; is defined by the NDN canonical order on N.
+   *     Y is the successor of X, if (a) X &lt; Y, and (b) ∄ Z ∈ N s.t. X &lt; Z &lt; Y.
    *
    * In plain words, the successor of a name is the same name, but with its last
    * component advanced to a next possible value.

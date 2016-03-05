@@ -63,10 +63,10 @@ public class TlvDecoder {
   }
 
   /**
-   * Do the work of readVarNumber, given the firstOctet which is >= 253. Update
-   * the input buffer position.
-   * @param firstOctet The first octet which is >= 253, used to decode the
-   * remaining bytes.
+   * Do the work of readVarNumber, given the firstOctet which is greater than
+   * or equal to 253. Update the input buffer position.
+   * @param firstOctet The first octet which is greater than or equal to 253,
+   * used to decode the remaining bytes.
    * @return The decoded VAR-NUMBER as a Java 32-bit int.
    * @throws EncodingException if the VAR-NUMBER is 64-bit or read past the end  
    * of the input.

@@ -36,31 +36,31 @@ import net.named_data.jndn.encoding.EncodingException;
 /**
  * SegmentFetcher is a utility class to fetch the latest version of segmented data.
  *
- * SegmentFetcher assumes that the data is named /<prefix>/<version>/<segment>,
+ * SegmentFetcher assumes that the data is named /{prefix}/{version}/{segment},
  * where:
- * - <prefix> is the specified name prefix,
- * - <version> is an unknown version that needs to be discovered, and
- * - <segment> is a segment number. (The number of segments is unknown and is
+ * - {prefix} is the specified name prefix,
+ * - {version} is an unknown version that needs to be discovered, and
+ * - {segment} is a segment number. (The number of segments is unknown and is
  *   controlled by the `FinalBlockId` field in at least the last Data packet.
  *
  * The following logic is implemented in SegmentFetcher:
  *
  * 1. Express the first Interest to discover the version:
  *
- *    >> Interest: /<prefix>?ChildSelector=1&MustBeFresh=true
+ *    Interest: /{prefix}?ChildSelector=1&amp;MustBeFresh=true
  *
- * 2. Infer the latest version of the Data: <version> = Data.getName().get(-2)
+ * 2. Infer the latest version of the Data: {version} = Data.getName().get(-2)
  *
  * 3. If the segment number in the retrieved packet == 0, go to step 5.
  *
  * 4. Send an Interest for segment 0:
  *
- *    >> Interest: /<prefix>/<version>/<segment=0>
+ *     Interest: /{prefix}/{version}/{segment=0}
  *
  * 5. Keep sending Interests for the next segment while the retrieved Data does
  *    not have a FinalBlockId or the FinalBlockId != Data.getName().get(-1).
  *
- *    >> Interest: /<prefix>/<version>/<segment=(N+1))>
+ *    Interest: /{prefix}/{version}/{segment=(N+1))}
  *
  * 6. Call the OnComplete callback with a blob that concatenates the content
  *    from all the segmented objects.

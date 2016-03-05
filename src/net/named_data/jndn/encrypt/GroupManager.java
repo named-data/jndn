@@ -48,7 +48,7 @@ import net.named_data.jndn.util.Blob;
 public class GroupManager {
   /**
    * Create a group manager with the given values. The group manager namespace
-   * is /&lt;prefix>/read/&lt;dataType> .
+   * is /{prefix}/read/{dataType} .
    * @param prefix The prefix for the group manager namespace.
    * @param dataType The data type for the group manager namespace.
    * @param database The GroupManagerDb for storing the group management

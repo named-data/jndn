@@ -58,8 +58,8 @@ public class Encryptor {
    * asymmetric encryption algorithm and the payload is larger than the maximum
    * plaintext size, this encrypts the payload with a symmetric key that is
    * asymmetrically encrypted and provided as a nonce in the content of the data
-   * packet. The packet's /&lt;dataName>/ is updated to be
-   * /&lt;dataName>/FOR/&lt;keyName>
+   * packet. The packet's /{dataName}/ is updated to be
+   * /{dataName}/FOR/{keyName}
    * @param data The data packet which is updated.
    * @param payload The payload to encrypt.
    * @param keyName The key name for the EncryptedContent.

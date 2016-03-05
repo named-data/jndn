@@ -69,13 +69,13 @@ public class WireFormat {
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
    * If you are not encoding in order to sign, you can call
-   * encodeInterest(const Interest& interest) to ignore this returned value.
+   * encodeInterest(Interest interest) to ignore this returned value.
    * @param signedPortionEndOffset Return the offset in the encoding of the end
    * of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
    * If you are not encoding in order to sign, you can call
-   * encodeInterest(const Interest& interest) to ignore this returned value.
+   * encodeInterest(Interest interest) to ignore this returned value.
    * @return A Blob containing the encoding.
    * @throws UnsupportedOperationException for unimplemented if the derived
    * class does not override.
