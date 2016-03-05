@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -36,6 +35,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encrypt.EncryptedContent;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 /**
  * Encryptor has static constants and utility methods for encryption, such as
@@ -99,7 +99,7 @@ public class Encryptor {
 
       // 128-bit nonce.
       ByteBuffer nonceKeyBuffer = ByteBuffer.allocate(16);
-      random_.nextBytes(nonceKeyBuffer.array());
+      Common.getRandom().nextBytes(nonceKeyBuffer.array());
       Blob nonceKey = new Blob(nonceKeyBuffer, false);
 
       Name nonceKeyName = new Name(keyName);
@@ -203,6 +203,4 @@ public class Encryptor {
     else
       throw new Error("Unsupported encryption method");
   }
-  // TODO: Move this to a common utility?
-  private static final SecureRandom random_ = new SecureRandom();
 }

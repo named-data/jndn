@@ -27,7 +27,6 @@ import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -38,6 +37,7 @@ import net.named_data.jndn.encrypt.DecryptKey;
 import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.security.AesKeyParams;
+import net.named_data.jndn.util.Common;
 
 /**
  * The AesAlgorithm class provides static methods to manipulate keys, encrypt
@@ -55,7 +55,7 @@ public class AesAlgorithm {
   {
     // Convert the key bit size to bytes.
     ByteBuffer key = ByteBuffer.allocate(params.getKeySize() / 8);
-    random_.nextBytes(key.array());
+    Common.getRandom().nextBytes(key.array());
 
     DecryptKey decryptKey = new DecryptKey(new Blob(key, false));
     return decryptKey;
@@ -143,6 +143,4 @@ public class AesAlgorithm {
   }
 
   public static final int BLOCK_SIZE = 16;
-  // TODO: Move this to a common utility?
-  private static final SecureRandom random_ = new SecureRandom();
 }

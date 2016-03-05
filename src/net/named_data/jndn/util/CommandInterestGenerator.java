@@ -20,7 +20,6 @@
 package net.named_data.jndn.util;
 
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.WireFormat;
@@ -78,7 +77,7 @@ public class CommandInterestGenerator {
     //   so we don't need to call the nonNegativeInteger encoder.
     ByteBuffer randomBuffer = ByteBuffer.allocate(8);
     // Note: SecureRandom is thread safe.
-    random_.nextBytes(randomBuffer.array());
+    Common.getRandom().nextBytes(randomBuffer.array());
     interest.getName().append(new Blob(randomBuffer, false));
 
     keyChain.sign(interest, certificateName, wireFormat);
@@ -109,5 +108,4 @@ public class CommandInterestGenerator {
 
   private double lastTimestamp_;
   private final Object lastTimestampLock_ = new Object();
-  private static final SecureRandom random_ = new SecureRandom();
 }

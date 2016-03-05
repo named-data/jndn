@@ -20,7 +20,8 @@
 package net.named_data.jndn;
 
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
+import java.util.Random;
+
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.util.Blob;
@@ -734,5 +735,5 @@ public class Interest implements ChangeCountable {
   private WireFormat defaultWireEncodingFormat_;
   private long getDefaultWireEncodingChangeCount_ = 0;
   private long changeCount_ = 0;
-  private static final SecureRandom random_ = new SecureRandom();
+  private static final Random random_ = new Random();
 }
