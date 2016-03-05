@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.security.SecureRandom;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
@@ -39,6 +38,7 @@ import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.security.policy.PolicyManager;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 /**
  * KeyChain is the main class of the security library.
@@ -1036,7 +1036,7 @@ public class KeyChain {
       } catch (SecurityException e) {
         // Create a default identity name.
         ByteBuffer randomComponent = ByteBuffer.allocate(4);
-        random_.nextBytes(randomComponent.array());
+        Common.getRandom().nextBytes(randomComponent.array());
         defaultIdentity = new Name().append("tmp-identity")
           .append(new Blob(randomComponent, false));
       }
@@ -1049,6 +1049,5 @@ public class KeyChain {
   private final IdentityManager identityManager_;
   private final PolicyManager policyManager_;
   private Face face_ = null;
-  private static final SecureRandom random_ = new SecureRandom();
   private static final Logger logger_ = Logger.getLogger(KeyChain.class.getName());
 }

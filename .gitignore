@@ -20,6 +20,10 @@
 # Netbeans configuration
 nb-configuration.xml
 
+# IntelliJ configuration
+.idea
+*.iml
+
 # unit_test temporary files
 examples/src/net/named_data/jndn/tests/unit_tests/policy_config/test-public-info.db
 /integration-tests/target/
