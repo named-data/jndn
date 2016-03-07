@@ -3,7 +3,7 @@
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From ndn-cxx unit tests:
  * https://github.com/named-data/ndn-cxx/blob/master/tests/unit-tests/link.t.cpp
- * https://github.com/named-data/ndn-cxx/blob/master/tests/unit-tests/interet.t.cpp
+ * https://github.com/named-data/ndn-cxx/blob/master/tests/unit-tests/interest.t.cpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
