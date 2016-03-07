@@ -20,7 +20,6 @@
 package net.named_data.jndn.encoding;
 
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.Random;
 
 import net.named_data.jndn.ContentType;
