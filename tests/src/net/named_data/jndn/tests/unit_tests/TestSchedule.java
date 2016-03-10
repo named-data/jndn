@@ -24,7 +24,6 @@ package net.named_data.jndn.tests.unit_tests;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import net.named_data.jndn.encoding.EncodingException;
-import net.named_data.jndn.encrypt.Interval;
 import net.named_data.jndn.encrypt.RepetitiveInterval;
 import net.named_data.jndn.encrypt.Schedule;
 import net.named_data.jndn.util.Blob;
@@ -38,10 +37,9 @@ import org.junit.Test;
 public class TestSchedule {
   @Test
   public void
-  testCalculateCoveringInterval() throws ParseException
+  testCalculateIntervalWithBlackAndWhite() throws ParseException
   {
     Schedule schedule = new Schedule();
-
     RepetitiveInterval interval1 = new RepetitiveInterval
       (fromIsoString("20150825T000000"),
        fromIsoString("20150827T000000"), 5, 10, 2, RepetitiveInterval.RepeatUnit.DAY);
@@ -104,6 +102,99 @@ public class TestSchedule {
     assertEquals(false, result.isPositive);
     assertEquals(false, result.interval.isEmpty());
     assertEquals("20150825T100000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150826T000000", toIsoString(result.interval.getEndTime()));
+  }
+
+  @Test
+  public void
+  testCalculateIntervalWithoutBlack() throws ParseException
+  {
+    Schedule schedule = new Schedule();
+    RepetitiveInterval interval1 = new RepetitiveInterval
+      (fromIsoString("20150825T000000"),
+       fromIsoString("20150827T000000"), 5, 10, 2, RepetitiveInterval.RepeatUnit.DAY);
+    RepetitiveInterval interval2 = new RepetitiveInterval
+      (fromIsoString("20150825T000000"),
+       fromIsoString("20150827T000000"), 6, 8, 1, RepetitiveInterval.RepeatUnit.DAY);
+    RepetitiveInterval interval3 = new RepetitiveInterval
+      (fromIsoString("20150825T000000"),
+       fromIsoString("20150825T000000"), 4, 7);
+
+    schedule.addWhiteInterval(interval1);
+    schedule.addWhiteInterval(interval2);
+    schedule.addWhiteInterval(interval3);
+
+    Schedule.Result result;
+
+    // tp1 --> positive 8.25 4-10
+    double timePoint1 = fromIsoString("20150825T063000");
+    result = schedule.getCoveringInterval(timePoint1);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150825T040000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
+
+    // tp2 --> positive 8.26 6-8
+    double timePoint2 = fromIsoString("20150826T073000");
+    result = schedule.getCoveringInterval(timePoint2);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150826T060000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150826T080000", toIsoString(result.interval.getEndTime()));
+
+    // tp3 --> positive 8.27 5-10
+    double timePoint3 = fromIsoString("20150827T053000");
+    result = schedule.getCoveringInterval(timePoint3);
+    assertEquals(true, result.isPositive);
+    assertEquals("20150827T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150827T100000", toIsoString(result.interval.getEndTime()));
+
+    // tp4 --> negative 8.25 10-24
+    double timePoint4 = fromIsoString("20150825T113000");
+    result = schedule.getCoveringInterval(timePoint4);
+    assertEquals(false, result.isPositive);
+    assertEquals(false, result.interval.isEmpty());
+    assertEquals("20150825T100000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150826T000000", toIsoString(result.interval.getEndTime()));
+
+    // tp5 --> negative 8.25 0-4
+    double timePoint5 = fromIsoString("20150825T013000");
+    result = schedule.getCoveringInterval(timePoint5);
+    assertEquals(false, result.isPositive);
+    assertEquals(false, result.interval.isEmpty());
+    assertEquals("20150825T000000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150825T040000", toIsoString(result.interval.getEndTime()));
+  }
+
+  @Test
+  public void
+  testCalculateIntervalWithoutWhite() throws ParseException
+  {
+    Schedule schedule = new Schedule();
+    RepetitiveInterval interval1 = new RepetitiveInterval
+      (fromIsoString("20150825T000000"),
+       fromIsoString("20150827T000000"), 5, 10, 2, RepetitiveInterval.RepeatUnit.DAY);
+    RepetitiveInterval interval2 = new RepetitiveInterval
+      (fromIsoString("20150825T000000"),
+       fromIsoString("20150827T000000"), 6, 8, 1, RepetitiveInterval.RepeatUnit.DAY);
+
+    schedule.addBlackInterval(interval1);
+    schedule.addBlackInterval(interval2);
+
+    Schedule.Result result;
+
+    // tp1 --> negative 8.25 4-10
+    double timePoint1 = fromIsoString("20150825T063000");
+    result = schedule.getCoveringInterval(timePoint1);
+    assertEquals(false, result.isPositive);
+    assertEquals(false, result.interval.isEmpty());
+    assertEquals("20150825T050000", toIsoString(result.interval.getStartTime()));
+    assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
+
+    // tp2 --> negative 8.25 0-4
+    double timePoint2 = fromIsoString("20150825T013000");
+    result = schedule.getCoveringInterval(timePoint2);
+    assertEquals(false, result.isPositive);
+    assertEquals(false, result.interval.isEmpty());
+    assertEquals("20150825T000000", toIsoString(result.interval.getStartTime()));
     assertEquals("20150826T000000", toIsoString(result.interval.getEndTime()));
   }
 
