@@ -89,6 +89,18 @@ public class Interval {
   }
 
   /**
+   * Set this interval to have the same values as the other interval.
+   * @param interval The other Interval with values to copy.
+   */
+  public void
+  set(Interval interval)
+  {
+    startTime_ = interval.startTime_;
+    endTime_ = interval.endTime_;
+    isValid_ = interval.isValid_;
+  }
+
+  /**
    * Check if the time point is in this interval.
    * @param timePoint The time point to check as milliseconds since Jan 1, 1970 UTC.
    * @return True if timePoint is in this interval.
@@ -231,5 +243,5 @@ public class Interval {
 
   private double startTime_; // MillisecondsSince1970 UTC
   private double endTime_;   // MillisecondsSince1970 UTC
-  private final boolean isValid_;
+  private boolean isValid_;
 }
