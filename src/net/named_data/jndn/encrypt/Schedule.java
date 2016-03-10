@@ -119,74 +119,16 @@ public class Schedule {
     Interval whiteNegativeResult = new Interval();
 
     // Get the black result.
-    for (Iterator i = blackIntervalList_.iterator(); i.hasNext(); ) {
-      RepetitiveInterval element = (RepetitiveInterval)i.next();
+    calculateIntervalResult
+      (blackIntervalList_, timeStamp, blackPositiveResult, blackNegativeResult);
 
-      RepetitiveInterval.Result result = element.getInterval(timeStamp);
-      Interval tempInterval = result.interval;
-      if (result.isPositive == true) {
-        // tempInterval covers the time stamp, so union the black negative
-        // result with it.
-        // Get the union interval of all the black intervals covering the
-        // time stamp.
-        // Return false for isPositive and the union interval.
-        try {
-          blackPositiveResult.unionWith(tempInterval);
-        } catch (Interval.Error ex) {
-          // We don't expect to get this error.
-          throw new Error("Error in Interval.unionWith: " + ex.getMessage());
-        }
-      }
-      else {
-        // tempInterval does not cover the time stamp, so intersect the black
-        // negative result with it.
-        // Get the intersection interval of all the black intervals not covering
-        // the time stamp.
-        // Return true for isPositive if the white positive result is not empty,
-        // false if it is empty.
-        if (!blackNegativeResult.isValid())
-          blackNegativeResult = tempInterval;
-        else
-          blackNegativeResult.intersectWith(tempInterval);
-      }
-    }
-
-    // If the black positive result is not full, then isPositive must be false.
+    // If the black positive result is not empty, then isPositive must be false.
     if (!blackPositiveResult.isEmpty())
       return new Result(false, blackPositiveResult);
 
     // Get the whiteResult.
-    for (Iterator i = whiteIntervalList_.iterator(); i.hasNext(); ) {
-      RepetitiveInterval element = (RepetitiveInterval)i.next();
-
-      RepetitiveInterval.Result result = element.getInterval(timeStamp);
-      Interval tempInterval = result.interval;
-      if (result.isPositive == true) {
-        // tempInterval covers the time stamp, so union the white positive
-        // result with it.
-        // Get the union interval of all the white intervals covering the time
-        // stamp.
-        // Return true for isPositive.
-        try {
-          whitePositiveResult.unionWith(tempInterval);
-        } catch (Interval.Error ex) {
-          // We don't expect to get this error.
-          throw new Error("Error in Interval.unionWith: " + ex.getMessage());
-        }
-      }
-      else {
-        // tempInterval does not cover the time stamp, so intersect the white
-        // negative result with it.
-        // Get the intersection of all the white intervals not covering the time
-        // stamp.
-        // Return false for isPositive if the positive result is empty, or
-        // true if it is not empty.
-        if (!whiteNegativeResult.isValid())
-          whiteNegativeResult = tempInterval;
-        else
-          whiteNegativeResult.intersectWith(tempInterval);
-      }
-    }
+    calculateIntervalResult
+      (whiteIntervalList_, timeStamp, whitePositiveResult, whiteNegativeResult);
 
     // If the positive result is empty then return false for isPositive. If it
     // is not empty then return true for isPositive.
@@ -347,6 +289,42 @@ public class Schedule {
     decoder.finishNestedTlvs(endOffset);
     return new RepetitiveInterval
       (startDate, endDate, startHour, endHour, nRepeats, repeatUnit);
+  }
+
+  /**
+   * A helper function to calculate black interval results or white interval
+   * results.
+   * @param list The set of RepetitiveInterval, which can be the white list or
+   * the black list.
+   * @param timeStamp The time stamp.
+   * @param positiveResult The positive result which is updated.
+   * @param negativeResult The negative result which is updated.
+   */
+  private static void
+  calculateIntervalResult
+    (TreeSet list, double timeStamp, Interval positiveResult,
+     Interval negativeResult)
+  {
+    for (Iterator i = list.iterator(); i.hasNext(); ) {
+      RepetitiveInterval element = (RepetitiveInterval)i.next();
+
+      RepetitiveInterval.Result result = element.getInterval(timeStamp);
+      Interval tempInterval = result.interval;
+      if (result.isPositive == true) {
+        try {
+          positiveResult.unionWith(tempInterval);
+        } catch (Interval.Error ex) {
+          // We don't expect to get this error.
+          throw new Error("Error in Interval.unionWith: " + ex.getMessage());
+        }
+      }
+      else {
+        if (!negativeResult.isValid())
+          negativeResult.set(tempInterval);
+        else
+          negativeResult.intersectWith(tempInterval);
+      }
+    }
   }
 
   public static double
