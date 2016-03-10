@@ -1,4 +1,4 @@
-jNDN v0.11 (2016-03-05)
+jNDN v0.11 (2016-03-10)
 -----------------------
 
 Changes
@@ -16,6 +16,7 @@ Deprecated
 
 Bug fixes
 * http://redmine.named-data.net/issues/3496 WritePendingException in TestGetAsyncThreadPool (Thanks to Andrew Brown.)
+* Fix bug in encrypt/Schedule to solve problems when the black repetitive interval list is empty.
 
 jNDN v0.10 (2016-02-16)
 -----------------------
