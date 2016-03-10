@@ -130,12 +130,28 @@ public class Schedule {
     calculateIntervalResult
       (whiteIntervalList_, timeStamp, whitePositiveResult, whiteNegativeResult);
 
-    // If the positive result is empty then return false for isPositive. If it
-    // is not empty then return true for isPositive.
-    if (!whitePositiveResult.isEmpty())
+    if (whitePositiveResult.isEmpty() && !whiteNegativeResult.isValid()) {
+      // There is no white interval covering the time stamp.
+      // Return false and a 24-hour interval.
+      double timeStampDateOnly =
+        RepetitiveInterval.toDateOnlyMilliseconds(timeStamp);
       return new Result
-        (true, whitePositiveResult.intersectWith(blackNegativeResult));
+        (false, new Interval
+         (timeStampDateOnly, timeStampDateOnly + MILLISECONDS_IN_DAY));
+    }
+
+    if (!whitePositiveResult.isEmpty()) {
+      // There is white interval covering the time stamp.
+      // Return ture and calculate the intersection.
+      if (blackNegativeResult.isValid())
+        return new Result
+          (true, whitePositiveResult.intersectWith(blackNegativeResult));
+      else
+        return new Result(true, whitePositiveResult);
+    }
     else
+      // There is no white interval covering the time stamp.
+      // Return false.
       return new Result(false, whiteNegativeResult);
   }
 
@@ -355,4 +371,5 @@ public class Schedule {
   private final TreeSet whiteIntervalList_ = new TreeSet(); // of RepetitiveInterval
   private final TreeSet blackIntervalList_ = new TreeSet(); // of RepetitiveInterval
   private static final SimpleDateFormat dateFormat = getDateFormat();
+  private static final long MILLISECONDS_IN_DAY = 24 * 3600 * 1000;
 }
