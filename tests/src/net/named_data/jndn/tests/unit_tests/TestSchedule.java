@@ -126,28 +126,28 @@ public class TestSchedule {
 
     Schedule.Result result;
 
-    // tp1 --> positive 8.25 4-10
+    // timePoint1 --> positive 8.25 4-10
     double timePoint1 = fromIsoString("20150825T063000");
     result = schedule.getCoveringInterval(timePoint1);
     assertEquals(true, result.isPositive);
     assertEquals("20150825T040000", toIsoString(result.interval.getStartTime()));
     assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
 
-    // tp2 --> positive 8.26 6-8
+    // timePoint2 --> positive 8.26 6-8
     double timePoint2 = fromIsoString("20150826T073000");
     result = schedule.getCoveringInterval(timePoint2);
     assertEquals(true, result.isPositive);
     assertEquals("20150826T060000", toIsoString(result.interval.getStartTime()));
     assertEquals("20150826T080000", toIsoString(result.interval.getEndTime()));
 
-    // tp3 --> positive 8.27 5-10
+    // timePoint3 --> positive 8.27 5-10
     double timePoint3 = fromIsoString("20150827T053000");
     result = schedule.getCoveringInterval(timePoint3);
     assertEquals(true, result.isPositive);
     assertEquals("20150827T050000", toIsoString(result.interval.getStartTime()));
     assertEquals("20150827T100000", toIsoString(result.interval.getEndTime()));
 
-    // tp4 --> negative 8.25 10-24
+    // timePoint4 --> negative 8.25 10-24
     double timePoint4 = fromIsoString("20150825T113000");
     result = schedule.getCoveringInterval(timePoint4);
     assertEquals(false, result.isPositive);
@@ -155,7 +155,7 @@ public class TestSchedule {
     assertEquals("20150825T100000", toIsoString(result.interval.getStartTime()));
     assertEquals("20150826T000000", toIsoString(result.interval.getEndTime()));
 
-    // tp5 --> negative 8.25 0-4
+    // timePoint5 --> negative 8.25 0-4
     double timePoint5 = fromIsoString("20150825T013000");
     result = schedule.getCoveringInterval(timePoint5);
     assertEquals(false, result.isPositive);
@@ -181,7 +181,7 @@ public class TestSchedule {
 
     Schedule.Result result;
 
-    // tp1 --> negative 8.25 4-10
+    // timePoint1 --> negative 8.25 4-10
     double timePoint1 = fromIsoString("20150825T063000");
     result = schedule.getCoveringInterval(timePoint1);
     assertEquals(false, result.isPositive);
@@ -189,7 +189,7 @@ public class TestSchedule {
     assertEquals("20150825T050000", toIsoString(result.interval.getStartTime()));
     assertEquals("20150825T100000", toIsoString(result.interval.getEndTime()));
 
-    // tp2 --> negative 8.25 0-4
+    // timePoint2 --> negative 8.25 0-4
     double timePoint2 = fromIsoString("20150825T013000");
     result = schedule.getCoveringInterval(timePoint2);
     assertEquals(false, result.isPositive);

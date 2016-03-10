@@ -142,7 +142,7 @@ public class Schedule {
 
     if (!whitePositiveResult.isEmpty()) {
       // There is white interval covering the time stamp.
-      // Return ture and calculate the intersection.
+      // Return true and calculate the intersection.
       if (blackNegativeResult.isValid())
         return new Result
           (true, whitePositiveResult.intersectWith(blackNegativeResult));
@@ -312,7 +312,7 @@ public class Schedule {
    * results.
    * @param list The set of RepetitiveInterval, which can be the white list or
    * the black list.
-   * @param timeStamp The time stamp.
+   * @param timeStamp The time stamp as milliseconds since Jan 1, 1970 UTC.
    * @param positiveResult The positive result which is updated.
    * @param negativeResult The negative result which is updated.
    */
