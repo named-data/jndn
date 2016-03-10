@@ -372,7 +372,7 @@ public class RepetitiveInterval implements Comparable {
    * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
    * @return A time point as milliseconds since Jan 1, 1970 UTC.
    */
-  private double
+  public static double
   toDateOnlyMilliseconds(double timePoint)
   {
     long result = (long)Math.round(timePoint);
@@ -385,7 +385,7 @@ public class RepetitiveInterval implements Comparable {
    * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
    * @return The Calendar.
    */
-  private Calendar
+  private static Calendar
   toCalendar(double timePoint)
   {
     Calendar result = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
