@@ -99,18 +99,18 @@ public class Schedule {
   }
 
   /**
-   * Get the interval that covers the time point. This iterates over the two
+   * Get the interval that covers the time stamp. This iterates over the two
    * repetitive interval sets and find the shortest interval that allows a group
-   * member to access the data. If there is no interval covering the time point,
+   * member to access the data. If there is no interval covering the time stamp,
    * this returns false for isPositive and returns a negative interval.
-   * @param timePoint The time point as milliseconds since Jan 1, 1970 UTC.
+   * @param timeStamp The time stamp as milliseconds since Jan 1, 1970 UTC.
    * @return An object with fields (isPositive, interval) where isPositive is
    * true if the returned interval is positive or false if negative, and
-   * interval is the Interval covering the time point, or a negative interval if
+   * interval is the Interval covering the time stamp, or a negative interval if
    * not found.
    */
   public final Result
-  getCoveringInterval(double timePoint)
+  getCoveringInterval(double timeStamp)
   {
     Interval blackPositiveResult = new Interval(true);
     Interval whitePositiveResult = new Interval(true);
@@ -122,13 +122,13 @@ public class Schedule {
     for (Iterator i = blackIntervalList_.iterator(); i.hasNext(); ) {
       RepetitiveInterval element = (RepetitiveInterval)i.next();
 
-      RepetitiveInterval.Result result = element.getInterval(timePoint);
+      RepetitiveInterval.Result result = element.getInterval(timeStamp);
       Interval tempInterval = result.interval;
       if (result.isPositive == true) {
-        // tempInterval covers the time point, so union the black negative
+        // tempInterval covers the time stamp, so union the black negative
         // result with it.
         // Get the union interval of all the black intervals covering the
-        // time point.
+        // time stamp.
         // Return false for isPositive and the union interval.
         try {
           blackPositiveResult.unionWith(tempInterval);
@@ -138,10 +138,10 @@ public class Schedule {
         }
       }
       else {
-        // tempInterval does not cover the time point, so intersect the black
+        // tempInterval does not cover the time stamp, so intersect the black
         // negative result with it.
         // Get the intersection interval of all the black intervals not covering
-        // the time point.
+        // the time stamp.
         // Return true for isPositive if the white positive result is not empty,
         // false if it is empty.
         if (!blackNegativeResult.isValid())
@@ -159,13 +159,13 @@ public class Schedule {
     for (Iterator i = whiteIntervalList_.iterator(); i.hasNext(); ) {
       RepetitiveInterval element = (RepetitiveInterval)i.next();
 
-      RepetitiveInterval.Result result = element.getInterval(timePoint);
+      RepetitiveInterval.Result result = element.getInterval(timeStamp);
       Interval tempInterval = result.interval;
       if (result.isPositive == true) {
-        // tempInterval covers the time point, so union the white positive
+        // tempInterval covers the time stamp, so union the white positive
         // result with it.
         // Get the union interval of all the white intervals covering the time
-        // point.
+        // stamp.
         // Return true for isPositive.
         try {
           whitePositiveResult.unionWith(tempInterval);
@@ -175,10 +175,10 @@ public class Schedule {
         }
       }
       else {
-        // tempInterval does not cover the time point, so intersect the white
+        // tempInterval does not cover the time stamp, so intersect the white
         // negative result with it.
         // Get the intersection of all the white intervals not covering the time
-        // point.
+        // stamp.
         // Return false for isPositive if the positive result is empty, or
         // true if it is not empty.
         if (!whiteNegativeResult.isValid())
