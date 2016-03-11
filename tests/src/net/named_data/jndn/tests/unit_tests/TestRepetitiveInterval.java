@@ -27,6 +27,7 @@ import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString
 import net.named_data.jndn.encrypt.Interval;
 import net.named_data.jndn.encrypt.RepetitiveInterval;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class TestRepetitiveInterval {
@@ -163,5 +164,51 @@ public class TestRepetitiveInterval {
     double timePoint12 = fromIsoString("20300825T040000");
     result = repetitiveInterval3.getInterval(timePoint12);
     assertEquals(false, result.isPositive);
+  }
+
+  private static boolean
+  check(RepetitiveInterval small, RepetitiveInterval big)
+  {
+    return small.compare(big) < 0 && !(big.compare(small) < 0);
+  }
+
+  @Test
+  public void
+  testComparison() throws ParseException
+  {
+    assertTrue(check(new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 10, 2, RepetitiveInterval.RepeatUnit.DAY),
+                     new RepetitiveInterval(fromIsoString("20150826T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 10, 2, RepetitiveInterval.RepeatUnit.DAY)));
+
+    assertTrue(check(new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 10, 2, RepetitiveInterval.RepeatUnit.DAY),
+                     new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         6, 10, 2, RepetitiveInterval.RepeatUnit.DAY)));
+
+    assertTrue(check(new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 10, 2, RepetitiveInterval.RepeatUnit.DAY),
+                     new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 11, 2, RepetitiveInterval.RepeatUnit.DAY)));
+
+    assertTrue(check(new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 10, 2, RepetitiveInterval.RepeatUnit.DAY),
+                     new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 10, 3, RepetitiveInterval.RepeatUnit.DAY)));
+
+    assertTrue(check(new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 10, 2, RepetitiveInterval.RepeatUnit.DAY),
+                     new RepetitiveInterval(fromIsoString("20150825T000000"),
+                                            fromIsoString("20150828T000000"),
+                                         5, 10, 2, RepetitiveInterval.RepeatUnit.MONTH)));
   }
 }
