@@ -323,21 +323,14 @@ public class TestEncryptedContent {
     assertEquals(true, content.getPayload().isNull());
     assertEquals(true, content.getInitialVector().isNull());
 
-    Blob payload = new Blob(message, false);
-    content.setPayload(payload);
+    content.setPayload(new Blob(message, false));
+    assertTrue(content.getPayload().equals(new Blob(message, false)));
 
-    Blob contentPayload = content.getPayload();
-    assertTrue(contentPayload.equals(payload));
-
-    Blob initialVector = new Blob(iv, false);
-    content.setInitialVector(initialVector);
-
-    Blob contentInitialVector = content.getInitialVector();
-    assertTrue(contentInitialVector.equals(initialVector));
+    content.setInitialVector(new Blob(iv, false));
+    assertTrue(content.getInitialVector().equals(new Blob(iv, false)));
 
     Blob encoded = content.wireEncode();
     Blob contentBlob = new Blob(encrypted, false);
-
     assertTrue(contentBlob.equals(encoded));
   }
 }
