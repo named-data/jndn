@@ -177,10 +177,8 @@ public class Producer {
     contentKeyName.append(Schedule.toIsoString(hourSlot));
 
     Blob contentKeyBits;
-    if (database_.hasContentKey(timeSlot)) {
-      contentKeyBits = database_.getContentKey(timeSlot);
+    if (database_.hasContentKey(timeSlot))
       return contentKeyName;
-    }
 
     AesKeyParams aesParams = new AesKeyParams(128);
     contentKeyBits = AesAlgorithm.generateKey(aesParams).getKeyBits();
