@@ -151,9 +151,8 @@ public class TestEncryptedContent {
     // Decoding.
     EncryptedContent rsaOaepContentNoIv2 = new EncryptedContent();
     rsaOaepContentNoIv2.wireDecode(encryptedBlob2);
-    Blob contentPayloadNoIV = rsaOaepContentNoIv2.getPayload();
     assertEquals(EncryptAlgorithmType.RsaOaep, rsaOaepContentNoIv2.getAlgorithmType());
-    assertTrue(contentPayloadNoIV.equals(new Blob(message, false)));
+    assertTrue(rsaOaepContentNoIv2.getPayload().equals(new Blob(message, false)));
     assertTrue(rsaOaepContentNoIv2.getInitialVector().isNull());
     assertTrue(rsaOaepContentNoIv2.getKeyLocator().getType() != KeyLocatorType.NONE);
     assertTrue(rsaOaepContentNoIv2.getKeyLocator().getKeyName().equals
