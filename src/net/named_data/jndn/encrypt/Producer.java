@@ -196,7 +196,6 @@ public class Producer {
     // Check if the current E-KEYs can cover the content key.
     Exclude timeRange = new Exclude();
     excludeAfter(timeRange, new Name.Component(Schedule.toIsoString(timeSlot)));
-    // Send interests for all nodes in the tree.
     eKeyInfo_.entrySet().iterator();
     for (Iterator i = eKeyInfo_.entrySet().iterator(); i.hasNext(); ) {
       // For each current E-KEY.
@@ -206,7 +205,8 @@ public class Producer {
       if (timeSlot < keyInfo.beginTimeSlot || timeSlot >= keyInfo.endTimeSlot) {
         // The current E-KEY cannot cover the content key, so retrieve one.
         sendKeyInterest
-          ((Name)entry.getKey(), timeSlot, keyRequest, onEncryptedKeys, timeRange);
+          (new Interest((Name)entry.getKey()).setExclude(timeRange).setChildSelector(1),
+           timeSlot, keyRequest, onEncryptedKeys);
       }
       else {
         // The current E-KEY can cover the content key.
@@ -285,19 +285,18 @@ public class Producer {
   /**
    * Send an interest with the given name through the face with callbacks to
    * handleCoveringKey and handleTimeout.
-   * @param name The name of the interest to send.
+   * @param interest The interest to send.
    * @param timeSlot The time slot, passed to handleCoveringKey and
    * handleTimeout.
    * @param keyRequest The KeyRequest, passed to handleCoveringKey and
    * handleTimeout.
    * @param onEncryptedKeys The OnEncryptedKeys callback, passed to
    * handleCoveringKey and handleTimeout.
-   * @param timeRange The Exclude for the interest.
    */
   private void
   sendKeyInterest
-    (Name name, final double timeSlot, final KeyRequest keyRequest,
-     final OnEncryptedKeys onEncryptedKeys, Exclude timeRange) throws IOException
+    (Interest interest, final double timeSlot, final KeyRequest keyRequest,
+     final OnEncryptedKeys onEncryptedKeys) throws IOException
   {
     OnData onKey = new OnData() {
       public void onData(Interest interest, final Data data) {
@@ -319,11 +318,7 @@ public class Producer {
       }
     };
 
-    Interest keyInterest = new Interest(name);
-    keyInterest.setExclude(timeRange);
-    keyInterest.setChildSelector(1);
-
-    face_.expressInterest(keyInterest, onKey, onTimeout);
+    face_.expressInterest(interest, onKey, onTimeout);
   }
 
   /**
@@ -348,8 +343,7 @@ public class Producer {
       // Increase the retrial count.
       keyRequest.repeatAttempts.put
         (interestName, (int)(Integer)keyRequest.repeatAttempts.get(interestName) + 1);
-      sendKeyInterest
-        (interestName, timeSlot, keyRequest, onEncryptedKeys, interest.getExclude());
+      sendKeyInterest(interest, timeSlot, keyRequest, onEncryptedKeys);
     }
     else
       // No more retrials.
@@ -399,7 +393,8 @@ public class Producer {
       excludeBefore(timeRange, keyName.get(START_TIME_STAMP_INDEX));
       keyRequest.repeatAttempts.put(interestName, 0);
       sendKeyInterest
-        (interestName, timeSlot, keyRequest, onEncryptedKeys, timeRange);
+        (new Interest(interestName).setExclude(timeRange).setChildSelector(1),
+         timeSlot, keyRequest, onEncryptedKeys);
     }
     else {
       // If the received E-KEY covers the content key, encrypt the content.
