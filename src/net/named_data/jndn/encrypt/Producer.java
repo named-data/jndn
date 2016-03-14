@@ -151,11 +151,11 @@ public class Producer {
   }
 
   /**
-   * Create the content key. This first checks if the content key exists. For an
-   * existing content key, this returns the content key name directly. If the
-   * key does not exist, this creates one and encrypts it using the
-   * corresponding E-KEYs. The encrypted content keys are passed to the
-   * onEncryptedKeys callback.
+   * Create the content key corresponding to the timeSlot. This first checks if
+   * the content key exists. For an existing content key, this returns the
+   * content key name directly. If the key does not exist, this creates one and
+   * encrypts it using the corresponding E-KEYs. The encrypted content keys are
+   * passed to the onEncryptedKeys callback.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @param onEncryptedKeys If this creates a content key, then this calls
    * onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of encrypted
@@ -177,30 +177,40 @@ public class Producer {
     contentKeyName.append(Schedule.toIsoString(hourSlot));
 
     Blob contentKeyBits;
+
+    // Check if we have created the content key before.
     if (database_.hasContentKey(timeSlot))
+      // We have created the content key. Return its name directly.
       return contentKeyName;
 
+    // We haven't created the content key. Create one and add it into the database.
     AesKeyParams aesParams = new AesKeyParams(128);
     contentKeyBits = AesAlgorithm.generateKey(aesParams).getKeyBits();
     database_.addContentKey(timeSlot, contentKeyBits);
 
+    // Now we need to retrieve the E-KEYs for content key encryption.
     double timeCount = timeSlot;
     keyRequests_.put(timeCount, new KeyRequest(eKeyInfo_.size()));
     KeyRequest keyRequest = (KeyRequest)keyRequests_.get(timeCount);
 
+    // Check if the current E-KEYs can cover the content key.
     Exclude timeRange = new Exclude();
     excludeAfter(timeRange, new Name.Component(Schedule.toIsoString(timeSlot)));
     // Send interests for all nodes in the tree.
     eKeyInfo_.entrySet().iterator();
     for (Iterator i = eKeyInfo_.entrySet().iterator(); i.hasNext(); ) {
+      // For each current E-KEY.
       Map.Entry entry = (Map.Entry)i.next();
       KeyInfo keyInfo = (KeyInfo)entry.getValue();
       keyRequest.repeatAttempts.put(entry.getKey(), 0);
       if (timeSlot < keyInfo.beginTimeSlot || timeSlot >= keyInfo.endTimeSlot) {
+        // The current E-KEY cannot cover the content key, so retrieve one.
         sendKeyInterest
           ((Name)entry.getKey(), timeSlot, keyRequest, onEncryptedKeys, timeRange);
       }
       else {
+        // The current E-KEY can cover the content key.
+        // Encrypt the content key directly.
         Name eKeyName = new Name((Name)entry.getKey());
         eKeyName.append(Schedule.toIsoString(keyInfo.beginTimeSlot));
         eKeyName.append(Schedule.toIsoString(keyInfo.endTimeSlot));
@@ -227,9 +237,11 @@ public class Producer {
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException
   {
+    // Get a content key.
     Name contentKeyName = new Name(createContentKey(timeSlot, null));
     Blob contentKey = database_.getContentKey(timeSlot);
 
+    // Produce data.
     Name dataName = new Name(namespace_);
     dataName.append(Schedule.toIsoString(getRoundedTimeSlot(timeSlot)));
 
@@ -333,12 +345,14 @@ public class Producer {
     Name interestName = interest.getName();
 
     if ((int)(Integer)keyRequest.repeatAttempts.get(interestName) < maxRepeatAttempts_) {
+      // Increase the retrial count.
       keyRequest.repeatAttempts.put
         (interestName, (int)(Integer)keyRequest.repeatAttempts.get(interestName) + 1);
       sendKeyInterest
         (interestName, timeSlot, keyRequest, onEncryptedKeys, interest.getExclude());
     }
     else
+      // No more retrials.
       --keyRequest.interestCount;
 
     if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
@@ -379,22 +393,25 @@ public class Producer {
       (keyName.get(END_TIME_STAMP_INDEX).getValue().toString());
 
     if (timeSlot >= end) {
+      // If the received E-KEY covers some earlier period, try to retrieve an
+      // E-KEY covering later one.
       Exclude timeRange = new Exclude(interest.getExclude());
       excludeBefore(timeRange, keyName.get(START_TIME_STAMP_INDEX));
       keyRequest.repeatAttempts.put(interestName, 0);
       sendKeyInterest
         (interestName, timeSlot, keyRequest, onEncryptedKeys, timeRange);
-      return;
     }
+    else {
+      // If the received E-KEY covers the content key, encrypt the content.
+      Blob encryptionKey = data.getContent();
+      KeyInfo keyInfo = (KeyInfo)eKeyInfo_.get(interestName);
+      keyInfo.beginTimeSlot = begin;
+      keyInfo.endTimeSlot = end;
+      keyInfo.keyBits = encryptionKey;
 
-    Blob encryptionKey = data.getContent();
-    KeyInfo keyInfo = (KeyInfo)eKeyInfo_.get(interestName);
-    keyInfo.beginTimeSlot = begin;
-    keyInfo.endTimeSlot = end;
-    keyInfo.keyBits = encryptionKey;
-
-    encryptContentKey
-      (keyRequest, encryptionKey, keyName, timeSlot, onEncryptedKeys);
+      encryptContentKey
+        (keyRequest, encryptionKey, keyName, timeSlot, onEncryptedKeys);
+    }
   }
 
   /**
