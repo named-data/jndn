@@ -347,15 +347,31 @@ public class Producer {
     }
     else
       // No more retrials.
-      --keyRequest.interestCount;
+      updateKeyRequest(keyRequest, timeCount, onEncryptedKeys);
+  }
 
+  /**
+   * Decrease the count of outstanding E-KEY interests for C-KEY for timeCount.
+   * If the count decrease to 0, invoke onEncryptedKeys.
+   * @param keyRequest The KeyRequest with the interestCount to update.
+   * @param timeCount The time count for indexing keyRequests_.
+   * @param onEncryptedKeys When there are no more interests to process, this
+   * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
+   * encrypted content key Data packets. If onEncryptedKeys is null, this does
+   * not use it.
+   */
+  private void
+  updateKeyRequest
+    (KeyRequest keyRequest, double timeCount, OnEncryptedKeys onEncryptedKeys)
+  {
+    --keyRequest.interestCount;
     if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
       try {
         onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
       } catch (Throwable exception) {
         logger_.log(Level.SEVERE, "Error in onEncryptedKeys", exception);
       }
-      keyRequests_.remove(timeSlot);
+      keyRequests_.remove(timeCount);
     }
   }
 
@@ -452,16 +468,7 @@ public class Producer {
 
     keyChain_.sign(cKeyData);
     keyRequest.encryptedKeys.add(cKeyData);
-
-    --keyRequest.interestCount;
-    if (keyRequest.interestCount == 0 && onEncryptedKeys != null) {
-      try {
-        onEncryptedKeys.onEncryptedKeys(keyRequest.encryptedKeys);
-      } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, "Error in onEncryptedKeys", exception);
-      }
-      keyRequests_.remove(timeSlot);
-    }
+    updateKeyRequest(keyRequest, timeCount, onEncryptedKeys);
   }
 
   // TODO: Move this to be the main representation inside the Exclude object.
