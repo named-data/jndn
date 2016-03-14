@@ -418,13 +418,14 @@ public class Producer {
     else {
       // If the received E-KEY covers the content key, encrypt the content.
       Blob encryptionKey = data.getContent();
-      KeyInfo keyInfo = (KeyInfo)eKeyInfo_.get(interestName);
-      keyInfo.beginTimeSlot = begin;
-      keyInfo.endTimeSlot = end;
-      keyInfo.keyBits = encryptionKey;
-
-      encryptContentKey
-        (encryptionKey, keyName, timeSlot, onEncryptedKeys);
+      // If everything is correct, save the E-KEY as the current key.
+      if (encryptContentKey
+          (encryptionKey, keyName, timeSlot, onEncryptedKeys)) {
+        KeyInfo keyInfo = (KeyInfo)eKeyInfo_.get(interestName);
+        keyInfo.beginTimeSlot = begin;
+        keyInfo.endTimeSlot = end;
+        keyInfo.keyBits = encryptionKey;
+      }
     }
   }
 
@@ -438,8 +439,9 @@ public class Producer {
    * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
    * encrypted content key Data packets. If onEncryptedKeys is null, this does
    * not use it.
+   * @return True if encryption succeeds, otherwise false.
    */
-  private void
+  private boolean
   encryptContentKey
     (Blob encryptionKey, Name eKeyName, double timeSlot,
      OnEncryptedKeys onEncryptedKeys)
@@ -469,6 +471,7 @@ public class Producer {
     keyChain_.sign(cKeyData);
     keyRequest.encryptedKeys.add(cKeyData);
     updateKeyRequest(keyRequest, timeCount, onEncryptedKeys);
+    return true;
   }
 
   // TODO: Move this to be the main representation inside the Exclude object.
