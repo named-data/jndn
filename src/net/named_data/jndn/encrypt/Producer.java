@@ -374,13 +374,13 @@ public class Producer {
     Name keyName = data.getName();
 
     double begin = Schedule.fromIsoString
-      (keyName.get(iStartTimeStamp).getValue().toString());
+      (keyName.get(START_TIME_STAMP_INDEX).getValue().toString());
     double end = Schedule.fromIsoString
-      (keyName.get(iEndTimeStamp).getValue().toString());
+      (keyName.get(END_TIME_STAMP_INDEX).getValue().toString());
 
     if (timeSlot >= end) {
       Exclude timeRange = new Exclude(interest.getExclude());
-      excludeBefore(timeRange, keyName.get(iStartTimeStamp));
+      excludeBefore(timeRange, keyName.get(START_TIME_STAMP_INDEX));
       keyRequest.repeatAttempts.put(interestName, 0);
       sendKeyInterest
         (interestName, timeSlot, keyRequest, onEncryptedKeys, timeRange);
@@ -676,6 +676,6 @@ public class Producer {
   private final int maxRepeatAttempts_;
   private static final Logger logger_ = Logger.getLogger(Producer.class.getName());
 
-  private static final int iStartTimeStamp = -2;
-  private static final int iEndTimeStamp = -1;
+  private static final int START_TIME_STAMP_INDEX = -2;
+  private static final int END_TIME_STAMP_INDEX = -1;
 }
