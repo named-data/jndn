@@ -201,9 +201,9 @@ public class Producer {
       // For each current E-KEY.
       Map.Entry entry = (Map.Entry)i.next();
       KeyInfo keyInfo = (KeyInfo)entry.getValue();
-      keyRequest.repeatAttempts.put(entry.getKey(), 0);
       if (timeSlot < keyInfo.beginTimeSlot || timeSlot >= keyInfo.endTimeSlot) {
         // The current E-KEY cannot cover the content key, so retrieve one.
+        keyRequest.repeatAttempts.put(entry.getKey(), 0);
         sendKeyInterest
           (new Interest((Name)entry.getKey()).setExclude(timeRange).setChildSelector(1),
            timeSlot, keyRequest, onEncryptedKeys);
