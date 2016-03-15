@@ -32,6 +32,8 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encrypt.EncryptError.ErrorCode;
+import net.named_data.jndn.encrypt.EncryptError.OnError;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
@@ -70,33 +72,8 @@ public class Consumer {
     consumerName_ = new Name(consumerName);
   }
 
-  public enum ErrorCode {
-    Timeout(1),
-    Validation(2),
-    UnsupportedEncryptionScheme(32),
-    InvalidEncryptedFormat(33),
-    NoDecryptKey(34),
-    EncryptionFailure(35),
-    SecurityException(100),
-    IOException(102);
-
-    ErrorCode (int type)
-    {
-      type_ = type;
-    }
-
-    public final int
-    getNumericType() { return type_; }
-
-    private final int type_;
-  }
-
   public interface OnConsumeComplete {
     void onConsumeComplete(Data data, Blob result);
-  }
-
-  public interface OnError {
-    void onError(ErrorCode errorCode, String message);
   }
 
   /**

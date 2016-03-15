@@ -1,5 +1,13 @@
-Interim changes since jNDN v0.11 (2016-03-10)
+Interim changes since jNDN v0.11 (2016-03-15)
 ---------------------------------------------
+
+Breaking changes
+* In encrypt/Consumer, moved OnError and ErrorCode to encrypt/EncryptError,
+  affecting the onError callback to Consumer.consume.
+
+Changes
+* http://redmine.named-data.net/issues/3355 In Producer.createContentKey and produce,
+  added an optional onError callback.
 
 Bug fixes
 * Fix bug in encrypt/Schedule to solve problems when the black repetitive interval list is empty.
