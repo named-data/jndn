@@ -42,9 +42,8 @@ import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encrypt.Consumer;
-import net.named_data.jndn.encrypt.Consumer.OnConsumeComplete;
-import net.named_data.jndn.encrypt.Consumer.OnError;
 import net.named_data.jndn.encrypt.ConsumerDb;
+import net.named_data.jndn.encrypt.EncryptError;
 import net.named_data.jndn.encrypt.Sqlite3ConsumerDb;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
@@ -340,8 +339,8 @@ public class TestGroupConsumer implements Consumer.Friend {
            assertTrue(result.equals(aesKeyBlob));
          }
        },
-       new Consumer.OnError() {
-         public void onError(Consumer.ErrorCode errorCode, String message) {
+       new EncryptError.OnError() {
+         public void onError(EncryptError.ErrorCode errorCode, String message) {
            fail("decrypt error " + message);
          }
        });
@@ -354,8 +353,8 @@ public class TestGroupConsumer implements Consumer.Friend {
            assertTrue(result.equals(new Blob(DATA_CONTENT, false)));
          }
        },
-       new Consumer.OnError() {
-         public void onError(Consumer.ErrorCode errorCode, String message) {
+       new EncryptError.OnError() {
+         public void onError(EncryptError.ErrorCode errorCode, String message) {
            fail("decrypt error " + message);
          }
        });
@@ -418,15 +417,15 @@ public class TestGroupConsumer implements Consumer.Friend {
     final int[] finalCount = new int[] { 0 };
     consumer.consume
       (contentName,
-       new OnConsumeComplete() {
+       new Consumer.OnConsumeComplete() {
          public void onConsumeComplete(Data data, Blob result) {
            finalCount[0] = 1;
            assertTrue("consumeComplete",
                       result.equals(new Blob(DATA_CONTENT, false)));
          }
        },
-       new OnError() {
-         public void onError(Consumer.ErrorCode code, String message) {
+       new EncryptError.OnError() {
+         public void onError(EncryptError.ErrorCode code, String message) {
            fail("consume error " + code + ": " + message);
          }
        });
