@@ -44,6 +44,8 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encrypt.EncryptError.ErrorCode;
+import net.named_data.jndn.encrypt.EncryptError.OnError;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
@@ -163,10 +165,16 @@ public class Producer {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
+   * @param onError This calls onError.onError(errorCode, message) for an error.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @return The content key name.
    */
   public final Name
-  createContentKey(double timeSlot, OnEncryptedKeys onEncryptedKeys)
+  createContentKey
+    (double timeSlot, OnEncryptedKeys onEncryptedKeys,
+     OnError onError)
     throws ProducerDb.Error, IOException, SecurityException
   {
     double hourSlot = getRoundedTimeSlot(timeSlot);
@@ -206,7 +214,7 @@ public class Producer {
         keyRequest.repeatAttempts.put(entry.getKey(), 0);
         sendKeyInterest
           (new Interest((Name)entry.getKey()).setExclude(timeRange).setChildSelector(1),
-           timeSlot, onEncryptedKeys);
+           timeSlot, onEncryptedKeys, onError);
       }
       else {
         // The current E-KEY can cover the content key.
@@ -215,11 +223,21 @@ public class Producer {
         eKeyName.append(Schedule.toIsoString(keyInfo.beginTimeSlot));
         eKeyName.append(Schedule.toIsoString(keyInfo.endTimeSlot));
         encryptContentKey
-          (keyInfo.keyBits, eKeyName, timeSlot, onEncryptedKeys);
+          (keyInfo.keyBits, eKeyName, timeSlot, onEncryptedKeys, onError);
       }
     }
 
     return contentKeyName;
+  }
+
+  /**
+   * Call the main createContentKey method where onError is defaultOnError.
+   */
+  public final Name
+  createContentKey(double timeSlot, OnEncryptedKeys onEncryptedKeys)
+    throws ProducerDb.Error, IOException, SecurityException
+  {
+    return createContentKey(timeSlot, onEncryptedKeys, defaultOnError);
   }
 
   /**
@@ -229,9 +247,13 @@ public class Producer {
    * @param data An empty Data object which is updated.
    * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
    * @param content The content to encrypt.
+   * @param onError This calls onError.onError(errorCode, message) for an error.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    */
   public final void
-  produce(Data data, double timeSlot, Blob content)
+  produce(Data data, double timeSlot, Blob content, OnError onError)
     throws ProducerDb.Error, IOException, SecurityException,
       NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
@@ -250,6 +272,29 @@ public class Producer {
     Encryptor.encryptData(data, content, contentKeyName, contentKey, params);
     keyChain_.sign(data);
   }
+
+  /**
+   * Call the main produce method where onError is defaultOnError.
+   */
+  public final void
+  produce(Data data, double timeSlot, Blob content)
+    throws ProducerDb.Error, IOException, SecurityException,
+      NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+      IllegalBlockSizeException, BadPaddingException,
+      InvalidAlgorithmParameterException, InvalidKeySpecException
+  {
+    produce(data, timeSlot, content, defaultOnError);
+  }
+
+  /**
+   * The default OnError callback which does nothing.
+   */
+  public static final OnError
+  defaultOnError = new OnError() {
+    public void onError(ErrorCode errorCode, String message) {
+      // Do nothing.
+    }
+  };
 
   private static class KeyInfo {
     public double beginTimeSlot;
@@ -294,12 +339,13 @@ public class Producer {
   private void
   sendKeyInterest
     (Interest interest, final double timeSlot,
-     final OnEncryptedKeys onEncryptedKeys) throws IOException
+     final OnEncryptedKeys onEncryptedKeys, final OnError onError)
+    throws IOException
   {
     OnData onKey = new OnData() {
       public void onData(Interest interest, final Data data) {
         try {
-          handleCoveringKey(interest, data, timeSlot, onEncryptedKeys);
+          handleCoveringKey(interest, data, timeSlot, onEncryptedKeys, onError);
         } catch (Exception ex) {
           logger_.log(Level.SEVERE, null, ex);
         }
@@ -309,7 +355,7 @@ public class Producer {
     OnTimeout onTimeout = new OnTimeout() {
       public void onTimeout(Interest interest) {
         try {
-          handleTimeout(interest, timeSlot, onEncryptedKeys);
+          handleTimeout(interest, timeSlot, onEncryptedKeys, onError);
         } catch (IOException ex) {
           logger_.log(Level.SEVERE, null, ex);
         }
@@ -332,7 +378,8 @@ public class Producer {
    */
   private void
   handleTimeout
-    (Interest interest, double timeSlot, OnEncryptedKeys onEncryptedKeys)
+    (Interest interest, double timeSlot, OnEncryptedKeys onEncryptedKeys,
+     OnError onError)
      throws IOException
   {
     double timeCount = Math.round(timeSlot);
@@ -343,7 +390,7 @@ public class Producer {
       // Increase the retrial count.
       keyRequest.repeatAttempts.put
         (interestName, (int)(Integer)keyRequest.repeatAttempts.get(interestName) + 1);
-      sendKeyInterest(interest, timeSlot, onEncryptedKeys);
+      sendKeyInterest(interest, timeSlot, onEncryptedKeys, onError);
     }
     else
       // No more retrials.
@@ -390,7 +437,7 @@ public class Producer {
   private void
   handleCoveringKey
     (Interest interest, Data data, double timeSlot,
-     OnEncryptedKeys onEncryptedKeys)
+     OnEncryptedKeys onEncryptedKeys, OnError onError)
     throws EncodingException, ProducerDb.Error, SecurityException, IOException
   {
     double timeCount = Math.round(timeSlot);
@@ -413,14 +460,14 @@ public class Producer {
 
       sendKeyInterest
         (new Interest(interestName).setExclude(timeRange).setChildSelector(1),
-         timeSlot, onEncryptedKeys);
+         timeSlot, onEncryptedKeys, onError);
     }
     else {
       // If the received E-KEY covers the content key, encrypt the content.
       Blob encryptionKey = data.getContent();
       // If everything is correct, save the E-KEY as the current key.
       if (encryptContentKey
-          (encryptionKey, keyName, timeSlot, onEncryptedKeys)) {
+          (encryptionKey, keyName, timeSlot, onEncryptedKeys, onError)) {
         KeyInfo keyInfo = (KeyInfo)eKeyInfo_.get(interestName);
         keyInfo.beginTimeSlot = begin;
         keyInfo.endTimeSlot = end;
@@ -444,7 +491,7 @@ public class Producer {
   private boolean
   encryptContentKey
     (Blob encryptionKey, Name eKeyName, double timeSlot,
-     OnEncryptedKeys onEncryptedKeys)
+     OnEncryptedKeys onEncryptedKeys, OnError onError)
     throws ProducerDb.Error, SecurityException
   {
     double timeCount = Math.round(timeSlot);
@@ -463,9 +510,11 @@ public class Producer {
       Encryptor.encryptData
         (cKeyData, contentKey, eKeyName, encryptionKey, params);
     } catch (Exception ex) {
-      // Consolidate errors such as InvalidKeyException.
-      throw new SecurityException
-        ("encryptContentKey: Error in encryptData: " + ex.getMessage());
+      try {
+        onError.onError(ErrorCode.EncryptionFailure, ex.getMessage());
+      } catch (Exception exception) {
+        logger_.log(Level.SEVERE, "Error in onError", exception);
+      }
     }
 
     keyChain_.sign(cKeyData);
