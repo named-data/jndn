@@ -515,6 +515,7 @@ public class Producer {
       } catch (Exception exception) {
         logger_.log(Level.SEVERE, "Error in onError", exception);
       }
+      return false;
     }
 
     keyChain_.sign(cKeyData);
