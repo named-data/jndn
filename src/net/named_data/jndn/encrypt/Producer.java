@@ -260,7 +260,7 @@ public class Producer {
       InvalidAlgorithmParameterException, InvalidKeySpecException
   {
     // Get a content key.
-    Name contentKeyName = new Name(createContentKey(timeSlot, null));
+    Name contentKeyName = new Name(createContentKey(timeSlot, null, onError));
     Blob contentKey = database_.getContentKey(timeSlot);
 
     // Produce data.
@@ -399,7 +399,7 @@ public class Producer {
 
   /**
    * Decrease the count of outstanding E-KEY interests for the C-KEY for
-   * timeCount. If the count decrease to 0, invoke onEncryptedKeys.
+   * timeCount. If the count decreases to 0, invoke onEncryptedKeys.
    * @param keyRequest The KeyRequest with the interestCount to update.
    * @param timeCount The time count for indexing keyRequests_.
    * @param onEncryptedKeys When there are no more interests to process, this
