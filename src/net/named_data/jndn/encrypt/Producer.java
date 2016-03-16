@@ -398,8 +398,8 @@ public class Producer {
   }
 
   /**
-   * Decrease the count of outstanding E-KEY interests for C-KEY for timeCount.
-   * If the count decrease to 0, invoke onEncryptedKeys.
+   * Decrease the count of outstanding E-KEY interests for the C-KEY for
+   * timeCount. If the count decrease to 0, invoke onEncryptedKeys.
    * @param keyRequest The KeyRequest with the interestCount to update.
    * @param timeCount The time count for indexing keyRequests_.
    * @param onEncryptedKeys When there are no more interests to process, this
@@ -453,7 +453,7 @@ public class Producer {
 
     if (timeSlot >= end) {
       // If the received E-KEY covers some earlier period, try to retrieve an
-      // E-KEY covering later one.
+      // E-KEY covering a later one.
       Exclude timeRange = new Exclude(interest.getExclude());
       excludeBefore(timeRange, keyName.get(START_TIME_STAMP_INDEX));
       keyRequest.repeatAttempts.put(interestName, 0);
