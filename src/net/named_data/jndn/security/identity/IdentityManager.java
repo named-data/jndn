@@ -845,6 +845,21 @@ public class IdentityManager {
   }
 
   /**
+   * Append all the key names of a particular identity to the nameList.
+   * @param identityName The identity name to search for.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default key name. If false, add only
+   * the non-default key names.
+   */
+  public final void
+  getAllKeyNamesOfIdentity
+    (Name identityName, ArrayList nameList, boolean isDefault)
+    throws SecurityException
+  {
+    identityStorage_.getAllKeyNamesOfIdentity(identityName, nameList, isDefault);
+  }
+
+  /**
    * Sign the byte array data based on the certificate name.
    * @param buffer The byte buffer to be signed.
    * @param certificateName The signing certificate name.
