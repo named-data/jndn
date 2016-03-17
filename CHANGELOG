@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.11 (2016-03-15)
+Interim changes since jNDN v0.11 (2016-03-17)
 ---------------------------------------------
 
 Breaking changes
@@ -8,6 +8,9 @@ Breaking changes
 Changes
 * http://redmine.named-data.net/issues/3355 In Producer.createContentKey and produce,
   added an optional onError callback.
+* Added HmacWithSha256Signature. In KeyChain, added experimental static methods
+  sign/verifyDataWithHmacWithSha256.
+* Examples: Added TestSignVerifyDataHmac.
 
 Bug fixes
 * Fix bug in encrypt/Schedule to solve problems when the black repetitive interval list is empty.
