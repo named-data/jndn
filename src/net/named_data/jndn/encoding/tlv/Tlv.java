@@ -66,6 +66,7 @@ public class Tlv {
   public static final int SignatureType_DigestSha256 = 0;
   public static final int SignatureType_SignatureSha256WithRsa = 1;
   public static final int SignatureType_SignatureSha256WithEcdsa = 3;
+  public static final int SignatureType_SignatureHmacWithSha256 = 4;
 
   public static final int ContentType_Default = 0;
   public static final int ContentType_Link = 1;

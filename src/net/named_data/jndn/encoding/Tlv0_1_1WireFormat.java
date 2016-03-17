@@ -31,6 +31,7 @@ import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Exclude;
 import net.named_data.jndn.ForwardingFlags;
 import net.named_data.jndn.GenericSignature;
+import net.named_data.jndn.HmacWithSha256Signature;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
@@ -952,6 +953,13 @@ public class Tlv0_1_1WireFormat extends WireFormat {
       encoder.writeNonNegativeIntegerTlv
         (Tlv.SignatureType, Tlv.SignatureType_SignatureSha256WithEcdsa);
     }
+    else if (signature instanceof HmacWithSha256Signature) {
+      encodeKeyLocator
+        (Tlv.KeyLocator, ((HmacWithSha256Signature)signature).getKeyLocator(),
+         encoder);
+      encoder.writeNonNegativeIntegerTlv
+        (Tlv.SignatureType, Tlv.SignatureType_SignatureHmacWithSha256);
+    }
     else if (signature instanceof DigestSha256Signature)
       encoder.writeNonNegativeIntegerTlv
         (Tlv.SignatureType, Tlv.SignatureType_DigestSha256);
@@ -982,6 +990,12 @@ public class Tlv0_1_1WireFormat extends WireFormat {
         signatureHolder.setSignature(new Sha256WithEcdsaSignature());
         Sha256WithEcdsaSignature signatureInfo =
           (Sha256WithEcdsaSignature)signatureHolder.getSignature();
+        decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
+    }
+    else if (signatureType == Tlv.SignatureType_SignatureHmacWithSha256) {
+        signatureHolder.setSignature(new HmacWithSha256Signature());
+        HmacWithSha256Signature signatureInfo =
+          (HmacWithSha256Signature)signatureHolder.getSignature();
         decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
     }
     else if (signatureType == Tlv.SignatureType_DigestSha256)
