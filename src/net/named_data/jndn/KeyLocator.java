@@ -99,7 +99,8 @@ public class KeyLocator implements ChangeCountable {
   canGetFromSignature(Signature signature)
   {
     return signature instanceof Sha256WithRsaSignature ||
-           signature instanceof Sha256WithEcdsaSignature;
+           signature instanceof Sha256WithEcdsaSignature ||
+           signature instanceof HmacWithSha256Signature;
   }
 
   /**
@@ -116,6 +117,8 @@ public class KeyLocator implements ChangeCountable {
       return ((Sha256WithRsaSignature)signature).getKeyLocator();
     else if (signature instanceof Sha256WithEcdsaSignature)
       return ((Sha256WithEcdsaSignature)signature).getKeyLocator();
+    else if (signature instanceof HmacWithSha256Signature)
+      return ((HmacWithSha256Signature)signature).getKeyLocator();
     else
       throw new Error
         ("KeyLocator.getFromSignature: Signature type does not have a KeyLocator");
