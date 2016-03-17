@@ -39,6 +39,7 @@ import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.security.policy.PolicyManager;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
+import net.named_data.jndn.util.SignedBlob;
 
 /**
  * KeyChain is the main class of the security library.
@@ -878,6 +879,75 @@ public class KeyChain {
    */
   public final void
   setFace(Face face) { face_ = face; }
+
+  /**
+   * Wire encode the data packet, compute an HmacWithSha256 and update the
+   * signature value.
+   * @note This method is an experimental feature. The API may change.
+   * @param data The Data object to be signed. This updates its signature.
+   * @param key The key for the HmacWithSha256.
+   * @param wireFormat A WireFormat object used to encode the data packet.
+   */
+  public static void
+  signWithHmacWithSha256(Data data, Blob key, WireFormat wireFormat)
+  {
+    // Encode once to get the signed portion.
+    SignedBlob encoding = data.wireEncode(wireFormat);
+    byte[] signatureBytes = Common.computeHmacWithSha256
+      (key.getImmutableArray(), encoding.signedBuf());
+    data.getSignature().setSignature(new Blob(signatureBytes, false));
+  }
+
+  /**
+   * Wire encode the data packet, compute an HmacWithSha256 and update the
+   * signature value.
+   * Use the default WireFormat.getDefaultWireFormat().
+   * @note This method is an experimental feature. The API may change.
+   * @param data The Data object to be signed. This updates its signature.
+   * @param key The key for the HmacWithSha256.
+   */
+  public static void
+  signWithHmacWithSha256(Data data, Blob key)
+  {
+    signWithHmacWithSha256(data, key, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Compute a new HmacWithSha256 for the data packet and verify it against the
+   * signature value.
+   * @note This method is an experimental feature. The API may change.
+   * @param data The Data packet to verify.
+   * @param key The key for the HmacWithSha256.
+   * @param wireFormat A WireFormat object used to encode the data packet.
+   * @return True if the signature verifies, otherwise false.
+   */
+  public static boolean
+  verifyDataWithHmacWithSha256(Data data, Blob key, WireFormat wireFormat)
+  {
+    // wireEncode returns the cached encoding if available.
+    SignedBlob encoding = data.wireEncode(wireFormat);
+    byte[] newSignatureBytes = Common.computeHmacWithSha256
+      (key.getImmutableArray(), encoding.signedBuf());
+
+    return ByteBuffer.wrap(newSignatureBytes).equals
+      (data.getSignature().getSignature().buf());
+  }
+
+  /**
+   * Compute a new HmacWithSha256 for the data packet and verify it against the
+   * signature value.
+   * Use the default WireFormat.getDefaultWireFormat().
+   * @note This method is an experimental feature. The API may change.
+   * @param data The Data packet to verify.
+   * @param key The key for the HmacWithSha256.
+   * @return True if the signature verifies, otherwise false.
+   */
+  public static boolean
+  verifyDataWithHmacWithSha256(Data data, Blob key)
+  {
+    return verifyDataWithHmacWithSha256
+      (data, key, WireFormat.getDefaultWireFormat());
+  }
 
   public static final RsaKeyParams DEFAULT_KEY_PARAMS = new RsaKeyParams();
 
