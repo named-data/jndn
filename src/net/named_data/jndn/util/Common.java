@@ -20,10 +20,15 @@
 package net.named_data.jndn.util;
 
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * The Common class has static utility functions.
@@ -88,6 +93,40 @@ public class Common {
     sha256.update(data);
     data.position(savePosition);
     return sha256.digest();
+  }
+
+  /**
+   * Compute the HMAC with SHA-256 of data, as defined in
+   * http://tools.ietf.org/html/rfc2104#section-2 .
+   * @param key The key byte array.
+   * @param data The input byte buffer. This does not change the position.
+   * @return The HMAC result.
+   */
+  public static byte[]
+  computeHmacWithSha256(byte[] key, ByteBuffer data)
+  {
+    final String algorithm = "HmacSHA256";
+    Mac mac;
+    try {
+      mac = Mac.getInstance(algorithm);
+    }
+    catch (NoSuchAlgorithmException ex) {
+      // Don't expect this to happen.
+      throw new Error
+        ("computeHmac: " + algorithm + " is not supported: " + ex.getMessage());
+    }
+
+    try {
+      mac.init(new SecretKeySpec(key, algorithm));
+    } catch (InvalidKeyException ex) {
+      // Don't expect this to happen.
+      throw new Error
+        ("computeHmac: Can't init " + algorithm + " with key: " + ex.getMessage());
+    }
+    int savePosition = data.position();
+    mac.update(data);
+    data.position(savePosition);
+    return mac.doFinal();
   }
 
   /**
