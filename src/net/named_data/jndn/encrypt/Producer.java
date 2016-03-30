@@ -265,7 +265,7 @@ public class Producer {
 
     // Produce data.
     Name dataName = new Name(namespace_);
-    dataName.append(Schedule.toIsoString(getRoundedTimeSlot(timeSlot)));
+    dataName.append(Schedule.toIsoString(timeSlot));
 
     data.setName(dataName);
     EncryptParams params = new EncryptParams(EncryptAlgorithmType.AesCbc, 16);

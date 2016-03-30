@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.11 (2016-03-17)
+Interim changes since jNDN v0.11 (2016-03-30)
 ---------------------------------------------
 
 Breaking changes
@@ -14,6 +14,7 @@ Changes
 
 Bug fixes
 * Fix bug in encrypt/Schedule to solve problems when the black repetitive interval list is empty.
+* In Producer, the produced data name should not use a rounded timestamp.
 
 jNDN v0.11 (2016-03-05)
 -----------------------
