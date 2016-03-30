@@ -21,6 +21,7 @@
 package net.named_data.jndn.tests.unit_tests;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
@@ -36,6 +37,9 @@ import net.named_data.jndn.security.certificate.Certificate;
 import net.named_data.jndn.security.certificate.CertificateExtension;
 import net.named_data.jndn.security.certificate.CertificateSubjectDescription;
 import net.named_data.jndn.security.certificate.PublicKey;
+import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
@@ -268,5 +272,36 @@ public class TestDerEncodeDecode {
                  expectedEncoding, derOid.encode().toHex());
     assertEquals("Incorrect decoded OID",
                  oidString, derOid.toVal());
+  }
+
+  @Test
+  public void
+  testPrepareUnsignedCertificate() throws SecurityException, DerDecodingException
+  {
+    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
+    MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+    IdentityManager identityManager = new IdentityManager
+      (identityStorage, privateKeyStorage);
+    Name keyName = new Name("/test/ksk-1457560485494");
+    identityStorage.addKey
+      (keyName, KeyType.RSA, new Blob(PUBLIC_KEY, false));
+
+    ArrayList subjectDescriptions = new ArrayList();
+    subjectDescriptions.add(new CertificateSubjectDescription
+      (TEST_OID, "TEST NAME"));
+    IdentityCertificate newCertificate =
+      identityManager.prepareUnsignedIdentityCertificate
+        (keyName, keyName.getPrefix(1), toyCertNotBefore, toyCertNotAfter,
+         subjectDescriptions);
+
+    // Update the generated certificate version to equal the one in toyCert.
+    newCertificate.setName
+      (new Name(newCertificate.getName().getPrefix(-1).append
+       (toyCert.getName().get(-1))));
+
+    // Make a copy to test encoding.
+    IdentityCertificate certificateCopy = new IdentityCertificate(newCertificate);
+    assertEquals("Prepared unsigned certificate dump does not have the expected format",
+                 toyCert.toString(), certificateCopy.toString());
   }
 }
