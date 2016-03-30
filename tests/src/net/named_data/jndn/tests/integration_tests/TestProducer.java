@@ -171,6 +171,7 @@ public class TestProducer {
     final double testTime2 = fromIsoString("20150101T110001");
     final Name.Component testTimeRounded1 = new Name.Component("20150101T100000");
     final Name.Component testTimeRounded2 = new Name.Component("20150101T110000");
+    final Name.Component testTimeComponent2 = new Name.Component("20150101T110001");
 
     // Create content keys required for this test case:
     for (int i = 0; i < suffix.size(); ++i) {
@@ -295,7 +296,7 @@ public class TestProducer {
 
     Name producedName = testData.getName();
     assertEquals(cKeyName.getPrefix(-1), producedName.getSubName(0, 5));
-    assertEquals(testTimeRounded2, producedName.get(5));
+    assertEquals(testTimeComponent2, producedName.get(5));
     assertEquals(Encryptor.NAME_COMPONENT_FOR, producedName.get(6));
     assertEquals(cKeyName, producedName.getSubName(7, 6));
     assertEquals(testTimeRounded2, producedName.get(13));
