@@ -275,11 +275,17 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   getPublicKeyDer(KeyLocator keyLocator) throws SecurityException
   {
     if (keyLocator.getType() == KeyLocatorType.KEYNAME &&
-             identityStorage_ != null)
-      // Assume the key name is a certificate name.
-      return identityStorage_.getKey
-        (IdentityCertificate.certificateNameToPublicKeyName
-         (keyLocator.getKeyName()));
+             identityStorage_ != null) {
+      try {
+        // Assume the key name is a certificate name.
+        return identityStorage_.getKey
+          (IdentityCertificate.certificateNameToPublicKeyName
+           (keyLocator.getKeyName()));
+      } catch (SecurityException ex) {
+        // The storage doesn't have the key.
+        return new Blob();
+      }
+    }
     else
       // Can't find a key to verify.
       return new Blob();
