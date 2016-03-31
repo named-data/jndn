@@ -225,11 +225,11 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
 
   /**
    * Add a public key to the identity storage. Also call addIdentity to ensure
-   * that the identityName for the key exists.
+   * that the identityName for the key exists. However, if the key already
+   * exists, do nothing.
    * @param keyName The name of the public key to be added.
    * @param keyType Type of the public key to be added.
    * @param publicKeyDer A blob of the public key DER to be added.
-   * @throws SecurityException if a key with the keyName already exists.
    */
   public final void
   addKey(Name keyName, KeyType keyType, Blob publicKeyDer) throws SecurityException
@@ -237,7 +237,8 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     if (keyName.size() == 0)
       return;
 
-    checkAddKey(keyName);
+    if (doesKeyExist(keyName))
+      return;
 
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);

@@ -63,18 +63,6 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
   updateKeyStatus(Name keyName, boolean isActive) throws SecurityException;
 
   /**
-   * Throw an exception if it is an error for addKey to add the key.
-   * @param keyName The name of the public key to be added.
-   * @throws SecurityException if the key already exists or other problem.
-   */
-  protected void
-  checkAddKey(Name keyName) throws SecurityException
-  {
-    if (doesKeyExist(keyName))
-      throw new SecurityException("a key with the same name already exists!");
-  }
-
-  /**
    * Throw an exception if it is an error for addCertificate to add the certificate.
    * @param certificate The certificate to be added.  This makes a copy of the
    * certificate.

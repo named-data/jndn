@@ -85,21 +85,24 @@ public class MemoryIdentityStorage extends IdentityStorage {
 
   /**
    * Add a public key to the identity storage. Also call addIdentity to ensure
-   * that the identityName for the key exists.
+   * that the identityName for the key exists. However, if the key already
+   * exists, do nothing.
    * @param keyName The name of the public key to be added.
    * @param keyType Type of the public key to be added.
    * @param publicKeyDer A blob of the public key DER to be added.
-   * @throws SecurityException if a key with the keyName already exists.
    */
   public void
   addKey(Name keyName, KeyType keyType, Blob publicKeyDer) throws SecurityException
   {
+    if (keyName.size() == 0)
+      return;
+
+    if (doesKeyExist(keyName))
+      return;
+
     Name identityName = keyName.getSubName(0, keyName.size() - 1);
 
     addIdentity(identityName);
-
-    if (doesKeyExist(keyName))
-      throw new SecurityException("a key with the same name already exists!");
 
     keyStore_ .put(keyName.toUri(), new KeyRecord(keyType, publicKeyDer));
   }
