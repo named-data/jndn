@@ -801,7 +801,7 @@ public class IdentityManager {
   public final IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
-    return identityStorage_.getCertificate(certificateName, false);
+    return identityStorage_.getCertificate(certificateName);
   }
 
   /**

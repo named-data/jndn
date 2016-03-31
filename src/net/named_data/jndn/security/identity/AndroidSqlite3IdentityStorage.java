@@ -339,18 +339,12 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
   /**
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
-   * @param allowAny If false, only a valid certificate will be
-   * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
   public final IdentityCertificate
-  getCertificate(Name certificateName, boolean allowAny) throws SecurityException
+  getCertificate(Name certificateName) throws SecurityException
   {
     if (doesCertificateExist(certificateName)) {
-      if (!allowAny)
-        throw new UnsupportedOperationException
-          ("AndroidSqlite3IdentityStorage.getCertificate for !allowAny is not implemented");
-
       Cursor cursor = database_.rawQuery
         (SELECT_getCertificate, new String[] { certificateName.toUri() });
 

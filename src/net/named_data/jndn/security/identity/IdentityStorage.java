@@ -151,24 +151,10 @@ public abstract class IdentityStorage {
   /**
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
-   * @param allowAny If false, only a valid certificate will be
-   * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
   public abstract IdentityCertificate
-  getCertificate(Name certificateName, boolean allowAny) throws SecurityException;
-
-  /**
-   * Get a certificate from the identity storage, requiring only a valid
-   * certificate to be returned.
-   * @param certificateName The name of the requested certificate.
-   * @return The requested certificate. If not found, return null.
-   */
-  public final IdentityCertificate
-  getCertificate(Name certificateName) throws SecurityException
-  {
-    return getCertificate(certificateName, false);
-  }
+  getCertificate(Name certificateName) throws SecurityException;
 
   /*****************************************
    *           Get/Set Default             *
@@ -277,7 +263,7 @@ public abstract class IdentityStorage {
       return null;
     }
 
-    return getCertificate(certName, true);
+    return getCertificate(certName);
   }
 
   /*****************************************

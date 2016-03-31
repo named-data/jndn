@@ -402,33 +402,16 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   /**
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
-   * @param allowAny If false, only a valid certificate will be
-   * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
   public final IdentityCertificate
-  getCertificate(Name certificateName, boolean allowAny) throws SecurityException
+  getCertificate(Name certificateName) throws SecurityException
   {
     if (doesCertificateExist(certificateName)) {
       try {
         PreparedStatement statement;
-
-        if (!allowAny) {
-          throw new UnsupportedOperationException
-            ("BasicIdentityStorage.getCertificate for !allowAny is not implemented");
-          /*
-          statement = database_.prepareStatement
-            ("SELECT certificate_data FROM Certificate " +
-             "WHERE cert_name=? AND not_before<datetime(?, 'unixepoch') AND not_after>datetime(?, 'unixepoch') and valid_flag=1");
-          statement.setString(1, certificateName.toUri());
-          sqlite3_bind_int64(statement, 2, (sqlite3_int64)floor(ndn_getNowMilliseconds() / 1000.0));
-          sqlite3_bind_int64(statement, 3, (sqlite3_int64)floor(ndn_getNowMilliseconds() / 1000.0));
-          */
-        }
-        else {
-          statement = database_.prepareStatement(SELECT_getCertificate);
-          statement.setString(1, certificateName.toUri());
-        }
+        statement = database_.prepareStatement(SELECT_getCertificate);
+        statement.setString(1, certificateName.toUri());
 
         IdentityCertificate certificate = new IdentityCertificate();
         try {

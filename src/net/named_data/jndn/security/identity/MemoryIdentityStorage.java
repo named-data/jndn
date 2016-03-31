@@ -189,17 +189,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
   /**
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
-   * @param allowAny If false, only a valid certificate will be
-   * returned, otherwise validity is disregarded.
    * @return The requested certificate. If not found, return null.
    */
   public IdentityCertificate
-  getCertificate(Name certificateName, boolean allowAny)
+  getCertificate(Name certificateName)
   {
-    if (!allowAny)
-      throw new UnsupportedOperationException
-        ("MemoryIdentityStorage.getCertificate for !allowAny is not implemented");
-
     Blob certificateDer = (Blob)certificateStore_.get(certificateName.toUri());
     if (certificateDer == null)
       // Not found.  Silently return null.
