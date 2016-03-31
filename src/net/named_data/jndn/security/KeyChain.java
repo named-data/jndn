@@ -411,7 +411,7 @@ public class KeyChain {
   /**
    * Get a certificate with the specified name.
    * @param certificateName The name of the requested certificate.
-   * @return The requested certificate which is valid.
+   * @return The requested certificate.
    */
   public final IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException, DerDecodingException
@@ -420,36 +420,12 @@ public class KeyChain {
   }
 
   /**
-   * Get a certificate even if the certificate is not valid anymore.
-   * @param certificateName The name of the requested certificate.
-   * @return The requested certificate.
-   */
-  public final IdentityCertificate
-  getAnyCertificate(Name certificateName) throws SecurityException, DerDecodingException
-  {
-    return identityManager_.getAnyCertificate(certificateName);
-  }
-
-  /**
-   * Get an identity certificate with the specified name.
-   * @param certificateName The name of the requested certificate.
-   * @return The requested certificate which is valid.
+   * @deprecated Use getCertificate.
    */
   public final IdentityCertificate
   getIdentityCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return identityManager_.getCertificate(certificateName);
-  }
-
-  /**
-   * Get an identity certificate even if the certificate is not valid anymore.
-   * @param certificateName The name of the requested certificate.
-   * @return The requested certificate.
-   */
-  public final IdentityCertificate
-  getAnyIdentityCertificate(Name certificateName) throws SecurityException, DerDecodingException
-  {
-    return identityManager_.getAnyCertificate(certificateName);
   }
 
   /**

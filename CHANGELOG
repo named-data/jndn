@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.11 (2016-03-30)
+Interim changes since jNDN v0.11 (2016-03-31)
 ---------------------------------------------
 
 Breaking changes
@@ -10,7 +10,11 @@ Changes
   added an optional onError callback.
 * Added HmacWithSha256Signature. In KeyChain, added experimental static methods
   sign/verifyDataWithHmacWithSha256.
+* In KeyChain, removed getAnyCertificate and getAnyIdentityCertificate.
 * Examples: Added TestSignVerifyDataHmac.
+
+Deprecated
+* In KeyChain, deprecated getIdentityCertificate. Use getCertificate.
 
 Bug fixes
 * Fix bug in encrypt/Schedule to solve problems when the black repetitive interval list is empty.

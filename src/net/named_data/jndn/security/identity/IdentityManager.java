@@ -796,23 +796,12 @@ public class IdentityManager {
   /**
    * Get a certificate with the specified name.
    * @param certificateName The name of the requested certificate.
-   * @return the requested certificate which is valid.
+   * @return the requested certificate.
    */
   public final IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
     return identityStorage_.getCertificate(certificateName, false);
-  }
-
-  /**
-   * Get a certificate even if the certificate is not valid anymore.
-   * @param certificateName The name of the requested certificate.
-   * @return the requested certificate.
-   */
-  public final IdentityCertificate
-  getAnyCertificate(Name certificateName) throws SecurityException, DerDecodingException
-  {
-    return identityStorage_.getCertificate(certificateName, true);
   }
 
   /**
