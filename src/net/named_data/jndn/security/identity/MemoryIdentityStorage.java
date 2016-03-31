@@ -159,10 +159,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
   }
 
   /**
-   * Add a certificate to the identity storage.
+   * Add a certificate to the identity storage. Also call addKey to ensure that
+   * the certificate key exists. If the certificate is already installed, don't
+   * replace it.
    * @param certificate The certificate to be added.  This makes a copy of the
    * certificate.
-   * @throws SecurityException if the certificate is already installed.
    */
   public void
   addCertificate(IdentityCertificate certificate) throws SecurityException
@@ -170,20 +171,11 @@ public class MemoryIdentityStorage extends IdentityStorage {
     Name certificateName = certificate.getName();
     Name keyName = certificate.getPublicKeyName();
 
-    if (!doesKeyExist(keyName))
-      throw new SecurityException
-        ("No corresponding Key record for certificate! " + keyName.toUri() +
-         " " + certificateName.toUri());
+    addKey(keyName, certificate.getPublicKeyInfo().getKeyType(),
+           certificate.getPublicKeyInfo().getKeyDer());
 
-    // Check if certificate already exists.
     if (doesCertificateExist(certificateName))
-      throw new SecurityException("Certificate has already been installed!");
-
-    // Check if the public key of certificate is the same as the key record.
-    Blob keyBlob = getKey(keyName);
-    if (keyBlob.isNull() ||
-        !keyBlob.equals(certificate.getPublicKeyInfo().getKeyDer()))
-      throw new SecurityException("Certificate does not match the public key!");
+      return;
 
     // Insert the certificate.
     certificateStore_.put(certificateName.toUri(), certificate.wireEncode());

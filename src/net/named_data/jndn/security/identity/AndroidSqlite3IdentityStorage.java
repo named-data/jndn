@@ -300,18 +300,23 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
   }
 
   /**
-   * Add a certificate to the identity storage.
+   * Add a certificate to the identity storage. Also call addKey to ensure that
+   * the certificate key exists. If the certificate is already installed, don't
+   * replace it.
    * @param certificate The certificate to be added.  This makes a copy of the
    * certificate.
-   * @throws SecurityException if the certificate is already installed.
    */
   public final void
   addCertificate(IdentityCertificate certificate) throws SecurityException
   {
-    checkAddCertificate(certificate);
-
     Name certificateName = certificate.getName();
     Name keyName = certificate.getPublicKeyName();
+
+    addKey(keyName, certificate.getPublicKeyInfo().getKeyType(),
+           certificate.getPublicKeyInfo().getKeyDer());
+
+    if (doesCertificateExist(certificateName))
+      return;
 
     // Insert the certificate.
     ContentValues values = new ContentValues();

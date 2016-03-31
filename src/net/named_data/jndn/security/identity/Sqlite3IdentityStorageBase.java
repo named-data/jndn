@@ -63,36 +63,6 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
   updateKeyStatus(Name keyName, boolean isActive) throws SecurityException;
 
   /**
-   * Throw an exception if it is an error for addCertificate to add the certificate.
-   * @param certificate The certificate to be added.  This makes a copy of the
-   * certificate.
-   * @throws SecurityException if the certificate is already installed or other
-   * problem.
-   */
-  protected void
-  checkAddCertificate(IdentityCertificate certificate) throws SecurityException
-  {
-    Name certificateName = certificate.getName();
-    Name keyName = certificate.getPublicKeyName();
-
-    if (!doesKeyExist(keyName))
-      throw new SecurityException
-        ("No corresponding Key record for certificate!" + keyName.toUri() +
-         " " + certificateName.toUri());
-
-    // Check if the certificate already exists.
-    if (doesCertificateExist(certificateName))
-      throw new SecurityException("Certificate has already been installed!");
-
-    // Check if the public key of the certificate is the same as the key record.
-
-    Blob keyBlob = getKey(keyName);
-
-    if (keyBlob.isNull() || !keyBlob.equals(certificate.getPublicKeyInfo().getKeyDer()))
-      throw new SecurityException("Certificate does not match the public key!");
-  }
-
-  /**
    * Throw an exception if it is an error for setDefaultKeyNameForIdentity to
    * set it.
    * @param keyName The key name.
