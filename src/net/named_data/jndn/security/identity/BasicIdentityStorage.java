@@ -266,13 +266,14 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   /**
    * Get the public key DER blob from the identity storage.
    * @param keyName The name of the requested public key.
-   * @return The DER Blob.  If not found, return a Blob with a null pointer.
+   * @return The DER Blob.
+   * @throws SecurityException if the key doesn't exist.
    */
   public final Blob
   getKey(Name keyName) throws SecurityException
   {
-    if (!doesKeyExist(keyName))
-      return new Blob();
+    if (keyName.size() == 0)
+      throw new SecurityException("BasicIdentityStorage::getKey: Empty keyName");
 
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
@@ -288,7 +289,8 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
         if (result.next())
           return new Blob(result.getBytes("public_key"), false);
         else
-          return new Blob();
+          throw new SecurityException
+            ("BasicIdentityStorage::getKey: The key does not exist");
       } finally {
         statement.close();
       }
@@ -408,40 +410,40 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   /**
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
-   * @return The requested certificate. If not found, return null.
+   * @return The requested certificate.
+   * @throws SecurityException if the certificate doesn't exist.
    */
   public final IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException
   {
-    if (doesCertificateExist(certificateName)) {
+    try {
+      PreparedStatement statement;
+      statement = database_.prepareStatement(SELECT_getCertificate);
+      statement.setString(1, certificateName.toUri());
+
+      IdentityCertificate certificate = new IdentityCertificate();
       try {
-        PreparedStatement statement;
-        statement = database_.prepareStatement(SELECT_getCertificate);
-        statement.setString(1, certificateName.toUri());
+        ResultSet result = statement.executeQuery();
 
-        IdentityCertificate certificate = new IdentityCertificate();
-        try {
-          ResultSet result = statement.executeQuery();
-
-          if (result.next()) {
-            try {
-              certificate.wireDecode(new Blob(result.getBytes("certificate_data"), false));
-            } catch (EncodingException ex) {
-              throw new SecurityException
-                ("BasicIdentityStorage: Error decoding certificate data: " + ex);
-            }
+        if (result.next()) {
+          try {
+            certificate.wireDecode(new Blob(result.getBytes("certificate_data"), false));
+          } catch (EncodingException ex) {
+            throw new SecurityException
+              ("BasicIdentityStorage: Error decoding certificate data: " + ex);
           }
-        } finally {
-          statement.close();
         }
-
-        return certificate;
-      } catch (SQLException exception) {
-        throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+        else
+          throw new SecurityException
+            ("BasicIdentityStorage::getKey: The key certificate not exist");
+      } finally {
+        statement.close();
       }
+
+      return certificate;
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
-    else
-      return new IdentityCertificate();
   }
 
   /*****************************************

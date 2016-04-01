@@ -110,7 +110,8 @@ public abstract class IdentityStorage {
   /**
    * Get the public key DER blob from the identity storage.
    * @param keyName The name of the requested public key.
-   * @return The DER Blob.  If not found, return a Blob with a null pointer.
+   * @return The DER Blob.
+   * @throws SecurityException if the key doesn't exist.
    */
   public abstract Blob
   getKey(Name keyName) throws SecurityException;
@@ -152,7 +153,8 @@ public abstract class IdentityStorage {
   /**
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
-   * @return The requested certificate. If not found, return null.
+   * @return The requested certificate.
+   * @throws SecurityException if the certificate doesn't exist.
    */
   public abstract IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException;

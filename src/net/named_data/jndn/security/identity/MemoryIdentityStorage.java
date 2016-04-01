@@ -110,15 +110,19 @@ public class MemoryIdentityStorage extends IdentityStorage {
   /**
    * Get the public key DER blob from the identity storage.
    * @param keyName The name of the requested public key.
-   * @return The DER Blob.  If not found, return a Blob with a null pointer.
+   * @return The DER Blob.
+   * @throws SecurityException if the key doesn't exist.
    */
   public Blob
-  getKey(Name keyName)
+  getKey(Name keyName) throws SecurityException
   {
+    if (keyName.size() == 0)
+      throw new SecurityException("MemoryIdentityStorage::getKey: Empty keyName");
+
     KeyRecord keyRecord = (KeyRecord)keyStore_.get(keyName.toUri());
     if (keyRecord == null)
-      // Not found.  Silently return a null Blob.
-      return new Blob();
+      throw new SecurityException
+        ("MemoryIdentityStorage::getKey: The key does not exist");
 
     return keyRecord.getKeyDer();
   }
@@ -184,23 +188,24 @@ public class MemoryIdentityStorage extends IdentityStorage {
   /**
    * Get a certificate from the identity storage.
    * @param certificateName The name of the requested certificate.
-   * @return The requested certificate. If not found, return null.
+   * @return The requested certificate.
+   * @throws SecurityException if the certificate doesn't exist.
    */
   public IdentityCertificate
-  getCertificate(Name certificateName)
+  getCertificate(Name certificateName) throws SecurityException
   {
     Blob certificateDer = (Blob)certificateStore_.get(certificateName.toUri());
     if (certificateDer == null)
-      // Not found.  Silently return null.
-      return new IdentityCertificate();
+      throw new SecurityException
+        ("MemoryIdentityStorage::getKey: The certificate does not exist");
 
     IdentityCertificate certificate = new IdentityCertificate();
     try {
       certificate.wireDecode(certificateDer);
     }
     catch (EncodingException ex) {
-      // Don't expect this to happen. Silently return null.
-      return new IdentityCertificate();
+      throw new SecurityException
+        ("MemoryIdentityStorage::getKey: The certificate cannot be decoded");
     }
     return certificate;
   }
