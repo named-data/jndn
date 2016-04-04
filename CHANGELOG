@@ -10,6 +10,7 @@ Changes
   added an optional onError callback.
 * Added HmacWithSha256Signature. In KeyChain, added experimental static methods
   sign/verifyDataWithHmacWithSha256.
+* In IdentityManager, added getAllIdentities and getAllCertificateNamesOfKey.
 * In KeyChain, removed getAnyCertificate and getAnyIdentityCertificate.
 * Examples: Added TestSignVerifyDataHmac.
 

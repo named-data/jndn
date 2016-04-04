@@ -205,6 +205,16 @@ public abstract class IdentityStorage {
   getDefaultCertificateNameForKey(Name keyName) throws SecurityException;
 
   /**
+   * Append all the identity names to the nameList.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default identity name. If false, add
+   * only the non-default identity names.
+   */
+  public abstract void
+  getAllIdentities(ArrayList nameList, boolean isDefault)
+    throws SecurityException;
+
+  /**
    * Append all the key names of a particular identity to the nameList.
    * @param identityName The identity name to search for.
    * @param nameList Append result names to nameList.
@@ -215,6 +225,16 @@ public abstract class IdentityStorage {
   getAllKeyNamesOfIdentity
     (Name identityName, ArrayList nameList, boolean isDefault) throws SecurityException;
 
+  /**
+   * Append all the certificate names of a particular key name to the nameList.
+   * @param keyName The key name to search for.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default key name. If false, add only
+   * the non-default key names.
+   */
+  public abstract void
+  getAllCertificateNamesOfKey
+    (Name keyName, ArrayList nameList, boolean isDefault) throws SecurityException;
   /**
    * Set the default identity.  If the identityName does not exist, then clear
    * the default identity so that getDefaultIdentity() throws an exception.

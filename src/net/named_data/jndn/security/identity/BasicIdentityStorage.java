@@ -542,6 +542,34 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   }
 
   /**
+   * Append all the identity names to the nameList.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default identity name. If false, add
+   * only the non-default identity names.
+   */
+  public void
+  getAllIdentities(ArrayList nameList, boolean isDefault)
+    throws SecurityException
+  {
+    try {
+      String sql = isDefault ? SELECT_getAllIdentities_default_true
+        : SELECT_getAllIdentities_default_false;
+      PreparedStatement statement = database_.prepareStatement(sql);
+
+      try {
+        ResultSet result = statement.executeQuery();
+
+        while (result.next())
+          nameList.add(new Name(result.getString("identity_name")));
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
+  }
+
+  /**
    * Append all the key names of a particular identity to the nameList.
    * @param identityName The identity name to search for.
    * @param nameList Append result names to nameList.
@@ -564,6 +592,37 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
         while (result.next())
           nameList.add
             (new Name(identityName).append(result.getString("key_identifier")));
+      } finally {
+        statement.close();
+      }
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
+  }
+
+  /**
+   * Append all the certificate names of a particular key name to the nameList.
+   * @param keyName The key name to search for.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default key name. If false, add only
+   * the non-default key names.
+   */
+  public void
+  getAllCertificateNamesOfKey
+    (Name keyName, ArrayList nameList, boolean isDefault) throws SecurityException
+  {
+    try {
+      String sql = isDefault ? SELECT_getAllCertificateNamesOfKey_default_true
+        : SELECT_getAllCertificateNamesOfKey_default_false;
+      PreparedStatement statement = database_.prepareStatement(sql);
+      statement.setString(1, keyName.getPrefix(-1).toUri());
+      statement.setString(2, keyName.get(-1).toEscapedString());
+
+      try {
+        ResultSet result = statement.executeQuery();
+
+        while (result.next())
+          nameList.add(new Name(result.getString("cert_name")));
       } finally {
         statement.close();
       }

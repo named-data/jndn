@@ -459,6 +459,28 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
   }
 
   /**
+   * Append all the identity names to the nameList.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default identity name. If false, add
+   * only the non-default identity names.
+   */
+  public void
+  getAllIdentities(ArrayList nameList, boolean isDefault)
+    throws SecurityException
+  {
+    String sql = isDefault ? SELECT_getAllIdentities_default_true
+        : SELECT_getAllIdentities_default_false;
+    Cursor cursor = database_.rawQuery(sql, new String[0]);
+
+    try {
+      while (cursor.moveToNext())
+        nameList.add(new Name(cursor.getString(0)));
+    } finally {
+      cursor.close();
+    }
+  }
+
+  /**
    * Append all the key names of a particular identity to the nameList.
    * @param identityName The identity name to search for.
    * @param nameList Append result names to nameList.
@@ -477,6 +499,31 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
       while (cursor.moveToNext())
         nameList.add
           (new Name(identityName).append(cursor.getString(0)));
+    } finally {
+      cursor.close();
+    }
+  }
+
+  /**
+   * Append all the certificate names of a particular key name to the nameList.
+   * @param keyName The key name to search for.
+   * @param nameList Append result names to nameList.
+   * @param isDefault If true, add only the default key name. If false, add only
+   * the non-default key names.
+   */
+  public void
+  getAllCertificateNamesOfKey
+    (Name keyName, ArrayList nameList, boolean isDefault) throws SecurityException
+  {
+    String sql = isDefault ? SELECT_getAllCertificateNamesOfKey_default_true
+        : SELECT_getAllCertificateNamesOfKey_default_false;
+    Cursor cursor = database_.rawQuery
+      (sql, new String[] { keyName.getPrefix(-1).toUri(),
+                           keyName.get(-1).toEscapedString() });
+
+    try {
+      while (cursor.moveToNext())
+        nameList.add(new Name(cursor.getString(0)));
     } finally {
       cursor.close();
     }

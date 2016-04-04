@@ -153,10 +153,20 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
     "SELECT key_identifier FROM Key WHERE identity_name=? AND default_key=1";
   protected static final String SELECT_getDefaultCertificateNameForKey =
     "SELECT cert_name FROM Certificate WHERE identity_name=? AND key_identifier=? AND default_cert=1";
+  protected static final String SELECT_getAllIdentities_default_true =
+    "SELECT identity_name FROM Identity WHERE default_identity=1";
+  protected static final String SELECT_getAllIdentities_default_false =
+    "SELECT identity_name FROM Identity WHERE default_identity=0";
   protected static final String SELECT_getAllKeyNamesOfIdentity_default_true =
     "SELECT key_identifier FROM Key WHERE default_key=1 and identity_name=?";
   protected static final String SELECT_getAllKeyNamesOfIdentity_default_false =
     "SELECT key_identifier FROM Key WHERE default_key=0 and identity_name=?";
+  protected static final String SELECT_getAllCertificateNamesOfKey_default_true =
+    "SELECT cert_name FROM Certificate" +
+    "  WHERE default_cert=1 and identity_name=? and key_identifier=?";
+  protected static final String SELECT_getAllCertificateNamesOfKey_default_false =
+    "SELECT cert_name FROM Certificate" +
+    "  WHERE default_cert=0 and identity_name=? and key_identifier=?";
 
   protected static final String WHERE_updateKeyStatus =
     "identity_name=? AND key_identifier=?";
