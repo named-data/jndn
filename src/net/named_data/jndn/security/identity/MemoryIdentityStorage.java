@@ -307,8 +307,8 @@ public class MemoryIdentityStorage extends IdentityStorage {
    * Append all the certificate names of a particular key name to the nameList.
    * @param keyName The key name to search for.
    * @param nameList Append result names to nameList.
-   * @param isDefault If true, add only the default key name. If false, add only
-   * the non-default key names.
+   * @param isDefault If true, add only the default certificate name. If false,
+   * add only the non-default certificate names.
    */
   public void
   getAllCertificateNamesOfKey
