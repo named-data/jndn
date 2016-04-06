@@ -8,10 +8,10 @@ public final class FaceStatusProto {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface FaceStatusMessageOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface FaceStatusMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.FaceStatusMessage)
+      com.google.protobuf.MessageOrBuilder {
 
-    // repeated .net.named_data.jndn.tests.FaceStatusMessage.FaceStatus face_status = 128;
     /**
      * <code>repeated .net.named_data.jndn.tests.FaceStatusMessage.FaceStatus face_status = 128;</code>
      *
@@ -65,8 +65,9 @@ public final class FaceStatusProto {
    * </pre>
    */
   public static final class FaceStatusMessage extends
-      com.google.protobuf.GeneratedMessage
-      implements FaceStatusMessageOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.FaceStatusMessage)
+      FaceStatusMessageOrBuilder {
     // Use FaceStatusMessage.newBuilder() to construct.
     private FaceStatusMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -162,10 +163,10 @@ public final class FaceStatusProto {
       return PARSER;
     }
 
-    public interface FaceStatusOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
+    public interface FaceStatusOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.FaceStatusMessage.FaceStatus)
+        com.google.protobuf.MessageOrBuilder {
 
-      // required uint64 face_id = 105;
       /**
        * <code>required uint64 face_id = 105;</code>
        */
@@ -175,7 +176,6 @@ public final class FaceStatusProto {
        */
       long getFaceId();
 
-      // required string uri = 114;
       /**
        * <code>required string uri = 114;</code>
        */
@@ -190,7 +190,6 @@ public final class FaceStatusProto {
       com.google.protobuf.ByteString
           getUriBytes();
 
-      // required string local_uri = 129;
       /**
        * <code>required string local_uri = 129;</code>
        */
@@ -205,7 +204,6 @@ public final class FaceStatusProto {
       com.google.protobuf.ByteString
           getLocalUriBytes();
 
-      // optional uint64 expiration_period = 109;
       /**
        * <code>optional uint64 expiration_period = 109;</code>
        */
@@ -215,7 +213,6 @@ public final class FaceStatusProto {
        */
       long getExpirationPeriod();
 
-      // required uint64 face_scope = 132;
       /**
        * <code>required uint64 face_scope = 132;</code>
        */
@@ -225,7 +222,6 @@ public final class FaceStatusProto {
        */
       long getFaceScope();
 
-      // required uint64 face_persistency = 133;
       /**
        * <code>required uint64 face_persistency = 133;</code>
        */
@@ -235,7 +231,6 @@ public final class FaceStatusProto {
        */
       long getFacePersistency();
 
-      // required uint64 link_type = 134;
       /**
        * <code>required uint64 link_type = 134;</code>
        */
@@ -245,7 +240,6 @@ public final class FaceStatusProto {
        */
       long getLinkType();
 
-      // required uint64 n_in_interests = 144;
       /**
        * <code>required uint64 n_in_interests = 144;</code>
        */
@@ -255,7 +249,6 @@ public final class FaceStatusProto {
        */
       long getNInInterests();
 
-      // required uint64 n_in_datas = 145;
       /**
        * <code>required uint64 n_in_datas = 145;</code>
        */
@@ -265,7 +258,15 @@ public final class FaceStatusProto {
        */
       long getNInDatas();
 
-      // required uint64 n_out_interests = 146;
+      /**
+       * <code>required uint64 n_in_nacks = 151;</code>
+       */
+      boolean hasNInNacks();
+      /**
+       * <code>required uint64 n_in_nacks = 151;</code>
+       */
+      long getNInNacks();
+
       /**
        * <code>required uint64 n_out_interests = 146;</code>
        */
@@ -275,7 +276,6 @@ public final class FaceStatusProto {
        */
       long getNOutInterests();
 
-      // required uint64 n_out_datas = 147;
       /**
        * <code>required uint64 n_out_datas = 147;</code>
        */
@@ -285,7 +285,15 @@ public final class FaceStatusProto {
        */
       long getNOutDatas();
 
-      // required uint64 n_in_bytes = 148;
+      /**
+       * <code>required uint64 n_out_nacks = 152;</code>
+       */
+      boolean hasNOutNacks();
+      /**
+       * <code>required uint64 n_out_nacks = 152;</code>
+       */
+      long getNOutNacks();
+
       /**
        * <code>required uint64 n_in_bytes = 148;</code>
        */
@@ -295,7 +303,6 @@ public final class FaceStatusProto {
        */
       long getNInBytes();
 
-      // required uint64 n_out_bytes = 149;
       /**
        * <code>required uint64 n_out_bytes = 149;</code>
        */
@@ -309,8 +316,9 @@ public final class FaceStatusProto {
      * Protobuf type {@code net.named_data.jndn.tests.FaceStatusMessage.FaceStatus}
      */
     public static final class FaceStatus extends
-        com.google.protobuf.GeneratedMessage
-        implements FaceStatusOrBuilder {
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.FaceStatusMessage.FaceStatus)
+        FaceStatusOrBuilder {
       // Use FaceStatus.newBuilder() to construct.
       private FaceStatus(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -367,13 +375,15 @@ public final class FaceStatusProto {
                 break;
               }
               case 914: {
+                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000002;
-                uri_ = input.readBytes();
+                uri_ = bs;
                 break;
               }
               case 1034: {
+                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000004;
-                localUri_ = input.readBytes();
+                localUri_ = bs;
                 break;
               }
               case 1056: {
@@ -402,23 +412,33 @@ public final class FaceStatusProto {
                 break;
               }
               case 1168: {
-                bitField0_ |= 0x00000200;
+                bitField0_ |= 0x00000400;
                 nOutInterests_ = input.readUInt64();
                 break;
               }
               case 1176: {
-                bitField0_ |= 0x00000400;
+                bitField0_ |= 0x00000800;
                 nOutDatas_ = input.readUInt64();
                 break;
               }
               case 1184: {
-                bitField0_ |= 0x00000800;
+                bitField0_ |= 0x00002000;
                 nInBytes_ = input.readUInt64();
                 break;
               }
               case 1192: {
-                bitField0_ |= 0x00001000;
+                bitField0_ |= 0x00004000;
                 nOutBytes_ = input.readUInt64();
+                break;
+              }
+              case 1208: {
+                bitField0_ |= 0x00000200;
+                nInNacks_ = input.readUInt64();
+                break;
+              }
+              case 1216: {
+                bitField0_ |= 0x00001000;
+                nOutNacks_ = input.readUInt64();
                 break;
               }
             }
@@ -461,7 +481,6 @@ public final class FaceStatusProto {
       }
 
       private int bitField0_;
-      // required uint64 face_id = 105;
       public static final int FACE_ID_FIELD_NUMBER = 105;
       private long faceId_;
       /**
@@ -477,7 +496,6 @@ public final class FaceStatusProto {
         return faceId_;
       }
 
-      // required string uri = 114;
       public static final int URI_FIELD_NUMBER = 114;
       private java.lang.Object uri_;
       /**
@@ -520,7 +538,6 @@ public final class FaceStatusProto {
         }
       }
 
-      // required string local_uri = 129;
       public static final int LOCAL_URI_FIELD_NUMBER = 129;
       private java.lang.Object localUri_;
       /**
@@ -563,7 +580,6 @@ public final class FaceStatusProto {
         }
       }
 
-      // optional uint64 expiration_period = 109;
       public static final int EXPIRATION_PERIOD_FIELD_NUMBER = 109;
       private long expirationPeriod_;
       /**
@@ -579,7 +595,6 @@ public final class FaceStatusProto {
         return expirationPeriod_;
       }
 
-      // required uint64 face_scope = 132;
       public static final int FACE_SCOPE_FIELD_NUMBER = 132;
       private long faceScope_;
       /**
@@ -595,7 +610,6 @@ public final class FaceStatusProto {
         return faceScope_;
       }
 
-      // required uint64 face_persistency = 133;
       public static final int FACE_PERSISTENCY_FIELD_NUMBER = 133;
       private long facePersistency_;
       /**
@@ -611,7 +625,6 @@ public final class FaceStatusProto {
         return facePersistency_;
       }
 
-      // required uint64 link_type = 134;
       public static final int LINK_TYPE_FIELD_NUMBER = 134;
       private long linkType_;
       /**
@@ -627,7 +640,6 @@ public final class FaceStatusProto {
         return linkType_;
       }
 
-      // required uint64 n_in_interests = 144;
       public static final int N_IN_INTERESTS_FIELD_NUMBER = 144;
       private long nInInterests_;
       /**
@@ -643,7 +655,6 @@ public final class FaceStatusProto {
         return nInInterests_;
       }
 
-      // required uint64 n_in_datas = 145;
       public static final int N_IN_DATAS_FIELD_NUMBER = 145;
       private long nInDatas_;
       /**
@@ -659,14 +670,28 @@ public final class FaceStatusProto {
         return nInDatas_;
       }
 
-      // required uint64 n_out_interests = 146;
+      public static final int N_IN_NACKS_FIELD_NUMBER = 151;
+      private long nInNacks_;
+      /**
+       * <code>required uint64 n_in_nacks = 151;</code>
+       */
+      public boolean hasNInNacks() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>required uint64 n_in_nacks = 151;</code>
+       */
+      public long getNInNacks() {
+        return nInNacks_;
+      }
+
       public static final int N_OUT_INTERESTS_FIELD_NUMBER = 146;
       private long nOutInterests_;
       /**
        * <code>required uint64 n_out_interests = 146;</code>
        */
       public boolean hasNOutInterests() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>required uint64 n_out_interests = 146;</code>
@@ -675,14 +700,13 @@ public final class FaceStatusProto {
         return nOutInterests_;
       }
 
-      // required uint64 n_out_datas = 147;
       public static final int N_OUT_DATAS_FIELD_NUMBER = 147;
       private long nOutDatas_;
       /**
        * <code>required uint64 n_out_datas = 147;</code>
        */
       public boolean hasNOutDatas() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
        * <code>required uint64 n_out_datas = 147;</code>
@@ -691,14 +715,28 @@ public final class FaceStatusProto {
         return nOutDatas_;
       }
 
-      // required uint64 n_in_bytes = 148;
+      public static final int N_OUT_NACKS_FIELD_NUMBER = 152;
+      private long nOutNacks_;
+      /**
+       * <code>required uint64 n_out_nacks = 152;</code>
+       */
+      public boolean hasNOutNacks() {
+        return ((bitField0_ & 0x00001000) == 0x00001000);
+      }
+      /**
+       * <code>required uint64 n_out_nacks = 152;</code>
+       */
+      public long getNOutNacks() {
+        return nOutNacks_;
+      }
+
       public static final int N_IN_BYTES_FIELD_NUMBER = 148;
       private long nInBytes_;
       /**
        * <code>required uint64 n_in_bytes = 148;</code>
        */
       public boolean hasNInBytes() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
        * <code>required uint64 n_in_bytes = 148;</code>
@@ -707,14 +745,13 @@ public final class FaceStatusProto {
         return nInBytes_;
       }
 
-      // required uint64 n_out_bytes = 149;
       public static final int N_OUT_BYTES_FIELD_NUMBER = 149;
       private long nOutBytes_;
       /**
        * <code>required uint64 n_out_bytes = 149;</code>
        */
       public boolean hasNOutBytes() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00004000) == 0x00004000);
       }
       /**
        * <code>required uint64 n_out_bytes = 149;</code>
@@ -733,15 +770,18 @@ public final class FaceStatusProto {
         linkType_ = 0L;
         nInInterests_ = 0L;
         nInDatas_ = 0L;
+        nInNacks_ = 0L;
         nOutInterests_ = 0L;
         nOutDatas_ = 0L;
+        nOutNacks_ = 0L;
         nInBytes_ = 0L;
         nOutBytes_ = 0L;
       }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (!hasFaceId()) {
           memoizedIsInitialized = 0;
@@ -775,11 +815,19 @@ public final class FaceStatusProto {
           memoizedIsInitialized = 0;
           return false;
         }
+        if (!hasNInNacks()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
         if (!hasNOutInterests()) {
           memoizedIsInitialized = 0;
           return false;
         }
         if (!hasNOutDatas()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+        if (!hasNOutNacks()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -825,17 +873,23 @@ public final class FaceStatusProto {
         if (((bitField0_ & 0x00000100) == 0x00000100)) {
           output.writeUInt64(145, nInDatas_);
         }
-        if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((bitField0_ & 0x00000400) == 0x00000400)) {
           output.writeUInt64(146, nOutInterests_);
         }
-        if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        if (((bitField0_ & 0x00000800) == 0x00000800)) {
           output.writeUInt64(147, nOutDatas_);
         }
-        if (((bitField0_ & 0x00000800) == 0x00000800)) {
+        if (((bitField0_ & 0x00002000) == 0x00002000)) {
           output.writeUInt64(148, nInBytes_);
         }
-        if (((bitField0_ & 0x00001000) == 0x00001000)) {
+        if (((bitField0_ & 0x00004000) == 0x00004000)) {
           output.writeUInt64(149, nOutBytes_);
+        }
+        if (((bitField0_ & 0x00000200) == 0x00000200)) {
+          output.writeUInt64(151, nInNacks_);
+        }
+        if (((bitField0_ & 0x00001000) == 0x00001000)) {
+          output.writeUInt64(152, nOutNacks_);
         }
         getUnknownFields().writeTo(output);
       }
@@ -882,21 +936,29 @@ public final class FaceStatusProto {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(145, nInDatas_);
         }
-        if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((bitField0_ & 0x00000400) == 0x00000400)) {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(146, nOutInterests_);
         }
-        if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        if (((bitField0_ & 0x00000800) == 0x00000800)) {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(147, nOutDatas_);
         }
-        if (((bitField0_ & 0x00000800) == 0x00000800)) {
+        if (((bitField0_ & 0x00002000) == 0x00002000)) {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(148, nInBytes_);
         }
-        if (((bitField0_ & 0x00001000) == 0x00001000)) {
+        if (((bitField0_ & 0x00004000) == 0x00004000)) {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(149, nOutBytes_);
+        }
+        if (((bitField0_ & 0x00000200) == 0x00000200)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(151, nInNacks_);
+        }
+        if (((bitField0_ & 0x00001000) == 0x00001000)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(152, nOutNacks_);
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -980,8 +1042,9 @@ public final class FaceStatusProto {
        * Protobuf type {@code net.named_data.jndn.tests.FaceStatusMessage.FaceStatus}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements net.named_data.jndn.tests.FaceStatusProto.FaceStatusMessage.FaceStatusOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.FaceStatusMessage.FaceStatus)
+          net.named_data.jndn.tests.FaceStatusProto.FaceStatusMessage.FaceStatusOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return net.named_data.jndn.tests.FaceStatusProto.internal_static_net_named_data_jndn_tests_FaceStatusMessage_FaceStatus_descriptor;
@@ -1032,14 +1095,18 @@ public final class FaceStatusProto {
           bitField0_ = (bitField0_ & ~0x00000080);
           nInDatas_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000100);
-          nOutInterests_ = 0L;
+          nInNacks_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000200);
-          nOutDatas_ = 0L;
+          nOutInterests_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000400);
-          nInBytes_ = 0L;
+          nOutDatas_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000800);
-          nOutBytes_ = 0L;
+          nOutNacks_ = 0L;
           bitField0_ = (bitField0_ & ~0x00001000);
+          nInBytes_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00002000);
+          nOutBytes_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00004000);
           return this;
         }
 
@@ -1107,17 +1174,25 @@ public final class FaceStatusProto {
           if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
             to_bitField0_ |= 0x00000200;
           }
-          result.nOutInterests_ = nOutInterests_;
+          result.nInNacks_ = nInNacks_;
           if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
             to_bitField0_ |= 0x00000400;
           }
-          result.nOutDatas_ = nOutDatas_;
+          result.nOutInterests_ = nOutInterests_;
           if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
             to_bitField0_ |= 0x00000800;
           }
-          result.nInBytes_ = nInBytes_;
+          result.nOutDatas_ = nOutDatas_;
           if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
             to_bitField0_ |= 0x00001000;
+          }
+          result.nOutNacks_ = nOutNacks_;
+          if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+            to_bitField0_ |= 0x00002000;
+          }
+          result.nInBytes_ = nInBytes_;
+          if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+            to_bitField0_ |= 0x00004000;
           }
           result.nOutBytes_ = nOutBytes_;
           result.bitField0_ = to_bitField0_;
@@ -1167,11 +1242,17 @@ public final class FaceStatusProto {
           if (other.hasNInDatas()) {
             setNInDatas(other.getNInDatas());
           }
+          if (other.hasNInNacks()) {
+            setNInNacks(other.getNInNacks());
+          }
           if (other.hasNOutInterests()) {
             setNOutInterests(other.getNOutInterests());
           }
           if (other.hasNOutDatas()) {
             setNOutDatas(other.getNOutDatas());
+          }
+          if (other.hasNOutNacks()) {
+            setNOutNacks(other.getNOutNacks());
           }
           if (other.hasNInBytes()) {
             setNInBytes(other.getNInBytes());
@@ -1216,11 +1297,19 @@ public final class FaceStatusProto {
             
             return false;
           }
+          if (!hasNInNacks()) {
+            
+            return false;
+          }
           if (!hasNOutInterests()) {
             
             return false;
           }
           if (!hasNOutDatas()) {
+            
+            return false;
+          }
+          if (!hasNOutNacks()) {
             
             return false;
           }
@@ -1254,7 +1343,6 @@ public final class FaceStatusProto {
         }
         private int bitField0_;
 
-        // required uint64 face_id = 105;
         private long faceId_ ;
         /**
          * <code>required uint64 face_id = 105;</code>
@@ -1287,7 +1375,6 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // required string uri = 114;
         private java.lang.Object uri_ = "";
         /**
          * <code>required string uri = 114;</code>
@@ -1301,9 +1388,12 @@ public final class FaceStatusProto {
         public java.lang.String getUri() {
           java.lang.Object ref = uri_;
           if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            uri_ = s;
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              uri_ = s;
+            }
             return s;
           } else {
             return (java.lang.String) ref;
@@ -1361,7 +1451,6 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // required string local_uri = 129;
         private java.lang.Object localUri_ = "";
         /**
          * <code>required string local_uri = 129;</code>
@@ -1375,9 +1464,12 @@ public final class FaceStatusProto {
         public java.lang.String getLocalUri() {
           java.lang.Object ref = localUri_;
           if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            localUri_ = s;
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              localUri_ = s;
+            }
             return s;
           } else {
             return (java.lang.String) ref;
@@ -1435,7 +1527,6 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // optional uint64 expiration_period = 109;
         private long expirationPeriod_ ;
         /**
          * <code>optional uint64 expiration_period = 109;</code>
@@ -1468,7 +1559,6 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // required uint64 face_scope = 132;
         private long faceScope_ ;
         /**
          * <code>required uint64 face_scope = 132;</code>
@@ -1501,7 +1591,6 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // required uint64 face_persistency = 133;
         private long facePersistency_ ;
         /**
          * <code>required uint64 face_persistency = 133;</code>
@@ -1534,7 +1623,6 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // required uint64 link_type = 134;
         private long linkType_ ;
         /**
          * <code>required uint64 link_type = 134;</code>
@@ -1567,7 +1655,6 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // required uint64 n_in_interests = 144;
         private long nInInterests_ ;
         /**
          * <code>required uint64 n_in_interests = 144;</code>
@@ -1600,7 +1687,6 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // required uint64 n_in_datas = 145;
         private long nInDatas_ ;
         /**
          * <code>required uint64 n_in_datas = 145;</code>
@@ -1633,13 +1719,44 @@ public final class FaceStatusProto {
           return this;
         }
 
-        // required uint64 n_out_interests = 146;
+        private long nInNacks_ ;
+        /**
+         * <code>required uint64 n_in_nacks = 151;</code>
+         */
+        public boolean hasNInNacks() {
+          return ((bitField0_ & 0x00000200) == 0x00000200);
+        }
+        /**
+         * <code>required uint64 n_in_nacks = 151;</code>
+         */
+        public long getNInNacks() {
+          return nInNacks_;
+        }
+        /**
+         * <code>required uint64 n_in_nacks = 151;</code>
+         */
+        public Builder setNInNacks(long value) {
+          bitField0_ |= 0x00000200;
+          nInNacks_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>required uint64 n_in_nacks = 151;</code>
+         */
+        public Builder clearNInNacks() {
+          bitField0_ = (bitField0_ & ~0x00000200);
+          nInNacks_ = 0L;
+          onChanged();
+          return this;
+        }
+
         private long nOutInterests_ ;
         /**
          * <code>required uint64 n_out_interests = 146;</code>
          */
         public boolean hasNOutInterests() {
-          return ((bitField0_ & 0x00000200) == 0x00000200);
+          return ((bitField0_ & 0x00000400) == 0x00000400);
         }
         /**
          * <code>required uint64 n_out_interests = 146;</code>
@@ -1651,7 +1768,7 @@ public final class FaceStatusProto {
          * <code>required uint64 n_out_interests = 146;</code>
          */
         public Builder setNOutInterests(long value) {
-          bitField0_ |= 0x00000200;
+          bitField0_ |= 0x00000400;
           nOutInterests_ = value;
           onChanged();
           return this;
@@ -1660,19 +1777,18 @@ public final class FaceStatusProto {
          * <code>required uint64 n_out_interests = 146;</code>
          */
         public Builder clearNOutInterests() {
-          bitField0_ = (bitField0_ & ~0x00000200);
+          bitField0_ = (bitField0_ & ~0x00000400);
           nOutInterests_ = 0L;
           onChanged();
           return this;
         }
 
-        // required uint64 n_out_datas = 147;
         private long nOutDatas_ ;
         /**
          * <code>required uint64 n_out_datas = 147;</code>
          */
         public boolean hasNOutDatas() {
-          return ((bitField0_ & 0x00000400) == 0x00000400);
+          return ((bitField0_ & 0x00000800) == 0x00000800);
         }
         /**
          * <code>required uint64 n_out_datas = 147;</code>
@@ -1684,7 +1800,7 @@ public final class FaceStatusProto {
          * <code>required uint64 n_out_datas = 147;</code>
          */
         public Builder setNOutDatas(long value) {
-          bitField0_ |= 0x00000400;
+          bitField0_ |= 0x00000800;
           nOutDatas_ = value;
           onChanged();
           return this;
@@ -1693,19 +1809,50 @@ public final class FaceStatusProto {
          * <code>required uint64 n_out_datas = 147;</code>
          */
         public Builder clearNOutDatas() {
-          bitField0_ = (bitField0_ & ~0x00000400);
+          bitField0_ = (bitField0_ & ~0x00000800);
           nOutDatas_ = 0L;
           onChanged();
           return this;
         }
 
-        // required uint64 n_in_bytes = 148;
+        private long nOutNacks_ ;
+        /**
+         * <code>required uint64 n_out_nacks = 152;</code>
+         */
+        public boolean hasNOutNacks() {
+          return ((bitField0_ & 0x00001000) == 0x00001000);
+        }
+        /**
+         * <code>required uint64 n_out_nacks = 152;</code>
+         */
+        public long getNOutNacks() {
+          return nOutNacks_;
+        }
+        /**
+         * <code>required uint64 n_out_nacks = 152;</code>
+         */
+        public Builder setNOutNacks(long value) {
+          bitField0_ |= 0x00001000;
+          nOutNacks_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>required uint64 n_out_nacks = 152;</code>
+         */
+        public Builder clearNOutNacks() {
+          bitField0_ = (bitField0_ & ~0x00001000);
+          nOutNacks_ = 0L;
+          onChanged();
+          return this;
+        }
+
         private long nInBytes_ ;
         /**
          * <code>required uint64 n_in_bytes = 148;</code>
          */
         public boolean hasNInBytes() {
-          return ((bitField0_ & 0x00000800) == 0x00000800);
+          return ((bitField0_ & 0x00002000) == 0x00002000);
         }
         /**
          * <code>required uint64 n_in_bytes = 148;</code>
@@ -1717,7 +1864,7 @@ public final class FaceStatusProto {
          * <code>required uint64 n_in_bytes = 148;</code>
          */
         public Builder setNInBytes(long value) {
-          bitField0_ |= 0x00000800;
+          bitField0_ |= 0x00002000;
           nInBytes_ = value;
           onChanged();
           return this;
@@ -1726,19 +1873,18 @@ public final class FaceStatusProto {
          * <code>required uint64 n_in_bytes = 148;</code>
          */
         public Builder clearNInBytes() {
-          bitField0_ = (bitField0_ & ~0x00000800);
+          bitField0_ = (bitField0_ & ~0x00002000);
           nInBytes_ = 0L;
           onChanged();
           return this;
         }
 
-        // required uint64 n_out_bytes = 149;
         private long nOutBytes_ ;
         /**
          * <code>required uint64 n_out_bytes = 149;</code>
          */
         public boolean hasNOutBytes() {
-          return ((bitField0_ & 0x00001000) == 0x00001000);
+          return ((bitField0_ & 0x00004000) == 0x00004000);
         }
         /**
          * <code>required uint64 n_out_bytes = 149;</code>
@@ -1750,7 +1896,7 @@ public final class FaceStatusProto {
          * <code>required uint64 n_out_bytes = 149;</code>
          */
         public Builder setNOutBytes(long value) {
-          bitField0_ |= 0x00001000;
+          bitField0_ |= 0x00004000;
           nOutBytes_ = value;
           onChanged();
           return this;
@@ -1759,7 +1905,7 @@ public final class FaceStatusProto {
          * <code>required uint64 n_out_bytes = 149;</code>
          */
         public Builder clearNOutBytes() {
-          bitField0_ = (bitField0_ & ~0x00001000);
+          bitField0_ = (bitField0_ & ~0x00004000);
           nOutBytes_ = 0L;
           onChanged();
           return this;
@@ -1776,7 +1922,6 @@ public final class FaceStatusProto {
       // @@protoc_insertion_point(class_scope:net.named_data.jndn.tests.FaceStatusMessage.FaceStatus)
     }
 
-    // repeated .net.named_data.jndn.tests.FaceStatusMessage.FaceStatus face_status = 128;
     public static final int FACE_STATUS_FIELD_NUMBER = 128;
     private java.util.List<net.named_data.jndn.tests.FaceStatusProto.FaceStatusMessage.FaceStatus> faceStatus_;
     /**
@@ -1838,7 +1983,8 @@ public final class FaceStatusProto {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       for (int i = 0; i < getFaceStatusCount(); i++) {
         if (!getFaceStatus(i).isInitialized()) {
@@ -1956,8 +2102,9 @@ public final class FaceStatusProto {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements net.named_data.jndn.tests.FaceStatusProto.FaceStatusMessageOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.FaceStatusMessage)
+        net.named_data.jndn.tests.FaceStatusProto.FaceStatusMessageOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return net.named_data.jndn.tests.FaceStatusProto.internal_static_net_named_data_jndn_tests_FaceStatusMessage_descriptor;
@@ -2107,7 +2254,6 @@ public final class FaceStatusProto {
       }
       private int bitField0_;
 
-      // repeated .net.named_data.jndn.tests.FaceStatusMessage.FaceStatus face_status = 128;
       private java.util.List<net.named_data.jndn.tests.FaceStatusProto.FaceStatusMessage.FaceStatus> faceStatus_ =
         java.util.Collections.emptyList();
       private void ensureFaceStatusIsMutable() {
@@ -2289,7 +2435,8 @@ public final class FaceStatusProto {
           java.lang.Iterable<? extends net.named_data.jndn.tests.FaceStatusProto.FaceStatusMessage.FaceStatus> values) {
         if (faceStatusBuilder_ == null) {
           ensureFaceStatusIsMutable();
-          super.addAll(values, faceStatus_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, faceStatus_);
           onChanged();
         } else {
           faceStatusBuilder_.addAllMessages(values);
@@ -2430,12 +2577,12 @@ public final class FaceStatusProto {
     // @@protoc_insertion_point(class_scope:net.named_data.jndn.tests.FaceStatusMessage)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_FaceStatusMessage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_net_named_data_jndn_tests_FaceStatusMessage_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_FaceStatusMessage_FaceStatus_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -2450,42 +2597,43 @@ public final class FaceStatusProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\027face-status-proto.proto\022\031net.named_dat" +
-      "a.jndn.tests\"\213\003\n\021FaceStatusMessage\022M\n\013fa" +
+      "a.jndn.tests\"\266\003\n\021FaceStatusMessage\022M\n\013fa" +
       "ce_status\030\200\001 \003(\01327.net.named_data.jndn.t" +
-      "ests.FaceStatusMessage.FaceStatus\032\246\002\n\nFa" +
+      "ests.FaceStatusMessage.FaceStatus\032\321\002\n\nFa" +
       "ceStatus\022\017\n\007face_id\030i \002(\004\022\013\n\003uri\030r \002(\t\022\022" +
       "\n\tlocal_uri\030\201\001 \002(\t\022\031\n\021expiration_period\030" +
       "m \001(\004\022\023\n\nface_scope\030\204\001 \002(\004\022\031\n\020face_persi" +
       "stency\030\205\001 \002(\004\022\022\n\tlink_type\030\206\001 \002(\004\022\027\n\016n_i" +
       "n_interests\030\220\001 \002(\004\022\023\n\nn_in_datas\030\221\001 \002(\004\022" +
-      "\030\n\017n_out_interests\030\222\001 \002(\004\022\024\n\013n_out_datas",
-      "\030\223\001 \002(\004\022\023\n\nn_in_bytes\030\224\001 \002(\004\022\024\n\013n_out_by" +
-      "tes\030\225\001 \002(\004"
+      "\023\n\nn_in_nacks\030\227\001 \002(\004\022\030\n\017n_out_interests\030",
+      "\222\001 \002(\004\022\024\n\013n_out_datas\030\223\001 \002(\004\022\024\n\013n_out_na" +
+      "cks\030\230\001 \002(\004\022\023\n\nn_in_bytes\030\224\001 \002(\004\022\024\n\013n_out" +
+      "_bytes\030\225\001 \002(\004"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_net_named_data_jndn_tests_FaceStatusMessage_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_net_named_data_jndn_tests_FaceStatusMessage_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_FaceStatusMessage_descriptor,
-              new java.lang.String[] { "FaceStatus", });
-          internal_static_net_named_data_jndn_tests_FaceStatusMessage_FaceStatus_descriptor =
-            internal_static_net_named_data_jndn_tests_FaceStatusMessage_descriptor.getNestedTypes().get(0);
-          internal_static_net_named_data_jndn_tests_FaceStatusMessage_FaceStatus_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_FaceStatusMessage_FaceStatus_descriptor,
-              new java.lang.String[] { "FaceId", "Uri", "LocalUri", "ExpirationPeriod", "FaceScope", "FacePersistency", "LinkType", "NInInterests", "NInDatas", "NOutInterests", "NOutDatas", "NInBytes", "NOutBytes", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_net_named_data_jndn_tests_FaceStatusMessage_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_net_named_data_jndn_tests_FaceStatusMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_FaceStatusMessage_descriptor,
+        new java.lang.String[] { "FaceStatus", });
+    internal_static_net_named_data_jndn_tests_FaceStatusMessage_FaceStatus_descriptor =
+      internal_static_net_named_data_jndn_tests_FaceStatusMessage_descriptor.getNestedTypes().get(0);
+    internal_static_net_named_data_jndn_tests_FaceStatusMessage_FaceStatus_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_FaceStatusMessage_FaceStatus_descriptor,
+        new java.lang.String[] { "FaceId", "Uri", "LocalUri", "ExpirationPeriod", "FaceScope", "FacePersistency", "LinkType", "NInInterests", "NInDatas", "NInNacks", "NOutInterests", "NOutDatas", "NOutNacks", "NInBytes", "NOutBytes", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
