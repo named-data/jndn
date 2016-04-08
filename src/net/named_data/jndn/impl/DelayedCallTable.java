@@ -37,18 +37,18 @@ public class DelayedCallTable {
   public synchronized final void
   callLater(double delayMilliseconds, Runnable callback)
   {
-    Entry delayedCall = new Entry(delayMilliseconds, callback);
-    // Insert into delayedCallTable_, sorted on delayedCall.getCallTime().
+    Entry entry = new Entry(delayMilliseconds, callback);
+    // Insert into table_, sorted on getCallTime().
     // Search from the back since we expect it to go there.
     int i = table_.size() - 1;
     while (i >= 0) {
-      if (((Entry)table_.get(i)).getCallTime() <= delayedCall.getCallTime())
+      if (((Entry)table_.get(i)).getCallTime() <= entry.getCallTime())
         break;
       --i;
     }
     // Element i is the greatest less than or equal to
-    // delayedCall.getCallTime(), so insert after it.
-    table_.add(i + 1, delayedCall);
+    // entry.getCallTime(), so insert after it.
+    table_.add(i + 1, entry);
   }
 
   /**
@@ -61,23 +61,23 @@ public class DelayedCallTable {
   callTimedOut()
   {
     double now = Common.getNowMilliseconds();
-    // delayedCallTable_ is sorted on _callTime, so we only need to process
-    // the timed-out entries at the front, then quit.
+    // table_ is sorted on _callTime, so we only need to process the timed-out
+    // entries at the front, then quit.
     while (true) {
-      Entry delayedCall;
+      Entry entry;
       // Lock while we check and maybe pop the element at the front.
       synchronized(this) {
         if (table_.isEmpty())
           break;
-        delayedCall = (Entry)table_.get(0);
-        if (delayedCall.getCallTime() > now)
+        entry = (Entry)table_.get(0);
+        if (entry.getCallTime() > now)
           // It is not time to call the entry at the front of the list, so finish.
           break;
         table_.remove(0);
       }
 
-      // The lock on delayedCallTable_ is removed, so call the callback.
-      delayedCall.callCallback();
+      // The lock on table_ is removed, so call the callback.
+      entry.callCallback();
     }
   }
 
