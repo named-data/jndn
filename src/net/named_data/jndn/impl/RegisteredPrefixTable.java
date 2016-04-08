@@ -91,14 +91,15 @@ public class RegisteredPrefixTable {
   }
 
   /**
-   * An Entry holds a registeredPrefixId and information necessary to remove the
-   * registration later. It optionally holds a related interestFilterId if the
-   * InterestFilter was set in the same registerPrefix operation.
+   * A RegisteredPrefixTable.Entry holds a registeredPrefixId and information
+   * necessary to remove the registration later. It optionally holds a related
+   * interestFilterId if the InterestFilter was set in the same registerPrefix
+   * operation.
    */
   private static class Entry {
     /**
-     * Create a RegisteredPrefix with the given values.
-     * @param registeredPrefixId The ID from getNextEntryId().
+     * Create a RegisteredPrefixTable.Entry with the given values.
+     * @param registeredPrefixId The ID from Node.getNextEntryId().
      * @param prefix The name prefix.
      * @param relatedInterestFilterId (optional) The related interestFilterId
      * for the filter set in the same registerPrefix operation. If omitted, set
