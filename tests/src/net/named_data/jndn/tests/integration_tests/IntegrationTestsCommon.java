@@ -22,7 +22,6 @@ package src.net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import javafx.util.Pair;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Name;
@@ -62,11 +61,12 @@ public class IntegrationTestsCommon {
 
   /**
    * Create a KeyChain with the a default name and key pair.
-   * @return A Pair with the KeyChain and the signing certificateName.
+   * @param certificateName Set certificateName[0] to the signing certificateName.
+   * @return The KeyChain.
    * @throws SecurityException
    */
-  public static Pair<KeyChain, Name>
-  buildKeyChain() throws SecurityException
+  public static KeyChain
+  buildKeyChain(Name[] certificateName) throws SecurityException
   {
     MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
     MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
@@ -76,14 +76,14 @@ public class IntegrationTestsCommon {
 
     // initialize the storage with
     Name keyName = new Name("/testname/DSK-123");
-    Name certificateName = keyName.getSubName(0, keyName.size() - 1)
+    certificateName[0] = keyName.getSubName(0, keyName.size() - 1)
       .append("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
     identityStorage.addKey
       (keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
     privateKeyStorage.setKeyPairForKeyName
       (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
 
-    return new Pair(keyChain, certificateName);
+    return keyChain;
   }
 
   /**
@@ -116,9 +116,9 @@ public class IntegrationTestsCommon {
   public static Face
   buildFaceWithKeyChain(String hostname) throws SecurityException
   {
-    Pair<KeyChain, Name> keyChainPair = buildKeyChain();
-    return buildFaceWithKeyChain
-      (hostname, keyChainPair.getKey(), keyChainPair.getValue());
+    Name[] certificateName = new Name[1];
+    KeyChain keyChain = buildKeyChain(certificateName);
+    return buildFaceWithKeyChain(hostname, keyChain, certificateName[0]);
   }
 
   /**

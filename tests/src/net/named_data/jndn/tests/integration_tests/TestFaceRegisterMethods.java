@@ -23,7 +23,6 @@ package src.net.named_data.jndn.tests.integration_tests;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.util.Pair;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
@@ -53,9 +52,9 @@ public class TestFaceRegisterMethods {
   public void
   setUp() throws SecurityException
   {
-    Pair<KeyChain, Name> keyChainPair = IntegrationTestsCommon.buildKeyChain();
-    keyChain = keyChainPair.getKey();
-    certificateName = keyChainPair.getValue();
+    Name[] localCertificateName = new Name[1];
+    keyChain = IntegrationTestsCommon.buildKeyChain(localCertificateName);
+    certificateName = localCertificateName[0];
 
     faceIn = IntegrationTestsCommon.buildFaceWithKeyChain
       ("localhost", keyChain, certificateName);
