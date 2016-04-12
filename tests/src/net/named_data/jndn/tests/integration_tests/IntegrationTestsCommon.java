@@ -22,6 +22,7 @@ package src.net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import javafx.util.Pair;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Name;
@@ -60,30 +61,64 @@ public class IntegrationTestsCommon {
   }
 
   /**
-   * @param hostname the hostname of the NFD to connect to, e.g. 192.168.1.1 or localhost
-   * @return a {@link Face} configured with a valid signing key chain 
+   * Create a KeyChain with the a default name and key pair.
+   * @return A Pair with the KeyChain and the signing certificateName.
+   * @throws SecurityException
+   */
+  public static Pair<KeyChain, Name>
+  buildKeyChain() throws SecurityException
+  {
+    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
+    MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+    KeyChain keyChain = new KeyChain
+      (new IdentityManager(identityStorage, privateKeyStorage),
+       new SelfVerifyPolicyManager(identityStorage));
+
+    // initialize the storage with
+    Name keyName = new Name("/testname/DSK-123");
+    Name certificateName = keyName.getSubName(0, keyName.size() - 1)
+      .append("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
+    identityStorage.addKey
+      (keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
+    privateKeyStorage.setKeyPairForKeyName
+      (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
+
+    return new Pair(keyChain, certificateName);
+  }
+
+  /**
+   * Create a Face using a the given KeyChain and certificate name.
+   * @param keyChain The KeyChain. This calls keyChain.setFace with the created Face.
+   * @param certificateName The signing certificate name to use with keyChain.
+   * @param hostname The host name of the NFD to connect to, e.g. "192.168.1.1" or
+   * "localhost".
+   * @return A Face configured with a valid signing key chain.
    * @throws SecurityException 
    */
   public static Face
-    buildFaceWithKeyChain(String hostname) throws SecurityException {
+  buildFaceWithKeyChain(String hostname, KeyChain keyChain, Name certificateName)
+    throws SecurityException
+  {
     Face face = new Face(hostname);
-
-    // use memory storage
-    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
-    MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
-    KeyChain keyChain = new KeyChain(new IdentityManager(identityStorage, privateKeyStorage),
-      new SelfVerifyPolicyManager(identityStorage));
     keyChain.setFace(face);
-
-    // initialize the storage with 
-    Name keyName = new Name("/testname/DSK-123");
-    Name certificateName = keyName.getSubName(0, keyName.size() - 1).append("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
-    identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
-    privateKeyStorage.setKeyPairForKeyName(keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
-
     face.setCommandSigningInfo(keyChain, certificateName);
 
     return face;
+  }
+
+  /**
+   * Create a Face using a default KeyChain.
+   * @param hostname The host name of the NFD to connect to, e.g. "192.168.1.1" or
+   * "localhost".
+   * @return A Face configured with a valid signing key chain.
+   * @throws SecurityException
+   */
+  public static Face
+  buildFaceWithKeyChain(String hostname) throws SecurityException
+  {
+    Pair<KeyChain, Name> keyChainPair = buildKeyChain();
+    return buildFaceWithKeyChain
+      (hostname, keyChainPair.getKey(), keyChainPair.getValue());
   }
 
   /**
