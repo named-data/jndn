@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.11 (2016-04-06)
+Interim changes since jNDN v0.11 (2016-04-12)
 ---------------------------------------------
 
 Breaking changes
@@ -13,6 +13,7 @@ Changes
 * In IdentityManager, added getAllIdentities and getAllCertificateNamesOfKey.
 * In KeyChain, removed getAnyCertificate and getAnyIdentityCertificate.
 * Examples: Added TestSignVerifyDataHmac.
+* Integration tests: Added TestFaceRegisterMethods.
 
 Deprecated
 * In KeyChain, deprecated getIdentityCertificate. Use getCertificate.
