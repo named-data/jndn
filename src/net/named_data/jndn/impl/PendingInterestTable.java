@@ -134,7 +134,6 @@ public class PendingInterestTable {
       // removePendingInterest was called with the pendingInterestId returned by
       //   expressInterest before we got here, so don't add a PIT entry.
       removeRequests_.remove(removeRequestIndex);
-      System.out.println("Debug returning null");
       return null;
     }
 
