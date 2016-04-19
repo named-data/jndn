@@ -145,7 +145,7 @@ public class PendingInterestTable {
   {
     // Go backwards through the list so we can remove entries.
     for (int i = table_.size() - 1; i >= 0; --i) {
-      Entry pendingInterest = (Entry)table_.get(i);
+      Entry pendingInterest = table_.get(i);
 
       if (pendingInterest.getInterest().matchesName(name)) {
         entries.add(table_.get(i));
@@ -172,11 +172,11 @@ public class PendingInterestTable {
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though pendingInterestId should be unique.
     for (int i = table_.size() - 1; i >= 0; --i) {
-      if (((Entry)table_.get(i)).getPendingInterestId() == pendingInterestId) {
+      if ((table_.get(i)).getPendingInterestId() == pendingInterestId) {
         ++count;
         // For efficiency, mark this as removed so that
         // processInterestTimeout doesn't look for it.
-        ((Entry)table_.get(i)).setIsRemoved();
+        (table_.get(i)).setIsRemoved();
         table_.remove(i);
       }
     }
@@ -211,8 +211,7 @@ public class PendingInterestTable {
       return false;
   }
 
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final List table_ = new ArrayList();  // Entry
+  private final List<Entry> table_ = new ArrayList<Entry>();
   private static final Logger logger_ = Logger.getLogger
     (PendingInterestTable.class.getName());
 }

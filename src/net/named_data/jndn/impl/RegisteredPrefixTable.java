@@ -70,7 +70,7 @@ public class RegisteredPrefixTable {
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though registeredPrefixId should be unique.
     for (int i = table_.size() - 1; i >= 0; --i) {
-      Entry entry = (Entry)table_.get(i);
+      Entry entry = table_.get(i);
 
       if (entry.getRegisteredPrefixId() == registeredPrefixId) {
         ++count;
@@ -139,8 +139,7 @@ public class RegisteredPrefixTable {
     private final long relatedInterestFilterId_;
   }
 
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final List table_ = new ArrayList();  // Entry
+  private final List<Entry> table_ = new ArrayList<Entry>();
   private final InterestFilterTable interestFilterTable_;
   private static final Logger logger_ = Logger.getLogger
     (RegisteredPrefixTable.class.getName());

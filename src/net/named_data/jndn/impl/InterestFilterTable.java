@@ -117,7 +117,7 @@ public class InterestFilterTable {
   getMatchedFilters(Interest interest, ArrayList matchedFilters)
   {
     for (int i = 0; i < table_.size(); ++i) {
-      Entry entry = (Entry)table_.get(i);
+      Entry entry = table_.get(i);
       if (entry.getFilter().doesMatch(interest.getName()))
         matchedFilters.add(entry);
     }
@@ -137,7 +137,7 @@ public class InterestFilterTable {
     // Go backwards through the list so we can remove entries.
     // Remove all entries even though interestFilterId should be unique.
     for (int i = table_.size() - 1; i >= 0; --i) {
-      if (((Entry)table_.get(i)).getInterestFilterId() == interestFilterId) {
+      if ((table_.get(i)).getInterestFilterId() == interestFilterId) {
         ++count;
         table_.remove(i);
       }
@@ -149,8 +149,7 @@ public class InterestFilterTable {
          interestFilterId);
   }
 
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final List table_ = new ArrayList();  // Entry
+  private final List<Entry> table_ = new ArrayList<Entry>();
   private static final Logger logger_ = Logger.getLogger
     (InterestFilterTable.class.getName());
   // This is to force an import of net.named_data.jndn.util.

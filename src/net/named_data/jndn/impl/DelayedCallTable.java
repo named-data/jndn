@@ -42,7 +42,7 @@ public class DelayedCallTable {
     // Search from the back since we expect it to go there.
     int i = table_.size() - 1;
     while (i >= 0) {
-      if (((Entry)table_.get(i)).getCallTime() <= entry.getCallTime())
+      if ((table_.get(i)).getCallTime() <= entry.getCallTime())
         break;
       --i;
     }
@@ -69,7 +69,7 @@ public class DelayedCallTable {
       synchronized(this) {
         if (table_.isEmpty())
           break;
-        entry = (Entry)table_.get(0);
+        entry = table_.get(0);
         if (entry.getCallTime() > now)
           // It is not time to call the entry at the front of the list, so finish.
           break;
@@ -117,8 +117,7 @@ public class DelayedCallTable {
     private final double callTime_;
   }
 
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final List table_ = new ArrayList();  // Entry
+  private final List<Entry> table_ = new ArrayList<Entry>();
   // This is to force an import of net.named_data.jndn.util.
   private static Common dummyCommon_ = new Common();
 }
