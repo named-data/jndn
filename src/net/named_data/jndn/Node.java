@@ -519,6 +519,10 @@ public class Node implements ElementListener {
   {
     final PendingInterestTable.Entry pendingInterest =
       pendingInterestTable_.add(pendingInterestId, interestCopy, onData, onTimeout);
+    if (pendingInterest == null)
+      // removePendingInterest was already called with the pendingInterestId.
+      return;
+
     if (onTimeout != null || interestCopy.getInterestLifetimeMilliseconds() >= 0.0) {
       // Set up the timeout.
       double delayMilliseconds = interestCopy.getInterestLifetimeMilliseconds();

@@ -111,7 +111,9 @@ public class PendingInterestTable {
   }
 
   /**
-   * Add a new entry to the pending interest table.
+   * Add a new entry to the pending interest table. However, if
+   * removePendingInterest was already called with the pendingInterestId, don't
+   * add an entry and return null.
    * @param pendingInterestId The getNextEntryId() for the pending interest ID
    * which Face got so it could return it to the caller.
    * @param interestCopy The Interest which was sent, which has already been
@@ -120,12 +122,22 @@ public class PendingInterestTable {
    * received.
    * @param onTimeout This calls onTimeout.onTimeout if the interest times out.
    * If onTimeout is null, this does not use it.
-   * @return The new PendingInterestTable.Entry.
+   * @return The new PendingInterestTable.Entry, or null if
+   * removePendingInterest was already called with the pendingInterestId.
    */
   public synchronized final Entry
   add(long pendingInterestId, Interest interestCopy, OnData onData,
        OnTimeout onTimeout)
   {
+    int removeRequestIndex = removeRequests_.indexOf(pendingInterestId);
+    if (removeRequestIndex >= 0) {
+      // removePendingInterest was called with the pendingInterestId returned by
+      //   expressInterest before we got here, so don't add a PIT entry.
+      removeRequests_.remove(removeRequestIndex);
+      System.out.println("Debug returning null");
+      return null;
+    }
+
     Entry entry = new Entry(pendingInterestId, interestCopy, onData, onTimeout);
     table_.add(entry);
     return entry;
@@ -185,6 +197,15 @@ public class PendingInterestTable {
       logger_.log
         (Level.WARNING, "removePendingInterest: Didn't find pendingInterestId {0}",
          pendingInterestId);
+
+    if (count == 0) {
+      // The pendingInterestId was not found. Perhaps this has been called before
+      //   the callback in expressInterest can add to the PIT. Add this
+      //   removal request which will be checked before adding to the PIT.
+      if (removeRequests_.indexOf(pendingInterestId) < 0)
+        // Not already requested, so add the request.
+        removeRequests_.add(pendingInterestId);
+    }
   }
 
   /**
@@ -212,6 +233,7 @@ public class PendingInterestTable {
   }
 
   private final List<Entry> table_ = new ArrayList<Entry>();
+  private final List<Long> removeRequests_ = new ArrayList<Long>();
   private static final Logger logger_ = Logger.getLogger
     (PendingInterestTable.class.getName());
 }
