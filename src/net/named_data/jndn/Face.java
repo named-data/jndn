@@ -1208,6 +1208,6 @@ public class Face {
   }
 
   protected final Node node_;
-  private KeyChain commandKeyChain_ = null;
-  private Name commandCertificateName_ = new Name();
+  protected KeyChain commandKeyChain_ = null;
+  protected Name commandCertificateName_ = new Name();
 }
