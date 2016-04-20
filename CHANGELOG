@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.11 (2016-04-12)
+Interim changes since jNDN v0.11 (2016-04-20)
 ---------------------------------------------
 
 Breaking changes
@@ -20,6 +20,7 @@ Deprecated
 
 Bug fixes
 * http://redmine.named-data.net/issues/3589 Update examples face-status-proto.proto.
+* http://redmine.named-data.net/issues/1517 Use the onInterest callback only on registerPrefix success.
 * Fix bug in encrypt/Schedule to solve problems when the black repetitive interval list is empty.
 * In Producer, the produced data name should not use a rounded timestamp.
 

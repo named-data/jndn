@@ -550,9 +550,10 @@ public class Node implements ElementListener {
   private enum ConnectStatus { UNCONNECTED, CONNECT_REQUESTED, CONNECT_COMPLETE }
 
   private static class RegisterResponse implements OnData, OnTimeout {
-    public RegisterResponse(Info info)
+    public RegisterResponse(Info info, Node parent)
     {
       info_ = info;
+      parent_ = parent;
     }
 
     /**
@@ -589,6 +590,29 @@ public class Node implements ElementListener {
           logger_.log(Level.SEVERE, "Error in onRegisterFailed", ex);
         }
         return;
+      }
+
+      // Success, so we can add to the registered prefix table.
+      if (info_.registeredPrefixId_ != 0) {
+        long interestFilterId = 0;
+        if (info_.onInterest_ != null) {
+          // registerPrefix was called with the "combined" form that includes the
+          // callback, so add an InterestFilterEntry.
+          interestFilterId = parent_.getNextEntryId();
+          parent_.setInterestFilter
+            (interestFilterId, new InterestFilter
+             (info_.prefix_), info_.onInterest_, info_.face_);
+        }
+
+        if (!parent_.registeredPrefixTable_.add
+            (info_.registeredPrefixId_, info_.prefix_, interestFilterId)) {
+          // removeRegisteredPrefix was already called with the registeredPrefixId.
+          if (interestFilterId > 0)
+            // Remove the related interest filter we just added.
+            parent_.unsetInterestFilter(interestFilterId);
+
+          return;
+        }
       }
 
       logger_.log(Level.INFO,
@@ -628,24 +652,32 @@ public class Node implements ElementListener {
        * @param onRegisterSuccess
        * @param registeredPrefixId The registered prefix ID also returned by
        * registerPrefix.
+       * @param onInterest The callback to add if register succeeds.
+       * @param face
        */
       public Info
         (Name prefix,OnRegisterFailed onRegisterFailed,
-         OnRegisterSuccess onRegisterSuccess, long registeredPrefixId)
+         OnRegisterSuccess onRegisterSuccess, long registeredPrefixId,
+         OnInterestCallback onInterest, Face face)
       {
         prefix_ = prefix;
         onRegisterFailed_ = onRegisterFailed;
         onRegisterSuccess_ = onRegisterSuccess;
         registeredPrefixId_ = registeredPrefixId;
+        onInterest_ = onInterest;
+        face_ = face;
       }
 
       public final Name prefix_;
       public final OnRegisterFailed onRegisterFailed_;
       public final OnRegisterSuccess onRegisterSuccess_;
       public final long registeredPrefixId_;
+      public final OnInterestCallback onInterest_;
+      public final Face face_;
     }
 
     private final Info info_;
+    private final Node parent_;
   }
 
   /**
@@ -719,31 +751,12 @@ public class Node implements ElementListener {
       (commandInterest, commandKeyChain, commandCertificateName,
        TlvWireFormat.get());
 
-    if (registeredPrefixId != 0) {
-      long interestFilterId = 0;
-      if (onInterest != null) {
-        // registerPrefix was called with the "combined" form that includes the
-        // callback, so add an InterestFilterEntry.
-        interestFilterId = getNextEntryId();
-        setInterestFilter
-          (interestFilterId, new InterestFilter(prefix), onInterest, face);
-      }
-
-      if (!registeredPrefixTable_.add
-          (registeredPrefixId, prefix, interestFilterId)) {
-        // removeRegisteredPrefix was already called with the registeredPrefixId.
-        if (interestFilterId > 0)
-          // Remove the related interest filter we just added.
-          unsetInterestFilter(interestFilterId);
-
-        return;
-      }
-    }
-
     // Send the registration interest.
     RegisterResponse response = new RegisterResponse
       (new RegisterResponse.Info
-       (prefix, onRegisterFailed, onRegisterSuccess, registeredPrefixId));
+        (prefix, onRegisterFailed, onRegisterSuccess, registeredPrefixId,
+         onInterest, face),
+       this);
     try {
       expressInterest
         (getNextEntryId(), commandInterest, response, response, wireFormat, face);
