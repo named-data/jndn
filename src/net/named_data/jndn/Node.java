@@ -729,7 +729,10 @@ public class Node implements ElementListener {
           (interestFilterId, new InterestFilter(prefix), onInterest, face);
       }
 
-      registeredPrefixTable_.add(registeredPrefixId, prefix, interestFilterId);
+      if (!registeredPrefixTable_.add
+          (registeredPrefixId, prefix, interestFilterId))
+        // removeRegisteredPrefix was already called with the registeredPrefixId.
+        return;
     }
 
     // Send the registration interest.

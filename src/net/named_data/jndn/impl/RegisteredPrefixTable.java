@@ -41,17 +41,30 @@ public class RegisteredPrefixTable {
   }
 
   /**
-   * Add a new entry to the table.
+   * Add a new entry to the table. However, if removeRegisteredPrefix was already
+   * called with the registeredPrefixId, don't add an entry and return false.
    * @param registeredPrefixId The ID from Node.getNextEntryId().
    * @param prefix The name prefix.
    * @param relatedInterestFilterId (optional) The related interestFilterId
    * for the filter set in the same registerPrefix operation. If omitted, set
    * to 0.
+   * return True if added an entry, false if removeRegisteredPrefix was already
+   * called with the registeredPrefixId.
    */
-  public synchronized final void
+  public synchronized final boolean
   add(long registeredPrefixId, Name prefix, long relatedInterestFilterId)
   {
+    int removeRequestIndex = removeRequests_.indexOf(registeredPrefixId);
+    if (removeRequestIndex >= 0) {
+      // removeRegisteredPrefix was called with the registeredPrefixId returned 
+      //   by registerPrefix before we got here, so don't add a registered
+      //   prefix table entry.
+      removeRequests_.remove(removeRequestIndex);
+      return false;
+    }
+
     table_.add(new Entry(registeredPrefixId, prefix, relatedInterestFilterId));
+    return true;
   }
 
   /**
@@ -88,6 +101,16 @@ public class RegisteredPrefixTable {
       logger_.log
         (Level.WARNING, "removeRegisteredPrefix: Didn't find registeredPrefixId {0}",
          registeredPrefixId);
+
+    if (count == 0) {
+      //The registeredPrefixId was not found. Perhaps this has been called before
+      //   the callback in registerPrefix can add to the registered prefix table.
+      //   Add this removal request which will be checked before adding to the
+      //   registered prefix table.
+      if (removeRequests_.indexOf(registeredPrefixId) < 0)
+        // Not already requested, so add the request.
+        removeRequests_.add(registeredPrefixId);
+    }
   }
 
   /**
@@ -141,6 +164,7 @@ public class RegisteredPrefixTable {
 
   private final List<Entry> table_ = new ArrayList<Entry>();
   private final InterestFilterTable interestFilterTable_;
+  private final List<Long> removeRequests_ = new ArrayList<Long>();
   private static final Logger logger_ = Logger.getLogger
     (RegisteredPrefixTable.class.getName());
 }
