@@ -48,7 +48,7 @@ public class RegisteredPrefixTable {
    * @param relatedInterestFilterId (optional) The related interestFilterId
    * for the filter set in the same registerPrefix operation. If omitted, set
    * to 0.
-   * return True if added an entry, false if removeRegisteredPrefix was already
+   * @return True if added an entry, false if removeRegisteredPrefix was already
    * called with the registeredPrefixId.
    */
   public synchronized final boolean
@@ -103,7 +103,7 @@ public class RegisteredPrefixTable {
          registeredPrefixId);
 
     if (count == 0) {
-      //The registeredPrefixId was not found. Perhaps this has been called before
+      // The registeredPrefixId was not found. Perhaps this has been called before
       //   the callback in registerPrefix can add to the registered prefix table.
       //   Add this removal request which will be checked before adding to the
       //   registered prefix table.
