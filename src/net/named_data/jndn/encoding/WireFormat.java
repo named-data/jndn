@@ -25,7 +25,6 @@ import net.named_data.jndn.ControlResponse;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.Interest;
-import net.named_data.jndn.LocalControlHeader;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encrypt.EncryptedContent;
@@ -346,41 +345,6 @@ public class WireFormat {
   {
     throw new UnsupportedOperationException
       ("encodeSignatureValue is not implemented");
-  }
-
-  /**
-   * Encode the LocalControlHeader and return the encoding. Your
-   * derived class should override.
-   * @param localControlHeader The LocalControlHeader object to encode.
-   * @return A Blob containing the encoding.
-   * @throws UnsupportedOperationException for unimplemented if the derived
-   * class does not override.
-   */
-  public Blob
-  encodeLocalControlHeader(LocalControlHeader localControlHeader)
-  {
-    throw new UnsupportedOperationException
-      ("encodeLocalControlHeader is not implemented");
-  }
-
-  /**
-   * Decode input as a LocalControlHeader and set the fields of the
-   * localControlHeader object. Your derived class should override.
-   * @param localControlHeader The LocalControlHeader object whose fields are
-   * updated.
-   * @param input The input buffer to decode.  This reads from position() to
-   * limit(), but does not change the position.
-   * @throws EncodingException For invalid encoding
-   * @throws UnsupportedOperationException for unimplemented if the derived
-   * class does not override.
-   */
-  public void
-  decodeLocalControlHeader
-    (LocalControlHeader localControlHeader, ByteBuffer input)
-    throws EncodingException
-  {
-    throw new UnsupportedOperationException
-      ("decodeLocalControlHeader is not implemented");
   }
 
   /**
