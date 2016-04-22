@@ -45,6 +45,9 @@ import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.encrypt.EncryptedContent;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
+import net.named_data.jndn.lp.IncomingFaceId;
+import net.named_data.jndn.lp.LpPacket;
+import net.named_data.jndn.lp.NetworkNack;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -469,6 +472,78 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
 
   /**
+   * Decode input as an NDN-TLV LpPacket and set the fields of the lpPacket object.
+   * @param lpPacket The LpPacket object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void
+  decodeLpPacket(LpPacket lpPacket, ByteBuffer input) throws EncodingException
+  {
+    lpPacket.clear();
+
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = decoder.readNestedTlvsStart(Tlv.LpPacket_LpPacket);
+
+    while (decoder.getOffset() < endOffset) {
+      // Imitate TlvDecode.readTypeAndLength.
+      int fieldType = decoder.readVarNumber();
+      int fieldLength = decoder.readVarNumber();
+      int fieldEndOffset = decoder.getOffset() + fieldLength;
+      if (fieldEndOffset > input.limit())
+        throw new EncodingException("TLV length exceeds the buffer length");
+
+      if (fieldType == Tlv.LpPacket_Fragment) {
+        // Set the fragment to the bytes of the TLV value.
+        lpPacket.setFragmentWireEncoding
+          (new Blob(decoder.getSlice(decoder.getOffset(), fieldEndOffset), true));
+        decoder.seek(fieldEndOffset);
+
+        // The fragment is supposed to be the last field.
+        break;
+      }
+      else if (fieldType == Tlv.LpPacket_Nack) {
+        int code = (int)decoder.readOptionalNonNegativeIntegerTlv
+          (Tlv.LpPacket_NackReason, fieldEndOffset);
+        NetworkNack.Reason reason;
+        if (code == NetworkNack.Reason.CONGESTION.getNumericType())
+          reason = NetworkNack.Reason.CONGESTION;
+        else if (code == NetworkNack.Reason.DUPLICATE.getNumericType())
+          reason = NetworkNack.Reason.DUPLICATE;
+        else if (code == NetworkNack.Reason.NO_ROUTE.getNumericType())
+          reason = NetworkNack.Reason.NO_ROUTE;
+        else
+          // Unrecognized reason.
+          reason = NetworkNack.Reason.NONE;
+
+        lpPacket.addHeaderField(new NetworkNack(reason));
+      }
+      else if (fieldType == Tlv.LpPacket_IncomingFaceId) {
+        long faceId = decoder.readNonNegativeInteger(fieldLength);
+        lpPacket.addHeaderField(new IncomingFaceId(faceId));
+      }
+      else {
+        // Unrecognized field type. The conditions for ignoring are here:
+        // http://redmine.named-data.net/projects/nfd/wiki/NDNLPv2
+        boolean canIgnore =
+          (fieldType >= Tlv.LpPacket_IGNORE_MIN &&
+           fieldType <= Tlv.LpPacket_IGNORE_MAX &&
+           (fieldType & 0x01) == 1);
+        if  (!canIgnore)
+          throw new EncodingException("Did not get the expected TLV type");
+
+        // Ignore.
+        decoder.seek(fieldEndOffset);
+      }
+
+      decoder.finishNestedTlvs(fieldEndOffset);
+    }
+
+    decoder.finishNestedTlvs(endOffset);
+  }
+
+  /**
    * Encode delegationSet as a sequence of NDN-TLV Delegation, and return the
    * encoding. Note that the sequence of Delegation does not have an outer TLV
    * type and length because it is intended to use the type and length of a Data
@@ -558,7 +633,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
   /**
    * Decode input as a EncryptedContent in NDN-TLV and set the fields of the
-   * localControlHeader object.
+   * encryptedContent object.
    * @param encryptedContent The EncryptedContent object whose fields are
    * updated.
    * @param input The input buffer to decode.  This reads from position() to

@@ -86,6 +86,20 @@ public class Tlv {
   public static final int ControlParameters_Strategy =            107;
   public static final int ControlParameters_ExpirationPeriod =    109;
 
+  public static final int LpPacket_LpPacket = 100;
+  public static final int LpPacket_Fragment = 80;
+  public static final int LpPacket_Sequence = 81;
+  public static final int LpPacket_FragIndex = 82;
+  public static final int LpPacket_FragCount = 83;
+  public static final int LpPacket_Nack = 800;
+  public static final int LpPacket_NackReason = 801;
+  public static final int LpPacket_NextHopFaceId = 816;
+  public static final int LpPacket_IncomingFaceId = 817;
+  public static final int LpPacket_CachePolicy = 820;
+  public static final int LpPacket_CachePolicyType = 821;
+  public static final int LpPacket_IGNORE_MIN = 800;
+  public static final int LpPacket_IGNORE_MAX = 959;
+
   public static final int Link_Preference = 30;
   public static final int Link_Delegation = 31;
 
