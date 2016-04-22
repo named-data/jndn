@@ -23,11 +23,12 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.SignatureHolder;
+import net.named_data.jndn.lp.IncomingFaceId;
+import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCounter;
 import net.named_data.jndn.util.ChangeCountable;
 import net.named_data.jndn.util.SignedBlob;
-
 
 public class Data implements ChangeCountable, SignatureHolder {
   /**
@@ -193,12 +194,16 @@ public class Data implements ChangeCountable, SignatureHolder {
   getContent() { return content_; }
 
   /**
-   * Get the incoming face ID of the local control header.
+   * Get the incoming face ID according to the incoming packet header.
    * @return The incoming face ID. If not specified, return -1.
-   * @deprecated This will be replaced by the equivalent NDNLPv2 functionality.
    */
   public final long
-  getIncomingFaceId() { return localControlHeader_.getIncomingFaceId(); }
+  getIncomingFaceId()
+  {
+    IncomingFaceId field = 
+      lpPacket_ == null ? null : IncomingFaceId.getFirst(lpPacket_);
+    return field == null ? -1 : field.getFaceId();
+  }
 
   /**
    * Return a pointer to the defaultWireEncoding, which was encoded with
@@ -285,19 +290,16 @@ public class Data implements ChangeCountable, SignatureHolder {
   }
 
   /**
-   * An internal library method to set localControlHeader to a copy of the given
-   * LocalControlHeader for an incoming packet. The application should not call
-   * this.
-   * @param localControlHeader The LocalControlHeader which is copied.
+   * An internal library method to set the LpPacket for an incoming packet. The
+   * application should not call this.
+   * @param lpPacket The LpPacket. This does not make a copy.
    * @return This Data so that you can chain calls to update values.
    * @note This is an experimental feature. This API may change in the future.
    */
   final Data
-  setLocalControlHeader(LocalControlHeader localControlHeader)
+  setLpPacket(LpPacket lpPacket)
   {
-    localControlHeader_ =
-      (localControlHeader == null ?
-       new LocalControlHeader() : new LocalControlHeader(localControlHeader));
+    lpPacket_ = lpPacket;
     // Don't update changeCount_ since this doesn't affect the wire encoding.
     return this;
   }
@@ -338,7 +340,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   private final ChangeCounter metaInfo_ =
     new ChangeCounter(new MetaInfo());
   private Blob content_ = new Blob();
-  private LocalControlHeader localControlHeader_ = new LocalControlHeader();
+  private LpPacket lpPacket_ = null;
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
   private WireFormat defaultWireEncodingFormat_;
   private long getDefaultWireEncodingChangeCount_ = 0;
