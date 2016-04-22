@@ -36,6 +36,7 @@ import net.named_data.jndn.impl.DelayedCallTable;
 import net.named_data.jndn.impl.InterestFilterTable;
 import net.named_data.jndn.impl.PendingInterestTable;
 import net.named_data.jndn.impl.RegisteredPrefixTable;
+import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.transport.Transport;
@@ -360,6 +361,14 @@ public class Node implements ElementListener {
 
   public final void onReceivedElement(ByteBuffer element) throws EncodingException
   {
+    LpPacket lpPacket = null;
+    if (element.get(0) == Tlv.LpPacket_LpPacket) {
+      // Decode the LpPacket and replace element with the fragment.
+      lpPacket = new LpPacket();
+      TlvWireFormat.get().decodeLpPacket(lpPacket, element);
+      element = lpPacket.getFragmentWireEncoding().buf();
+    }
+
     // First, decode as Interest or Data.
     Interest interest = null;
     Data data = null;
@@ -368,12 +377,22 @@ public class Node implements ElementListener {
       if (decoder.peekType(Tlv.Interest, element.remaining())) {
         interest = new Interest();
         interest.wireDecode(element, TlvWireFormat.get());
+
+        if (lpPacket != null)
+          interest.setLpPacket(lpPacket);
       }
       else if (decoder.peekType(Tlv.Data, element.remaining())) {
         data = new Data();
         data.wireDecode(element, TlvWireFormat.get());
+
+        if (lpPacket != null)
+          data.setLpPacket(lpPacket);
       }
     }
+
+    if (lpPacket != null)
+      // We have decoded the fragment, so remove the wire encoding to save memory.
+      lpPacket.setFragmentWireEncoding(new Blob());
 
     // Now process as Interest or Data.
     if (interest != null) {
