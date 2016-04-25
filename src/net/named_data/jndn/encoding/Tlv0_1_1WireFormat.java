@@ -509,7 +509,8 @@ public class Tlv0_1_1WireFormat extends WireFormat {
           (Tlv.LpPacket_NackReason, fieldEndOffset);
         NetworkNack.Reason reason;
         // The enum numeric values are the same as this wire format, so use as is.
-        if (code == NetworkNack.Reason.NONE.getNumericType())
+        if (code < 0 || code == NetworkNack.Reason.NONE.getNumericType())
+          // This includes an omitted NackReason.
           networkNack.setReason(NetworkNack.Reason.NONE);
         else if (code == NetworkNack.Reason.CONGESTION.getNumericType())
           networkNack.setReason(NetworkNack.Reason.CONGESTION);
