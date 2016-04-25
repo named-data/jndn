@@ -47,7 +47,7 @@ import net.named_data.jndn.encrypt.EncryptedContent;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.lp.IncomingFaceId;
 import net.named_data.jndn.lp.LpPacket;
-import net.named_data.jndn.lp.NetworkNack;
+import net.named_data.jndn.NetworkNack;
 import net.named_data.jndn.util.Blob;
 
 /**

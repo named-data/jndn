@@ -18,7 +18,9 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
-package net.named_data.jndn.lp;
+package net.named_data.jndn;
+
+import net.named_data.jndn.lp.LpHeaderField;
 
 /**
  * NetworkNack extends LpHeaderField to represent the network Nack header field
