@@ -43,12 +43,13 @@ public class IncomingFaceId {
   }
 
   /**
-   * Get the first header field in lpPacket which is an IncomingFaceId.
+   * Get the first header field in lpPacket which is an IncomingFaceId. This is
+   * an internal method which the application normally would not use.
    * @param lpPacket The LpPacket with the header fields to search.
    * @return The first IncomingFaceId header field, or null if not found.
    */
   static public IncomingFaceId
-  getFirst(LpPacket lpPacket)
+  getFirstHeader(LpPacket lpPacket)
   {
     for (int i = 0; i < lpPacket.countHeaderFields(); ++i) {
       Object field = lpPacket.getHeaderField(i);

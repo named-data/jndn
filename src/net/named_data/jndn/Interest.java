@@ -387,7 +387,7 @@ public class Interest implements ChangeCountable {
   getIncomingFaceId()
   {
     IncomingFaceId field =
-      lpPacket_ == null ? null : IncomingFaceId.getFirst(lpPacket_);
+      lpPacket_ == null ? null : IncomingFaceId.getFirstHeader(lpPacket_);
     return field == null ? -1 : field.getFaceId();
   }
 
