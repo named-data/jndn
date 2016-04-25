@@ -504,20 +504,26 @@ public class Tlv0_1_1WireFormat extends WireFormat {
         break;
       }
       else if (fieldType == Tlv.LpPacket_Nack) {
+        NetworkNack networkNack = new NetworkNack();
         int code = (int)decoder.readOptionalNonNegativeIntegerTlv
           (Tlv.LpPacket_NackReason, fieldEndOffset);
         NetworkNack.Reason reason;
-        if (code == NetworkNack.Reason.CONGESTION.getNumericType())
-          reason = NetworkNack.Reason.CONGESTION;
+        // The enum numeric values are the same as this wire format, so use as is.
+        if (code == NetworkNack.Reason.NONE.getNumericType())
+          networkNack.setReason(NetworkNack.Reason.NONE);
+        else if (code == NetworkNack.Reason.CONGESTION.getNumericType())
+          networkNack.setReason(NetworkNack.Reason.CONGESTION);
         else if (code == NetworkNack.Reason.DUPLICATE.getNumericType())
-          reason = NetworkNack.Reason.DUPLICATE;
+          networkNack.setReason(NetworkNack.Reason.DUPLICATE);
         else if (code == NetworkNack.Reason.NO_ROUTE.getNumericType())
-          reason = NetworkNack.Reason.NO_ROUTE;
-        else
+          networkNack.setReason(NetworkNack.Reason.NO_ROUTE);
+        else {
           // Unrecognized reason.
-          reason = NetworkNack.Reason.NONE;
+          networkNack.setReason(NetworkNack.Reason.OTHER_CODE);
+          networkNack.setOtherReasonCode(code);
+        }
 
-        lpPacket.addHeaderField(new NetworkNack(reason));
+        lpPacket.addHeaderField(networkNack);
       }
       else if (fieldType == Tlv.LpPacket_IncomingFaceId) {
         long faceId = decoder.readNonNegativeInteger(fieldLength);
