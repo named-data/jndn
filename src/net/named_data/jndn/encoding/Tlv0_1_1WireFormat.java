@@ -526,8 +526,9 @@ public class Tlv0_1_1WireFormat extends WireFormat {
         lpPacket.addHeaderField(networkNack);
       }
       else if (fieldType == Tlv.LpPacket_IncomingFaceId) {
-        long faceId = decoder.readNonNegativeInteger(fieldLength);
-        lpPacket.addHeaderField(new IncomingFaceId(faceId));
+        IncomingFaceId incomingFaceId = new IncomingFaceId();
+        incomingFaceId.setFaceId(decoder.readNonNegativeInteger(fieldLength));
+        lpPacket.addHeaderField(incomingFaceId);
       }
       else {
         // Unrecognized field type. The conditions for ignoring are here:

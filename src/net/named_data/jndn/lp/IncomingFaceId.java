@@ -27,20 +27,21 @@ package net.named_data.jndn.lp;
  */
 public class IncomingFaceId extends LpHeaderField {
   /**
-   * Create an IncomingFaceId with the given values.
-   * @param faceId The incoming face ID value.
-   */
-  public IncomingFaceId(long faceId)
-  {
-    faceId_ = faceId;
-  }
-
-  /**
    * Get the incoming face ID value.
    * @return The face ID value.
    */
   public long
   getFaceId() { return faceId_; }
+
+  /**
+   * Set the face ID value.
+   * @param faceId The incoming face ID value.
+   */
+  public void
+  setFaceId(long faceId)
+  {
+    faceId_ = faceId;
+  }
 
   /**
    * Get the first header field in lpPacket which is an IncomingFaceId.
@@ -59,5 +60,5 @@ public class IncomingFaceId extends LpHeaderField {
     return null;
   }
 
-  private final long faceId_;
+  private long faceId_ = -1;
 }
