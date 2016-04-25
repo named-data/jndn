@@ -20,6 +20,8 @@
 
 package net.named_data.jndn;
 
+import net.named_data.jndn.lp.LpPacket;
+
 /**
  * NetworkNack represents a network Nack packet and includes a Nack reason.
  */
@@ -82,6 +84,24 @@ public class NetworkNack {
    */
   public void
   setOtherReasonCode(int otherReasonCode) { otherReasonCode_ = otherReasonCode; }
+
+  /**
+   * Get the first header field in lpPacket which is a NetworkNack. This is
+   * an internal method which the application normally would not use.
+   * @param lpPacket The LpPacket with the header fields to search.
+   * @return The first NetworkNack header field, or null if not found.
+   */
+  static public NetworkNack
+  getFirstHeader(LpPacket lpPacket)
+  {
+    for (int i = 0; i < lpPacket.countHeaderFields(); ++i) {
+      Object field = lpPacket.getHeaderField(i);
+      if (field instanceof NetworkNack)
+        return (NetworkNack)field;
+    }
+
+    return null;
+  }
 
   private Reason reason_ = Reason.NONE;
   private int otherReasonCode_ = -1;
