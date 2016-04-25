@@ -50,7 +50,7 @@ public class LpPacket {
    * to or equal to countHeaderFields().
    * @return The header field at the index.
    */
-  public LpHeaderField
+  public Object
   getHeaderField(int index) { return headerFields_.get(index); }
 
   /**
@@ -59,7 +59,7 @@ public class LpPacket {
   public void
   clear()
   {
-     headerFields_ = new ArrayList<LpHeaderField>();
+     headerFields_ = new ArrayList();
      fragmentWireEncoding_ = new Blob();
   }
 
@@ -80,8 +80,8 @@ public class LpPacket {
    * @param headerField The header field to add.
    */
   public void
-  addHeaderField(LpHeaderField headerField) { headerFields_.add(headerField); }
+  addHeaderField(Object headerField) { headerFields_.add(headerField); }
 
-  private ArrayList<LpHeaderField> headerFields_ = new ArrayList<LpHeaderField>();
+  private ArrayList headerFields_ = new ArrayList();
   private Blob fragmentWireEncoding_ = new Blob();
 }

@@ -20,14 +20,10 @@
 
 package net.named_data.jndn;
 
-import net.named_data.jndn.lp.LpHeaderField;
-
 /**
- * NetworkNack extends LpHeaderField to represent the network Nack header field
- * in an NDNLPv2 packet.
- * http://redmine.named-data.net/projects/nfd/wiki/NDNLPv2
+ * NetworkNack represents a network Nack packet and includes a Nack reason.
  */
-public class NetworkNack extends LpHeaderField {
+public class NetworkNack {
   /**
    * A NetworkNack.Reason specifies the reason in a NetworkNack packet. If the
    * reason code in the packet is not a recognized enum value, then we use

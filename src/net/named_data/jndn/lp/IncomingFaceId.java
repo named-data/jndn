@@ -21,11 +21,10 @@
 package net.named_data.jndn.lp;
 
 /**
- * IncomingFaceId extends LpHeaderField to represent the incoming face ID header
- * field in an NDNLPv2 packet.
+ * IncomingFaceId represents the incoming face ID header field in an NDNLPv2 packet.
  * http://redmine.named-data.net/projects/nfd/wiki/NDNLPv2
  */
-public class IncomingFaceId extends LpHeaderField {
+public class IncomingFaceId {
   /**
    * Get the incoming face ID value.
    * @return The face ID value.
@@ -52,7 +51,7 @@ public class IncomingFaceId extends LpHeaderField {
   getFirst(LpPacket lpPacket)
   {
     for (int i = 0; i < lpPacket.countHeaderFields(); ++i) {
-      LpHeaderField field = lpPacket.getHeaderField(i);
+      Object field = lpPacket.getHeaderField(i);
       if (field instanceof IncomingFaceId)
         return (IncomingFaceId)field;
     }
