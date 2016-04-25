@@ -83,8 +83,8 @@ public class AsyncTcpTransport extends Transport {
       }
 
       public void failed(Throwable ex, ByteBuffer data) {
-        writeLock_.release();
         logger_.log(Level.SEVERE, null, ex);
+        scheduleReconnect();
       }};
   }
 
@@ -187,8 +187,18 @@ public class AsyncTcpTransport extends Transport {
   {
     // TODO: Close a previous connection.
 
-    channel_ = AsynchronousSocketChannel.open
-      (AsynchronousChannelGroup.withThreadPool(threadPool_));
+	//reuse the previous channelgroup is there is any
+	if(this.channelGroup_ == null){
+		this.channelGroup_ = AsynchronousChannelGroup.withThreadPool(threadPool_);
+	}
+	  
+    channel_ = AsynchronousSocketChannel.open(channelGroup_);
+    
+    //store other info for reconnect
+    this.connectionInfoForReconnect_ = connectionInfo;
+    this.elementListener_ = elementListener;
+    this.onConnected_ = onConnected;
+    
     // connect is already async, so no need to dispatch.
     channel_.connect
       (new InetSocketAddress
@@ -197,6 +207,7 @@ public class AsyncTcpTransport extends Transport {
        null,
        new CompletionHandler<Void, Void>() {
          public void completed(Void dummy, Void attachment) {
+           writeLock_.release();
            // Need to catch and log exceptions at this async entry point.
            try {
              if (onConnected != null)
@@ -209,11 +220,24 @@ public class AsyncTcpTransport extends Transport {
 
          public void failed(Throwable ex, Void attachment) {
            logger_.log(Level.SEVERE, null, ex);
+           scheduleReconnect();
          }});
 
     elementReader_ = new ElementReader(elementListener);
   }
 
+  private void scheduleReconnect(){
+	threadPool_.schedule(new Runnable(){
+	public void run(){
+			try{
+				connect(connectionInfoForReconnect_, elementListener_, onConnected_);
+			}catch(IOException e){
+				logger_.log(Level.WARNING, null, e);
+			}
+		}
+    }, DEFAULT_RECONNECT_TRY_DELAY_MS, TimeUnit.MILLISECONDS);
+  }
+  
   private void
   asyncRead()
   {
@@ -302,4 +326,11 @@ public class AsyncTcpTransport extends Transport {
   private static final Logger logger_ = Logger.getLogger
     (AsyncTcpTransport.class.getName());
   public static final int DEFAULT_LOCK_TIMEOUT_MS = 10000;
+  
+  //for reconnect
+  private static final int DEFAULT_RECONNECT_TRY_DELAY_MS = 5000;
+  private AsynchronousChannelGroup channelGroup_;
+  private Transport.ConnectionInfo connectionInfoForReconnect_;
+  private ElementListener elementListener_;
+  private Runnable onConnected_;
 }
