@@ -46,8 +46,8 @@ import net.named_data.jndn.security.SecurityException;
 public class MemoryContentCache implements OnInterestCallback {
   /**
    * Create a new MemoryContentCache to use the given Face.
-   * @param face The Face to use to call registerPrefix and which will call
-   * the OnInterest callback.
+   * @param face The Face to use to call registerPrefix and setInterestFilter,
+   * and which will call this object's OnInterest callback.
    * @param cleanupIntervalMilliseconds The interval in milliseconds
    * between each check to clean up stale content in the cache. If this is a
    * large number, then effectively the stale content will not be removed from
@@ -63,8 +63,8 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Create a new MemoryContentCache to use the given Face, with a default
    * cleanupIntervalMilliseconds of 1000.0 milliseconds.
-   * @param face The Face to use to call registerPrefix and which will call
-   * the OnInterest callback.
+   * @param face The Face to use to call registerPrefix and setInterestFilter,
+   * and which will call this object's OnInterest callback.
    */
   public MemoryContentCache(Face face)
   {
@@ -91,6 +91,8 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Call registerPrefix on the Face given to the constructor so that this
    * MemoryContentCache will answer interests whose name has the prefix.
+   * Alternatively, if the Face's registerPrefix has already been called, then
+   * you can call this object's setInterestFilter.
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
@@ -140,6 +142,8 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Call registerPrefix on the Face given to the constructor so that this
    * MemoryContentCache will answer interests whose name has the prefix.
+   * Alternatively, if the Face's registerPrefix has already been called, then
+   * you can call this object's setInterestFilter.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
@@ -183,6 +187,8 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Call registerPrefix on the Face given to the constructor so that this
    * MemoryContentCache will answer interests whose name has the prefix.
+   * Alternatively, if the Face's registerPrefix has already been called, then
+   * you can call this object's setInterestFilter.
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
    * @param prefix The Name for the prefix to register. This copies the Name.
@@ -200,7 +206,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * exceptions.
    * @param onDataNotFound If a data packet for an interest is not found in the
    * cache, this forwards the interest by calling
-   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
    * Your callback can find the Data packet for the interest and call
    * face.putData(data).  If your callback cannot find the Data packet, it can
    * optionally call storePendingInterest(interest, face) to store the pending
@@ -229,6 +235,8 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Call registerPrefix on the Face given to the constructor so that this
    * MemoryContentCache will answer interests whose name has the prefix.
+   * Alternatively, if the Face's registerPrefix has already been called, then
+   * you can call this object's setInterestFilter.
    * Do not call a callback if a data packet is not found in the cache.
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
@@ -262,6 +270,8 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Call registerPrefix on the Face given to the constructor so that this
    * MemoryContentCache will answer interests whose name has the prefix.
+   * Alternatively, if the Face's registerPrefix has already been called, then
+   * you can call this object's setInterestFilter.
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
@@ -299,6 +309,8 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Call registerPrefix on the Face given to the constructor so that this
    * MemoryContentCache will answer interests whose name has the prefix.
+   * Alternatively, if the Face's registerPrefix has already been called, then
+   * you can call this object's setInterestFilter.
    * This uses the default WireFormat.getDefaultWireFormat().
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
@@ -308,7 +320,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * exceptions.
    * @param onDataNotFound If a data packet for an interest is not found in the
    * cache, this forwards the interest by calling
-   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
    * Your callback can find the Data packet for the interest and call
    * face.putData(data).  If your callback cannot find the Data packet, it can
    * optionally call storePendingInterest(interest, face) to store the pending
@@ -334,6 +346,8 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Call registerPrefix on the Face given to the constructor so that this
    * MemoryContentCache will answer interests whose name has the prefix.
+   * Alternatively, if the Face's registerPrefix has already been called, then
+   * you can call this object's setInterestFilter.
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
    * @param prefix The Name for the prefix to register. This copies the Name.
@@ -344,7 +358,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * exceptions.
    * @param onDataNotFound If a data packet for an interest is not found in the
    * cache, this forwards the interest by calling
-   * onInterest.onInterest(prefix, interest, face, interestFilterId, filter).
+   * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
    * Your callback can find the Data packet for the interest and call
    * face.putData(data).  If your callback cannot find the Data packet, it can
    * optionally call storePendingInterest(interest, face) to store the pending
@@ -371,7 +385,9 @@ public class MemoryContentCache implements OnInterestCallback {
 
   /**
    * Call registerPrefix on the Face given to the constructor so that this
-   * MemoryContentCache will answer interests whose name has the prefix.
+   * MemoryContentCache will answer interests whose name matches the filter.
+   * Alternatively, if the Face's registerPrefix has already been called, then
+   * you can call this object's setInterestFilter.
    * Do not call a callback if a data packet is not found in the cache.
    * This uses the default WireFormat.getDefaultWireFormat().
    * Use default ForwardingFlags.
@@ -395,14 +411,105 @@ public class MemoryContentCache implements OnInterestCallback {
   }
 
   /**
-   * Call Face.removeRegisteredPrefix for all the prefixes given to the
-   * registerPrefix method on this MemoryContentCache object so that it will not
-   * receive interests any more. You can call this if you want to "shut down"
-   * this MemoryContentCache while your application is still running.
+   * Call setInterestFilter on the Face given to the constructor so that this
+   * MemoryContentCache will answer interests whose name matches the filter.
+   * @param filter The InterestFilter with a prefix and optional regex filter
+   * used to match the name of an incoming Interest. This makes a copy of filter.
+   * @param onDataNotFound If a data packet for an interest is not found in the
+   * cache, this forwards the interest by calling
+   * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
+   * Your callback can find the Data packet for the interest and call
+   * face.putData(data).  Note: If you call setInterestFilter multiple times where
+   * filter.getPrefix() is the same, it is undetermined which onDataNotFound
+   * will be called. If your callback cannot find the Data packet, it can
+   * optionally call storePendingInterest(interest, face) to store the pending
+   * interest in this object to be satisfied by a later call to add(data). If
+   * you want to automatically store all pending interests, you can simply use
+   * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
+   * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   */
+  public final void
+  setInterestFilter(InterestFilter filter, OnInterestCallback onDataNotFound)
+  {
+    if (onDataNotFound != null)
+      onDataNotFoundForPrefix_.put(filter.getPrefix().toUri(), onDataNotFound);
+    long interestFilterId = face_.setInterestFilter(filter, this);
+    interestFilterIdList_.add(interestFilterId);
+  }
+
+  /**
+   * Call setInterestFilter on the Face given to the constructor so that this
+   * MemoryContentCache will answer interests whose name has the prefix.
+   * Do not call a callback if a data packet is not found in the cache.
+   * @param filter The InterestFilter with a prefix and optional regex filter
+   * used to match the name of an incoming Interest. This makes a copy of filter.
+   */
+  public final void
+  setInterestFilter(InterestFilter filter)
+  {
+    setInterestFilter(filter, null);
+  }
+
+  /**
+   * Call setInterestFilter on the Face given to the constructor so that this
+   * MemoryContentCache will answer interests whose name has the prefix.
+   * @param prefix The Name prefix used to match the name of an incoming
+   * Interest. This copies the Name.
+   * @param onDataNotFound If a data packet for an interest is not found in the
+   * cache, this forwards the interest by calling
+   * onDataNotFound.onInterest(prefix, interest, face, interestFilterId, filter).
+   * Your callback can find the Data packet for the interest and call
+   * face.putData(data).  Note: If you call setInterestFilter multiple times where
+   * filter.getPrefix() is the same, it is undetermined which onDataNotFound
+   * will be called. If your callback cannot find the Data packet, it can
+   * optionally call storePendingInterest(interest, face) to store the pending
+   * interest in this object to be satisfied by a later call to add(data). If
+   * you want to automatically store all pending interests, you can simply use
+   * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
+   * this does not use it.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   */
+  public final void
+  setInterestFilter(Name prefix, OnInterestCallback onDataNotFound)
+  {
+    if (onDataNotFound != null)
+      onDataNotFoundForPrefix_.put(prefix.toUri(), onDataNotFound);
+    long interestFilterId = face_.setInterestFilter(prefix, this);
+    interestFilterIdList_.add(interestFilterId);
+  }
+
+  /**
+   * Call setInterestFilter on the Face given to the constructor so that this
+   * MemoryContentCache will answer interests whose name has the prefix.
+   * Do not call a callback if a data packet is not found in the cache.
+   * @param prefix The Name prefix used to match the name of an incoming
+   * Interest. This copies the Name.
+   */
+  public final void
+  setInterestFilter(Name prefix)
+  {
+    setInterestFilter(prefix, null);
+  }
+
+  /**
+   * Call Face.unsetInterestFilter and Face.removeRegisteredPrefix for all the
+   * prefixes given to the setInterestFilter and registerPrefix method on this
+   * MemoryContentCache object so that it will not receive interests any more.
+   * You can call this if you want to "shut down" this MemoryContentCache while
+   * your application is still running.
    */
   public final void
   unregisterAll()
   {
+    for (int i = 0; i < interestFilterIdList_.size(); ++i)
+      face_.unsetInterestFilter((long)(Long)interestFilterIdList_.get(i));
+    interestFilterIdList_.clear();
+
     for (int i = 0; i < registeredPrefixIdList_.size(); ++i)
       face_.removeRegisteredPrefix((long)(Long)registeredPrefixIdList_.get(i));
     registeredPrefixIdList_.clear();
@@ -748,6 +855,7 @@ public class MemoryContentCache implements OnInterestCallback {
     new HashMap(); /**< The map key is the prefix.toUri().
                     * The value is the OnInterest callback. */
   // Use ArrayList without generics so it works with older Java compilers.
+  private final ArrayList interestFilterIdList_ = new ArrayList(); // of long
   private final ArrayList registeredPrefixIdList_ = new ArrayList(); // of long
   private final ArrayList noStaleTimeCache_ = new ArrayList(); // of Content
   private final ArrayList staleTimeCache_ = new ArrayList(); // of StaleTimeContent

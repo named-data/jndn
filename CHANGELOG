@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.11 (2016-04-20)
+Interim changes since jNDN v0.11 (2016-04-26)
 ---------------------------------------------
 
 Breaking changes
@@ -8,6 +8,7 @@ Breaking changes
 Changes
 * http://redmine.named-data.net/issues/3355 In Producer.createContentKey and produce,
   added an optional onError callback.
+* http://redmine.named-data.net/issues/3590 Added MemoryContentCache.setInterestFilter.
 * Added HmacWithSha256Signature. In KeyChain, added experimental static methods
   sign/verifyDataWithHmacWithSha256.
 * In IdentityManager, added getAllIdentities and getAllCertificateNamesOfKey.
