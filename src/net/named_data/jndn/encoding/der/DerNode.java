@@ -322,7 +322,7 @@ public class DerNode {
       int newSize = 0;
 
       for (int i = 0; i < nodeList_.size(); ++i) {
-        DerNode n = (DerNode)nodeList_.get(i);
+        DerNode n = nodeList_.get(i);
         newSize += n.getSize();
       }
 
@@ -381,7 +381,7 @@ public class DerNode {
       temp.ensuredPut(header_);
 
       for (int i = 0; i < nodeList_.size(); ++i) {
-        DerNode n = (DerNode)nodeList_.get(i);
+        DerNode n = nodeList_.get(i);
         Blob encodedChild = n.encode();
         temp.ensuredPut(encodedChild.buf());
       }
@@ -414,8 +414,7 @@ public class DerNode {
     }
 
     private boolean childChanged_ = false;
-    // Use ArrayList without generics so it works with older Java compilers.
-    private final ArrayList nodeList_ = new ArrayList(); // Of DerNode.
+    private final ArrayList<DerNode> nodeList_ = new ArrayList<DerNode>();
     private int size_ = 0;
   }
 

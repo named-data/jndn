@@ -181,7 +181,7 @@ public class BoostInfoTree {
         s += prefix+ "{\n";
       String nextLevel = new String(new char[indentLevel + 2]).replace("\0", " ");
       for (int i = 0; i < subtrees_.size(); ++i) {
-        TreeEntry entry = (TreeEntry)subtrees_.get(i);
+        TreeEntry entry = subtrees_.get(i);
         for (int iSubTree = 0; iSubTree < entry.subtreeList_.size(); ++iSubTree)
           s += nextLevel + entry.treeName_ + " " +
             ((BoostInfoTree)entry.subtreeList_.get(iSubTree)).prettyPrint(indentLevel + 2);
@@ -223,7 +223,7 @@ public class BoostInfoTree {
   find(String treeName)
   {
     for (int i = 0; i < subtrees_.size(); ++i) {
-      TreeEntry entry = (TreeEntry)subtrees_.get(i);
+      TreeEntry entry = subtrees_.get(i);
       if (entry.treeName_.equals(treeName))
         return entry.subtreeList_;
     }
@@ -231,10 +231,8 @@ public class BoostInfoTree {
     return null;
   }
 
-  // subtrees_ is a list of TreeEntry.
   // We can't use a map for subtrees_ because we want the keys to be in order.
-  // Use ArrayList without generics so it works with older Java compilers.
-  private ArrayList subtrees_ = new ArrayList();
+  private ArrayList<TreeEntry> subtrees_ = new ArrayList<TreeEntry>();
   private String value_ = "";
   private BoostInfoTree parent_ = null;
   private BoostInfoTree lastChild_ = null;

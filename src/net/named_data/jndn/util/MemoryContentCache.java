@@ -507,11 +507,11 @@ public class MemoryContentCache implements OnInterestCallback {
   unregisterAll()
   {
     for (int i = 0; i < interestFilterIdList_.size(); ++i)
-      face_.unsetInterestFilter((long)(Long)interestFilterIdList_.get(i));
+      face_.unsetInterestFilter((long)interestFilterIdList_.get(i));
     interestFilterIdList_.clear();
 
     for (int i = 0; i < registeredPrefixIdList_.size(); ++i)
-      face_.removeRegisteredPrefix((long)(Long)registeredPrefixIdList_.get(i));
+      face_.removeRegisteredPrefix((long)registeredPrefixIdList_.get(i));
     registeredPrefixIdList_.clear();
 
     // Also clear each onDataNotFoundForPrefix given to registerPrefix.
@@ -544,7 +544,7 @@ public class MemoryContentCache implements OnInterestCallback {
       // Search from the back since we expect it to go there.
       int i = staleTimeCache_.size() - 1;
       while (i >= 0) {
-        if (((StaleTimeContent)staleTimeCache_.get(i)).getStaleTimeMilliseconds() <=
+        if (staleTimeCache_.get(i).getStaleTimeMilliseconds() <=
             content.getStaleTimeMilliseconds())
           break;
         --i;
@@ -562,8 +562,7 @@ public class MemoryContentCache implements OnInterestCallback {
     // Go backwards through the list so we can erase entries.
     double nowMilliseconds = Common.getNowMilliseconds();
     for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
-      PendingInterest pendingInterest =
-        (PendingInterest)pendingInterestTable_.get(i);
+      PendingInterest pendingInterest = pendingInterestTable_.get(i);
       if (pendingInterest.isTimedOut(nowMilliseconds)) {
         pendingInterestTable_.remove(i);
         continue;
@@ -629,10 +628,10 @@ public class MemoryContentCache implements OnInterestCallback {
     for (int i = 0; i < totalSize; ++i) {
       Content content;
       if (i < staleTimeCache_.size())
-        content = (Content)staleTimeCache_.get(i);
+        content = staleTimeCache_.get(i);
       else
         // We have iterated over the first array. Get from the second.
-        content = (Content)noStaleTimeCache_.get(i - staleTimeCache_.size());
+        content = noStaleTimeCache_.get(i - staleTimeCache_.size());
 
       if (interest.matchesName(content.getName())) {
         if (interest.getChildSelector() < 0) {
@@ -839,8 +838,7 @@ public class MemoryContentCache implements OnInterestCallback {
     if (now >= nextCleanupTime_) {
       // staleTimeCache_ is sorted on staleTimeMilliseconds_, so we only need to
       // erase the stale entries at the front, then quit.
-      while (staleTimeCache_.size() > 0 &&
-             ((StaleTimeContent)staleTimeCache_.get(0)).isStale(now))
+      while (staleTimeCache_.size() > 0 && staleTimeCache_.get(0).isStale(now))
         staleTimeCache_.remove(0);
 
       nextCleanupTime_ = now + cleanupIntervalMilliseconds_;
@@ -855,12 +853,14 @@ public class MemoryContentCache implements OnInterestCallback {
     new HashMap(); /**< The map key is the prefix.toUri().
                     * The value is the OnInterest callback. */
   // Use ArrayList without generics so it works with older Java compilers.
-  private final ArrayList interestFilterIdList_ = new ArrayList(); // of long
-  private final ArrayList registeredPrefixIdList_ = new ArrayList(); // of long
-  private final ArrayList noStaleTimeCache_ = new ArrayList(); // of Content
-  private final ArrayList staleTimeCache_ = new ArrayList(); // of StaleTimeContent
+  private final ArrayList<Long> interestFilterIdList_ = new ArrayList<Long>();
+  private final ArrayList<Long> registeredPrefixIdList_ = new ArrayList<Long>();
+  private final ArrayList<Content> noStaleTimeCache_ = new ArrayList<Content>();
+  private final ArrayList<StaleTimeContent> staleTimeCache_ =
+    new ArrayList<StaleTimeContent>();
   private final Name.Component emptyComponent_ = new Name.Component();
-  private final ArrayList pendingInterestTable_ = new ArrayList(); // of PendingInterest
+  private final ArrayList<PendingInterest> pendingInterestTable_ =
+    new ArrayList<PendingInterest>();
   private OnInterestCallback storePendingInterestCallback_;
   private static final Logger logger_ = Logger.getLogger(MemoryContentCache.class.getName());
 }

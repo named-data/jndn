@@ -104,7 +104,7 @@ public class BoostInfoParser {
    * String. This does not first clear the list.
    */
   private static void
-  shlex_split(String s, ArrayList result)
+  shlex_split(String s, ArrayList<String> result)
   {
     if (s.length() == 0)
       return;
@@ -205,7 +205,7 @@ public class BoostInfoParser {
 
     // Usually we are expecting key and optional value.
     // Use ArrayList without generics so it works with older Java compilers.
-    ArrayList strings = new ArrayList();
+    ArrayList<String> strings = new ArrayList<String>();
     shlex_split(line, strings);
     boolean isSectionStart = false;
     boolean isSectionEnd = false;
@@ -215,10 +215,10 @@ public class BoostInfoParser {
     }
 
     if (!isSectionStart && !isSectionEnd) {
-      String key = (String)strings.get(0);
+      String key = strings.get(0);
       String val = "";
       if (strings.size() > 1)
-        val = (String)strings.get(1);
+        val = strings.get(1);
 
       // If it is an "#include", load the new file instead of inserting keys.
       if ("#include".equals(key)) {

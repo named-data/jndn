@@ -126,7 +126,7 @@ public class DelegationSet {
     // Find the index of the first entry where it is not less than newDelegation.
     int i = 0;
     while (i < delegations_.size()) {
-      if (((Delegation)delegations_.get(i)).compare(newDelegation) >= 0)
+      if (delegations_.get(i).compare(newDelegation) >= 0)
         break;
 
       ++i;
@@ -160,7 +160,7 @@ public class DelegationSet {
     boolean wasRemoved = false;
     // Go backwards through the list so we can remove entries.
     for (int i = delegations_.size() - 1; i >= 0; --i) {
-      if (((Delegation)delegations_.get(i)).getName().equals(name)) {
+      if (delegations_.get(i).getName().equals(name)) {
         wasRemoved = true;
         delegations_.remove(i);
       }
@@ -191,7 +191,7 @@ public class DelegationSet {
   public final Delegation
   get(int i)
   {
-    return (Delegation)delegations_.get(i);
+    return delegations_.get(i);
   }
 
   /**
@@ -203,7 +203,7 @@ public class DelegationSet {
   find(Name name)
   {
     for (int i = 0; i < delegations_.size(); ++i) {
-      if (((Delegation)delegations_.get(i)).getName().equals(name))
+      if (delegations_.get(i).getName().equals(name))
         return i;
     }
 
@@ -285,6 +285,5 @@ public class DelegationSet {
     wireDecode(input.buf());
   }
 
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final ArrayList delegations_ = new ArrayList();
+  private final ArrayList<Delegation> delegations_ = new ArrayList<Delegation>();
 }

@@ -173,8 +173,8 @@ public class DigestTree {
       "DigestTree.update session {0}, nodeIndex {1}", new Object[]{sessionNo, nodeIndex});
     if (nodeIndex >= 0) {
       // Only update to a  newer status.
-      if (((Node)digestNode_.get(nodeIndex)).getSequenceNo() < sequenceNo)
-        ((Node)digestNode_.get(nodeIndex)).setSequenceNo(sequenceNo);
+      if (digestNode_.get(nodeIndex).getSequenceNo() < sequenceNo)
+        digestNode_.get(nodeIndex).setSequenceNo(sequenceNo);
       else
         return false;
     }
@@ -186,7 +186,7 @@ public class DigestTree {
       // Find the index of the first node where it is not less than temp.
       int i = 0;
       while (i < digestNode_.size()) {
-        if (!((Node)digestNode_.get(i)).lessThan(temp))
+        if (!digestNode_.get(i).lessThan(temp))
           break;
         ++i;
       }
@@ -201,8 +201,8 @@ public class DigestTree {
   find(String dataPrefix, long sessionNo)
   {
     for (int i = 0; i < digestNode_.size(); ++i) {
-      if (((Node)digestNode_.get(i)).getDataPrefix().equals(dataPrefix) &&
-          ((Node)digestNode_.get(i)).getSessionNo() == sessionNo)
+      if (digestNode_.get(i).getDataPrefix().equals(dataPrefix) &&
+          digestNode_.get(i).getSessionNo() == sessionNo)
         return i;
     }
 
@@ -213,7 +213,7 @@ public class DigestTree {
   size() { return digestNode_.size(); }
 
   public final Node
-  get(int i) { return (Node)digestNode_.get(i); }
+  get(int i) { return digestNode_.get(i); }
 
   /**
    * Get the root digest.
@@ -272,15 +272,14 @@ public class DigestTree {
     }
 
     for (int i = 0; i < digestNode_.size(); ++i)
-      updateHex(sha256, ((Node)digestNode_.get(i)).getDigest());
+      updateHex(sha256, digestNode_.get(i).getDigest());
     byte[] digestRoot = sha256.digest();
     root_ = Common.toHex(digestRoot);
     Logger.getLogger(DigestTree.class.getName()).log(Level.FINE,
       "update root to: {0}", root_);
   }
 
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final ArrayList digestNode_ = new ArrayList(); // of DigestTree.Node
+  private final ArrayList<DigestTree.Node> digestNode_ = new ArrayList<DigestTree.Node>();
   private String root_;
   // This is to force an import of net.named_data.jndn.util.
   private static Common dummyCommon_ = new Common();

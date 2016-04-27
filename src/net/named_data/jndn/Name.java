@@ -515,7 +515,7 @@ public class Name implements ChangeCountable, Comparable {
   public
   Name()
   {
-    components_ = new ArrayList();
+    components_ = new ArrayList<Component>();
   }
 
   /**
@@ -525,7 +525,7 @@ public class Name implements ChangeCountable, Comparable {
   public
   Name(Name name)
   {
-    components_ = new ArrayList(name.components_);
+    components_ = new ArrayList<Component>(name.components_);
   }
 
   /**
@@ -536,7 +536,7 @@ public class Name implements ChangeCountable, Comparable {
   Name(ArrayList components)
   {
     // Don't need to deep-copy Component elements because they are read-only.
-    components_ = new ArrayList(components);
+    components_ = new ArrayList<Component>(components);
   }
 
   /**
@@ -546,7 +546,7 @@ public class Name implements ChangeCountable, Comparable {
   public
   Name(Component[] components)
   {
-    components_ = new ArrayList();
+    components_ = new ArrayList<Component>();
     for (int i = 0; i < components.length; ++i)
       components_.add(components[i]);
   }
@@ -559,7 +559,7 @@ public class Name implements ChangeCountable, Comparable {
   public
   Name(String uri)
   {
-    components_ = new ArrayList();
+    components_ = new ArrayList<Component>();
     set(uri);
   }
 
@@ -580,9 +580,9 @@ public class Name implements ChangeCountable, Comparable {
   get(int i)
   {
     if (i >= 0)
-      return (Component)components_.get(i);
+      return components_.get(i);
     else
-      return (Component)components_.get(components_.size() - (-i));
+      return components_.get(components_.size() - (-i));
   }
 
   public final void
@@ -911,7 +911,7 @@ public class Name implements ChangeCountable, Comparable {
       int hashCode = 0;
       // Use a similar hash code algorithm as String.
       for (int i = 0; i < components_.size(); ++i)
-        hashCode = 37 * hashCode + ((Component)components_.get(i)).hashCode();
+        hashCode = 37 * hashCode + components_.get(i).hashCode();
 
       hashCode_ = hashCode;
       haveHashCode_ = true;
@@ -1117,8 +1117,8 @@ public class Name implements ChangeCountable, Comparable {
 
     int count = Math.min(nComponents, nOtherComponents);
     for (int i = 0; i < count; ++i) {
-      int comparison = ((Component)components_.get(iStartComponent + i)).compare
-        ((Component)other.components_.get(iOtherStartComponent + i));
+      int comparison = components_.get(iStartComponent + i).compare
+        (other.components_.get(iOtherStartComponent + i));
       if (comparison == 0)
         // The components at this index are equal, so check the next components.
         continue;
@@ -1367,8 +1367,7 @@ public class Name implements ChangeCountable, Comparable {
     return result;
   }
 
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final ArrayList components_;
+  private final ArrayList<Component> components_;
   private long changeCount_ = 0;
   private boolean haveHashCode_ = false;
   private int hashCode_;

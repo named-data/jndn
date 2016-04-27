@@ -79,7 +79,7 @@ public class Exclude implements ChangeCountable {
    */
   public Exclude()
   {
-    entries_ = new ArrayList();
+    entries_ = new ArrayList<Entry>();
   }
 
   /**
@@ -89,7 +89,7 @@ public class Exclude implements ChangeCountable {
   public Exclude(Exclude exclude)
   {
     // Each entry is read-only, so do a shallow copy.
-    entries_ = new ArrayList(exclude.entries_);
+    entries_ = new ArrayList<Entry>(exclude.entries_);
   }
 
   /**
@@ -105,7 +105,7 @@ public class Exclude implements ChangeCountable {
    * @return The entry at the index.
    */
   public final Exclude.Entry
-  get(int i) { return (Exclude.Entry)entries_.get(i); }
+  get(int i) { return entries_.get(i); }
 
   /**
    * Append a new entry of type Exclude.Type.ANY.
@@ -236,7 +236,6 @@ public class Exclude implements ChangeCountable {
   public final long
   getChangeCount() { return changeCount_; }
 
-  // Use ArrayList without generics so it works with older Java compilers.
-  private final ArrayList entries_;
+  private final ArrayList<Entry> entries_;
   private long changeCount_ = 0;
 }
