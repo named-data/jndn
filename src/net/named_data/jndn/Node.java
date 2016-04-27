@@ -85,6 +85,10 @@ public class Node implements ElementListener {
   {
     final Interest interestCopy = new Interest(interest);
 
+    // Set the nonce in our copy of the Interest so it is saved in the PIT.
+    interestCopy.setNonce(nonceTemplate_);
+    interestCopy.refreshNonce();
+
     if (connectStatus_ == ConnectStatus.CONNECT_COMPLETE) {
       // We are connected. Simply send the interest without synchronizing.
       expressInterestHelper
@@ -796,5 +800,6 @@ public class Node implements ElementListener {
   private long lastEntryId_;
   private final Object lastEntryIdLock_ = new Object();
   private ConnectStatus connectStatus_ = ConnectStatus.UNCONNECTED;
+  private static Blob nonceTemplate_ = new Blob(new byte[] { 0, 0, 0, 0 });
   private static final Logger logger_ = Logger.getLogger(Node.class.getName());
 }
