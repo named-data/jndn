@@ -39,6 +39,27 @@ import net.named_data.jndn.util.Common;
  * AsyncTcpTransport extends Transport for async communication over TCP by
  * dispatching reads from an AsynchronousSocketChannel to a
  * ScheduledExecutorService.
+ * There is reconnect to nfd logic implemented if any one of the following case happens:
+ * 1. read completion handler fails
+ * 2. write completion handler fails
+ * 3. connect fails
+ * reconnect is scheduled with a 5 sec delay on the same thread pool passed in the constructor, there
+ * will be only at most one reconnect task scheduled, the read completion handler will only trigger at most
+ * one reconnect, same to the write completion handler. The subsequent reconnect is triggered only by the previous
+ * reconnect failure only. Reconnect will be scheduled and executed until nfd is back up.
+ * While it is reconnecting or waiting to be reconnected the send() call will either block or non-block based on the
+ * flag in the connectionInfo object.
+ * While reconnect will solve the connection issue after it succeeded, but will not re-register prefixes. This should
+ * be handled appropriately by client logic.
+ * 
+ * To test this reconnect:
+ * 1. launch nfd
+ * 2. launch client using this transport
+ * 3. wait prefix registered and some interests expressed successfully from client
+ * 4. stop nfd
+ * 5. client will catch IOException (broken pipe, connection refused, etc) when it tries to express interests
+ * 6. start nfd again
+ * 7. client will be able to express interests again normally
  */
 public class AsyncTcpTransport extends Transport {
   public AsyncTcpTransport(ScheduledExecutorService threadPool)
@@ -253,6 +274,7 @@ public class AsyncTcpTransport extends Transport {
   }
 
   private void scheduleReconnect(){
+	logger_.log(Level.INFO, "A task of reconnect to nfd is scheduled");
 	try{
 	  if(reconnectLock_.tryAcquire(0, TimeUnit.MILLISECONDS) == false) {
 		return;
