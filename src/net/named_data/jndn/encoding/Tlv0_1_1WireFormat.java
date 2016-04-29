@@ -487,7 +487,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
     int endOffset = decoder.readNestedTlvsStart(Tlv.LpPacket_LpPacket);
 
     while (decoder.getOffset() < endOffset) {
-      // Imitate TlvDecode.readTypeAndLength.
+      // Imitate TlvDecoder.readTypeAndLength.
       int fieldType = decoder.readVarNumber();
       int fieldLength = decoder.readVarNumber();
       int fieldEndOffset = decoder.getOffset() + fieldLength;
