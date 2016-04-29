@@ -85,7 +85,7 @@ public class AsyncTcpTransport extends Transport {
 
       public void failed(Throwable ex, Void attachment) {
         logger_.log(Level.SEVERE, null, ex);
-        scheduleReconnect();
+        tryToScheduleReconnect();
       }};
 
     // This is the CompletionHandler for send().
@@ -106,7 +106,8 @@ public class AsyncTcpTransport extends Transport {
 
       public void failed(Throwable ex, ByteBuffer data) {
         logger_.log(Level.SEVERE, null, ex);
-        scheduleReconnect();
+        writeLock_.release();
+        tryToScheduleReconnect();
       }};
   }
 
@@ -129,6 +130,19 @@ public class AsyncTcpTransport extends Transport {
       blockForReconnect_ = blockForReconnect;
     }
 
+    /**
+     * Create a ConnectionInfo with the given host and port. blockForReconnect default to false
+     * @param host The host for the connection.
+     * @param port The port number for the connection.
+     */
+    public
+    ConnectionInfo(String host, int port)
+    {
+      host_ = host;
+      port_ = port;
+      blockForReconnect_ = false;
+    }
+    
     /**
      * Create a ConnectionInfo with the given host and default port 6363.
      * @param host The host for the connection.
@@ -232,11 +246,8 @@ public class AsyncTcpTransport extends Transport {
   {
     // TODO: Close a previous connection.
 
-	//reuse the previous channelgroup is there is any
-	if(this.channelGroup_ == null){
-		this.channelGroup_ = AsynchronousChannelGroup.withThreadPool(threadPool_);
-	}
-	  
+	channelGroup_ = AsynchronousChannelGroup.withThreadPool(threadPool_);
+	
     channel_ = AsynchronousSocketChannel.open(channelGroup_);
     
     //store other info for reconnect
@@ -252,8 +263,6 @@ public class AsyncTcpTransport extends Transport {
        null,
        new CompletionHandler<Void, Void>() {
          public void completed(Void dummy, Void attachment) {
-           writeLock_.release();
-           reconnectLock_.release();
            // Need to catch and log exceptions at this async entry point.
            try {
              if (onConnected != null)
@@ -266,27 +275,67 @@ public class AsyncTcpTransport extends Transport {
 
          public void failed(Throwable ex, Void attachment) {
            logger_.log(Level.SEVERE, null, ex);
-           reconnectLock_.release();
-           scheduleReconnect();
+           tryToScheduleReconnect();
          }});
 
     elementReader_ = new ElementReader(elementListener);
   }
+  
+  private void
+  reconnect() throws IOException
+  {
+    channel_ = AsynchronousSocketChannel.open(channelGroup_);
+    
+    // connect is already async, so no need to dispatch.
+    channel_.connect
+      (new InetSocketAddress
+         (connectionInfoForReconnect_.getHost(),
+         connectionInfoForReconnect_.getPort()),
+       null,
+       new CompletionHandler<Void, Void>() {
+         public void completed(Void dummy, Void attachment) {
+           // Need to catch and log exceptions at this async entry point.
+           reconnectLock_.release();
+           try {
+             if (onConnected_ != null)
+               onConnected_.run();
+             asyncRead();
+           } catch (Throwable ex) {
+             logger_.log(Level.SEVERE, null, ex);
+           }
+         }
 
+         public void failed(Throwable ex, Void attachment) {
+           logger_.log(Level.SEVERE, null, ex);
+           scheduleReconnect();
+         }});
+
+    elementReader_ = new ElementReader(elementListener_);
+  }
+
+  /**
+   * This is called from initial connect failure, read failure or write failure
+   * The semaphore will guarantee there is only one such reconnect scheduled at a time
+   */
+  private void tryToScheduleReconnect(){
+	  try{
+		if(reconnectLock_.tryAcquire(0, TimeUnit.MICROSECONDS)){
+		  scheduleReconnect();	  
+		}
+	  }catch(InterruptedException e){
+		Thread.currentThread().interrupt();
+	  }
+  }
+  
+  /**
+   * This schedule only comes from reconnect() failure since we yet to release the reconnectLock_
+   */
   private void scheduleReconnect(){
 	logger_.log(Level.INFO, "A task of reconnect to nfd is scheduled");
-	try{
-	  if(reconnectLock_.tryAcquire(0, TimeUnit.MILLISECONDS) == false) {
-		return;
-	  }
-	}catch(InterruptedException e){
-		logger_.log(Level.WARNING, null, e);
-	}
-	  
 	threadPool_.schedule(new Runnable(){
 	  public void run(){
 		try{
-		  connect(connectionInfoForReconnect_, elementListener_, onConnected_);
+		  reconnect();
 	    }catch(IOException e){
 		  logger_.log(Level.WARNING, null, e);
 	    }
@@ -350,12 +399,13 @@ public class AsyncTcpTransport extends Transport {
    * @throws IOException if the channel write fails
    */
   private void sendDataSequentially(ByteBuffer data) throws InterruptedException, IOException {
-    if(connectionInfoForReconnect_.isBlockForReconnect() == false && writeLock_.tryAcquire(DEFAULT_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
-      channel_.write(data, data, writeCompletionHandler_);
+    if(connectionInfoForReconnect_.isBlockForReconnect() == false){
+      if(writeLock_.tryAcquire(DEFAULT_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS) == false) {
+    	throw new IOException("Failed to acquire lock on channel to write buffer");
+      }
     }
-    else{
-      throw new IOException("Failed to acquire lock on channel to write buffer");
-    }
+      
+    channel_.write(data, data, writeCompletionHandler_);
   }
 
   /**
@@ -375,7 +425,6 @@ public class AsyncTcpTransport extends Transport {
   {
     if (channel_ == null)
       return false;
-
     return channel_.getRemoteAddress() != null;
   }
 
