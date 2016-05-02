@@ -27,9 +27,12 @@ import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.NetworkNack;
 import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.WireFormat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -37,7 +40,7 @@ import org.junit.Before;
 
 import org.junit.Test;
 
-class CallbackCounter implements OnData, OnTimeout {
+class CallbackCounter implements OnData, OnTimeout, OnNetworkNack {
   public void
   onData(Interest interest, Data data)
   {
@@ -53,24 +56,40 @@ class CallbackCounter implements OnData, OnTimeout {
     ++onTimeoutCallCount_;
   }
 
+  public void
+  onNetworkNack(Interest interest, NetworkNack networkNack)
+  {
+    networkNack_ = networkNack;
+    ++onNetworkNackCallCount_;
+  }
+
   public int onDataCallCount_ = 0;
   public int onTimeoutCallCount_ = 0;
+  public int onNetworkNackCallCount_ = 0;
   public Interest interest_;
   public Data data_;
+  public NetworkNack networkNack_;
 }
 
 public class TestFaceInterestMethods {
   public static double
   getNowMilliseconds() { return (double)System.currentTimeMillis(); }
 
-  // Returns a CallbackCounter object so we can test data callback and timeout behavior.
+  // Returns a CallbackCounter object so we can test data callback, nack callback
+  // and timeout behavior.
   private static CallbackCounter
-  runExpressNameTest(Face face, String interestName, double timeout)
+  runExpressNameTest
+    (Face face, String interestName, double timeout, boolean useOnNack)
   {
     Name name = new Name(interestName);
     CallbackCounter counter = new CallbackCounter();
     try {
-      face.expressInterest(name, counter, counter);
+      if (useOnNack)
+        // Debug: Use one of the simpler forms
+        face.expressInterest(new Interest(name), counter, counter, counter,
+          WireFormat.getDefaultWireFormat());
+      else
+        face.expressInterest(name, counter, counter);
     } catch (IOException ex) {
       Logger.getLogger(TestFaceInterestMethods.class.getName()).log(Level.SEVERE, null, ex);
       return null;
@@ -78,7 +97,8 @@ public class TestFaceInterestMethods {
 
     double startTime = getNowMilliseconds();
     while (getNowMilliseconds() - startTime < timeout &&
-           counter.onDataCallCount_ == 0 && counter.onTimeoutCallCount_ == 0) {
+           counter.onDataCallCount_ == 0 && counter.onTimeoutCallCount_ == 0 &&
+           counter.onNetworkNackCallCount_ == 0) {
       try {
         try {
           face.processEvents();
@@ -104,7 +124,7 @@ public class TestFaceInterestMethods {
   private static CallbackCounter
   runExpressNameTest(Face face, String interestName)
   {
-    return runExpressNameTest(face, interestName, 10000);
+    return runExpressNameTest(face, interestName, 10000, false);
   }
 
   Face face;
@@ -241,5 +261,25 @@ public class TestFaceInterestMethods {
     } catch (Error ex) {}
     if (!gotError)
       fail("expressInterest didn't throw an exception when the interest size exceeds getMaxNdnPacketSize()");
+  }
+
+  @Test
+  public void
+  testNetworkNack()
+  {
+    String uri = "/noroute" + System.currentTimeMillis();
+    // Use a short timeout since we expect an immediate Nack.
+    CallbackCounter counter = runExpressNameTest(face, uri, 1000, true);
+
+    // We're expecting a network Nack callback, and only 1.
+    assertEquals("Data callback called for unroutable interest",
+                 0, counter.onDataCallCount_);
+    assertEquals("Timeout callback called for unroutable interest",
+                 0, counter.onTimeoutCallCount_);
+    assertEquals("Expected 1 network Nack call",
+                 1, counter.onNetworkNackCallCount_);
+
+    assertEquals("Netowork Nack has unexpected reason",
+                 NetworkNack.Reason.NO_ROUTE, counter.networkNack_.getReason());
   }
 }
