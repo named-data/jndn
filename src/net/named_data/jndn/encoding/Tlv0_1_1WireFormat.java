@@ -507,7 +507,6 @@ public class Tlv0_1_1WireFormat extends WireFormat {
         NetworkNack networkNack = new NetworkNack();
         int code = (int)decoder.readOptionalNonNegativeIntegerTlv
           (Tlv.LpPacket_NackReason, fieldEndOffset);
-        NetworkNack.Reason reason;
         // The enum numeric values are the same as this wire format, so use as is.
         if (code < 0 || code == NetworkNack.Reason.NONE.getNumericType())
           // This includes an omitted NackReason.
@@ -538,7 +537,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
           (fieldType >= Tlv.LpPacket_IGNORE_MIN &&
            fieldType <= Tlv.LpPacket_IGNORE_MAX &&
            (fieldType & 0x01) == 1);
-        if  (!canIgnore)
+        if (!canIgnore)
           throw new EncodingException("Did not get the expected TLV type");
 
         // Ignore.
