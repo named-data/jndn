@@ -35,7 +35,6 @@ import net.named_data.jndn.HmacWithSha256Signature;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
-import net.named_data.jndn.LocalControlHeader;
 import net.named_data.jndn.MetaInfo;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
@@ -46,6 +45,9 @@ import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.encrypt.EncryptedContent;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
+import net.named_data.jndn.lp.IncomingFaceId;
+import net.named_data.jndn.lp.LpPacket;
+import net.named_data.jndn.NetworkNack;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -470,71 +472,82 @@ public class Tlv0_1_1WireFormat extends WireFormat {
   }
 
   /**
-   * Encode the LocalControlHeader in NDN-TLV and return the encoding.
-   * @param localControlHeader The LocalControlHeader object to encode.
-   * @return A Blob containing the encoding.
-   */
-  public Blob
-  encodeLocalControlHeader(LocalControlHeader localControlHeader)
-  {
-    TlvEncoder encoder = new TlvEncoder(256);
-    int saveLength = encoder.getLength();
-
-    // Encode backwards.
-    // Encode the entire payload as is.
-    encoder.writeBuffer(localControlHeader.getPayloadWireEncoding().buf());
-
-    // TODO: Encode CachingPolicy when we want to include it for an outgoing Data.
-    encoder.writeOptionalNonNegativeIntegerTlv(
-      Tlv.LocalControlHeader_NextHopFaceId, localControlHeader.getNextHopFaceId());
-    encoder.writeOptionalNonNegativeIntegerTlv(
-      Tlv.LocalControlHeader_IncomingFaceId, localControlHeader.getIncomingFaceId());
-
-    encoder.writeTypeAndLength
-      (Tlv.LocalControlHeader_LocalControlHeader, encoder.getLength() - saveLength);
-
-    return new Blob(encoder.getOutput(), false);
-  }
-
-  /**
-   * Decode input as a LocalControlHeader in NDN-TLV and set the fields of the
-   * localControlHeader object.
-   * @param localControlHeader The LocalControlHeader object whose fields are
-   * updated.
+   * Decode input as an NDN-TLV LpPacket and set the fields of the lpPacket object.
+   * @param lpPacket The LpPacket object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
-   * @throws EncodingException For invalid encoding
+   * @throws EncodingException For invalid encoding.
    */
   public void
-  decodeLocalControlHeader
-    (LocalControlHeader localControlHeader, ByteBuffer input)
-    throws EncodingException
+  decodeLpPacket(LpPacket lpPacket, ByteBuffer input) throws EncodingException
   {
+    lpPacket.clear();
+
     TlvDecoder decoder = new TlvDecoder(input);
-    int endOffset = decoder.
-      readNestedTlvsStart(Tlv.LocalControlHeader_LocalControlHeader);
+    int endOffset = decoder.readNestedTlvsStart(Tlv.LpPacket_LpPacket);
 
-    localControlHeader.setIncomingFaceId(decoder.readOptionalNonNegativeIntegerTlv(
-      Tlv.LocalControlHeader_IncomingFaceId, endOffset));
-    localControlHeader.setNextHopFaceId(decoder.readOptionalNonNegativeIntegerTlv(
-      Tlv.LocalControlHeader_NextHopFaceId, endOffset));
+    while (decoder.getOffset() < endOffset) {
+      // Imitate TlvDecoder.readTypeAndLength.
+      int fieldType = decoder.readVarNumber();
+      int fieldLength = decoder.readVarNumber();
+      int fieldEndOffset = decoder.getOffset() + fieldLength;
+      if (fieldEndOffset > input.limit())
+        throw new EncodingException("TLV length exceeds the buffer length");
 
-    // Ignore CachingPolicy. // TODO: Process CachingPolicy when we want the
-    // client library to receive it for an incoming Data.
-    if (decoder.peekType(Tlv.LocalControlHeader_CachingPolicy, endOffset)) {
-      int cachingPolicyEndOffset = decoder.readNestedTlvsStart
-        (Tlv.LocalControlHeader_CachingPolicy);
-      decoder.finishNestedTlvs(cachingPolicyEndOffset);
+      if (fieldType == Tlv.LpPacket_Fragment) {
+        // Set the fragment to the bytes of the TLV value.
+        lpPacket.setFragmentWireEncoding
+          (new Blob(decoder.getSlice(decoder.getOffset(), fieldEndOffset), true));
+        decoder.seek(fieldEndOffset);
+
+        // The fragment is supposed to be the last field.
+        break;
+      }
+      else if (fieldType == Tlv.LpPacket_Nack) {
+        NetworkNack networkNack = new NetworkNack();
+        int code = (int)decoder.readOptionalNonNegativeIntegerTlv
+          (Tlv.LpPacket_NackReason, fieldEndOffset);
+        // The enum numeric values are the same as this wire format, so use as is.
+        if (code < 0 || code == NetworkNack.Reason.NONE.getNumericType())
+          // This includes an omitted NackReason.
+          networkNack.setReason(NetworkNack.Reason.NONE);
+        else if (code == NetworkNack.Reason.CONGESTION.getNumericType())
+          networkNack.setReason(NetworkNack.Reason.CONGESTION);
+        else if (code == NetworkNack.Reason.DUPLICATE.getNumericType())
+          networkNack.setReason(NetworkNack.Reason.DUPLICATE);
+        else if (code == NetworkNack.Reason.NO_ROUTE.getNumericType())
+          networkNack.setReason(NetworkNack.Reason.NO_ROUTE);
+        else {
+          // Unrecognized reason.
+          networkNack.setReason(NetworkNack.Reason.OTHER_CODE);
+          networkNack.setOtherReasonCode(code);
+        }
+
+        lpPacket.addHeaderField(networkNack);
+      }
+      else if (fieldType == Tlv.LpPacket_IncomingFaceId) {
+        IncomingFaceId incomingFaceId = new IncomingFaceId();
+        incomingFaceId.setFaceId(decoder.readNonNegativeInteger(fieldLength));
+        lpPacket.addHeaderField(incomingFaceId);
+      }
+      else {
+        // Unrecognized field type. The conditions for ignoring are here:
+        // http://redmine.named-data.net/projects/nfd/wiki/NDNLPv2
+        boolean canIgnore =
+          (fieldType >= Tlv.LpPacket_IGNORE_MIN &&
+           fieldType <= Tlv.LpPacket_IGNORE_MAX &&
+           (fieldType & 0x01) == 1);
+        if (!canIgnore)
+          throw new EncodingException("Did not get the expected TLV type");
+
+        // Ignore.
+        decoder.seek(fieldEndOffset);
+      }
+
+      decoder.finishNestedTlvs(fieldEndOffset);
     }
 
-    // Set the payload to a slice of the remaining input.
-    ByteBuffer payload = input.duplicate();
-    payload.limit(endOffset);
-    payload.position(decoder.getOffset());
-    localControlHeader.setPayloadWireEncoding(new Blob(payload, false));
-
-    // Don't call finishNestedTlvs since we got the payload and don't want to
-    // decode any of it now.
+    decoder.finishNestedTlvs(endOffset);
   }
 
   /**
@@ -627,7 +640,7 @@ public class Tlv0_1_1WireFormat extends WireFormat {
 
   /**
    * Decode input as a EncryptedContent in NDN-TLV and set the fields of the
-   * localControlHeader object.
+   * encryptedContent object.
    * @param encryptedContent The EncryptedContent object whose fields are
    * updated.
    * @param input The input buffer to decode.  This reads from position() to

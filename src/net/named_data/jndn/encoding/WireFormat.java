@@ -25,10 +25,10 @@ import net.named_data.jndn.ControlResponse;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.Interest;
-import net.named_data.jndn.LocalControlHeader;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encrypt.EncryptedContent;
+import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
 
 public class WireFormat {
@@ -349,38 +349,20 @@ public class WireFormat {
   }
 
   /**
-   * Encode the LocalControlHeader and return the encoding. Your
+   * Decode input as an LpPacket and set the fields of the lpPacket object. Your
    * derived class should override.
-   * @param localControlHeader The LocalControlHeader object to encode.
-   * @return A Blob containing the encoding.
-   * @throws UnsupportedOperationException for unimplemented if the derived
-   * class does not override.
-   */
-  public Blob
-  encodeLocalControlHeader(LocalControlHeader localControlHeader)
-  {
-    throw new UnsupportedOperationException
-      ("encodeLocalControlHeader is not implemented");
-  }
-
-  /**
-   * Decode input as a LocalControlHeader and set the fields of the
-   * localControlHeader object. Your derived class should override.
-   * @param localControlHeader The LocalControlHeader object whose fields are
-   * updated.
+   * @param lpPacket The LpPacket object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
-   * @throws EncodingException For invalid encoding
+   * @throws EncodingException For invalid encoding.
    * @throws UnsupportedOperationException for unimplemented if the derived
    * class does not override.
    */
   public void
-  decodeLocalControlHeader
-    (LocalControlHeader localControlHeader, ByteBuffer input)
-    throws EncodingException
+  decodeLpPacket(LpPacket lpPacket, ByteBuffer input) throws EncodingException
   {
     throw new UnsupportedOperationException
-      ("decodeLocalControlHeader is not implemented");
+      ("decodeLpPacket is not implemented");
   }
 
   /**

@@ -67,6 +67,16 @@ public class ThreadPoolFace extends Face {
    * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
    * interest given to expressInterest. If onTimeout is null, this does not use
    * it. This wraps the callback to submit it to the thread pool.
+   * @param onNetworkNack When a network Nack packet for the interest is
+   * received and onNetworkNack is not null, this calls
+   * onNetworkNack.onNetworkNack(interest, networkNack) and does not call
+   * onTimeout. However, if a network Nack is received and onNetworkNack is null,
+   * do nothing and wait for the interest to time out. (Therefore, an
+   * application which does not yet process a network Nack reason treats a
+   * Nack the same as a timeout.)
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The pending interest ID which can be used with
    * removePendingInterest.
@@ -74,7 +84,8 @@ public class ThreadPoolFace extends Face {
   public long
   expressInterest
     (final Interest interest, OnData onData, OnTimeout onTimeout,
-     final WireFormat wireFormat) throws IOException
+     final OnNetworkNack onNetworkNack, final WireFormat wireFormat)
+     throws IOException
   {
     final long pendingInterestId = node_.getNextEntryId();
 
@@ -113,13 +124,32 @@ public class ThreadPoolFace extends Face {
       }
     };
 
+    final OnNetworkNack finalOnNetworkNack = onNetworkNack;
+    final OnNetworkNack onNetworkNackSubmit =
+        onNetworkNack == null ? null : new OnNetworkNack() {
+      public void onNetworkNack
+          (final Interest localInterest, final NetworkNack networkNack) {
+        threadPool_.submit(new Runnable() {
+          // Call the passed-in onData.
+          public void run() {
+            // Need to catch and log exceptions at this async entry point.
+            try {
+              finalOnNetworkNack.onNetworkNack(localInterest, networkNack);
+            } catch (Throwable ex) {
+              logger_.log(Level.SEVERE, "Error in onNetworkNack", ex);
+            }
+          }
+        });
+      }
+    };
+
     threadPool_.submit(new Runnable() {
       public void run() {
         // Need to catch and log exceptions at this async entry point.
         try {
           node_.expressInterest
             (pendingInterestId, interest, onDataSubmit, onTimeoutSubmit,
-             wireFormat, ThreadPoolFace.this);
+             onNetworkNackSubmit, wireFormat, ThreadPoolFace.this);
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);
         }
