@@ -63,14 +63,17 @@ public class Node implements ElementListener {
 
   /**
    * Send the Interest through the transport, read the entire response and call
-   * onData(interest, data).
+   * onData, onTimeout or onNetworkNack as described below.
    * @param pendingInterestId The getNextEntryId() for the pending interest ID
    * which Face got so it could return it to the caller.
    * @param interest The Interest to send.  This copies the Interest.
-   * @param onData  This calls onData.onData when a matching data packet is
-   * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.
-   * If onTimeout is null, this does not use it.
+   * @param onData  When a matching data packet is received, this calls
+   * onData.onData(interest, data) where interest is the interest given to
+   * expressInterest and data is the received Data object.
+   * @param onTimeout If the interest times out according to the interest
+   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
+   * interest given to expressInterest. If onTimeout is null, this does not use
+   * it.
    * @param onNetworkNack When a network Nack packet for the interest is
    * received and onNetworkNack is not null, this calls
    * onNetworkNack.onNetworkNack(interest, networkNack) and does not call
