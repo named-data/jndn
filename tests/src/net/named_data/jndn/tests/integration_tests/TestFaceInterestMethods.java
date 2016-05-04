@@ -279,7 +279,7 @@ public class TestFaceInterestMethods {
     assertEquals("Expected 1 network Nack call",
                  1, counter.onNetworkNackCallCount_);
 
-    assertEquals("Netowork Nack has unexpected reason",
+    assertEquals("Network Nack has unexpected reason",
                  NetworkNack.Reason.NO_ROUTE, counter.networkNack_.getReason());
   }
 }
