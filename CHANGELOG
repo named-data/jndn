@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.11 (2016-04-20)
+Interim changes since jNDN v0.11 (2016-05-04)
 ---------------------------------------------
 
 Breaking changes
@@ -6,6 +6,9 @@ Breaking changes
   affecting the onError callback to Consumer.consume.
 
 Changes
+* Added support for NDNLPv2:
+  In Face.expressInterest, added an OnNetworkNack callback.
+  In Interest and Data, the method getIncomingFaceId provides the incoming face ID (if configured).
 * http://redmine.named-data.net/issues/3355 In Producer.createContentKey and produce,
   added an optional onError callback.
 * Added HmacWithSha256Signature. In KeyChain, added experimental static methods
@@ -13,6 +16,7 @@ Changes
 * In IdentityManager, added getAllIdentities and getAllCertificateNamesOfKey.
 * In KeyChain, removed getAnyCertificate and getAnyIdentityCertificate.
 * Examples: Added TestSignVerifyDataHmac.
+* Integration tests: In TestFaceInterestMethods, added testNetworkNack.
 * Integration tests: Added TestFaceRegisterMethods.
 
 Deprecated
