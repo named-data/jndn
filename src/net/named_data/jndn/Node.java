@@ -66,7 +66,9 @@ public class Node implements ElementListener {
    * onData, onTimeout or onNetworkNack as described below.
    * @param pendingInterestId The getNextEntryId() for the pending interest ID
    * which Face got so it could return it to the caller.
-   * @param interest The Interest to send.  This copies the Interest.
+   * @param interestCopy The Interest which is NOT copied for this internal Node
+   * method. The Face expressInterest is responsible for making a copy for Node
+   * to use.
    * @param onData  When a matching data packet is received, this calls
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object.
@@ -87,13 +89,11 @@ public class Node implements ElementListener {
    */
   public final void
   expressInterest
-    (final long pendingInterestId, Interest interest, final OnData onData,
+    (final long pendingInterestId, final Interest interestCopy, final OnData onData,
      final OnTimeout onTimeout, final OnNetworkNack onNetworkNack,
      final WireFormat wireFormat, final Face face)
      throws IOException
   {
-    final Interest interestCopy = new Interest(interest);
-
     // Set the nonce in our copy of the Interest so it is saved in the PIT.
     interestCopy.setNonce(nonceTemplate_);
     interestCopy.refreshNonce();

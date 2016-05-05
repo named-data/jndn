@@ -120,6 +120,7 @@ public class Face {
   {
     long pendingInterestId = node_.getNextEntryId();
 
+    // This copies the interest as required by Node.expressInterest.
     node_.expressInterest
       (pendingInterestId, interest, onData, onTimeout, onNetworkNack,
        wireFormat, this);
@@ -216,6 +217,7 @@ public class Face {
   {
     long pendingInterestId = node_.getNextEntryId();
 
+    // This copies the name object as required by Node.expressInterest.
     node_.expressInterest
       (pendingInterestId, getInterestCopy(name, interestTemplate), onData,
        onTimeout, onNetworkNack, wireFormat, this);

@@ -143,12 +143,14 @@ public class ThreadPoolFace extends Face {
       }
     };
 
+    // Make an interest copy as required by Node.expressInterest.
+    final Interest interestCopy = new Interest(interest);
     threadPool_.submit(new Runnable() {
       public void run() {
         // Need to catch and log exceptions at this async entry point.
         try {
           node_.expressInterest
-            (pendingInterestId, interest, onDataSubmit, onTimeoutSubmit,
+            (pendingInterestId, interestCopy, onDataSubmit, onTimeoutSubmit,
              onNetworkNackSubmit, wireFormat, ThreadPoolFace.this);
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);
