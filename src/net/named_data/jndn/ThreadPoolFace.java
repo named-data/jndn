@@ -55,31 +55,10 @@ public class ThreadPoolFace extends Face {
   }
 
   /**
-   * Submit a task to the thread pool to send the Interest through the
-   * transport, read the entire response and call onData(interest, data).
-   * @param interest The Interest to send.  This copies the Interest.
-   * @param onData  When a matching data packet is received, this calls
-   * onData.onData(interest, data) where interest is the interest given to
-   * expressInterest and data is the received Data object. NOTE: You must not
-   * change the interest object - if you need to change it then make a copy.
-   * This wraps the callback to submit it to the thread pool.
-   * @param onTimeout If the interest times out according to the interest
-   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
-   * interest given to expressInterest. If onTimeout is null, this does not use
-   * it. This wraps the callback to submit it to the thread pool.
-   * @param onNetworkNack When a network Nack packet for the interest is
-   * received and onNetworkNack is not null, this calls
-   * onNetworkNack.onNetworkNack(interest, networkNack) and does not call
-   * onTimeout. However, if a network Nack is received and onNetworkNack is null,
-   * do nothing and wait for the interest to time out. (Therefore, an
-   * application which does not yet process a network Nack reason treats a
-   * Nack the same as a timeout.)
-   * NOTE: The library will log any exceptions thrown by this callback, but for
-   * better error handling the callback should catch and properly handle any
-   * exceptions.
-   * @param wireFormat A WireFormat object used to encode the message.
-   * @return The pending interest ID which can be used with
-   * removePendingInterest.
+   * Override to submit a task to use the thread pool given to the constructor.
+   * Also wrap the supplied onData, onTimeout and onNetworkNack callbacks in an
+   * outer callback which submits a task to the thread pool to call the supplied
+   * callback. See Face.expressInterest for calling details.
    */
   public long
   expressInterest
@@ -145,6 +124,94 @@ public class ThreadPoolFace extends Face {
 
     // Make an interest copy as required by Node.expressInterest.
     final Interest interestCopy = new Interest(interest);
+    threadPool_.submit(new Runnable() {
+      public void run() {
+        // Need to catch and log exceptions at this async entry point.
+        try {
+          node_.expressInterest
+            (pendingInterestId, interestCopy, onDataSubmit, onTimeoutSubmit,
+             onNetworkNackSubmit, wireFormat, ThreadPoolFace.this);
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, null, ex);
+        }
+      }
+    });
+
+    return pendingInterestId;
+  }
+
+  /**
+   * Override to submit a task to use the thread pool given to the constructor.
+   * Also wrap the supplied onData, onTimeout and onNetworkNack callbacks in an
+   * outer callback which submits a task to the thread pool to call the supplied
+   * callback. See Face.expressInterest for calling details. We make a separate
+   * expressInterest overload for supplying a Name vs. Interest to avoid making
+   * multiple copies of the Interest.
+   */
+  public long
+  expressInterest
+    (Name name, Interest interestTemplate, OnData onData, OnTimeout onTimeout,
+     final OnNetworkNack onNetworkNack, final WireFormat wireFormat)
+     throws IOException
+  {
+    final long pendingInterestId = node_.getNextEntryId();
+
+    // Wrap callbacks to submit to the thread pool.
+    final OnData finalOnData = onData;
+    final OnData onDataSubmit = new OnData() {
+      public void onData(final Interest localInterest, final Data data) {
+        threadPool_.submit(new Runnable() {
+          // Call the passed-in onData.
+          public void run() {
+            // Need to catch and log exceptions at this async entry point.
+            try {
+              finalOnData.onData(localInterest, data);
+            } catch (Throwable ex) {
+              logger_.log(Level.SEVERE, "Error in onData", ex);
+            }
+          }
+        });
+      }
+    };
+
+    final OnTimeout finalOnTimeout = onTimeout;
+    final OnTimeout onTimeoutSubmit = onTimeout == null ? null : new OnTimeout() {
+      public void onTimeout(final Interest localInterest) {
+        threadPool_.submit(new Runnable() {
+          // Call the passed-in onTimeout.
+          public void run() {
+            // Need to catch and log exceptions at this async entry point.
+            try {
+              finalOnTimeout.onTimeout(localInterest);
+            } catch (Throwable ex) {
+              logger_.log(Level.SEVERE, "Error in onTimeout", ex);
+            }
+          }
+        });
+      }
+    };
+
+    final OnNetworkNack finalOnNetworkNack = onNetworkNack;
+    final OnNetworkNack onNetworkNackSubmit =
+        onNetworkNack == null ? null : new OnNetworkNack() {
+      public void onNetworkNack
+          (final Interest localInterest, final NetworkNack networkNack) {
+        threadPool_.submit(new Runnable() {
+          // Call the passed-in onData.
+          public void run() {
+            // Need to catch and log exceptions at this async entry point.
+            try {
+              finalOnNetworkNack.onNetworkNack(localInterest, networkNack);
+            } catch (Throwable ex) {
+              logger_.log(Level.SEVERE, "Error in onNetworkNack", ex);
+            }
+          }
+        });
+      }
+    };
+
+    // Make an interest copy as required by Node.expressInterest.
+    final Interest interestCopy = getInterestCopy(name, interestTemplate);
     threadPool_.submit(new Runnable() {
       public void run() {
         // Need to catch and log exceptions at this async entry point.
