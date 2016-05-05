@@ -214,18 +214,13 @@ public class Face {
     (Name name, Interest interestTemplate, OnData onData, OnTimeout onTimeout,
      OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
   {
-    Interest interest;
-    if (interestTemplate != null) {
-      // Copy the interestTemplate.
-      interest = new Interest(interestTemplate);
-      interest.setName(name);
-    }
-    else {
-      interest = new Interest(name);
-      interest.setInterestLifetimeMilliseconds(4000.0);
-    }
+    long pendingInterestId = node_.getNextEntryId();
 
-    return expressInterest(interest, onData, onTimeout, onNetworkNack, wireFormat);
+    node_.expressInterest
+      (pendingInterestId, getInterestCopy(name, interestTemplate), onData,
+       onTimeout, onNetworkNack, wireFormat, this);
+
+    return pendingInterestId;
   }
 
   /**
@@ -512,18 +507,8 @@ public class Face {
     (Name name, Interest interestTemplate, OnData onData, OnTimeout onTimeout,
      WireFormat wireFormat) throws IOException
   {
-    Interest interest;
-    if (interestTemplate != null) {
-      // Copy the interestTemplate.
-      interest = new Interest(interestTemplate);
-      interest.setName(name);
-    }
-    else {
-      interest = new Interest(name);
-      interest.setInterestLifetimeMilliseconds(4000.0);
-    }
-
-    return expressInterest(interest, onData, onTimeout, wireFormat);
+    return expressInterest
+      (name, interestTemplate, onData, onTimeout, null, wireFormat);
   }
 
   /**
@@ -1488,6 +1473,30 @@ public class Face {
   callLater(double delayMilliseconds, Runnable callback)
   {
     node_.callLater(delayMilliseconds, callback);
+  }
+
+  /**
+   * Do the work of expressInterest to make an Interest based on name and
+   * interestTemplate.
+   * @param name A Name for the interest.  This copies the Name.
+   * @param interestTemplate if not null, copy interest selectors from the
+   * template. This does not keep a pointer to the Interest object.
+   * @return The Interest, suitable for Node.expressInterest.
+   */
+  static protected Interest
+  getInterestCopy(Name name, Interest interestTemplate)
+  {
+    if (interestTemplate != null) {
+      // Copy the interestTemplate.
+      Interest interestCopy = new Interest(interestTemplate);
+      interestCopy.setName(name);
+      return interestCopy;
+    }
+    else {
+      Interest interestCopy = new Interest(name);
+      interestCopy.setInterestLifetimeMilliseconds(4000.0);
+      return interestCopy;
+    }
   }
 
   protected final Node node_;
