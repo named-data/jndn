@@ -314,7 +314,7 @@ public class Consumer {
 
   /**
    * Decrypt the data packet.
-   * @param data The data packet.
+   * @param data The data packet. This does not verify the packet.
    * @param onPlainText When the data packet is decrypted, this calls
    * onPlainText.onPlainText(decryptedBlob) with the decrypted blob.
    * @param onError This calls onError.onError(errorCode, message) for an error.
