@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.11 (2016-05-04)
----------------------------------------------
+jNDN v0.12 (2016-05-06)
+-----------------------
 
 Breaking changes
 * In encrypt/Consumer, moved OnError and ErrorCode to encrypt/EncryptError,
