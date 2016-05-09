@@ -1,3 +1,9 @@
+Interim changes since jNDN v0.12 (2016-05-09)
+---------------------------------------------
+
+Bug fixes
+* http://redmine.named-data.net/issues/3617 Check tpm setting in client.conf.
+
 jNDN v0.12 (2016-05-06)
 -----------------------
 
