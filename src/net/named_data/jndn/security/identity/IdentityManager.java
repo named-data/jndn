@@ -78,12 +78,7 @@ public class IdentityManager {
   public IdentityManager(IdentityStorage identityStorage) throws SecurityException
   {
     identityStorage_ = identityStorage;
-
-    if (System.getProperty("os.name").equals("Mac OS X"))
-      throw new SecurityException
-        ("OSXPrivateKeyStorage is not implemented yet. You must create an IdentityManager with a different PrivateKeyStorage.");
-    else
-      privateKeyStorage_ = new FilePrivateKeyStorage();
+    privateKeyStorage_ = getDefaultPrivateKeyStorage();
   }
 
   /**
@@ -93,13 +88,8 @@ public class IdentityManager {
    */
   public IdentityManager() throws SecurityException
   {
-    identityStorage_ = new BasicIdentityStorage();
-
-    if (System.getProperty("os.name").equals("Mac OS X"))
-      throw new SecurityException
-        ("OSXPrivateKeyStorage is not implemented yet. You must create an IdentityManager with a different PrivateKeyStorage.");
-    else
-      privateKeyStorage_ = new FilePrivateKeyStorage();
+    identityStorage_ = getDefaultIdentityStorage();
+    privateKeyStorage_ = getDefaultPrivateKeyStorage();
   }
 
   /**
@@ -1154,6 +1144,22 @@ public class IdentityManager {
     }
     else
       throw new SecurityException("Key type is not recognized");
+  }
+
+  private static IdentityStorage
+  getDefaultIdentityStorage() throws SecurityException
+  {
+    return new BasicIdentityStorage();
+  }
+
+  private static PrivateKeyStorage
+  getDefaultPrivateKeyStorage() throws SecurityException
+  {
+    if (System.getProperty("os.name").equals("Mac OS X"))
+      throw new SecurityException
+        ("OSXPrivateKeyStorage is not implemented yet. You must create an IdentityManager with a different PrivateKeyStorage.");
+    else
+      return new FilePrivateKeyStorage();
   }
 
   private IdentityStorage identityStorage_;
