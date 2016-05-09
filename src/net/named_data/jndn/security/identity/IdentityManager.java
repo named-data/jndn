@@ -20,6 +20,7 @@
 
 package net.named_data.jndn.security.identity;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,6 +50,7 @@ import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
+import net.named_data.jndn.util.ConfigFile;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
@@ -67,6 +69,7 @@ public class IdentityManager {
   {
     identityStorage_ = identityStorage;
     privateKeyStorage_ = privateKeyStorage;
+    // Don't call checkTpm() when using a custom PrivateKeyStorage.
   }
 
   /**
@@ -77,8 +80,18 @@ public class IdentityManager {
    */
   public IdentityManager(IdentityStorage identityStorage) throws SecurityException
   {
+    ConfigFile config;
+    try {
+      config = new ConfigFile();
+    } catch (IOException ex) {
+      throw new SecurityException("IOException " + ex.getMessage());
+    }
+
+    String[] canonicalTpmLocator = new String[] { null };
     identityStorage_ = identityStorage;
-    privateKeyStorage_ = getDefaultPrivateKeyStorage();
+    privateKeyStorage_ = getDefaultPrivateKeyStorage(config, canonicalTpmLocator);
+
+    checkTpm(canonicalTpmLocator[0]);
   }
 
   /**
@@ -88,8 +101,18 @@ public class IdentityManager {
    */
   public IdentityManager() throws SecurityException
   {
-    identityStorage_ = getDefaultIdentityStorage();
-    privateKeyStorage_ = getDefaultPrivateKeyStorage();
+    ConfigFile config;
+    try {
+      config = new ConfigFile();
+    } catch (IOException ex) {
+      throw new SecurityException("IOException " + ex.getMessage());
+    }
+
+    String[] canonicalTpmLocator = new String[] { null };
+    identityStorage_ = getDefaultIdentityStorage(config);
+    privateKeyStorage_ = getDefaultPrivateKeyStorage(config, canonicalTpmLocator);
+
+    checkTpm(canonicalTpmLocator[0]);
   }
 
   /**
@@ -1146,20 +1169,91 @@ public class IdentityManager {
       throw new SecurityException("Key type is not recognized");
   }
 
+  /**
+   * Get the IdentityStorage from the pib value in the configuration file if
+   * supplied. Otherwise, get the default for this platform.
+   * @param config The configuration file to check.
+   * @return A new IdentityStorage.
+   */
   private static IdentityStorage
-  getDefaultIdentityStorage() throws SecurityException
+  getDefaultIdentityStorage(ConfigFile config) throws SecurityException
   {
+    String pibLocator = config.get("pib", "");
+
+    if (!pibLocator.isEmpty()) {
+      // Don't support non-default locations for now.
+      if (!pibLocator.equals("pib-sqlite3"))
+        throw new SecurityException
+          ("Invalid config file pib value: " + pibLocator);
+    }
+
     return new BasicIdentityStorage();
   }
 
+  /**
+   * Get the PrivateKeyStorage from the tpm value in the configuration file if
+   * supplied. Otherwise, get the default for this platform.
+   * @param config The configuration file to check.
+   * @param canonicalTpmLocator Set canonicalTpmLocator[0] to the canonical value
+   * including the colon, * e.g. "tpm-file:".
+   * @return A new PrivateKeyStorage.
+   */
   private static PrivateKeyStorage
-  getDefaultPrivateKeyStorage() throws SecurityException
+  getDefaultPrivateKeyStorage
+    (ConfigFile config, String[] canonicalTpmLocator) throws SecurityException
   {
-    if (System.getProperty("os.name").equals("Mac OS X"))
+    String tpmLocator = config.get("tpm", "");
+
+    if (tpmLocator.isEmpty()) {
+      // Use the system default.
+      if (System.getProperty("os.name").equals("Mac OS X")) {
+        canonicalTpmLocator[0] = "tpm-osxkeychain:";
+        throw new SecurityException
+          ("OSXPrivateKeyStorage is not implemented yet. You must create an IdentityManager with a different PrivateKeyStorage.");
+      }
+      else {
+        canonicalTpmLocator[0] = "tpm-file:";
+        return new FilePrivateKeyStorage();
+      }
+    }
+    else if (tpmLocator.equals("tpm-osxkeychain")) {
+      canonicalTpmLocator[0] = "tpm-osxkeychain:";
       throw new SecurityException
         ("OSXPrivateKeyStorage is not implemented yet. You must create an IdentityManager with a different PrivateKeyStorage.");
-    else
+    }
+    else if (tpmLocator.equals("tpm-file")) {
+      // Don't support non-default locations for now.
+      canonicalTpmLocator[0] = "tpm-file:";
       return new FilePrivateKeyStorage();
+    }
+    else
+      throw new SecurityException
+        ("Invalid config file tpm value: " + tpmLocator);
+  }
+
+  /**
+   * Check that identityStorage_->getTpmLocator() (if defined) matches the
+   * canonicalTpmLocator.
+   * @param canonicalTpmLocator The canonical locator from
+   * getDefaultPrivateKeyStorage().
+   * @throws SecurityException if the private key storage does not match.
+   */
+  private void
+  checkTpm(String canonicalTpmLocator) throws SecurityException
+  {
+    String tpmLocator;
+    try {
+      tpmLocator = identityStorage_.getTpmLocator();
+    } catch (SecurityException ex) {
+      // The TPM locator is not set in PIB yet.
+      return;
+    }
+
+    // Just check. If a PIB reset is required, expect ndn-cxx/NFD to do it.
+    if (!tpmLocator.isEmpty() && !tpmLocator.equals(canonicalTpmLocator))
+      throw new SecurityException
+        ("The TPM locator supplied does not match the TPM locator in the PIB: " +
+         tpmLocator + " != " + canonicalTpmLocator);
   }
 
   private IdentityStorage identityStorage_;
