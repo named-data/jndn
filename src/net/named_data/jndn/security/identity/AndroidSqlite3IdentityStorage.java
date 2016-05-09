@@ -91,8 +91,18 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
       (databaseFilePath, null,
        SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.CREATE_IF_NECESSARY);
 
-    //Check if the ID table exists.
-    Cursor cursor = database_.rawQuery(SELECT_MASTER_ID_TABLE, null);
+    // Check if the TpmInfo table exists.
+    Cursor cursor = database_.rawQuery(SELECT_MASTER_TPM_INFO_TABLE, null);
+    boolean tpmInfoTableExists = false;
+    if (cursor.moveToNext())
+      tpmInfoTableExists = true;
+    cursor.close();
+
+    if (!tpmInfoTableExists)
+      database_.execSQL(INIT_TPM_INFO_TABLE);
+
+    // Check if the ID table exists.
+    cursor = database_.rawQuery(SELECT_MASTER_ID_TABLE, null);
     boolean idTableExists = false;
     if (cursor.moveToNext())
       idTableExists = true;
@@ -103,7 +113,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
       database_.execSQL(INIT_ID_TABLE2);
     }
 
-    //Check if the Key table exists.
+    // Check if the Key table exists.
     cursor = database_.rawQuery(SELECT_MASTER_KEY_TABLE, null);
     idTableExists = false;
     if (cursor.moveToNext())
@@ -115,7 +125,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
       database_.execSQL(INIT_KEY_TABLE2);
     }
 
-    //Check if the Certificate table exists.
+    // Check if the Certificate table exists.
     cursor = database_.rawQuery(SELECT_MASTER_CERT_TABLE, null);
     idTableExists = false;
     if (cursor.moveToNext())
@@ -379,6 +389,27 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
     }
     else
       return new IdentityCertificate();
+  }
+
+  /**
+   * Get the TPM locator associated with this storage.
+   * @return The TPM locator.
+   * @throws SecurityException if the TPM locator doesn't exist.
+   */
+  public final String
+  getTpmLocator() throws SecurityException
+  {
+    Cursor cursor = database_.rawQuery(SELECT_getTpmLocator, null);
+
+    try {
+      if (cursor.moveToNext())
+        return cursor.getString(0);
+      else
+        throw new SecurityException
+          ("AndroidSqlite3IdentityStorage.getTpmLocator: TPM info does not exist");
+    } finally {
+      cursor.close();
+    }
   }
 
   /*****************************************

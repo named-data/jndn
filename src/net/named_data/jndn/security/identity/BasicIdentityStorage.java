@@ -83,8 +83,18 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
       Statement statement = database_.createStatement();
       // Use "try/finally instead of "try-with-resources" or "using" which are not supported before Java 7.
       try {
-        //Check if the ID table exists.
-        ResultSet result = statement.executeQuery(SELECT_MASTER_ID_TABLE);
+        // Check if the TpmInfo table exists.
+        ResultSet result = statement.executeQuery(SELECT_MASTER_TPM_INFO_TABLE);
+        boolean tpmInfoTableExists = false;
+        if (result.next())
+          tpmInfoTableExists = true;
+        result.close();
+
+        if (!tpmInfoTableExists)
+          statement.executeUpdate(INIT_TPM_INFO_TABLE);
+
+        // Check if the ID table exists.
+        result = statement.executeQuery(SELECT_MASTER_ID_TABLE);
         boolean idTableExists = false;
         if (result.next())
           idTableExists = true;
@@ -95,7 +105,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
           statement.executeUpdate(INIT_ID_TABLE2);
         }
 
-        //Check if the Key table exists.
+        // Check if the Key table exists.
         result = statement.executeQuery(SELECT_MASTER_KEY_TABLE);
         idTableExists = false;
         if (result.next())
@@ -107,7 +117,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
           statement.executeUpdate(INIT_KEY_TABLE2);
         }
 
-        //Check if the Certificate table exists.
+        // Check if the Certificate table exists.
         result = statement.executeQuery(SELECT_MASTER_CERT_TABLE);
         idTableExists = false;
         if (result.next())
@@ -441,6 +451,32 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
       }
 
       return certificate;
+    } catch (SQLException exception) {
+      throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
+    }
+  }
+
+  /**
+   * Get the TPM locator associated with this storage.
+   * @return The TPM locator.
+   * @throws SecurityException if the TPM locator doesn't exist.
+   */
+  public final String
+  getTpmLocator() throws SecurityException
+  {
+    try {
+      Statement statement = database_.createStatement();
+      try {
+        ResultSet result = statement.executeQuery(SELECT_getTpmLocator);
+
+        if (result.next())
+          return result.getString("tpm_locator");
+        else
+          throw new SecurityException
+            ("BasicIdentityStorage::getTpmLocator: TPM info does not exist");
+      } finally {
+        statement.close();
+      }
     } catch (SQLException exception) {
       throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
