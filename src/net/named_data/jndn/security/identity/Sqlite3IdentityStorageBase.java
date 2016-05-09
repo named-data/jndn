@@ -81,12 +81,21 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
         ("The specified identity name does not match the key name");
   }
 
+  protected static final String SELECT_MASTER_TPM_INFO_TABLE =
+    "SELECT name FROM sqlite_master WHERE type='table' And name='TpmInfo'";
   protected static final String SELECT_MASTER_ID_TABLE =
     "SELECT name FROM sqlite_master WHERE type='table' And name='Identity'";
   protected static final String SELECT_MASTER_KEY_TABLE =
     "SELECT name FROM sqlite_master WHERE type='table' And name='Key'";
   protected static final String SELECT_MASTER_CERT_TABLE =
     "SELECT name FROM sqlite_master WHERE type='table' And name='Certificate'";
+
+  protected static final String INIT_TPM_INFO_TABLE =
+"CREATE TABLE IF NOT EXISTS                                           \n" +
+"  TpmInfo(                                                           \n" +
+"      tpm_locator BLOB NOT NULL,                                     \n" +
+"      PRIMARY KEY (tpm_locator)                                      \n" +
+"  );                                                                 \n";
 
   protected static final String INIT_ID_TABLE1 =
 "CREATE TABLE IF NOT EXISTS                                           \n" +
@@ -167,6 +176,8 @@ public abstract class Sqlite3IdentityStorageBase extends IdentityStorage {
   protected static final String SELECT_getAllCertificateNamesOfKey_default_false =
     "SELECT cert_name FROM Certificate" +
     "  WHERE default_cert=0 and identity_name=? and key_identifier=?";
+  protected static final String SELECT_getTpmLocator =
+    "SELECT tpm_locator FROM TpmInfo";
 
   protected static final String WHERE_updateKeyStatus =
     "identity_name=? AND key_identifier=?";
