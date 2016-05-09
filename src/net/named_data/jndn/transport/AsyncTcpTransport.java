@@ -287,6 +287,9 @@ public class AsyncTcpTransport extends Transport
               public void completed(Void dummy, Void attachment) {
                 // Need to catch and log exceptions at this async entry point.
                 reconnectLock_.release();
+                synchronized(waitForReconnectLock_){
+                  waitForReconnectLock_.notifyAll();
+                }
                 try {
                   if (onConnected_ != null)
                     onConnected_.run();
@@ -352,12 +355,23 @@ public class AsyncTcpTransport extends Transport
   public void
   send(ByteBuffer data) throws IOException {
     if (connectionInfoForReconnect_.isBlockForReconnect()) {
-      try {
-        if (writeLock_.tryAcquire(DEFAULT_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS) == false) {
-          throw new IOException("Failed to acquire lock on channel to write buffer");
+      synchronized(waitForReconnectLock_){
+        long deadline = System.currentTimeMillis() + DEFAULT_LOCK_TIMEOUT_MS;
+        while(reconnectLock_.availablePermits() == 0){
+          long timeout = deadline - System.currentTimeMillis();
+          if(timeout <= 0){
+            break;
+          }
+          try {
+            waitForReconnectLock_.wait(timeout);
+          } catch (InterruptedException e) {
+            throw new IOException(e);
+          }
         }
-      } catch (InterruptedException e) {
-        throw new IOException(e);
+        
+        if(reconnectLock_.availablePermits() == 0){
+          throw new IOException("Timeout waiting for reconnect");
+        }
       }
     }
 
@@ -389,10 +403,8 @@ public class AsyncTcpTransport extends Transport
    * @throws IOException if the channel write fails
    */
   private void sendDataSequentially(ByteBuffer data) throws InterruptedException, IOException {
-    if (!connectionInfoForReconnect_.isBlockForReconnect()) {
-      if (writeLock_.tryAcquire(DEFAULT_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS) == false) {
-        throw new IOException("Failed to acquire lock on channel to write buffer");
-      }
+    if (writeLock_.tryAcquire(DEFAULT_LOCK_TIMEOUT_MS, TimeUnit.MILLISECONDS) == false) {
+      throw new IOException("Failed to acquire lock on channel to write buffer");
     }
 
     channel_.write(data, data, writeCompletionHandler_);
@@ -435,4 +447,5 @@ public class AsyncTcpTransport extends Transport
   private ElementListener elementListener_;
   private Runnable onConnected_;
   private final Semaphore reconnectLock_ = new Semaphore(1);
+  private final Object waitForReconnectLock_ = new Object();
 }
