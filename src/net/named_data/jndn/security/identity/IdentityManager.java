@@ -1232,7 +1232,7 @@ public class IdentityManager {
   }
 
   /**
-   * Check that identityStorage_->getTpmLocator() (if defined) matches the
+   * Check that identityStorage_.getTpmLocator() (if defined) matches the
    * canonicalTpmLocator.
    * @param canonicalTpmLocator The canonical locator from
    * getDefaultPrivateKeyStorage().
@@ -1256,6 +1256,6 @@ public class IdentityManager {
          tpmLocator + " != " + canonicalTpmLocator);
   }
 
-  private IdentityStorage identityStorage_;
-  private PrivateKeyStorage privateKeyStorage_;
+  private final IdentityStorage identityStorage_;
+  private final PrivateKeyStorage privateKeyStorage_;
 }
