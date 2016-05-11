@@ -26,6 +26,7 @@ import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.HmacWithSha256Signature;
+import net.named_data.jndn.GenericSignature;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
@@ -255,6 +256,15 @@ public class TestEncodeDecodeData {
       System.out.println("DigestSha256 signature.signature: " +
         (signature.getSignature().size() > 0 ?
          signature.getSignature().toHex() : "<none>"));
+    }
+    else if (data.getSignature() instanceof GenericSignature) {
+      GenericSignature signature =(GenericSignature)data.getSignature();
+      System.out.println("Generic signature.signature: " +
+        (signature.getSignature().size() > 0 ?
+         signature.getSignature().toHex() : "<none>"));
+      System.out.println("  Type code: " + signature.getTypeCode() + " signatureInfo: " +
+        (signature.getSignatureInfoEncoding().size() > 0 ?
+         signature.getSignatureInfoEncoding().toHex() : "<none>"));
     }
     if (keyLocator != null) {
       System.out.print("signature.keyLocator: ");
