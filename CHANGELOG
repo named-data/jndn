@@ -1,5 +1,8 @@
-Interim changes since jNDN v0.12 (2016-05-09)
+Interim changes since jNDN v0.12 (2016-05-13)
 ---------------------------------------------
+
+Changes
+* In FilePrivateKeyStorage.generateKeyPair, update mapping.txt for the generated key.
 
 Bug fixes
 * http://redmine.named-data.net/issues/3617 Check tpm setting in client.conf.

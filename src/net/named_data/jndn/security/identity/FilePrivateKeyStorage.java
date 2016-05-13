@@ -466,7 +466,39 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   }
 
   /**
-   * Write to a key file
+   * Use nameTransform to get the file path for keyName (without the extension)
+   * and also add to the mapping.txt file.
+   * @param keyName The key name which is transformed to a file path.
+   * @return The key file path without the extension.
+   */
+  private String
+  maintainMapping(String keyName) throws SecurityException
+  {
+    String keyFilePathNoExtension = nameTransform(keyName, "").getPath();
+
+    File mappingFilePath = new File(keyStorePath_, "mapping.txt");
+
+    try{
+      BufferedWriter writer = new BufferedWriter
+        (new FileWriter(mappingFilePath, true));
+      try {
+        writer.write(keyName + ' ' + keyFilePathNoExtension + '\n');
+        writer.flush();
+      }
+      finally{
+        writer.close();
+      }
+    }
+    catch(IOException e){
+      throw new SecurityException
+        ("FilePrivateKeyStorage: Failed to write to mapping.txt: " + e.getMessage());
+    }
+
+    return keyFilePathNoExtension;
+  }
+
+  /**
+   * Write to a key file. If keyClass is PRIVATE, then also update mapping.txt.
    * @param keyName
    * @param keyClass [PUBLIC, PRIVATE, SYMMETRIC]
    * @param data
@@ -477,8 +509,13 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   write(Name keyName, KeyClass keyClass, byte[] data) throws SecurityException{
     String extension = (String) keyTypeMap_.get(keyClass);
     try{
-      BufferedWriter writer = new BufferedWriter
-        (new FileWriter(nameTransform(keyName.toUri(), extension)));
+      String filePath;
+      if (keyClass == KeyClass.PRIVATE)
+        filePath = maintainMapping(keyName.toUri()) + extension;
+      else
+        filePath = nameTransform(keyName.toUri(), extension).getPath();
+
+      BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
       try{
         String base64Data = Common.base64Encode(data);
         writer.write(base64Data, 0, base64Data.length());
