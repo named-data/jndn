@@ -40,8 +40,22 @@ public class MetaInfo implements ChangeCountable {
     finalBlockId_ = metaInfo.finalBlockId_;
   }
 
+  /**
+   * Get the content type.
+   * @return The content type enum value. If this is ContentType.OTHER_CODE,
+   * then call getOtherTypeCode() to get the unrecognized content type code.
+   */
   public final ContentType
   getType() { return type_; }
+
+  /**
+   * Get the content type code from the packet which is other than a recognized
+   * ContentType enum value. This is only meaningful if getType() is
+   * ContentType.OTHER_CODE.
+   * @return The type code.
+   */
+  public final int
+  getOtherTypeCode() { return otherTypeCode_; }
 
   public final double
   getFreshnessPeriod() { return freshnessPeriod_; }
@@ -64,10 +78,33 @@ public class MetaInfo implements ChangeCountable {
   public final Name.Component
   getFinalBlockID() { return getFinalBlockId(); }
 
+  /**
+   * Set the content type.
+   * @param type The content type enum value. If the packet's content type is
+   * not a recognized ContentType enum value, use ContentType.OTHER_CODE and
+   * call setOtherTypeCode().
+   */
   public final void
   setType(ContentType type)
   {
     type_ = type;
+    ++changeCount_;
+  }
+
+  /**
+   * Set the packet's content type code to use when the content type enum is
+   * ContentType.OTHER_CODE. If the packet's content type code is a recognized
+   * enum value, just call setType().
+   * @param otherTypeCode The packet's unrecognized content type code, which
+   * must be non-negative.
+   */
+  public final void
+  setOtherTypeCode(int otherTypeCode)
+  {
+    if (otherTypeCode < 0)
+      throw new Error("MetaInfo other type code must be non-negative");
+
+    otherTypeCode_ = otherTypeCode;
     ++changeCount_;
   }
 
@@ -112,6 +149,7 @@ public class MetaInfo implements ChangeCountable {
   getChangeCount() { return changeCount_; }
 
   private ContentType type_ = ContentType.BLOB; /**< default is ContentType.BLOB. */
+  private int otherTypeCode_ = -1;
   private double freshnessPeriod_ = -1; /**< -1 for none */
   private Name.Component finalBlockId_ = new Name.Component(); /**< size 0 for none */
   private long changeCount_ = 0;

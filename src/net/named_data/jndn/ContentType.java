@@ -20,13 +20,18 @@
 package net.named_data.jndn;
 
 /**
- * A ContentType specifies the content type in a MetaInfo object.
+ * A ContentType specifies the content type in a MetaInfo object. If the
+ * content type in the packet is not a recognized enum value, then we use
+ * ContentType.OTHER_CODE and you can call MetaInfo.getOtherTypeCode(). We do
+ * this to keep the recognized content type values independent of packet
+ * encoding formats.
  */
 public enum ContentType {
   BLOB(0),
   LINK(1),
   KEY (2),
-  NACK(3);
+  NACK(3),
+  OTHER_CODE(0x7fff);
 
   ContentType (int type)
   {
