@@ -217,6 +217,8 @@ public class TestEncodeDecodeData {
         System.out.println("LINK");
       else if (data.getMetaInfo().getType() == ContentType.NACK)
         System.out.println("NACK");
+      else if (data.getMetaInfo().getType() == ContentType.OTHER_CODE)
+        System.out.println("other code " + data.getMetaInfo().getOtherTypeCode());
     }
     System.out.println("metaInfo.freshnessPeriod (milliseconds): " +
       (data.getMetaInfo().getFreshnessPeriod() >= 0 ?
