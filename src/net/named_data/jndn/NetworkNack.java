@@ -80,10 +80,16 @@ public class NetworkNack {
    * Set the packet's reason code to use when the reason enum is
    * Reason.OTHER_CODE. If the packet's reason code is a recognized enum value,
    * just call setReason().
-   * @param otherReasonCode The packet's unrecognized reason code.
+   * @param otherReasonCode The packet's unrecognized reason code, which must be
+   * non-negative.
    */
   public void
-  setOtherReasonCode(int otherReasonCode) { otherReasonCode_ = otherReasonCode; }
+  setOtherReasonCode(int otherReasonCode)
+  {
+    if (otherReasonCode < 0)
+      throw new Error("NetworkNack other reason code must be non-negative");
+    otherReasonCode_ = otherReasonCode;
+  }
 
   /**
    * Get the first header field in lpPacket which is a NetworkNack. This is
