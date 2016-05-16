@@ -117,7 +117,7 @@ public class DelayedCallTable {
     private final double callTime_;
   }
 
-  private final List<Entry> table_ = new ArrayList<Entry>();
+  private final ArrayList<Entry> table_ = new ArrayList<Entry>();
   // This is to force an import of net.named_data.jndn.util.
   private static Common dummyCommon_ = new Common();
 }

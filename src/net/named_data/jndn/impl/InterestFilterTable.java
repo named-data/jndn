@@ -149,7 +149,7 @@ public class InterestFilterTable {
          interestFilterId);
   }
 
-  private final List<Entry> table_ = new ArrayList<Entry>();
+  private final ArrayList<Entry> table_ = new ArrayList<Entry>();
   private static final Logger logger_ = Logger.getLogger
     (InterestFilterTable.class.getName());
   // This is to force an import of net.named_data.jndn.util.
