@@ -280,8 +280,8 @@ public class PendingInterestTable {
       return false;
   }
 
-  private final List<Entry> table_ = new ArrayList<Entry>();
-  private final List<Long> removeRequests_ = new ArrayList<Long>();
+  private final ArrayList<Entry> table_ = new ArrayList<Entry>();
+  private final ArrayList<Long> removeRequests_ = new ArrayList<Long>();
   private static final Logger logger_ = Logger.getLogger
     (PendingInterestTable.class.getName());
 }
