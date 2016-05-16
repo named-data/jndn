@@ -42,7 +42,7 @@ public class ConfigFile {
   {
     path_ = findConfigFile();
 
-    if (!path_.isEmpty())
+    if (!path_.equals(""))
       parse();
   }
 
@@ -108,7 +108,7 @@ public class ConfigFile {
   private void
   parse() throws IOException
   {
-    if (path_.isEmpty())
+    if (path_.equals(""))
       throw new Error
         ("ConfigFile::parse: Failed to locate the configuration file for parsing");
 
@@ -126,7 +126,7 @@ public class ConfigFile {
       String line;
       while ((line = input.readLine()) != null) {
         line = line.trim();
-        if (line.isEmpty() || line.charAt(0) == ';')
+        if (line.equals("") || line.charAt(0) == ';')
           // Skip empty lines and comments.
           continue;
 

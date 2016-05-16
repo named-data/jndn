@@ -1180,7 +1180,7 @@ public class IdentityManager {
   {
     String pibLocator = config.get("pib", "");
 
-    if (!pibLocator.isEmpty()) {
+    if (!pibLocator.equals("")) {
       // Don't support non-default locations for now.
       if (!pibLocator.equals("pib-sqlite3"))
         throw new SecurityException
@@ -1204,7 +1204,7 @@ public class IdentityManager {
   {
     String tpmLocator = config.get("tpm", "");
 
-    if (tpmLocator.isEmpty()) {
+    if (tpmLocator.equals("")) {
       // Use the system default.
       if (System.getProperty("os.name").equals("Mac OS X")) {
         canonicalTpmLocator[0] = "tpm-osxkeychain:";
@@ -1250,7 +1250,7 @@ public class IdentityManager {
     }
 
     // Just check. If a PIB reset is required, expect ndn-cxx/NFD to do it.
-    if (!tpmLocator.isEmpty() && !tpmLocator.equals(canonicalTpmLocator))
+    if (!tpmLocator.equals("") && !tpmLocator.equals(canonicalTpmLocator))
       throw new SecurityException
         ("The TPM locator supplied does not match the TPM locator in the PIB: " +
          tpmLocator + " != " + canonicalTpmLocator);
