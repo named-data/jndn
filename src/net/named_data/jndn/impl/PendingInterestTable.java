@@ -20,7 +20,6 @@
 package net.named_data.jndn.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Interest;
@@ -28,6 +27,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
+import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
@@ -284,4 +284,6 @@ public class PendingInterestTable {
   private final ArrayList<Long> removeRequests_ = new ArrayList<Long>();
   private static final Logger logger_ = Logger.getLogger
     (PendingInterestTable.class.getName());
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

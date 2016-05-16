@@ -20,10 +20,10 @@
 package net.named_data.jndn.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.util.Common;
 
 /**
  * A RegisteredPrefixTable is an internal class to hold a list of registered
@@ -167,4 +167,6 @@ public class RegisteredPrefixTable {
   private final ArrayList<Long> removeRequests_ = new ArrayList<Long>();
   private static final Logger logger_ = Logger.getLogger
     (RegisteredPrefixTable.class.getName());
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

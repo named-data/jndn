@@ -20,7 +20,6 @@
 package net.named_data.jndn.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 import net.named_data.jndn.util.Common;
 
 /**
