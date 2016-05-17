@@ -42,6 +42,7 @@ import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
@@ -57,7 +58,6 @@ import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.Encryptor;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
 import net.named_data.jndn.security.KeyChain;
-import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
@@ -192,7 +192,7 @@ public class TestProducer {
       public long
       expressInterest
         (Interest interest, OnData onData, OnTimeout onTimeout,
-         WireFormat wireFormat) throws IOException
+         OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
         ++expressInterestCallCount[0];
         
@@ -357,7 +357,7 @@ public class TestProducer {
       public long
       expressInterest
         (Interest interest, OnData onData, OnTimeout onTimeout,
-         WireFormat wireFormat) throws IOException
+         OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
         assertEquals(expectedInterest, interest.getName());
 
@@ -437,7 +437,7 @@ public class TestProducer {
       public long
       expressInterest
         (Interest interest, OnData onData, OnTimeout onTimeout,
-         WireFormat wireFormat) throws IOException
+         OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
         assertEquals(expectedInterest, interest.getName());
         ++timeoutCount[0];
