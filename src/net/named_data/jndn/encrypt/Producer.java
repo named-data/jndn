@@ -41,7 +41,9 @@ import net.named_data.jndn.Exclude;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.NetworkNack;
 import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.EncryptError.ErrorCode;
@@ -329,12 +331,12 @@ public class Producer {
 
   /**
    * Send an interest with the given name through the face with callbacks to
-   * handleCoveringKey and handleTimeout.
+   * handleCoveringKey, handleTimeout and handleNetworkNack.
    * @param interest The interest to send.
-   * @param timeSlot The time slot, passed to handleCoveringKey and
-   * handleTimeout.
+   * @param timeSlot The time slot, passed to handleCoveringKey, handleTimeout
+   * and handleNetworkNack.
    * @param onEncryptedKeys The OnEncryptedKeys callback, passed to
-   * handleCoveringKey and handleTimeout.
+   * handleCoveringKey, handleTimeout and handleNetworkNack.
    */
   private void
   sendKeyInterest
@@ -362,7 +364,13 @@ public class Producer {
       }
     };
 
-    face_.expressInterest(interest, onKey, onTimeout);
+    OnNetworkNack onNetworkNack = new OnNetworkNack() {
+      public void onNetworkNack(Interest interest, NetworkNack networkNack) {
+        handleNetworkNack(interest, networkNack, timeSlot, onEncryptedKeys);
+      }
+    };
+
+    face_.expressInterest(interest, onKey, onTimeout, onNetworkNack);
   }
 
   /**
@@ -395,6 +403,28 @@ public class Producer {
     else
       // No more retrials.
       updateKeyRequest(keyRequest, timeCount, onEncryptedKeys);
+  }
+
+  /**
+   * This is called from an expressInterest OnNetworkNack to handle a network
+   * Nack for the E-KEY requested through the Interest. Decrease the outstanding
+   * E-KEY interest count for the C-KEY corresponding to the timeSlot.
+   * @param interest The interest given to expressInterest.
+   * @param networkNack The returned NetworkNack (unused).
+   * @param timeSlot The time slot as milliseconds since Jan 1, 1970 UTC.
+   * @param onEncryptedKeys When there are no more interests to process, this
+   * calls onEncryptedKeys.onEncryptedKeys(keys) where keys is a list of
+   * encrypted content key Data packets. If onEncryptedKeys is null, this does
+   * not use it.
+   */
+  private void
+  handleNetworkNack
+    (Interest interest, NetworkNack networkNack, double timeSlot,
+     OnEncryptedKeys onEncryptedKeys)
+  {
+    double timeCount = Math.round(timeSlot);
+    updateKeyRequest
+      ((KeyRequest)keyRequests_.get(timeCount), timeCount, onEncryptedKeys);
   }
 
   /**
