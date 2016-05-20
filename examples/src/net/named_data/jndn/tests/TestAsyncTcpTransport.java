@@ -20,7 +20,7 @@
  */
 package net.named_data.jndn.tests;
 
-import static org.junit.Assert.assertTrue;
+import net.named_data.jndn.transport.AsyncTcpTransport;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,20 +34,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.Test;
-
-import net.named_data.jndn.transport.AsyncTcpTransport;
-
 public class TestAsyncTcpTransport {
   private static final Logger LOGGER = Logger.getLogger(TestAsyncTcpTransport.class.getName());
   private static final int PORT = 3098;
   private static int count = 0;
   private static ServerSocket server = null;
 
+  public static void main(String[] args) {
+    TestAsyncTcpTransport instance = new TestAsyncTcpTransport();
+    instance.testHappyPath();
+    instance.testWithoutServerInitiallyOn();
+    instance.testWithServerRebootWhileIdling();
+    instance.testWithServerRebootWhileSending();
+    LOGGER.info("Tests complete");
+  }
+
   /**
    * Test that reconnection logic does not break normal operation, i.e. make sure we didn't break the happy path
    */
-  @Test
   public void testHappyPath() {
     // start the mock nfd first
     startMockNfd(PORT);
@@ -81,14 +85,12 @@ public class TestAsyncTcpTransport {
     shutdownPool(pool2);
 
     // make sure we received some pings
-    assertTrue(count > 0);
+    assert(count > 0);
   }
-
 
   /**
    * Test to mimic when the NFD is not up initially (but then starts) and the transport attempts to open and send data
    */
-  @Test
   public void testWithoutServerInitiallyOn() {
     // create the pool
     ScheduledExecutorService pool = Executors.newScheduledThreadPool(3);
@@ -122,13 +124,12 @@ public class TestAsyncTcpTransport {
     shutdownPool(pool2);
 
     // we have received some pings
-    assertTrue(count > 0);
+    assert(count > 0);
   }
 
   /**
    * This tests a client constantly sending data and the reboot of mock NFD which triggers the reconnect
    */
-  @Test
   public void testWithServerRebootWhileSending() {
     // start the mock nfd
     startMockNfd(PORT);
@@ -165,14 +166,13 @@ public class TestAsyncTcpTransport {
     shutdownPool(pool2);
 
     // make sure we received some pings
-    assertTrue(count > 0);
+    assert(count > 0);
   }
 
   /**
    * this is to test reboot the nfd while client is not sending any data and client will reconnect after the next few
    * send request
    */
-  @Test
   public void testWithServerRebootWhileIdling() {
     // start the mock nfd
     startMockNfd(PORT);
@@ -216,7 +216,7 @@ public class TestAsyncTcpTransport {
     shutdownPool(pool3);
 
     // we should see something from client after reconnect
-    assertTrue(count > 0);
+    assert(count > 0);
   }
 
   private AsyncTcpTransport createAndStartClient(ScheduledExecutorService pool) {
@@ -272,7 +272,7 @@ public class TestAsyncTcpTransport {
 
   private void startMockNfd(final int port) {
     if (server == null) {
-      new Thread(new Runnable() {
+      Thread nfd = new Thread(new Runnable() {
         public void run() {
           try {
             server = new ServerSocket(port);
@@ -285,7 +285,9 @@ public class TestAsyncTcpTransport {
             LOGGER.log(Level.WARNING, null, e);
           }
         }
-      }).start();
+      });
+      nfd.setDaemon(true);
+      nfd.start();
     }
   }
 
