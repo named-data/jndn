@@ -232,12 +232,7 @@ public class TestAsyncTcpTransport {
   }
 
   private void shutdownPool(ScheduledExecutorService pool) {
-    pool.shutdown();
-    try {
-      pool.awaitTermination(10, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      LOGGER.log(Level.WARNING, null, e);
-    }
+    pool.shutdownNow();
   }
 
   private void send(final ScheduledExecutorService pool, final AsyncTcpTransport transport, final String ping) {
