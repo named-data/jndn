@@ -329,39 +329,44 @@ public class RepetitiveInterval implements Comparable {
   private boolean
   hasIntervalOnDate(double timePoint)
   {
-    Calendar timePointDate = toCalendar(toDateOnlyMilliseconds(timePoint));
-    Calendar startDate = toCalendar(startDate_);
-    Calendar endDate = toCalendar(endDate_);
+    double timePointDateMilliseconds = toDateOnlyMilliseconds(timePoint);
 
-    if (timePointDate.before(startDate) || timePointDate.after(endDate))
+    if (timePointDateMilliseconds < startDate_ ||
+        timePointDateMilliseconds > endDate_)
       return false;
 
     if (repeatUnit_ == RepeatUnit.NONE)
       return true;
-
-    if (repeatUnit_ == RepeatUnit.DAY) {
-      long durationDays =
-        (timePointDate.getTimeInMillis() - startDate.getTimeInMillis()) /
-        MILLISECONDS_IN_DAY;
+    else if (repeatUnit_ == RepeatUnit.DAY) {
+      long durationDays = (long)(timePointDateMilliseconds - startDate_) /
+                          MILLISECONDS_IN_DAY;
       if (durationDays % nRepeats_ == 0)
         return true;
     }
-    else if (repeatUnit_ == RepeatUnit.MONTH &&
-             timePointDate.get(Calendar.DAY_OF_MONTH) ==
-             startDate.get(Calendar.DAY_OF_MONTH)) {
-      int yearDifference =
-        timePointDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR);
-      int monthDifference = 12 * yearDifference +
-        timePointDate.get(Calendar.MONTH) - startDate.get(Calendar.MONTH);
-      if (monthDifference % nRepeats_ == 0)
-        return true;
-    }
-    else if (repeatUnit_ == RepeatUnit.YEAR &&
-             timePointDate.get(Calendar.DAY_OF_MONTH) == startDate.get(Calendar.DAY_OF_MONTH) &&
-             timePointDate.get(Calendar.MONTH) == startDate.get(Calendar.MONTH)) {
-      int difference = timePointDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR);
-      if (difference % nRepeats_ == 0)
-        return true;
+    else {
+      Calendar timePointDate = toCalendar(timePointDateMilliseconds);
+      Calendar startDate = toCalendar(startDate_);
+
+      if (repeatUnit_ == RepeatUnit.MONTH &&
+               timePointDate.get(Calendar.DAY_OF_MONTH) ==
+               startDate.get(Calendar.DAY_OF_MONTH)) {
+        int yearDifference =
+          timePointDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR);
+        int monthDifference = 12 * yearDifference +
+          timePointDate.get(Calendar.MONTH) - startDate.get(Calendar.MONTH);
+        if (monthDifference % nRepeats_ == 0)
+          return true;
+      }
+      else if (repeatUnit_ == RepeatUnit.YEAR &&
+               timePointDate.get(Calendar.DAY_OF_MONTH) ==
+                 startDate.get(Calendar.DAY_OF_MONTH) &&
+               timePointDate.get(Calendar.MONTH) ==
+                 startDate.get(Calendar.MONTH)) {
+        int difference = timePointDate.get(Calendar.YEAR) -
+          startDate.get(Calendar.YEAR);
+        if (difference % nRepeats_ == 0)
+          return true;
+      }
     }
 
     return false;
