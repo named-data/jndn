@@ -1,0 +1,32 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "kr.ac.anyang.nilab.ndnping"
+        minSdkVersion 9
+        targetSdkVersion 20
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/../../../../../../src'
+        main.java.exclude '**/ProtobufTlv.java'
+        main.java.exclude '**/ChronoSync2013.java'
+        main.java.exclude '**/SyncStateProto.java'
+        main.java.exclude '**/AsyncTcpTransport.java'
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:21.0.3'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+}

@@ -11,18 +11,19 @@
 # Javadoc output
 /doc
 
-# Eclipse build files
-/examples/android/NDNPing/bin
-
 # Emacs temp files
 *~
 
 # Netbeans configuration
 nb-configuration.xml
 
-# IntelliJ configuration
+# IntelliJ/Android Studio
 .idea
 *.iml
+.gradle
+local.properties
+examples/android/NDNPing/build
+examples/android/NDNPing/app/build
 
 # unit_test temporary files
 examples/src/net/named_data/jndn/tests/unit_tests/policy_config/test-public-info.db
