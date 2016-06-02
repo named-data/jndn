@@ -73,9 +73,7 @@ public class Encryptor {
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException
   {
-    Name dataName = data.getName();
-    dataName.append(NAME_COMPONENT_FOR).append(keyName);
-    data.setName(dataName);
+    data.getName().append(NAME_COMPONENT_FOR).append(keyName);
 
     EncryptAlgorithmType algorithmType = params.getAlgorithmType();
 
