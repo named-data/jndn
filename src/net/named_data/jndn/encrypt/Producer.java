@@ -64,7 +64,7 @@ import net.named_data.jndn.util.Blob;
  */
 public class Producer {
   public interface OnEncryptedKeys {
-    // List is a list of Data packets with the content key encrypted by E-KEYS.
+    // keys is a list of Data packets with the content key encrypted by E-KEYS.
     void onEncryptedKeys(List keys);
   }
 
