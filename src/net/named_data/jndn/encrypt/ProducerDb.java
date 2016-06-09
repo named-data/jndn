@@ -31,7 +31,7 @@ import net.named_data.jndn.util.Blob;
  */
 public abstract class ProducerDb {
   /**
-   * ConsumerDb.Error extends Exception for errors using ConsumerDb methods.
+   * ProducerDb.Error extends Exception for errors using ProducerDb methods.
    * Note that even though this is called "Error" to be consistent with the
    * other libraries, it extends the Java Exception class, not Error.
    */
