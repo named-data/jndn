@@ -262,7 +262,7 @@ public class Producer {
       InvalidAlgorithmParameterException, InvalidKeySpecException
   {
     // Get a content key.
-    Name contentKeyName = new Name(createContentKey(timeSlot, null, onError));
+    Name contentKeyName = createContentKey(timeSlot, null, onError);
     Blob contentKey = database_.getContentKey(timeSlot);
 
     // Produce data.
