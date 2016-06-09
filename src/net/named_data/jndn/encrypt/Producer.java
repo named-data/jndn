@@ -571,7 +571,8 @@ public class Producer {
    * @param exclude The Exclude object to read.
    * @return A new list of ExcludeEntry.
    */
-  private static ArrayList getExcludeEntries(Exclude exclude)
+  private static ArrayList
+  getExcludeEntries(Exclude exclude)
   {
     ArrayList entries = new ArrayList();
 
@@ -596,7 +597,8 @@ public class Producer {
    * @param exclude The Exclude object to update.
    * @param entries The list of ExcludeEntry.
    */
-  private static void setExcludeEntries(Exclude exclude, ArrayList entries)
+  private static void
+  setExcludeEntries(Exclude exclude, ArrayList entries)
   {
     exclude.clear();
 
@@ -622,8 +624,8 @@ public class Producer {
    * @param component The component to compare.
    * @return The index of the found entry, or -1 if not found.
    */
-  private static int findEntryBeforeOrAt
-    (ArrayList entries, Name.Component component)
+  private static int
+  findEntryBeforeOrAt(ArrayList entries, Name.Component component)
   {
     int i = entries.size() - 1;
     while (i >= 0) {
@@ -640,7 +642,8 @@ public class Producer {
    * @param exclude The Exclude object to update.
    * @param from The first component in the exclude range.
    */
-  private static void excludeAfter(Exclude exclude, Name.Component from)
+  private static void
+  excludeAfter(Exclude exclude, Name.Component from)
   {
     ArrayList entries = getExcludeEntries(exclude);
 
@@ -685,7 +688,8 @@ public class Producer {
    * @param exclude The Exclude object to update.
    * @param to The last component in the exclude range.
    */
-  private static void excludeBefore(Exclude exclude, Name.Component to)
+  private static void
+  excludeBefore(Exclude exclude, Name.Component to)
   {
     excludeRange(exclude, new Name.Component(), to);
   }
@@ -696,8 +700,8 @@ public class Producer {
    * @param from The first component in the exclude range.
    * @param to The last component in the exclude range.
    */
-  private static void excludeRange
-    (Exclude exclude, Name.Component from, Name.Component to)
+  private static void
+  excludeRange(Exclude exclude, Name.Component from, Name.Component to)
   {
     if (from.compare(to) >= 0) {
       if (from.compare(to) == 0)
