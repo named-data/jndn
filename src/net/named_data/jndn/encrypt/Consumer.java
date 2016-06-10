@@ -229,7 +229,7 @@ public class Consumer {
     EncryptedContent encryptedContent = new EncryptedContent();
     try {
       encryptedContent.wireDecode(encryptedBlob);
-    } catch (Exception ex) {
+    } catch (EncodingException ex) {
       try {
         onError.onError(ErrorCode.InvalidEncryptedFormat, ex.getMessage());
       } catch (Exception exception) {
@@ -613,6 +613,7 @@ public class Consumer {
       } catch (Exception ex) {
         logger_.log(Level.SEVERE, "Error in onError", ex);
       }
+      return;
     }
 
     // Decrypt the D-KEY.
