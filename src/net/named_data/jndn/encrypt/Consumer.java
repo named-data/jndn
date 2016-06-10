@@ -229,7 +229,7 @@ public class Consumer {
     EncryptedContent encryptedContent = new EncryptedContent();
     try {
       encryptedContent.wireDecode(encryptedBlob);
-    } catch (EncodingException ex) {
+    } catch (Exception ex) {
       try {
         onError.onError(ErrorCode.InvalidEncryptedFormat, ex.getMessage());
       } catch (Exception exception) {
