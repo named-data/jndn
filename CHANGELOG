@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.12 (2016-05-23)
----------------------------------------------
+jNDN v0.13 (2016-06-10)
+-----------------------
 
 Changes
 * http://redmine.named-data.net/issues/3337 In MetaInfo, added get/setOtherTypeCode
