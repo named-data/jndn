@@ -132,12 +132,13 @@ public class AsyncTcpTransport extends Transport
      * Create a ConnectionInfo with the given host and port.
      * @param host The host for the connection.
      * @param port The port number for the connection.
-     * @param attemptReconnection if true, drop packets until reconnected within {@link #DEFAULT_RECONNECT_TRY_DELAY_MS}
+     * @param reconnectDelayMs the number of milliseconds between reconnect attempts; if less than zero, no reconnect
+     * attempts will be made (defaults to -1)
      */
-    public ConnectionInfo(String host, int port, boolean attemptReconnection) {
+    public ConnectionInfo(String host, int port, int reconnectDelayMs) {
       host_ = host;
       port_ = port;
-      attemptReconnection_ = attemptReconnection;
+      reconnectDelayMs_ = reconnectDelayMs;
     }
 
     /**
@@ -146,7 +147,7 @@ public class AsyncTcpTransport extends Transport
      * @param port The port number for the connection.
      */
     public ConnectionInfo(String host, int port) {
-      this(host, port, false);
+      this(host, port, -1);
     }
 
     /**
@@ -154,7 +155,7 @@ public class AsyncTcpTransport extends Transport
      * @param host The host for the connection.
      */
     public ConnectionInfo(String host) {
-      this(host, 6363, false);
+      this(host, 6363, -1);
     }
 
     /**
@@ -176,17 +177,24 @@ public class AsyncTcpTransport extends Transport
     }
 
     /**
-     * Get attemptReconnection flag; if true, drop packets until reconnected within {@link #DEFAULT_RECONNECT_TRY_DELAY_MS}
-     * @return true if blockForReconnect
+     * @return true if the transport should make reconnection attempts
      */
     public final boolean
     shouldAttemptReconnection() {
-      return attemptReconnection_;
+      return reconnectDelayMs_ >= 0;
+    }
+
+    /**
+     * @return the number of milliseconds between reconnect attempts
+     */
+    public final int
+    reconnectDelay() {
+      return reconnectDelayMs_;
     }
 
     private final String host_;
     private final int port_;
-    private final boolean attemptReconnection_;
+    private final int reconnectDelayMs_;
   }
 
   /**
@@ -271,7 +279,7 @@ public class AsyncTcpTransport extends Transport
 
               public void failed(Throwable ex, Void attachment) {
                 logger_.log(Level.SEVERE, "Failed to connect", ex);
-                if(connectionInfo_.shouldAttemptReconnection()){
+                if(connectionInfo_.shouldAttemptReconnection() && acquireReconnectLock()){
                   scheduleReconnect();
                 }
               }
@@ -320,18 +328,14 @@ public class AsyncTcpTransport extends Transport
 
   /**
    * Helper method for acquiring the reconnect lock; any method attempting to
-   * schedule a reconnect must acquire this lock
+   * schedule a reconnect must acquire this lock. This method must not block
+   * but simply return whether the lock was acquired or not.
    *
    * @return true if the lock is acquired, false otherwise
    */
   private boolean
   acquireReconnectLock() {
-    try {
-      return reconnectLock_.tryAcquire(0, TimeUnit.MICROSECONDS);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      return false;
-    }
+    return reconnectLock_.tryAcquire();
   }
 
   /**
@@ -341,7 +345,7 @@ public class AsyncTcpTransport extends Transport
    */
   private void
   scheduleReconnect() {
-    logger_.log(Level.INFO, "Scheduled to reconnect in " + DEFAULT_RECONNECT_TRY_DELAY_MS + "ms");
+    logger_.log(Level.INFO, "Scheduled to reconnect in " + connectionInfo_.reconnectDelay() + "ms");
     threadPool_.schedule(new Runnable() {
       public void run() {
         try {
@@ -350,7 +354,7 @@ public class AsyncTcpTransport extends Transport
           logger_.log(Level.WARNING, null, e);
         }
       }
-    }, DEFAULT_RECONNECT_TRY_DELAY_MS, TimeUnit.MILLISECONDS);
+    }, connectionInfo_.reconnectDelay(), TimeUnit.MILLISECONDS);
   }
 
   private void
@@ -424,6 +428,13 @@ public class AsyncTcpTransport extends Transport
     return channel_ != null && channel_.getRemoteAddress() != null;
   }
 
+  @Override
+  public void
+  close() throws IOException {
+    channel_.close();
+    channelGroup_.shutdownNow();
+  }
+
   private AsynchronousSocketChannel channel_;
   private final CompletionHandler<Integer, Void> readCompletionHandler_;
   private final CompletionHandler<Integer, ByteBuffer> writeCompletionHandler_;
@@ -437,7 +448,6 @@ public class AsyncTcpTransport extends Transport
   private static final Logger logger_ = Logger.getLogger
       (AsyncTcpTransport.class.getName());
   public static final int DEFAULT_LOCK_TIMEOUT_MS = 10000;
-  public static final int DEFAULT_RECONNECT_TRY_DELAY_MS = 5000;
   private AsynchronousChannelGroup channelGroup_;
   private ElementListener elementListener_;
   private Runnable onConnected_;
