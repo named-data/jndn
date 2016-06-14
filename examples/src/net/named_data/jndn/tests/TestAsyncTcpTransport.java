@@ -3,20 +3,17 @@
  *
  * @author: Andrew Brown <andrew.brown@intel.com>
  * @author: Wei Yu <w.yu@intel.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU Lesser General Public License is in the file COPYING.
+ * <p>
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * <p>
+ * You should have received a copy of the GNU Lesser General Public License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>. A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 package net.named_data.jndn.tests;
 
@@ -28,226 +25,199 @@ import java.io.LineNumberReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TestAsyncTcpTransport {
   private static final Logger LOGGER = Logger.getLogger(TestAsyncTcpTransport.class.getName());
-  private static final int PORT = 3098;
-  private static int count = 0;
-  private static ServerSocket server = null;
+  private static final String NFD_HOST = "localhost";
+  private static final int NFD_PORT = 3098;
+  private static final int NUM_THREADS_IN_POOL = 3;
+  private static final int RECONNECT_DELAY_MS = 10;
 
-  public static void main(String[] args) {
-    /* disable logging from AsyncTcpTransport to not pollute the console output*/
+  private ScheduledExecutorService pool;
+  private MockNfd nfd;
+  private AsyncTcpTransport transport;
+  private AsyncTcpTransport.ConnectionInfo connectionInfo;
+
+  public static void main(String[] args) throws Exception {
+    // disable logging from AsyncTcpTransport to not pollute the console output
     Logger.getLogger(AsyncTcpTransport.class.getName()).setLevel(Level.OFF);
+
     TestAsyncTcpTransport instance = new TestAsyncTcpTransport();
-    instance.testHappyPath();
-    instance.testWithoutServerInitiallyOn();
-    instance.testWithServerRebootWhileIdling();
-    instance.testWithServerRebootWhileSending();
+
+    instance.before();
+    try {
+      instance.testHappyPath();
+    } catch (Throwable e) {
+      LOGGER.log(Level.SEVERE, "Failed to run test", e);
+    } finally {
+      instance.after();
+    }
+
+    instance.before();
+    try {
+      instance.testWithoutServerInitiallyOn();
+    } catch (Throwable e) {
+      LOGGER.log(Level.SEVERE, "Failed to run test", e);
+    } finally {
+      instance.after();
+    }
+
+    instance.before();
+    try {
+      instance.testWithServerRebootWhileIdling();
+    } catch (Throwable e) {
+      LOGGER.log(Level.SEVERE, "Failed to run test", e);
+    } finally {
+      instance.after();
+    }
+
+    instance.before();
+    try {
+      instance.testWithServerRebootWhileSending();
+    } catch (Throwable e) {
+      LOGGER.log(Level.SEVERE, "Failed to run test", e);
+    } finally {
+      instance.after();
+    }
+
     LOGGER.info("Tests complete");
+  }
+
+  private void before() {
+    nfd = new MockNfd(NFD_PORT);
+    pool = Executors.newScheduledThreadPool(NUM_THREADS_IN_POOL);
+    transport = new AsyncTcpTransport(pool);
+    connectionInfo = new AsyncTcpTransport.ConnectionInfo(NFD_HOST, NFD_PORT, RECONNECT_DELAY_MS);
+  }
+
+  private void after() throws Exception {
+    nfd.stop();
+    transport.close();
+    pool.shutdownNow();
   }
 
   /**
    * Test that reconnection logic does not break normal operation, i.e. make sure we didn't break the happy path
    */
-  public void testHappyPath() {
-    // start the mock nfd first
-    startMockNfd(PORT);
+  private void testHappyPath() throws Exception {
+    LOGGER.info("testHappyPath()");
 
-    // reset the count
-    count = 0;
+    nfd.start();
+    transport.connect(connectionInfo, null, null);
 
-    // create pool for tcp transport
-    ScheduledExecutorService pool = Executors.newScheduledThreadPool(3);
-
-    // create and start tcp transport
-    AsyncTcpTransport transport = createAndStartClient(pool);
-
-    // start sending pings
-    ScheduledExecutorService pool2 = Executors.newSingleThreadScheduledExecutor();
-    send(pool2, transport, "ping");
-
-    // allow enough time to receive some ping
-    for (int i = 0; i < 10; i++) {
-      sleep(1000);
-      if (count > 0) {
-        break;
+    sendPacketWhile("happy path", new Condition() {
+      @Override
+      public boolean test(int numAttempts) {
+        return nfd.packetCount() < 1 && numAttempts < 10;
       }
-    }
-
-    // stop server
-    stopMockNfd(transport);
-
-    // shutdown the pools
-    shutdownPool(pool);
-    shutdownPool(pool2);
+    });
 
     // make sure we received some pings
-    assert(count > 0);
+    if (nfd.packetCount() <= 0) throw new AssertionError();
   }
 
   /**
-   * Test to mimic when the NFD is not up initially (but then starts) and the transport attempts to open and send data
+   * Test to mimic when the NFD is not up initially (but then starts) and the transport attempts to open and sendPacket
+   * data
    */
-  public void testWithoutServerInitiallyOn() {
-    // create the pool
-    ScheduledExecutorService pool = Executors.newScheduledThreadPool(3);
+  private void testWithoutServerInitiallyOn() throws Exception {
+    LOGGER.info("testWithoutServerInitiallyOn()");
 
-    // create and start the transport
-    AsyncTcpTransport transport = createAndStartClient(pool);
+    transport.connect(connectionInfo, null, null);
 
-    // start sending pings
-    ScheduledExecutorService pool2 = Executors.newSingleThreadScheduledExecutor();
-    send(pool2, transport, "ping1");
+    sendPacket("not up initially");
 
-    // now start the mock nfd
-    startMockNfd(PORT);
+    nfd.start();
 
-    // reset count so we know if count > 0 the transport reconnects successfully
-    count = 0;
-
-    // allow reconnect enough time to complete
-    for (int i = 0; i < 10; i++) {
-      sleep(1000);
-      if (count > 0) {
-        break;
+    sendPacketWhile("not up initially", new Condition() {
+      @Override
+      public boolean test(int numAttempts) {
+        return nfd.packetCount() < 1 && numAttempts < 10;
       }
+    });
+
+    // make sure we received some pings
+    if (nfd.packetCount() <= 0) throw new AssertionError();
+  }
+
+  private void sendPacket(String bytes) {
+    try {
+      LOGGER.info("Sending: " + bytes);
+      transport.send(ByteBuffer.wrap((bytes + "\n").getBytes()));
+    } catch (IOException e) {
+      LOGGER.fine("This exception may be expected... the NFD may not be running");
     }
+  }
 
-    // stop server
-    stopMockNfd(transport);
+  interface Condition {
+    boolean test(int numAttempts);
+  }
 
-    // shutdown the pools
-    shutdownPool(pool);
-    shutdownPool(pool2);
-
-    // we have received some pings
-    assert(count > 0);
+  private void sendPacketWhile(String bytes, Condition condition) {
+    int numAttempts = 0;
+    while (condition.test(numAttempts)) {
+      sendPacket(bytes);
+      numAttempts++;
+      sleep(1);
+    }
   }
 
   /**
    * This tests a client constantly sending data and the reboot of mock NFD which triggers the reconnect
    */
-  public void testWithServerRebootWhileSending() {
-    // start the mock nfd
-    startMockNfd(PORT);
+  private void testWithServerRebootWhileSending() throws Exception {
+    nfd.start();
 
-    // create the pool for transport
-    ScheduledExecutorService pool = Executors.newScheduledThreadPool(3);
+    transport.connect(connectionInfo, null, null);
 
-    // create and start the transport
-    AsyncTcpTransport transport = createAndStartClient(pool);
+    assert (nfd.packetCount() == 0);
 
-    // start sending pings
-    ScheduledExecutorService pool2 = Executors.newSingleThreadScheduledExecutor();
-    send(pool2, transport, "ping2");
+    nfd.stop();
 
-    // reboot the mock nfd by closing the current channel
-    stopMockNfd(transport);
+    sendPacket("nfd reboot");
+    assert (nfd.packetCount() == 0);
 
-    // reset the count so if it is > 0 we know the reconnect is success
-    count = 0;
+    nfd.start();
 
-    // allow reconnect enough time to complete
-    for (int i = 0; i < 10; i++) {
-      sleep(1000);
-      if (count > 0) {
-        break;
+    sendPacketWhile("nfd reboot", new Condition() {
+      @Override
+      public boolean test(int numAttempts) {
+        return nfd.packetCount() < 1 && numAttempts < 10;
       }
-    }
+    });
 
-    // shutdown the server
-    stopMockNfd(transport);
-
-    // cleanup pools
-    shutdownPool(pool);
-    shutdownPool(pool2);
-
-    // make sure we received some pings
-    assert(count > 0);
+    assert (nfd.packetCount() > 0);
   }
 
   /**
    * this is to test reboot the nfd while client is not sending any data and client will reconnect after the next few
-   * send request
+   * sendPacket request
    */
-  public void testWithServerRebootWhileIdling() {
-    // start the mock nfd
-    startMockNfd(PORT);
+  private void testWithServerRebootWhileIdling() throws Exception {
+    nfd.start();
 
-    // create the pool for transport
-    ScheduledExecutorService pool = Executors.newScheduledThreadPool(3);
+    transport.connect(connectionInfo, null, null);
 
-    // create and start the transport
-    AsyncTcpTransport transport = createAndStartClient(pool);
+    assert (nfd.packetCount() == 0);
 
-    // start sending pings
-    ScheduledExecutorService pool2 = Executors.newSingleThreadScheduledExecutor();
-    send(pool2, transport, "ping3");
+    nfd.stop();
 
-    // shutdown the send data pool
-    shutdownPool(pool2);
+    assert (!transport.getIsConnected());
 
-    // close current channel of the mock nfd
-    stopMockNfd(transport);
+    nfd.start();
 
-    // reset the count
-    count = 0;
+    sleep(1000);
 
-    // start sending again
-    ScheduledExecutorService pool3 = Executors.newSingleThreadScheduledExecutor();
-    send(pool3, transport, "ping4");
-
-    // wait long enough for client to reconnect and send some pings
-    for (int i = 0; i < 10; i++) {
-      sleep(1000);
-      if (count > 0) {
-        break;
-      }
-    }
-
-    // stop server
-    stopMockNfd(transport);
-
-    // shutdown the pools
-    shutdownPool(pool);
-    shutdownPool(pool3);
-
-    // we should see something from client after reconnect
-    assert(count > 0);
-  }
-
-  private AsyncTcpTransport createAndStartClient(ScheduledExecutorService pool) {
-    AsyncTcpTransport transport = new AsyncTcpTransport(pool);
-
-    AsyncTcpTransport.ConnectionInfo cinfo = new AsyncTcpTransport.ConnectionInfo("localhost", PORT, true);
-    try {
-      transport.connect(cinfo, null, null);
-    } catch (IOException e) {
-      LOGGER.log(Level.WARNING, e.getMessage());
-    }
-    return transport;
-  }
-
-  private void shutdownPool(ScheduledExecutorService pool) {
-    pool.shutdownNow();
-  }
-
-  private void send(final ScheduledExecutorService pool, final AsyncTcpTransport transport, final String ping) {
-    pool.schedule(new Runnable() {
-      public void run() {
-        try {
-          transport.send(ByteBuffer.wrap((ping + "\n").getBytes()));
-        } catch (IOException e) {
-          LOGGER.log(Level.WARNING, e.getMessage());
-        }
-        send(pool, transport, ping);
-      }
-    }, 1, TimeUnit.SECONDS);
+    assert (!transport.getIsConnected());
   }
 
   private void sleep(long ms) {
@@ -258,70 +228,97 @@ public class TestAsyncTcpTransport {
     }
   }
 
-  private void stopMockNfd(AsyncTcpTransport transport) {
-    try {
-      transport.send(ByteBuffer.wrap("close\n".getBytes()));
-    } catch (IOException e) {
-      LOGGER.log(Level.WARNING, e.getMessage());
-    }
-    sleep(3000);
-  }
+  private class MockNfd implements Runnable {
+    private final int port;
+    private Thread thread;
+    private ServerSocket server;
+    private volatile boolean running;
+    private final CountDownLatch started = new CountDownLatch(1);
+    private final List<MockNfdReader> readers = new ArrayList<>();
+    private final AtomicInteger packetsRead = new AtomicInteger(0);
 
-  private void startMockNfd(final int port) {
-    if (server == null) {
-      Thread nfd = new Thread(new Runnable() {
-        public void run() {
-          try {
-            server = new ServerSocket(port);
-            while (true) {
-              LOGGER.log(Level.INFO, "before accept new connection");
-              new MockNfdChannel(server.accept());
-              sleep(1000);
-            }
-          } catch (IOException e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
-          }
+    MockNfd(int port) {
+      this.port = port;
+    }
+
+    void start() throws InterruptedException {
+      thread = new Thread(this);
+      thread.setName("MockNfdThread");
+      thread.setDaemon(true);
+      thread.start();
+      if (!started.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("The mock NFD never started running.");
+      LOGGER.info("Started mock NFD");
+    }
+
+    public void run() {
+      running = true;
+      started.countDown();
+
+      try {
+        server = new ServerSocket(port);
+        while (running) {
+          Socket incoming = server.accept(); // blocking call
+          MockNfdReader r = new MockNfdReader(incoming, packetsRead);
+          r.start();
+          readers.add(r);
+          //sleep(1000);
         }
-      });
-      nfd.setDaemon(true);
-      nfd.start();
+      } catch (IOException e) {
+        LOGGER.log(Level.FINEST, "Failed to open new connection", e);
+      }
+    }
+
+    void stop() throws IOException {
+      LOGGER.info("Stopping mock NFD...");
+      running = false;
+      server.close();
+      for (MockNfdReader r : readers) {
+        r.close();
+      }
+    }
+
+    int packetCount() {
+      return packetsRead.get();
     }
   }
 
-  private class MockNfdChannel extends Thread {
+  private class MockNfdReader implements Runnable {
+    private final LineNumberReader reader_;
     private final Socket client_;
+    private Thread thread;
+    private final AtomicInteger packetsRead;
 
-    MockNfdChannel(Socket client) {
+    MockNfdReader(Socket client, AtomicInteger packetsRead) throws IOException {
+      LOGGER.info("New mock NFD connection");
+      this.packetsRead = packetsRead;
       this.client_ = client;
-      start();
+      reader_ = new LineNumberReader(new InputStreamReader(client_.getInputStream()));
+    }
+
+    void start() {
+      thread = new Thread(this);
+      thread.setName("MockNfdReaderThread");
+      thread.setDaemon(true);
+      thread.start();
+      LOGGER.info("Started mock NFD connection");
     }
 
     public void run() {
       try {
-        LineNumberReader reader = new LineNumberReader(new InputStreamReader(client_.getInputStream()));
         String line;
-
-        while ((line = reader.readLine()) != null) {
-          if ("close".equals(line)) {
-            LOGGER.log(Level.INFO, "exit received");
-            break;
-          } else {
-            LOGGER.log(Level.INFO, "received:" + line);
-            count++;
-          }
+        while ((line = reader_.readLine()) != null) {
+          LOGGER.log(Level.INFO, "Received new packet: " + line);
+          packetsRead.incrementAndGet();
         }
-        reader.close();
+        reader_.close();
       } catch (IOException e) {
-        LOGGER.log(Level.WARNING, e.getMessage());
-      } finally {
-        if (client_ != null) {
-          try {
-            client_.close();
-          } catch (IOException e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
-          }
-        }
+        LOGGER.log(Level.FINEST, "Failed to read packets", e);
       }
+    }
+
+    public void close() throws IOException {
+      LOGGER.info("Closing mock NFD connection");
+      client_.close();
     }
   }
 }
