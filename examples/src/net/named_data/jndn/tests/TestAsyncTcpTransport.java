@@ -41,6 +41,8 @@ public class TestAsyncTcpTransport {
   private static ServerSocket server = null;
 
   public static void main(String[] args) {
+    /* disable logging from AsyncTcpTransport to not pollute the console output*/
+    Logger.getLogger(AsyncTcpTransport.class.getName()).setLevel(Level.OFF);
     TestAsyncTcpTransport instance = new TestAsyncTcpTransport();
     instance.testHappyPath();
     instance.testWithoutServerInitiallyOn();
@@ -226,7 +228,7 @@ public class TestAsyncTcpTransport {
     try {
       transport.connect(cinfo, null, null);
     } catch (IOException e) {
-      LOGGER.log(Level.WARNING, null, e);
+      LOGGER.log(Level.WARNING, e.getMessage());
     }
     return transport;
   }
@@ -241,7 +243,7 @@ public class TestAsyncTcpTransport {
         try {
           transport.send(ByteBuffer.wrap((ping + "\n").getBytes()));
         } catch (IOException e) {
-          LOGGER.log(Level.WARNING, null, e);
+          LOGGER.log(Level.WARNING, e.getMessage());
         }
         send(pool, transport, ping);
       }
@@ -252,7 +254,7 @@ public class TestAsyncTcpTransport {
     try {
       Thread.sleep(ms);
     } catch (InterruptedException e) {
-      LOGGER.log(Level.WARNING, null, e);
+      LOGGER.log(Level.WARNING, e.getMessage());
     }
   }
 
@@ -260,7 +262,7 @@ public class TestAsyncTcpTransport {
     try {
       transport.send(ByteBuffer.wrap("close\n".getBytes()));
     } catch (IOException e) {
-      LOGGER.log(Level.WARNING, null, e);
+      LOGGER.log(Level.WARNING, e.getMessage());
     }
     sleep(3000);
   }
@@ -277,7 +279,7 @@ public class TestAsyncTcpTransport {
               sleep(1000);
             }
           } catch (IOException e) {
-            LOGGER.log(Level.WARNING, null, e);
+            LOGGER.log(Level.WARNING, e.getMessage());
           }
         }
       });
@@ -310,13 +312,13 @@ public class TestAsyncTcpTransport {
         }
         reader.close();
       } catch (IOException e) {
-        LOGGER.log(Level.WARNING, null, e);
+        LOGGER.log(Level.WARNING, e.getMessage());
       } finally {
         if (client_ != null) {
           try {
             client_.close();
           } catch (IOException e) {
-            LOGGER.log(Level.WARNING, null, e);
+            LOGGER.log(Level.WARNING, e.getMessage());
           }
         }
       }
