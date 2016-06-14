@@ -91,7 +91,7 @@ public class AsyncTcpTransport extends Transport
 
       public void failed(Throwable ex, Void attachment) {
         logger_.log(Level.SEVERE, "Failed to read from transport", ex);
-        if(connectionInfo_.shouldAttemptReconnection()) {
+        if(connectionInfo_.shouldAttemptReconnection() && acquireReconnectLock()) {
           scheduleReconnect();
         }
       }
@@ -115,7 +115,7 @@ public class AsyncTcpTransport extends Transport
       public void failed(Throwable ex, ByteBuffer data) {
         logger_.log(Level.SEVERE, "Failed to write to transport", ex);
         writeLock_.release();
-        if(connectionInfo_.shouldAttemptReconnection()) {
+        if(connectionInfo_.shouldAttemptReconnection() && acquireReconnectLock()) {
           scheduleReconnect();
         }
       }
@@ -243,7 +243,6 @@ public class AsyncTcpTransport extends Transport
     // TODO: Close a previous connection.
 
     channelGroup_ = AsynchronousChannelGroup.withThreadPool(threadPool_);
-
     channel_ = AsynchronousSocketChannel.open(channelGroup_);
 
     //store other info for reconnect
@@ -281,6 +280,11 @@ public class AsyncTcpTransport extends Transport
     elementReader_ = new ElementReader(elementListener);
   }
 
+  /**
+   * Attempt to reconnect to the NFD. If successful, the reconnect lock will
+   * be released so that IO can continue; if the attempt fails, it will
+   * schedule another reconnect attempt in the future.
+   */
   private void
   reconnect() throws IOException {
     logger_.log(Level.FINE, "Reconnecting...");
@@ -315,32 +319,38 @@ public class AsyncTcpTransport extends Transport
   }
 
   /**
+   * Helper method for acquiring the reconnect lock; any method attempting to
+   * schedule a reconnect must acquire this lock
+   *
+   * @return true if the lock is acquired, false otherwise
+   */
+  private boolean
+  acquireReconnectLock() {
+    try {
+      return reconnectLock_.tryAcquire(0, TimeUnit.MICROSECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
+    }
+  }
+
+  /**
    * On failure, this method is called to schedule a {@link #reconnect()} for some
-   * configurable time in the future; this method is protected by a lock so it can
-   * guarantee that only one reconnect is ever scheduled at a time.
+   * configurable time in the future; any access to this method must be protected
+   * by the reconnect so that only one reconnect is ever scheduled at a time.
    */
   private void
   scheduleReconnect() {
-    logger_.log(Level.FINE, "Attempting to schedule a reconnect...");
-    try {
-      if (reconnectLock_.tryAcquire(0, TimeUnit.MICROSECONDS)) {
-        logger_.log(Level.INFO, "Scheduled to reconnect in " + DEFAULT_RECONNECT_TRY_DELAY_MS + "ms");
-        threadPool_.schedule(new Runnable() {
-          public void run() {
-            try {
-              reconnect();
-            } catch (IOException e) {
-              logger_.log(Level.WARNING, null, e);
-            }
-          }
-        }, DEFAULT_RECONNECT_TRY_DELAY_MS, TimeUnit.MILLISECONDS);
+    logger_.log(Level.INFO, "Scheduled to reconnect in " + DEFAULT_RECONNECT_TRY_DELAY_MS + "ms");
+    threadPool_.schedule(new Runnable() {
+      public void run() {
+        try {
+          reconnect();
+        } catch (IOException e) {
+          logger_.log(Level.WARNING, null, e);
+        }
       }
-      else{
-        logger_.log(Level.FINE, "Failed to acquire reconnect lock");
-      }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
+    }, DEFAULT_RECONNECT_TRY_DELAY_MS, TimeUnit.MILLISECONDS);
   }
 
   private void
