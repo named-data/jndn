@@ -1,3 +1,10 @@
+Interim changes since jNDN v0.13 (2016-06-14)
+---------------------------------------------
+
+Bug fixes
+* https://github.com/named-data/jndn/pull/17 AsyncTcpTransport: move reconnect 
+  lock to fix reconnection failure.
+
 jNDN v0.13 (2016-06-10)
 -----------------------
 
