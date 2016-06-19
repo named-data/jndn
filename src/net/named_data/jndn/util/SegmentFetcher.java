@@ -341,9 +341,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
   private static boolean
   endsWithSegmentNumber(Name name)
   {
-    return name.size() >= 1 &&
-           name.get(-1).getValue().size() >= 1 &&
-           name.get(-1).getValue().buf().get(0) == 0;
+    return name.size() >= 1 && name.get(-1).isSegment();
   }
 
   // Use a non-template ArrayList so it works with older Java compilers.
