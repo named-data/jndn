@@ -207,6 +207,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
     // Start with the original Interest to preserve any special selectors.
     Interest interest = new Interest(originalInterest);
     // Changing a field clears the nonce so that the library will generate a new one.
+    interest.setChildSelector(0);
     interest.setMustBeFresh(false);
     interest.setName(dataName.getPrefix(-1).appendSegment(segment));
     try {
