@@ -26,6 +26,7 @@ public class Tlv {
   public static final int Interest =         5;
   public static final int Data =             6;
   public static final int Name =             7;
+  public static final int ImplicitSha256DigestComponent = 1;
   public static final int NameComponent =    8;
   public static final int Selectors =        9;
   public static final int Nonce =            10;
