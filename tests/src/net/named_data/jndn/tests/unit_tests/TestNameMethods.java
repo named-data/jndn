@@ -2,6 +2,8 @@
  * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN unit-tests by Adeola Bannis.
+ * From ndn-cxx unit tests:
+ * https://github.com/named-data/ndn-cxx/blob/master/tests/unit-tests/name.t.cpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,18 +22,44 @@
 
 package net.named_data.jndn.tests.unit_tests;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestNameMethods {
+  // Convert the int array to a ByteBuffer.
+  private static ByteBuffer
+  toBuffer(int[] array)
+  {
+    ByteBuffer result = ByteBuffer.allocate(array.length);
+    for (int i = 0; i < array.length; ++i)
+      result.put((byte)(array[i] & 0xff));
+
+    result.flip();
+    return result;
+  }
+
+  private static final ByteBuffer TEST_NAME = toBuffer(new int[] {
+    0x7,  0x14, // Name
+      0x8,  0x5, // NameComponent
+          0x6c,  0x6f,  0x63,  0x61,  0x6c,
+      0x8,  0x3, // NameComponent
+          0x6e,  0x64,  0x6e,
+      0x8,  0x6, // NameComponent
+          0x70,  0x72,  0x65,  0x66,  0x69,  0x78
+  });
+
   private String expectedURI;
   private Name.Component comp2;
 
@@ -222,6 +250,24 @@ public class TestNameMethods {
     assertEquals(new Name("ndn:/%00%01/%00%00%00"), new Name("ndn:/%00%01/%FF%FF").getSuccessor());
     assertEquals(new Name("/%00"), new Name().getSuccessor());
     assertEquals(new Name("/%00%01/%00"), new Name("/%00%01/...").getSuccessor());
+  }
+
+  @Test
+  public void
+  testEncodeDecode()
+  {
+    Name name = new Name("/local/ndn/prefix");
+
+    Blob encoding = name.wireEncode(TlvWireFormat.get());
+    assertTrue(encoding.equals(new Blob(TEST_NAME, false)));
+
+    Name decodedName = new Name();
+    try {
+      decodedName.wireDecode(new Blob(TEST_NAME, false), TlvWireFormat.get());
+    } catch (EncodingException ex) {
+      fail("Can't decode TEST_NAME");
+    }
+    assertEquals(decodedName, name);
   }
   
   @Test
