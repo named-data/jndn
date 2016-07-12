@@ -222,7 +222,7 @@ public class Exclude implements ChangeCountable {
       if (get(i).getType() == Exclude.Type.ANY)
         result.append("*");
       else
-        Name.toEscapedString(get(i).getComponent().getValue().buf(), result);
+        get(i).getComponent().toEscapedString(result);
     }
 
     return result.toString();
