@@ -42,9 +42,11 @@ import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
@@ -604,5 +606,37 @@ public class TestDataMethods {
     } catch (Error ex) {}
     if (!gotError)
       fail("Expected encoding error for experimentalSignatureInfoBadTlv");
+  }
+
+  @Test
+  public void
+  testFullName() throws EncodingException
+  {
+    Data data = new Data();
+    try {
+      data.wireDecode(codedData);
+    } catch (EncodingException ex) {
+      fail("Can't decode codedData");
+    }
+
+    // Check the full name format.
+    assertEquals(data.getName().size() + 1, data.getFullName().size());
+    assertEquals(data.getName(), data.getFullName().getPrefix(-1));
+    assertEquals(32, data.getFullName().get(-1).getValue().size());
+
+    // Check the independent digest calculation.
+    Blob newDigest = new Blob(Common.digestSha256(codedData));
+    assertTrue(newDigest.equals(data.getFullName().get(-1).getValue()));
+
+    // Check the expected URI.
+    assertEquals
+      ("/ndn/abc/sha256digest=" +
+         "96556d685dcb1af04be4ae57f0e7223457d4055ea9b3d07c0d337bef4a8b3ee9",
+       data.getFullName().toUri());
+
+    // Changing the Data packet should change the full name.
+    Name saveFullName = new Name(data.getFullName());
+    data.setContent(new Blob());
+    assertFalse(data.getFullName().get(-1).equals(saveFullName.get(-1)));
   }
 }

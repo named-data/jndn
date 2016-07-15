@@ -9,6 +9,7 @@ Changes
   in Interest added matchesData to use it.
 * Unit tests: In TestNameMethods, added testImplicitSha256Digest.
 * Unit tests: In TestInterestMethods, added testMatchesData.
+* Unit tests: In TestDataMethods, added testFullName.
 
 Bug fixes
 * https://github.com/named-data/jndn/pull/17 AsyncTcpTransport: move reconnect 
