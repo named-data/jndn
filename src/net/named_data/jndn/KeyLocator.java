@@ -85,6 +85,38 @@ public class KeyLocator implements ChangeCountable {
   }
 
   /**
+   * Check if this key locator has the same values as the given key locator.
+   * @param other The other key locator to check.
+   * @return true if the key locators are equal, otherwise false.
+   */
+  public boolean
+  equals(KeyLocator other)
+  {
+    if (type_ != other.type_)
+      return false;
+
+    if (type_ == KeyLocatorType.KEYNAME) {
+      if (!getKeyName().equals(other.getKeyName()))
+        return false;
+    }
+    else if (type_ == KeyLocatorType.KEY_LOCATOR_DIGEST) {
+      if (!getKeyData().equals(other.getKeyData()))
+        return false;
+    }
+
+    return true;
+  }
+
+  public boolean
+  equals(Object other)
+  {
+    if (!(other instanceof KeyLocator))
+      return false;
+
+    return equals((KeyLocator)other);
+  }
+
+  /**
    * If the signature is a type that has a KeyLocator (so that
    * getFromSignature will succeed), return true.
    * Note: This is a static method of KeyLocator instead of a method of
