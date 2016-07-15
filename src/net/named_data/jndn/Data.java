@@ -28,6 +28,7 @@ import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCounter;
 import net.named_data.jndn.util.ChangeCountable;
+import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
 
 public class Data implements ChangeCountable, SignatureHolder {
@@ -75,7 +76,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   /**
    * Encode this Data for a particular wire format. If wireFormat is the default
    * wire format, also set the defaultWireEncoding field to the encoded result.
-   * @param wireFormat A WireFormat object used to decode the input.
+   * @param wireFormat A WireFormat object used to encode the input.
    * @return The encoded buffer.
    */
   public final SignedBlob
@@ -203,6 +204,49 @@ public class Data implements ChangeCountable, SignatureHolder {
     IncomingFaceId field = 
       lpPacket_ == null ? null : IncomingFaceId.getFirstHeader(lpPacket_);
     return field == null ? -1 : field.getFaceId();
+  }
+
+  /**
+   * Get the Data packet's full name, which includes the final
+   * ImplicitSha256Digest component based on the wire encoding for a particular
+   * wire format.
+   * @param wireFormat A WireFormat object used to encode the Data packet.
+   * @return The full name. You must not change the Name objects - if you need
+   * to change it then make a copy.
+   */
+  public final Name
+  getFullName(WireFormat wireFormat) throws EncodingException
+  {
+    // The default full name depends on the default wire encoding.
+    if (!getDefaultWireEncoding().isNull() && defaultfullName_.size() > 0 &&
+        getDefaultWireEncodingFormat() == wireFormat)
+      // We already have a full name. A non-null default wire encoding means
+      // that the Data packet fields have not changed.
+      return defaultfullName_;
+
+    Name fullName = new Name(getName());
+    // wireEncode will use the cached encoding if possible.
+    fullName.appendImplicitSha256Digest
+      (Common.digestSha256(wireEncode(wireFormat).buf()));
+
+    if (wireFormat == WireFormat.getDefaultWireFormat())
+      // wireEncode has already set defaultWireEncodingFormat_.
+      defaultfullName_ = fullName;
+
+    return fullName;
+  }
+
+  /**
+   * Get the Data packet's full name, which includes the final
+   * ImplicitSha256Digest component based on the wire encoding for the default
+   * wire format.
+   * @return The full name. You must not change the Name objects - if you need
+   * to change it then make a copy.
+   */
+  public final Name
+  getFullName() throws EncodingException
+  {
+    return getFullName(WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -342,6 +386,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   private Blob content_ = new Blob();
   private LpPacket lpPacket_ = null;
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
+  private Name defaultfullName_ = new Name();
   private WireFormat defaultWireEncodingFormat_;
   private long getDefaultWireEncodingChangeCount_ = 0;
   private long changeCount_ = 0;
