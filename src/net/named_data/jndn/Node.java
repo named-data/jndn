@@ -456,8 +456,7 @@ public class Node implements ElementListener {
     else if (data != null) {
       ArrayList<PendingInterestTable.Entry> pitEntries =
         new ArrayList<PendingInterestTable.Entry>();
-      pendingInterestTable_.extractEntriesForExpressedInterest
-        (data.getName(), pitEntries);
+      pendingInterestTable_.extractEntriesForExpressedInterest(data, pitEntries);
       for (int i = 0; i < pitEntries.size(); ++i) {
         PendingInterestTable.Entry pendingInterest = pitEntries.get(i);
         try {

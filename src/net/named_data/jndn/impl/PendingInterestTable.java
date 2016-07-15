@@ -23,10 +23,11 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Interest;
-import net.named_data.jndn.Name;
+import net.named_data.jndn.Data;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
+import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
 
@@ -157,22 +158,22 @@ public class PendingInterestTable {
   }
 
   /**
-   * Find all entries from the pending interest table where the name conforms to
+   * Find all entries from the pending interest table where data conforms to
    * the entry's interest selectors, remove the entries from the table, set each
    * entry's isRemoved flag, and add to the entries list.
-   * @param name The name to find the interest for (from the incoming data
-   * packet).
+   * @param data The incoming Data packet to find the interest for.
    * @param entries Add matching PendingInterestTable.Entry from the pending
    * interest table.  The caller should pass in an empty ArrayList.
    */
   public synchronized final void
-  extractEntriesForExpressedInterest(Name name, ArrayList<Entry> entries)
+  extractEntriesForExpressedInterest(Data data, ArrayList<Entry> entries)
+    throws EncodingException
   {
     // Go backwards through the list so we can remove entries.
     for (int i = table_.size() - 1; i >= 0; --i) {
       Entry pendingInterest = table_.get(i);
 
-      if (pendingInterest.getInterest().matchesName(name)) {
+      if (pendingInterest.getInterest().matchesData(data)) {
         entries.add(table_.get(i));
         // We let the callback from callLater call _processInterestTimeout, but
         // for efficiency, mark this as removed so that it returns right away.
