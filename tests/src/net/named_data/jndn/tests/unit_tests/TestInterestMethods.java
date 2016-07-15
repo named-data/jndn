@@ -2,6 +2,8 @@
  * Copyright (C) 2014-2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN unit-tests by Adeola Bannis.
+ * From ndn-cxx unit tests:
+ * https://github.com/named-data/ndn-cxx/blob/master/tests/unit-tests/interest.t.cpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,11 +25,13 @@ package net.named_data.jndn.tests.unit_tests;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import net.named_data.jndn.Data;
 import net.named_data.jndn.Exclude;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.OnVerifiedInterest;
@@ -344,6 +348,96 @@ public class TestInterestMethods {
     assertEquals
       ("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }
+
+  @Test
+  public void
+  testMatchesData() throws EncodingException
+  {
+    Interest interest = new Interest(new Name("/A"));
+    interest.setMinSuffixComponents(2);
+    interest.setMaxSuffixComponents(2);
+    interest.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+    interest.getKeyLocator().setKeyName(new Name("/B"));
+    interest.getExclude().appendComponent(new Name.Component("J"));
+    interest.getExclude().appendAny();
+
+    Data data = new Data(new Name("/A/D"));
+    Sha256WithRsaSignature signature = new Sha256WithRsaSignature();
+    signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+    signature.getKeyLocator().setKeyName(new Name("/B"));
+    data.setSignature(signature);
+    assertEquals(true, interest.matchesData(data));
+
+    // Check violating MinSuffixComponents.
+    Data data1 = new Data(data);
+    data1.setName(new Name("/A"));
+    assertEquals(false, interest.matchesData(data1));
+
+    Interest interest1 = new Interest(interest);
+    interest1.setMinSuffixComponents(1);
+    assertEquals(true, interest1.matchesData(data1));
+
+    // Check violating MaxSuffixComponents.
+    Data data2 = new Data(data);
+    data2.setName(new Name("/A/E/F"));
+    assertEquals(false, interest.matchesData(data2));
+
+    Interest interest2 = new Interest(interest);
+    interest2.setMaxSuffixComponents(3);
+    assertEquals(true, interest2.matchesData(data2));
+
+  /* TODO: Implement KeyLocator equality.
+  Data data3 = data;
+  SignatureSha256WithRsa signature3(KeyLocator("ndn:/G")); // violates PublisherPublicKeyLocator
+  data3.setSignature(signature3);
+  data3.wireEncode();
+  BOOST_CHECK_EQUAL(interest.matchesData(data3), false);
+
+  Interest interest3 = interest;
+  interest3.setPublisherPublicKeyLocator(KeyLocator("ndn:/G"));
+  BOOST_CHECK_EQUAL(interest3.matchesData(data3), true);
+
+  Data data4 = data;
+  DigestSha256 signature4; // violates PublisherPublicKeyLocator
+  data4.setSignature(signature4);
+  data4.wireEncode();
+  BOOST_CHECK_EQUAL(interest.matchesData(data4), false);
+
+  Interest interest4 = interest;
+  interest4.setPublisherPublicKeyLocator(KeyLocator());
+  BOOST_CHECK_EQUAL(interest4.matchesData(data4), true);
+*/
+
+    // Check violating Exclude.
+    Data data5 = new Data(data);
+    data5.setName(new Name("/A/J"));
+    assertEquals(false, interest.matchesData(data5));
+
+    Interest interest5 = new Interest(interest);
+    interest5.getExclude().clear();
+    interest5.getExclude().appendComponent(new Name.Component("K"));
+    interest5.getExclude().appendAny();
+    assertEquals(true, interest5.matchesData(data5));
+
+    // Check violating Name.
+    Data data6 = new Data(data);
+    data6.setName(new Name("/H/I"));
+    assertEquals(false, interest.matchesData(data6));
+
+    Data data7 = new Data(data);
+    data7.setName(new Name("/A/B"));
+
+    Interest interest7 = new Interest
+      (new Name("/A/B/sha256digest=" + 
+                "54008e240a7eea2714a161dfddf0dd6ced223b3856e9da96792151e180f3b128"));
+    assertEquals(true, interest7.matchesData(data7));
+
+    // Check violating the implicit digest.
+    Interest interest7b = new Interest
+      (new Name("/A/B/%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00" +
+                     "%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00"));
+    assertEquals(false, interest7b.matchesData(data7));
+}
 
   @Test
   public void
