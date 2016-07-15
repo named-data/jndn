@@ -7,6 +7,7 @@ Changes
   Name.appendImplicitSha256Digest.
 * https://redmine.named-data.net/issues/3447 In Data, added getFullName, and
   in Interest added matchesData to use it.
+* Unit tests: In TestNameMethods, added testImplicitSha256Digest.
 
 Bug fixes
 * https://github.com/named-data/jndn/pull/17 AsyncTcpTransport: move reconnect 
