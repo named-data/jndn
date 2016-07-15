@@ -26,9 +26,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Exclude;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.InterestFilter;
+import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
@@ -386,27 +388,26 @@ public class TestInterestMethods {
     interest2.setMaxSuffixComponents(3);
     assertEquals(true, interest2.matchesData(data2));
 
-  /* TODO: Implement KeyLocator equality.
-  Data data3 = data;
-  SignatureSha256WithRsa signature3(KeyLocator("ndn:/G")); // violates PublisherPublicKeyLocator
-  data3.setSignature(signature3);
-  data3.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data3), false);
+    // Check violating PublisherPublicKeyLocator.
+    Data data3 = new Data(data);
+    Sha256WithRsaSignature signature3 = new Sha256WithRsaSignature();
+    signature3.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+    signature3.getKeyLocator().setKeyName(new Name("/G"));
+    data3.setSignature(signature3);
+    assertEquals(false, interest.matchesData(data3));
 
-  Interest interest3 = interest;
-  interest3.setPublisherPublicKeyLocator(KeyLocator("ndn:/G"));
-  BOOST_CHECK_EQUAL(interest3.matchesData(data3), true);
+    Interest interest3 = new Interest(interest);
+    interest3.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+    interest3.getKeyLocator().setKeyName(new Name("/G"));
+    assertEquals(true, interest3.matchesData(data3));
 
-  Data data4 = data;
-  DigestSha256 signature4; // violates PublisherPublicKeyLocator
-  data4.setSignature(signature4);
-  data4.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data4), false);
+    Data data4 = new Data(data);
+    data4.setSignature(new DigestSha256Signature());
+    assertEquals(false, interest.matchesData(data4));
 
-  Interest interest4 = interest;
-  interest4.setPublisherPublicKeyLocator(KeyLocator());
-  BOOST_CHECK_EQUAL(interest4.matchesData(data4), true);
-*/
+    Interest interest4 = new Interest(interest);
+    interest4.setKeyLocator(new KeyLocator());
+    assertEquals(true, interest4.matchesData(data4));
 
     // Check violating Exclude.
     Data data5 = new Data(data);
