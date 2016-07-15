@@ -716,8 +716,16 @@ public class Interest implements ChangeCountable {
       }
     }
 
-    // TODO: Check the PublisherPublicKeyLocator. ndn-cxx compares the wire
-    // encoding of the Interest and Data KeyLocator.
+    KeyLocator publisherPublicKeyLocator = getKeyLocator();
+    if (publisherPublicKeyLocator.getType() != KeyLocatorType.NONE) {
+      Signature signature = data.getSignature();
+      if (!KeyLocator.canGetFromSignature(signature))
+        // No KeyLocator in the Data packet.
+        return false;
+      if (!publisherPublicKeyLocator.equals
+          (KeyLocator.getFromSignature(signature)))
+        return false;
+    }
 
     return true;
   }
