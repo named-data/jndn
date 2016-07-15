@@ -716,6 +716,7 @@ public class Interest implements ChangeCountable {
       }
     }
 
+    // Check the KeyLocator.
     KeyLocator publisherPublicKeyLocator = getKeyLocator();
     if (publisherPublicKeyLocator.getType() != KeyLocatorType.NONE) {
       Signature signature = data.getSignature();
