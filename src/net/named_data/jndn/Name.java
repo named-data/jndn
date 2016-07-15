@@ -36,16 +36,18 @@ public class Name implements ChangeCountable, Comparable {
    */
   public static class Component implements Comparable {
     /**
-     * Create a new Name.Component with a zero-length value.
+     * Create a new GENERIC Name.Component with a zero-length value.
      */
     public
     Component()
     {
       value_ = new Blob(ByteBuffer.allocate(0), false);
+      type_ = ComponentType.GENERIC;
     }
 
     /**
-     * Create a new Name.Component, using the existing the Blob value.
+     * Create a new GENERIC Name.Component, using the existing the Blob value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
      * @param value The component value.  value may not be null, but
      * value.buf() may be null.
      */
@@ -55,6 +57,7 @@ public class Name implements ChangeCountable, Comparable {
       if (value == null)
         throw new NullPointerException("Component: Blob value may not be null");
       value_ = value;
+      type_ = ComponentType.GENERIC;
     }
 
     /**
@@ -66,20 +69,23 @@ public class Name implements ChangeCountable, Comparable {
     Component(Component component)
     {
       value_ = component.value_;
+      type_ = component.type_;
     }
 
     /**
-     * Create a new Name.Component, copying the given value.
+     * Create a new GENERIC Name.Component, copying the given value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
      * @param value The value byte array.
      */
     public
     Component(byte[] value)
     {
       value_ = new Blob(value, true);
+      type_ = ComponentType.GENERIC;
     }
 
     /**
-     * Create a new Name.Component, converting the value to UTF8 bytes.
+     * Create a new GENERIC Name.Component, converting the value to UTF8 bytes.
      * Note, this does not escape %XX values.  If you need to escape, use
      * Name.fromEscapedString.
      * @param value The string to convert to UTF8.
@@ -88,6 +94,7 @@ public class Name implements ChangeCountable, Comparable {
     Component(String value)
     {
       value_ = new Blob(value);
+      type_ = ComponentType.GENERIC;
     }
 
     /**
@@ -100,23 +107,32 @@ public class Name implements ChangeCountable, Comparable {
     /**
      * Write this component value to result, escaping characters according to
      * the NDN URI Scheme. This also adds "..." to a value with zero or more ".".
+     * This adds a type code prefix as needed, such as "sha256digest=".
      * @param result The StringBuffer to write to.
      */
     public final void
     toEscapedString(StringBuffer result)
     {
-      Name.toEscapedString(value_.buf(), result);
+      if (type_ == ComponentType.IMPLICIT_SHA256_DIGEST) {
+        result.append("sha256digest=");
+        Blob.toHex(value_.buf(), result);
+      }
+      else
+        Name.toEscapedString(value_.buf(), result);
     }
 
     /**
      * Convert this component value by escaping characters according to the
      * NDN URI Scheme. This also adds "..." to a value with zero or more ".".
+     * This adds a type code prefix as needed, such as "sha256digest=".
      * @return The escaped string.
      */
     public final String
     toEscapedString()
     {
-      return Name.toEscapedString(value_.buf());
+      StringBuffer result = new StringBuffer(value_.buf().remaining());
+      toEscapedString(result);
+      return result.toString();
     }
 
     /**
@@ -128,7 +144,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isSegment()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == (byte)0x00;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0x00 && isGeneric();
     }
 
     /**
@@ -140,7 +156,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isSegmentOffset()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFB;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFB && isGeneric();
     }
 
     /**
@@ -151,7 +167,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isVersion()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFD;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFD && isGeneric();
     }
 
     /**
@@ -163,7 +179,7 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isTimestamp()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFC;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFC && isGeneric();
     }
 
     /**
@@ -175,7 +191,27 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     isSequenceNumber()
     {
-      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFE;
+      return value_.size() >= 1 && value_.buf().get(0) == (byte)0xFE && isGeneric();
+    }
+
+    /**
+     * Check if this component is a generic component.
+     * @return True if this is an generic component.
+     */
+    public final boolean
+    isGeneric()
+    {
+      return type_ == ComponentType.GENERIC;
+    }
+
+    /**
+     * Check if this component is an ImplicitSha256Digest component.
+     * @return True if this is an ImplicitSha256Digest component.
+     */
+    public final boolean
+    isImplicitSha256Digest()
+    {
+      return type_ == ComponentType.IMPLICIT_SHA256_DIGEST;
     }
 
     /**
@@ -402,6 +438,38 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Create a component of type ImplicitSha256DigestComponent, so that
+     * isImplicitSha256Digest() is true.
+     * @param digest The SHA-256 digest value.
+     * @return The new Component.
+     * @throws EncodingException If the digest length is not 32 bytes.
+     */
+    public static Component
+    fromImplicitSha256Digest(Blob digest) throws EncodingException
+    {
+      if (digest.size() != 32)
+        throw new EncodingException
+          ("Name.Component.fromImplicitSha256Digest: The digest length must be 32 bytes");
+
+      Component result = new Component(digest);
+      result.type_ = ComponentType.IMPLICIT_SHA256_DIGEST;
+      return result;
+    }
+
+    /**
+     * Create a component of type ImplicitSha256DigestComponent, so that
+     * isImplicitSha256Digest() is true.
+     * @param digest The SHA-256 digest value.
+     * @return The new Component.
+     * @throws EncodingException If the digest length is not 32 bytes.
+     */
+    public static Component
+    fromImplicitSha256Digest(byte[] digest) throws EncodingException
+    {
+      return fromImplicitSha256Digest(new Blob(digest));
+    }
+
+    /**
      * Get the successor of this component, as described in Name.getSuccessor.
      * @return A new Name.Component which is the successor of this.
      */
@@ -442,7 +510,10 @@ public class Name implements ChangeCountable, Comparable {
      * @return True if the components are equal, otherwise false.
      */
     public final boolean
-    equals(Component other) { return value_.equals(other.value_); }
+    equals(Component other)
+    {
+      return value_.equals(other.value_) && type_ == other.type_;
+    }
 
     public boolean
     equals(Object other)
@@ -455,7 +526,7 @@ public class Name implements ChangeCountable, Comparable {
 
     public int hashCode()
     {
-      return value_.hashCode();
+      return 37 * type_.getNumericType() + value_.hashCode();
     }
 
     /**
@@ -468,6 +539,11 @@ public class Name implements ChangeCountable, Comparable {
     public final int
     compare(Component other)
     {
+      if (type_.getNumericType() < other.type_.getNumericType())
+        return -1;
+      if (type_.getNumericType() > other.type_.getNumericType())
+        return 1;
+
       if (value_.size() < other.value_.size())
         return -1;
       if (value_.size() > other.value_.size())
@@ -506,6 +582,28 @@ public class Name implements ChangeCountable, Comparable {
       }
     }
 
+    /**
+     * A ComponentType specifies the recognized types of a name component.
+     */
+    private enum ComponentType {
+      IMPLICIT_SHA256_DIGEST(1),
+      GENERIC(8);
+
+      ComponentType(int type)
+      {
+        type_ = type;
+      }
+
+      public final int
+      getNumericType() { return type_; }
+
+      private final int type_;
+    }
+
+    // Note: We keep the type_ internal because it is only used to distinguish
+    // from ImplicitSha256Digest. If we support general typed components then
+    // we can provide public access.
+    private ComponentType type_;
     private final Blob value_;
   }
 
@@ -621,13 +719,27 @@ public class Name implements ChangeCountable, Comparable {
     int iComponentStart = 0;
 
     // Unescape the components.
+    String sha256digestPrefix = "sha256digest=";
     while (iComponentStart < uri.length()) {
       int iComponentEnd = uri.indexOf("/", iComponentStart);
       if (iComponentEnd < 0)
         iComponentEnd = uri.length();
 
-      Component component = new Component
-        (fromEscapedString(uri, iComponentStart, iComponentEnd));
+      Component component;
+      if (sha256digestPrefix.regionMatches
+          (0, uri, iComponentStart, sha256digestPrefix.length())) {
+        try {
+          component = Component.fromImplicitSha256Digest
+            (fromHex(uri, iComponentStart + sha256digestPrefix.length(),
+                     iComponentEnd));
+        } catch (EncodingException ex) {
+          throw new Error(ex.getMessage());
+        }
+      }
+      else
+        component = new Component
+          (fromEscapedString(uri, iComponentStart, iComponentEnd));
+
       // Ignore illegal components.  This also gets rid of a trailing '/'.
       if (!component.getValue().isNull())
         append(component);
@@ -647,7 +759,8 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   /**
-   * Append a new component, copying from value.
+   * Append a new GENERIC component, copying from value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
    * @param value The component value.
    * @return This name so that you can chain calls to append.
    */
@@ -658,7 +771,8 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   /**
-   * Append a new component, using the existing Blob value.
+   * Append a new GENERIC component, using the existing Blob value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
    * @param value The component value.
    * @return This name so that you can chain calls to append.
    */
@@ -781,7 +895,7 @@ public class Name implements ChangeCountable, Comparable {
       result.append("ndn:");
     for (int i = 0; i < components_.size(); ++i) {
       result.append("/");
-      toEscapedString(get(i).getValue().buf(), result);
+      get(i).toEscapedString(result);
     }
 
     return result.toString();
@@ -867,6 +981,32 @@ public class Name implements ChangeCountable, Comparable {
   appendSequenceNumber(long sequenceNumber)
   {
     return append(Component.fromSequenceNumber(sequenceNumber));
+  }
+
+  /**
+   * Append a component of type ImplicitSha256DigestComponent, so that
+   * isImplicitSha256Digest() is true.
+   * @param digest The SHA-256 digest value.
+   * @return This name so that you can chain calls to append.
+   * @throws EncodingException If the digest length is not 32 bytes.
+   */
+  public final Name
+  appendImplicitSha256Digest(Blob digest) throws EncodingException
+  {
+    return append(Component.fromImplicitSha256Digest(digest));
+  }
+
+  /**
+   * Append a component of type ImplicitSha256DigestComponent, so that
+   * isImplicitSha256Digest() is true.
+   * @param digest The SHA-256 digest value.
+   * @return This name so that you can chain calls to append.
+   * @throws EncodingException If the digest length is not 32 bytes.
+   */
+  public final Name
+  appendImplicitSha256Digest(byte[] digest) throws EncodingException
+  {
+    return append(Component.fromImplicitSha256Digest(digest));
   }
 
   /**
@@ -1203,6 +1343,7 @@ public class Name implements ChangeCountable, Comparable {
    * endOffset according to the NDN URI Scheme. If the escaped string is
    * "", "." or ".." then return a Blob with a null pointer, which means the
    * component should be skipped in a URI name.
+   * This does not check for a type code prefix such as "sha256digest=".
    * @param escapedString The escaped string
    * @param beginOffset The offset in escapedString of the beginning of the
    * portion to decode.
@@ -1247,6 +1388,7 @@ public class Name implements ChangeCountable, Comparable {
    * Scheme.
    * If the escaped string is "", "." or ".." then return a Blob with a null
    * pointer, which means the component should be skipped in a URI name.
+   * This does not check for a type code prefix such as "sha256digest=".
    * @param escapedString The escaped string.
    * @return The Blob value. If the escapedString is not a valid escaped
    * component, then the Blob has a null pointer.
@@ -1261,6 +1403,7 @@ public class Name implements ChangeCountable, Comparable {
    * Write the value to result, escaping characters according to the NDN URI
    * Scheme.
    * This also adds "..." to a value with zero or more ".".
+   * This does not add a type code prefix such as "sha256digest=".
    * @param value The ByteBuffer with the value.  This reads from position() to
    * limit().
    * @param result The StringBuffer to write to.
@@ -1302,6 +1445,7 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Convert the value by escaping characters according to the NDN URI Scheme.
    * This also adds "..." to a value with zero or more ".".
+   * This does not add a type code prefix such as "sha256digest=".
    * @param value The ByteBuffer with the value.  This reads from position() to
    * limit().
    * @return The escaped string.
@@ -1312,6 +1456,47 @@ public class Name implements ChangeCountable, Comparable {
     StringBuffer result = new StringBuffer(value.remaining());
     toEscapedString(value, result);
     return result.toString();
+  }
+
+  /**
+   * Make a Blob value by decoding the hexString between beginOffset and
+   * endOffset.
+   * @param hexString The hex string.
+   * @param beginOffset The offset in hexString of the beginning of the
+   * portion to decode.
+   * @param endOffset The offset in hexString of the end of the portion to
+   * decode.
+   * @return The Blob value. If the hexString is not a valid hex string, then
+   * the Blob has a null pointer.
+   */
+  public static Blob
+  fromHex(String hexString, int beginOffset, int endOffset)
+  {
+    ByteBuffer result = ByteBuffer.allocate((endOffset - beginOffset) / 2);
+
+    for (int i = beginOffset; i < endOffset; ++i) {
+      if (hexString.charAt(i) == ' ')
+        // Skip whitespace.
+        continue;
+      if (i + 1 >= endOffset)
+        // Only one hex digit. Ignore.
+        break;
+
+      int hi = fromHexChar(hexString.charAt(i));
+      int lo = fromHexChar(hexString.charAt(i + 1));
+
+      if (hi < 0 || lo < 0)
+        // Invalid hex characters.
+        return new Blob();
+
+      result.put((byte)(16 * hi + lo));
+
+      // Skip past the second digit.
+      i += 1;
+    }
+
+    result.flip();
+    return new Blob(result, false);
   }
 
   /**

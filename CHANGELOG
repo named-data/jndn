@@ -1,5 +1,10 @@
-Interim changes since jNDN v0.13 (2016-06-14)
+Interim changes since jNDN v0.13 (2016-07-15)
 ---------------------------------------------
+
+Changes
+* Added support for the Name component type ImplicitSha256Digest, and methods:
+  Name.Component.fromImplicitSha256Digest, isGeneric and isImplicitSha256Digest.
+  Name.appendImplicitSha256Digest.
 
 Bug fixes
 * https://github.com/named-data/jndn/pull/17 AsyncTcpTransport: move reconnect 
