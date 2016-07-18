@@ -60,6 +60,19 @@ public class TestNameMethods {
           0x70,  0x72,  0x65,  0x66,  0x69,  0x78
   });
 
+  private static final ByteBuffer TEST_NAME_IMPLICIT_DIGEST = toBuffer(new int[] {
+    0x7,  0x36, // Name
+      0x8,  0x5, // NameComponent
+          0x6c,  0x6f,  0x63,  0x61,  0x6c,
+      0x8,  0x3, // NameComponent
+          0x6e,  0x64,  0x6e,
+      0x8,  0x6, // NameComponent
+          0x70,  0x72,  0x65,  0x66,  0x69,  0x78,
+      0x01, 0x20, // ImplicitSha256DigestComponent
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
+  });
+
   private String expectedURI;
   private Name.Component comp2;
 
@@ -268,6 +281,22 @@ public class TestNameMethods {
       fail("Can't decode TEST_NAME");
     }
     assertEquals(decodedName, name);
+
+    // Test ImplicitSha256Digest.
+    Name name2 = new Name
+      ("/local/ndn/prefix/sha256digest=" +
+       "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f");
+
+    Blob encoding2 = name2.wireEncode(TlvWireFormat.get());
+    assertTrue(encoding2.equals(new Blob(TEST_NAME_IMPLICIT_DIGEST, false)));
+
+    Name decodedName2 = new Name();
+    try {
+      decodedName2.wireDecode(new Blob(TEST_NAME_IMPLICIT_DIGEST, false), TlvWireFormat.get());
+    } catch (EncodingException ex) {
+      fail("Can't decode TEST_NAME");
+    }
+    assertEquals(decodedName2, name2);
   }
 
   @Test
