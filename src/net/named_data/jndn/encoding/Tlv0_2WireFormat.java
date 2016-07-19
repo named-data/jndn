@@ -694,7 +694,43 @@ public class Tlv0_2WireFormat extends WireFormat {
   }
 
   /**
-   * Encode the name to the encoder.
+   * Encode the name component to the encoder as NDN-TLV. This handles different
+   * component types such as ImplicitSha256DigestComponent.
+   * @param component The name component to encode.
+   * @param encoder The TlvEncoder to receive the encoding.
+   */
+  private static void
+  encodeNameComponent(Name.Component component, TlvEncoder encoder)
+  {
+    int type = component.isImplicitSha256Digest() ?
+      Tlv.ImplicitSha256DigestComponent : Tlv.NameComponent;
+    encoder.writeBlobTlv(type, component.getValue().buf());
+  }
+
+  /**
+   * Decode the name component as NDN-TLV and return the component. This handles
+   * different component types such as ImplicitSha256DigestComponent.
+   * @param decoder The decoder with the input to decode.
+   * @return A new Name.Component.
+   * @throws EncodingException
+   */
+  private static Name.Component
+  decodeComponent(TlvDecoder decoder) throws EncodingException
+  {
+    int savePosition = decoder.getOffset();
+    int type = decoder.readVarNumber();
+    // Restore the position.
+    decoder.seek(savePosition);
+
+    Blob value = new Blob(decoder.readBlobTlv(type), true);
+    if (type == Tlv.ImplicitSha256DigestComponent)
+      return Name.Component.fromImplicitSha256Digest(value);
+    else
+      return new Name.Component(value);
+  }
+
+  /**
+   * Encode the name as NDN-TLV to the encoder.
    * @param name The name to encode.
    * @param signedPortionBeginOffset Return the offset in the encoding of the
    * beginning of the signed portion. The signed portion starts from the first
@@ -716,9 +752,7 @@ public class Tlv0_2WireFormat extends WireFormat {
     // Encode the components backwards.
     int signedPortionEndOffsetFromBack = 0;
     for (int i = name.size() - 1; i >= 0; --i) {
-      int type = name.get(i).isImplicitSha256Digest() ?
-        Tlv.ImplicitSha256DigestComponent : Tlv.NameComponent;
-      encoder.writeBlobTlv(type, name.get(i).getValue().buf());
+      encodeNameComponent(name.get(i), encoder);
       if (i == name.size() - 1)
           signedPortionEndOffsetFromBack = encoder.getLength();
     }
@@ -768,17 +802,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     while (decoder.getOffset() < endOffset) {
       signedPortionEndOffset[0] = decoder.getOffset();
-
-      int savePosition = decoder.getOffset();
-      int type = decoder.readVarNumber();
-      // Restore the position.
-      decoder.seek(savePosition);
-
-      Blob value = new Blob(decoder.readBlobTlv(type), true);
-      if (type == Tlv.ImplicitSha256DigestComponent)
-        name.appendImplicitSha256Digest(value);
-      else
-        name.append(value);
+      name.append(decodeComponent(decoder));
     }
 
     decoder.finishNestedTlvs(endOffset);
@@ -856,8 +880,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       if (entry.getType() == Exclude.Type.ANY)
         encoder.writeTypeAndLength(Tlv.Any, 0);
       else
-        encoder.writeBlobTlv
-          (Tlv.NameComponent, entry.getComponent().getValue().buf());
+        encodeNameComponent(entry.getComponent(), encoder);
     }
 
     encoder.writeTypeAndLength(Tlv.Exclude, encoder.getLength() - saveLength);
@@ -870,9 +893,9 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     exclude.clear();
     while (true) {
-      if (decoder.peekType(Tlv.NameComponent, endOffset))
-        exclude.appendComponent(new Name.Component
-          (new Blob(decoder.readBlobTlv(Tlv.NameComponent), true)));
+      if (decoder.peekType(Tlv.NameComponent, endOffset) ||
+          decoder.peekType(Tlv.ImplicitSha256DigestComponent, endOffset))
+        exclude.appendComponent(decodeComponent(decoder));
       else if (decoder.readBooleanTlv(Tlv.Any, endOffset))
         exclude.appendAny();
       else
@@ -1048,7 +1071,7 @@ public class Tlv0_2WireFormat extends WireFormat {
     if (finalBlockIdBuf != null && finalBlockIdBuf.remaining() > 0) {
       // FinalBlockId has an inner NameComponent.
       int finalBlockIdSaveLength = encoder.getLength();
-      encoder.writeBlobTlv(Tlv.NameComponent, finalBlockIdBuf);
+      encodeNameComponent(metaInfo.getFinalBlockId(), encoder);
       encoder.writeTypeAndLength
         (Tlv.FinalBlockId, encoder.getLength() - finalBlockIdSaveLength);
     }
@@ -1103,9 +1126,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.FreshnessPeriod, endOffset));
     if (decoder.peekType(Tlv.FinalBlockId, endOffset)) {
       int finalBlockIdEndOffset = decoder.readNestedTlvsStart(Tlv.FinalBlockId);
-      metaInfo.setFinalBlockId
-        (new Name.Component
-         (new Blob(decoder.readBlobTlv(Tlv.NameComponent), true)));
+      metaInfo.setFinalBlockId(decodeComponent(decoder));
       decoder.finishNestedTlvs(finalBlockIdEndOffset);
     }
     else
