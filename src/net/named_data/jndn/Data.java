@@ -211,7 +211,7 @@ public class Data implements ChangeCountable, SignatureHolder {
    * ImplicitSha256Digest component based on the wire encoding for a particular
    * wire format.
    * @param wireFormat A WireFormat object used to encode the Data packet.
-   * @return The full name. You must not change the Name objects - if you need
+   * @return The full name. You must not change the Name object - if you need
    * to change it then make a copy.
    */
   public final Name
