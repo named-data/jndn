@@ -249,8 +249,6 @@ public class TestInterestMethods {
     interest.getExclude().appendComponent(new Name("/sha256digest=" +
       "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f").get(0));
     ArrayList dump = dumpInterest(interest);
-    for (Object s : dump)
-      System.out.println("Debug " + s);
 
     Blob encoding = interest.wireEncode();
     Interest reDecodedInterest = new Interest();
