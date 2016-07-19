@@ -242,6 +242,30 @@ public class TestInterestMethods {
 
   @Test
   public void
+  testRedecodeImplicitDigestExclude()
+  {
+    // Check that we encode and decode correctly with an implicit digest exclude.
+    Interest interest = new Interest(new Name("/A"));
+    interest.getExclude().appendComponent(new Name("/sha256digest=" +
+      "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f").get(0));
+    ArrayList dump = dumpInterest(interest);
+    for (Object s : dump)
+      System.out.println("Debug " + s);
+
+    Blob encoding = interest.wireEncode();
+    Interest reDecodedInterest = new Interest();
+    try {
+      reDecodedInterest.wireDecode(encoding);
+    } catch (EncodingException ex) {
+      fail("Can't decode reDecodedInterest");
+    }
+    ArrayList redecodedDump = dumpInterest(reDecodedInterest);
+    assertTrue("Re-decoded interest does not match original",
+               interestDumpsEqual(dump, redecodedDump));
+  }
+
+  @Test
+  public void
   testCreateFresh()
   {
     Interest freshInterest = createFreshInterest();
