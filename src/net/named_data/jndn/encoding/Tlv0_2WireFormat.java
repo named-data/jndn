@@ -892,15 +892,14 @@ public class Tlv0_2WireFormat extends WireFormat {
     int endOffset = decoder.readNestedTlvsStart(Tlv.Exclude);
 
     exclude.clear();
-    while (true) {
-      if (decoder.peekType(Tlv.NameComponent, endOffset) ||
-          decoder.peekType(Tlv.ImplicitSha256DigestComponent, endOffset))
-        exclude.appendComponent(decodeComponent(decoder));
-      else if (decoder.readBooleanTlv(Tlv.Any, endOffset))
+    while (decoder.getOffset() < endOffset) {
+      if (decoder.peekType(Tlv.Any, endOffset)) {
+        // Read past the Any TLV.
+        decoder.readBooleanTlv(Tlv.Any, endOffset);
         exclude.appendAny();
+      }
       else
-        // Else no more entries.
-        break;
+        exclude.appendComponent(decodeComponent(decoder));
     }
 
     decoder.finishNestedTlvs(endOffset);
