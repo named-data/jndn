@@ -715,7 +715,7 @@ public class Tlv0_2WireFormat extends WireFormat {
    * @throws EncodingException
    */
   private static Name.Component
-  decodeComponent(TlvDecoder decoder) throws EncodingException
+  decodeNameComponent(TlvDecoder decoder) throws EncodingException
   {
     int savePosition = decoder.getOffset();
     int type = decoder.readVarNumber();
@@ -802,7 +802,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     while (decoder.getOffset() < endOffset) {
       signedPortionEndOffset[0] = decoder.getOffset();
-      name.append(decodeComponent(decoder));
+      name.append(decodeNameComponent(decoder));
     }
 
     decoder.finishNestedTlvs(endOffset);
@@ -899,7 +899,7 @@ public class Tlv0_2WireFormat extends WireFormat {
         exclude.appendAny();
       }
       else
-        exclude.appendComponent(decodeComponent(decoder));
+        exclude.appendComponent(decodeNameComponent(decoder));
     }
 
     decoder.finishNestedTlvs(endOffset);
@@ -1125,7 +1125,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.FreshnessPeriod, endOffset));
     if (decoder.peekType(Tlv.FinalBlockId, endOffset)) {
       int finalBlockIdEndOffset = decoder.readNestedTlvsStart(Tlv.FinalBlockId);
-      metaInfo.setFinalBlockId(decodeComponent(decoder));
+      metaInfo.setFinalBlockId(decodeNameComponent(decoder));
       decoder.finishNestedTlvs(finalBlockIdEndOffset);
     }
     else
