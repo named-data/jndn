@@ -28,6 +28,7 @@ import com.google.protobuf.Message;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.util.Blob;
@@ -86,6 +87,32 @@ public class ProtobufTlv {
   decode(Message.Builder message, Blob input) throws EncodingException
   {
     decode(message, input.buf());
+  }
+
+  /**
+   * Return a Name made from the component array in a Protobuf message object,
+   * assuming that it was defined with "repeated bytes". For example:
+   * message Name {
+   *   repeated bytes component = 8;
+   * }
+   * (See the TestEncodeDecodeFibEntry example.)
+   * @param nameMessage The Protobuf message object containing the "repeated
+   * bytes" component array.
+   * @return A new name.
+   */
+  public static Name
+  toName(Message nameMessage)
+  {
+    Name name = new Name();
+    Descriptor descriptor = nameMessage.getDescriptorForType();
+    FieldDescriptor field = (FieldDescriptor)descriptor.getFields().get(0);
+
+    for (int i = 0; i < nameMessage.getRepeatedFieldCount(field); ++i)
+      name.append(new Blob
+        (((ByteString)nameMessage.getRepeatedField(field, i)).asReadOnlyByteBuffer(),
+         true));
+
+    return name;
   }
 
   private static void

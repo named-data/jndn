@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.13 (2016-07-15)
+Interim changes since jNDN v0.13 (2016-07-20)
 ---------------------------------------------
 
 Changes
@@ -7,6 +7,7 @@ Changes
   Name.appendImplicitSha256Digest.
 * https://redmine.named-data.net/issues/3447 In Data, added getFullName, and
   in Interest added matchesData to use it.
+* In ProtobufTlv, added utility method toName.
 * Unit tests: In TestNameMethods, added testImplicitSha256Digest.
 * Unit tests: In TestInterestMethods, added testMatchesData.
 * Unit tests: In TestDataMethods, added testFullName.
