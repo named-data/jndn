@@ -95,6 +95,7 @@ public class TestListRib {
 
       // Show the name.
       System.out.print("  ");
+      System.out.print(ProtobufTlv.toName(ribEntry.getName()).toUri());
       for (int i = 0; i < ribEntry.getName().getComponentCount(); ++i)
         System.out.print("/" + ribEntry.getName().getComponent(i).toStringUtf8());
 

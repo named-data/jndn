@@ -8,6 +8,7 @@ Changes
 * https://redmine.named-data.net/issues/3447 In Data, added getFullName, and
   in Interest added matchesData to use it.
 * In ProtobufTlv, added utility method toName.
+* Examples: In TestEncodeDecodeFibEntry, etc, use ProtobufTlv.toName.
 * Unit tests: In TestNameMethods, added testImplicitSha256Digest.
 * Unit tests: In TestInterestMethods, added testMatchesData.
 * Unit tests: In TestDataMethods, added testFullName.

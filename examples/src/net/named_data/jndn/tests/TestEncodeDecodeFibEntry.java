@@ -51,8 +51,7 @@ public class TestEncodeDecodeFibEntry {
       System.out.println("Re-decoded FibEntry:");
       FibEntryMessage.FibEntry fibEntry =  decodedMessage.getFibEntry();
       // This should print the same values that we put in message above.
-      for (int i = 0; i < fibEntry.getName().getComponentCount(); ++i)
-        System.out.print("/" + fibEntry.getName().getComponent(i).toStringUtf8());
+      System.out.print(ProtobufTlv.toName(fibEntry.getName()).toUri());
       System.out.print(" nexthops = {");
       for (int i = 0; i < fibEntry.getNextHopRecordsCount(); ++i)
         System.out.print("faceid=" + fibEntry.getNextHopRecords(i).getFaceId() +

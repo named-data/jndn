@@ -434,12 +434,9 @@ public class TestRegisterRoute {
       // Success. Print the ControlParameters response.
       ControlParametersTypes.ControlParameters controlParameters =
         controlResponse.getControlParameters(0);
-      String name = "";
-      for (int i = 0; i < controlParameters.getName().getComponentCount(); ++i)
-        name += "/" + controlParameters.getName().getComponent(i).toStringUtf8();
-
       System.out.println
-        ("Successful in name registration: ControlParameters(Name: " + name +
+        ("Successful in name registration: ControlParameters(Name: " +
+         ProtobufTlv.toName(controlParameters.getName()).toUri() +
          ", FaceId: " + controlParameters.getFaceId() +
          ", Origin: " + controlParameters.getOrigin() +
          ", Cost: " + controlParameters.getCost() +
