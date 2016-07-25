@@ -24,7 +24,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.ExpressFailureReason;
 import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnExpressFailure;
 import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
@@ -47,12 +49,12 @@ public class PendingInterestTable {
      */
     public Entry
       (long pendingInterestId, Interest interest, OnData onData,
-       OnTimeout onTimeout, OnNetworkNack onNetworkNack)
+       OnExpressFailure onExpressFailure, OnNetworkNack onNetworkNack)
     {
       pendingInterestId_ = pendingInterestId;
       interest_ = interest;
       onData_ = onData;
-      onTimeout_ = onTimeout;
+      onExpressFailure_ = onExpressFailure;
       onNetworkNack_ = onNetworkNack;
     }
 
@@ -99,15 +101,17 @@ public class PendingInterestTable {
     getIsRemoved() { return isRemoved_; }
 
     /**
-     * Call onTimeout_ (if defined). This ignores exceptions from the call to
-     * onTimeout_.
+     * Call onExpressFailure_ (if defined) with ExpressFailureReason.TIMEOUT.
+     * This ignores exceptions from the call to onExpressFailure_.
      */
     public final void
     callTimeout()
     {
-      if (onTimeout_ != null) {
+      if (onExpressFailure_ != null) {
         try {
-          onTimeout_.onTimeout(interest_);
+          onExpressFailure_.onExpressFailure
+            (interest_, ExpressFailureReason.TIMEOUT, new Exception
+             ("Interest timeout"));
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, "Error in onTimeout", ex);
         }
@@ -117,7 +121,7 @@ public class PendingInterestTable {
     private final Interest interest_;
     private final long pendingInterestId_; /**< A unique identifier for this entry so it can be deleted */
     private final OnData onData_;
-    private final OnTimeout onTimeout_;
+    private final OnExpressFailure onExpressFailure_;
     private final OnNetworkNack onNetworkNack_;
     private boolean isRemoved_ = false;
   }
@@ -132,8 +136,12 @@ public class PendingInterestTable {
    * copied by expressInterest.
    * @param onData Call onData.onData when a matching data packet is
    * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.
-   * If onTimeout is null, this does not use it.
+   * @param onExpressFailure If the interest times out according to the interest
+   * lifetime, this calls
+   * onExpressFailure.onExpressFailure(interest, ExpressFailureReason.TIMEOUT, details)
+   * where interest is the interest given to expressInterest and details is an
+   * Exception with an error message. If onExpressFailure is null, this does not
+   * use it.
    * @param onNetworkNack Call onNetworkNack.onNetworkNack when a network Nack
    * packet is received.
    * @return The new PendingInterestTable.Entry, or null if
@@ -141,7 +149,7 @@ public class PendingInterestTable {
    */
   public synchronized final Entry
   add(long pendingInterestId, Interest interestCopy, OnData onData,
-       OnTimeout onTimeout, OnNetworkNack onNetworkNack)
+       OnExpressFailure onExpressFailure, OnNetworkNack onNetworkNack)
   {
     int removeRequestIndex = removeRequests_.indexOf(pendingInterestId);
     if (removeRequestIndex >= 0) {
@@ -152,7 +160,7 @@ public class PendingInterestTable {
     }
 
     Entry entry = new Entry
-      (pendingInterestId, interestCopy, onData, onTimeout, onNetworkNack);
+      (pendingInterestId, interestCopy, onData, onExpressFailure, onNetworkNack);
     table_.add(entry);
     return entry;
   }

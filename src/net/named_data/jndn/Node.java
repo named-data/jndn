@@ -63,7 +63,7 @@ public class Node implements ElementListener {
 
   /**
    * Send the Interest through the transport, read the entire response and call
-   * onData, onTimeout or onNetworkNack as described below.
+   * onData, onExpressFailure or onNetworkNack as described below.
    * @param pendingInterestId The getNextEntryId() for the pending interest ID
    * which Face got so it could return it to the caller.
    * @param interestCopy The Interest which is NOT copied for this internal Node
@@ -72,15 +72,17 @@ public class Node implements ElementListener {
    * @param onData  When a matching data packet is received, this calls
    * onData.onData(interest, data) where interest is the interest given to
    * expressInterest and data is the received Data object.
-   * @param onTimeout If the interest times out according to the interest
-   * lifetime, this calls onTimeout.onTimeout(interest) where interest is the
-   * interest given to expressInterest. If onTimeout is null, this does not use
-   * it.
+   * @param onExpressFailure If the interest times out according to the interest
+   * lifetime, this calls 
+   * onExpressFailure.onExpressFailure(interest, ExpressFailureReason.TIMEOUT, details)
+   * where interest is the interest given to expressInterest and details is an
+   * Exception with an error message. If onExpressFailure is null, this does not
+   * use it.
    * @param onNetworkNack When a network Nack packet for the interest is
    * received and onNetworkNack is not null, this calls
    * onNetworkNack.onNetworkNack(interest, networkNack) and does not call
-   * onTimeout. However, if a network Nack is received and onNetworkNack is null,
-   * do nothing and wait for the interest to time out.
+   * onExpressFailure. However, if a network Nack is received and onNetworkNack
+   * is null, do nothing and wait for the interest to time out.
    * @param wireFormat A WireFormat object used to encode the message.
    * @param face The face which has the callLater method, used for interest
    * timeouts. The callLater method may be overridden in a subclass of Face.
@@ -90,7 +92,7 @@ public class Node implements ElementListener {
   public final void
   expressInterest
     (final long pendingInterestId, final Interest interestCopy, final OnData onData,
-     final OnTimeout onTimeout, final OnNetworkNack onNetworkNack,
+     final OnExpressFailure onExpressFailure, final OnNetworkNack onNetworkNack,
      final WireFormat wireFormat, final Face face)
      throws IOException
   {
@@ -101,7 +103,7 @@ public class Node implements ElementListener {
     if (connectStatus_ == ConnectStatus.CONNECT_COMPLETE) {
       // We are connected. Simply send the interest without synchronizing.
       expressInterestHelper
-        (pendingInterestId, interestCopy, onData, onTimeout, onNetworkNack,
+        (pendingInterestId, interestCopy, onData, onExpressFailure, onNetworkNack,
          wireFormat, face);
       return;
     }
@@ -114,7 +116,7 @@ public class Node implements ElementListener {
         // The simple case: Just do a blocking connect and express.
         transport_.connect(connectionInfo_, this, null);
         expressInterestHelper
-          (pendingInterestId, interestCopy, onData, onTimeout, onNetworkNack,
+          (pendingInterestId, interestCopy, onData, onExpressFailure, onNetworkNack,
            wireFormat, face);
         // Make future calls to expressInterest send directly to the Transport.
         connectStatus_ = ConnectStatus.CONNECT_COMPLETE;
@@ -131,7 +133,7 @@ public class Node implements ElementListener {
           public void run() {
             try {
               expressInterestHelper
-                (pendingInterestId, interestCopy, onData, onTimeout, 
+                (pendingInterestId, interestCopy, onData, onExpressFailure,
                  onNetworkNack, wireFormat, face);
             } catch (IOException ex) {
               logger_.log(Level.SEVERE, null, ex);
@@ -163,7 +165,7 @@ public class Node implements ElementListener {
           public void run() {
             try {
               expressInterestHelper
-                (pendingInterestId, interestCopy, onData, onTimeout,
+                (pendingInterestId, interestCopy, onData, onExpressFailure,
                  onNetworkNack, wireFormat, face);
             } catch (IOException ex) {
               logger_.log(Level.SEVERE, null, ex);
@@ -176,7 +178,7 @@ public class Node implements ElementListener {
         // onConnected callback was called while we were waiting to enter this
         // synchronized block.
         expressInterestHelper
-          (pendingInterestId, interestCopy, onData, onTimeout, onNetworkNack,
+          (pendingInterestId, interestCopy, onData, onExpressFailure, onNetworkNack,
            wireFormat, face);
       else
         // Don't expect this to happen.
@@ -348,7 +350,7 @@ public class Node implements ElementListener {
 
   /**
    * Process any packets to receive and call callbacks such as onData,
-   * onInterest or onTimeout. This returns immediately if there is no data to
+   * onInterest or onExpressFailure. This returns immediately if there is no data to
    * receive. This blocks while calling the callbacks. You should repeatedly
    * call this from an event loop, with calls to sleep as needed so that the
    * loop doesn't use 100% of the CPU. Since processEvents modifies the pending
@@ -529,7 +531,7 @@ public class Node implements ElementListener {
   /**
    * This is used in callLater for when the pending interest expires. If the
    * pendingInterest is still in the pendingInterestTable_, remove it and call
-   * its onTimeout callback.
+   * its onExpressFailure callback.
    * @param pendingInterest The pending interest to check.
    */
   private void
@@ -548,8 +550,9 @@ public class Node implements ElementListener {
    * expressInterest.
    * @param onData  This calls onData.onData when a matching data packet is
    * received.
-   * @param onTimeout This calls onTimeout.onTimeout if the interest times out.
-   * If onTimeout is null, this does not use it.
+   * @param onExpressFailure This calls onExpressFailure.onExpressFailure if the
+   * interest times out or other unexpected errors. If onExpressFailure is null,
+   * this does not use it.
    * @param onNetworkNack This calls onNetworkNack.onNetworkNack when a network
    * Nack packet is received. If onNetworkNack is null, this does not use it.
    * @param wireFormat A WireFormat object used to encode the message.
@@ -561,17 +564,18 @@ public class Node implements ElementListener {
   private void
   expressInterestHelper
     (long pendingInterestId, Interest interestCopy, OnData onData,
-     OnTimeout onTimeout, OnNetworkNack onNetworkNack, WireFormat wireFormat,
-     Face face) throws IOException
+     OnExpressFailure onExpressFailure, OnNetworkNack onNetworkNack,
+     WireFormat wireFormat, Face face) throws IOException
   {
     final PendingInterestTable.Entry pendingInterest =
       pendingInterestTable_.add
-        (pendingInterestId, interestCopy, onData, onTimeout, onNetworkNack);
+        (pendingInterestId, interestCopy, onData, onExpressFailure, onNetworkNack);
     if (pendingInterest == null)
       // removePendingInterest was already called with the pendingInterestId.
       return;
 
-    if (onTimeout != null || interestCopy.getInterestLifetimeMilliseconds() >= 0.0) {
+    if (onExpressFailure != null ||
+        interestCopy.getInterestLifetimeMilliseconds() >= 0.0) {
       // Set up the timeout.
       double delayMilliseconds = interestCopy.getInterestLifetimeMilliseconds();
       if (delayMilliseconds < 0.0)
@@ -597,7 +601,7 @@ public class Node implements ElementListener {
 
   private enum ConnectStatus { UNCONNECTED, CONNECT_REQUESTED, CONNECT_COMPLETE }
 
-  private static class RegisterResponse implements OnData, OnTimeout {
+  private static class RegisterResponse implements OnData, OnExpressFailure {
     public RegisterResponse(Info info, Node parent)
     {
       info_ = info;
@@ -681,7 +685,8 @@ public class Node implements ElementListener {
      * @param timedOutInterest
      */
     public void
-    onTimeout(Interest timedOutInterest)
+    onExpressFailure
+      (Interest timedOutInterest, ExpressFailureReason reason, Exception details)
     {
       logger_.log(Level.INFO,
         "Timeout for NFD register prefix command.");
