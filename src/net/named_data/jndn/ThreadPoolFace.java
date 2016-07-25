@@ -56,13 +56,13 @@ public class ThreadPoolFace extends Face {
 
   /**
    * Override to submit a task to use the thread pool given to the constructor.
-   * Also wrap the supplied onData, onTimeout and onNetworkNack callbacks in an
-   * outer callback which submits a task to the thread pool to call the supplied
-   * callback. See Face.expressInterest for calling details.
+   * Also wrap the supplied onData, onExpressFailure and onNetworkNack callbacks
+   * in an outer callback which submits a task to the thread pool to call the
+   * supplied callback. See Face.expressInterest for calling details.
    */
   public long
   expressInterest
-    (final Interest interest, OnData onData, OnTimeout onTimeout,
+    (final Interest interest, OnData onData, OnExpressFailure onExpressFailure,
      final OnNetworkNack onNetworkNack, final WireFormat wireFormat)
      throws IOException
   {
@@ -86,17 +86,20 @@ public class ThreadPoolFace extends Face {
       }
     };
 
-    final OnTimeout finalOnTimeout = onTimeout;
-    final OnTimeout onTimeoutSubmit = onTimeout == null ? null : new OnTimeout() {
-      public void onTimeout(final Interest localInterest) {
+    final OnExpressFailure finalOnExpressFailure = onExpressFailure;
+    final OnExpressFailure onExpressFailureSubmit = onExpressFailure == null ?
+        null : new OnExpressFailure() {
+      public void onExpressFailure
+          (final Interest localInterest, final ExpressFailureReason reason,
+           final Exception details) {
         threadPool_.submit(new Runnable() {
-          // Call the passed-in onTimeout.
+          // Call the passed-in onExpressFailure.
           public void run() {
             // Need to catch and log exceptions at this async entry point.
             try {
-              finalOnTimeout.onTimeout(localInterest);
+              finalOnExpressFailure.onExpressFailure(localInterest, reason, details);
             } catch (Throwable ex) {
-              logger_.log(Level.SEVERE, "Error in onTimeout", ex);
+              logger_.log(Level.SEVERE, "Error in onExpressFailure", ex);
             }
           }
         });
@@ -129,7 +132,7 @@ public class ThreadPoolFace extends Face {
         // Need to catch and log exceptions at this async entry point.
         try {
           node_.expressInterest
-            (pendingInterestId, interestCopy, onDataSubmit, onTimeoutSubmit,
+            (pendingInterestId, interestCopy, onDataSubmit, onExpressFailureSubmit,
              onNetworkNackSubmit, wireFormat, ThreadPoolFace.this);
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);
@@ -142,17 +145,17 @@ public class ThreadPoolFace extends Face {
 
   /**
    * Override to submit a task to use the thread pool given to the constructor.
-   * Also wrap the supplied onData, onTimeout and onNetworkNack callbacks in an
-   * outer callback which submits a task to the thread pool to call the supplied
-   * callback. See Face.expressInterest for calling details. We make a separate
-   * expressInterest overload for supplying a Name vs. Interest to avoid making
-   * multiple copies of the Interest.
+   * Also wrap the supplied onData, onExpressFailure and onNetworkNack callbacks
+   * in an outer callback which submits a task to the thread pool to call the
+   * supplied callback. See Face.expressInterest for calling details. We make a
+   * separate expressInterest overload for supplying a Name vs. Interest to
+   * avoid making multiple copies of the Interest.
    */
   public long
   expressInterest
-    (Name name, Interest interestTemplate, OnData onData, OnTimeout onTimeout,
-     final OnNetworkNack onNetworkNack, final WireFormat wireFormat)
-     throws IOException
+    (Name name, Interest interestTemplate, OnData onData, 
+     OnExpressFailure onExpressFailure, final OnNetworkNack onNetworkNack,
+     final WireFormat wireFormat) throws IOException
   {
     final long pendingInterestId = node_.getNextEntryId();
 
@@ -174,17 +177,20 @@ public class ThreadPoolFace extends Face {
       }
     };
 
-    final OnTimeout finalOnTimeout = onTimeout;
-    final OnTimeout onTimeoutSubmit = onTimeout == null ? null : new OnTimeout() {
-      public void onTimeout(final Interest localInterest) {
+    final OnExpressFailure finalOnExpressFailure = onExpressFailure;
+    final OnExpressFailure onExpressFailureSubmit = onExpressFailure == null ?
+        null : new OnExpressFailure() {
+      public void onExpressFailure
+          (final Interest localInterest, final ExpressFailureReason reason,
+           final Exception details) {
         threadPool_.submit(new Runnable() {
-          // Call the passed-in onTimeout.
+          // Call the passed-in onExpressFailure.
           public void run() {
             // Need to catch and log exceptions at this async entry point.
             try {
-              finalOnTimeout.onTimeout(localInterest);
+              finalOnExpressFailure.onExpressFailure(localInterest, reason, details);
             } catch (Throwable ex) {
-              logger_.log(Level.SEVERE, "Error in onTimeout", ex);
+              logger_.log(Level.SEVERE, "Error in onExpressFailure", ex);
             }
           }
         });
@@ -217,7 +223,7 @@ public class ThreadPoolFace extends Face {
         // Need to catch and log exceptions at this async entry point.
         try {
           node_.expressInterest
-            (pendingInterestId, interestCopy, onDataSubmit, onTimeoutSubmit,
+            (pendingInterestId, interestCopy, onDataSubmit, onExpressFailureSubmit,
              onNetworkNackSubmit, wireFormat, ThreadPoolFace.this);
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);
