@@ -124,10 +124,10 @@ public class Face {
   {
     long pendingInterestId = node_.getNextEntryId();
 
-    // This copies the interest as required by Node.expressInterest.
+    // Make an interest copy as required by Node.expressInterest.
     node_.expressInterest
-      (pendingInterestId, interest, onData, onExpressFailure, onNetworkNack,
-       wireFormat, this);
+      (pendingInterestId, new Interest(interest), onData, onExpressFailure,
+       onNetworkNack, wireFormat, this);
 
     return pendingInterestId;
   }
