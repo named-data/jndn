@@ -24,5 +24,5 @@ package net.named_data.jndn;
  * callback.
  */
 public enum ExpressFailureReason {
-  UNKNOWN, TIMEOUT
+  UNKNOWN, TIMEOUT, TRANSPORT_UNCONNECTED
 }
