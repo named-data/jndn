@@ -28,7 +28,6 @@ import net.named_data.jndn.ExpressFailureReason;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnExpressFailure;
 import net.named_data.jndn.OnNetworkNack;
-import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
