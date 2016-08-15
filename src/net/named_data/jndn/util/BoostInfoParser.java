@@ -79,7 +79,7 @@ public class BoostInfoParser {
   {
     BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
     try {
-      writer.write(root_.toString());
+      writer.write("" + root_);
       writer.flush();
     }
     finally{
