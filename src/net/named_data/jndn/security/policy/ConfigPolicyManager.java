@@ -969,7 +969,7 @@ public class ConfigPolicyManager extends PolicyManager {
       for (int i = 0; i < keysToErase.size(); ++i)
         keyTimestamps_.remove(keysToErase.get(i));
 
-      if (keyTimestamps_.size() > maxTrackedKeys_ && !oldestKey.isEmpty())
+      if (keyTimestamps_.size() > maxTrackedKeys_ && oldestKey.length() != 0)
         // have not removed enough
         keyTimestamps_.remove(oldestKey);
     }
