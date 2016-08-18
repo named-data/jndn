@@ -244,7 +244,7 @@ public class DelegationSet {
   public final void
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
-    wireFormat.decodeDelegationSet(this, input);
+    wireFormat.decodeDelegationSet(this, input, true);
   }
 
   /**
@@ -270,7 +270,7 @@ public class DelegationSet {
   public final void
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
-    wireDecode(input.buf(), wireFormat);
+    wireFormat.decodeDelegationSet(this, input.buf(), false);
   }
 
   /**

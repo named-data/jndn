@@ -127,7 +127,8 @@ public class Data implements ChangeCountable, SignatureHolder {
     int[] signedPortionBeginOffset = new int[1];
     int[] signedPortionEndOffset = new int[1];
     wireFormat.decodeData
-      (this, input.buf(), signedPortionBeginOffset, signedPortionEndOffset);
+      (this, input.buf(), signedPortionBeginOffset, signedPortionEndOffset,
+       false);
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // This is the default wire encoding.

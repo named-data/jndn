@@ -902,7 +902,7 @@ public class ConfigPolicyManager extends PolicyManager {
     try {
       return wireFormat.decodeSignatureInfoAndValue
               (interest.getName().get(-2).getValue().buf(),
-                      interest.getName().get(-1).getValue().buf());
+               interest.getName().get(-1).getValue().buf(), false);
     } catch (EncodingException ex) {
       return null;
     }

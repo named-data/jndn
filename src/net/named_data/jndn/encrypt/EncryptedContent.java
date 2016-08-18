@@ -163,7 +163,7 @@ public class EncryptedContent {
   public final void
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
-    wireFormat.decodeEncryptedContent(this, input);
+    wireFormat.decodeEncryptedContent(this, input, true);
   }
 
   /**
@@ -189,7 +189,7 @@ public class EncryptedContent {
   public final void
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
-    wireDecode(input.buf(), wireFormat);
+    wireFormat.decodeEncryptedContent(this, input.buf(), false);
   }
 
   /**

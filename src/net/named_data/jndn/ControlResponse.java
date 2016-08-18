@@ -86,7 +86,7 @@ public class ControlResponse {
   public final void
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
-    wireFormat.decodeControlResponse(this, input);
+    wireFormat.decodeControlResponse(this, input, true);
   }
 
   /**
@@ -111,7 +111,7 @@ public class ControlResponse {
   public final void
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
-    wireDecode(input.buf(), wireFormat);
+    wireFormat.decodeControlResponse(this, input.buf(), false);
   }
 
   /**
