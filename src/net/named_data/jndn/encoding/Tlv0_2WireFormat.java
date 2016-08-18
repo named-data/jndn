@@ -215,7 +215,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       decoder.seek(linkEndOffset);
 
       interest.setLinkWireEncoding
-        (new Blob(decoder.getSlice(linkBeginOffset, linkEndOffset), true), this);
+        (new Blob(decoder.getSlice(linkBeginOffset, linkEndOffset), copy), this);
     }
     else
       interest.unsetLink();
@@ -227,7 +227,7 @@ public class Tlv0_2WireFormat extends WireFormat {
         ("Interest has a selected delegation, but no link object");
 
     // Set the nonce last because setting other interest fields clears it.
-    interest.setNonce(new Blob(nonce, true));
+    interest.setNonce(new Blob(nonce, copy));
 
     decoder.finishNestedTlvs(endOffset);
   }
