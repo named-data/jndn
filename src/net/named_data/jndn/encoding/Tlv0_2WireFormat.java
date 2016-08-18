@@ -398,8 +398,9 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     controlResponse.setStatusCode
       ((int)decoder.readNonNegativeIntegerTlv(Tlv.NfdCommand_StatusCode));
+    // Set copy false since we just immediately get a string.
     Blob statusText = new Blob
-      (decoder.readBlobTlv(Tlv.NfdCommand_StatusText), true);
+      (decoder.readBlobTlv(Tlv.NfdCommand_StatusText), false);
     controlResponse.setStatusText(statusText.toString());
 
     // Decode the body.
@@ -470,7 +471,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     decoder = new TlvDecoder(signatureValue);
     signatureHolder.getSignature().setSignature
-      (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
+      (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), copy));
 
     return signatureHolder.getSignature();
   }
@@ -496,10 +497,14 @@ public class Tlv0_2WireFormat extends WireFormat {
    * @param lpPacket The LpPacket object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding.
    */
   public void
-  decodeLpPacket(LpPacket lpPacket, ByteBuffer input) throws EncodingException
+  decodeLpPacket
+    (LpPacket lpPacket, ByteBuffer input, boolean copy) throws EncodingException
   {
     lpPacket.clear();
 
@@ -517,7 +522,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       if (fieldType == Tlv.LpPacket_Fragment) {
         // Set the fragment to the bytes of the TLV value.
         lpPacket.setFragmentWireEncoding
-          (new Blob(decoder.getSlice(decoder.getOffset(), fieldEndOffset), true));
+          (new Blob(decoder.getSlice(decoder.getOffset(), fieldEndOffset), copy));
         decoder.seek(fieldEndOffset);
 
         // The fragment is supposed to be the last field.
@@ -702,9 +707,9 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     encryptedContent.setInitialVector
       (new Blob(decoder.readOptionalBlobTlv
-        (Tlv.Encrypt_InitialVector, endOffset), true));
+        (Tlv.Encrypt_InitialVector, endOffset), copy));
     encryptedContent.setPayload
-      (new Blob(decoder.readBlobTlv(Tlv.Encrypt_EncryptedPayload), true));
+      (new Blob(decoder.readBlobTlv(Tlv.Encrypt_EncryptedPayload), copy));
 
     decoder.finishNestedTlvs(endOffset);
   }
@@ -981,7 +986,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       // KeyLocator is a KeyLocatorDigest.
       keyLocator.setType(KeyLocatorType.KEY_LOCATOR_DIGEST);
       keyLocator.setKeyData
-        (new Blob(decoder.readBlobTlv(Tlv.KeyLocatorDigest), true));
+        (new Blob(decoder.readBlobTlv(Tlv.KeyLocatorDigest), copy));
     }
     else
       throw new EncodingException
@@ -1094,7 +1099,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
       // Get the bytes of the SignatureInfo TLV.
       signatureInfo.setSignatureInfoEncoding
-        (new Blob(decoder.getSlice(beginOffset, endOffset), true), signatureType);
+        (new Blob(decoder.getSlice(beginOffset, endOffset), copy), signatureType);
     }
 
     decoder.finishNestedTlvs(endOffset);
@@ -1250,8 +1255,9 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     // decode URI
     if (decoder.peekType(Tlv.ControlParameters_Uri, endOffset)) {
+      // Set copy false since we just immediately get the string.
       Blob uri = new Blob
-        (decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), true);
+        (decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), false);
       controlParameters.setUri("" + uri);
     }
 

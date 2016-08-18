@@ -555,15 +555,37 @@ public class WireFormat {
    * @param lpPacket The LpPacket object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding.
    * @throws UnsupportedOperationException for unimplemented if the derived
    * class does not override.
    */
   public void
-  decodeLpPacket(LpPacket lpPacket, ByteBuffer input) throws EncodingException
+  decodeLpPacket
+    (LpPacket lpPacket, ByteBuffer input, boolean copy) throws EncodingException
   {
     throw new UnsupportedOperationException
       ("decodeLpPacket is not implemented");
+  }
+
+  /**
+   * Decode input as an LpPacket and set the fields of the lpPacket object. Copy 
+   * from the input when making new Blob values. Your derived class should
+   * override.
+   * @param lpPacket The LpPacket object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public final void
+  decodeLpPacket
+    (LpPacket lpPacket, ByteBuffer input) throws EncodingException
+  {
+    decodeLpPacket(lpPacket, input, true);
   }
 
   /**
