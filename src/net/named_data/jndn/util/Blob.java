@@ -363,7 +363,7 @@ public class Blob implements Comparable {
       return "";
     else {
       try {
-        return new String(buffer_.array(), "UTF-8");
+        return new String(getImmutableArray(), "UTF-8");
       } catch (UnsupportedEncodingException ex) {
         // We don't expect this to happen.
         throw new Error("UTF-8 decoder not supported: " + ex.getMessage());
