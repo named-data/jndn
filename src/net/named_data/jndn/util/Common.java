@@ -94,6 +94,27 @@ public class Common {
   }
 
   /**
+   * Compute the sha-256 digest of data.
+   * @param data The input byte buffer.
+   * @return The digest.
+   */
+  public static byte[]
+  digestSha256(byte[] data)
+  {
+    MessageDigest sha256;
+    try {
+      sha256 = MessageDigest.getInstance("SHA-256");
+    }
+    catch (NoSuchAlgorithmException exception) {
+      // Don't expect this to happen.
+      throw new Error
+        ("MessageDigest: SHA-256 is not supported: " + exception.getMessage());
+    }
+    sha256.update(data);
+    return sha256.digest();
+  }
+
+  /**
    * Compute the HMAC with SHA-256 of data, as defined in
    * http://tools.ietf.org/html/rfc2104#section-2 .
    * @param key The key byte array.
