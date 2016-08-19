@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -452,11 +453,16 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       sha256 = MessageDigest.getInstance("SHA-256");
     }
     catch (NoSuchAlgorithmException exception) {
-      // Don't expect this to happen.
+      // We don't expect this to happen.
       throw new Error
         ("MessageDigest: SHA-256 is not supported: " + exception.getMessage());
     }
-    sha256.update(keyName.getBytes());
+    try {
+      sha256.update(keyName.getBytes("UTF-8"));
+    } catch (UnsupportedEncodingException ex) {
+      // We don't expect this to happen.
+      throw new Error("UTF-8 encoder not supported: " + ex.getMessage());
+    }
     byte[] hash = sha256.digest();
 
     String digest = Common.base64Encode(hash);
