@@ -211,7 +211,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       DerNode parsedNode = DerNode.parse(ByteBuffer.wrap(der), 0);
       List pkcs8Children = parsedNode.getChildren();
       List algorithmIdChildren = DerNode.getSequence(pkcs8Children, 1).getChildren();
-      oidString = ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal().toString();
+      oidString = "" + ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal();
     }
     catch (DerDecodingException ex) {
       throw new SecurityException("Cannot decode the PKCS #8 private key: " + ex);
