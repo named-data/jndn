@@ -94,7 +94,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   public static String
   getDefaultDirecoryPath(File filesRoot)
   {
-    return getDefaultDirecoryPath(filesRoot.getPath());
+    return getDefaultDirecoryPath(filesRoot.getAbsolutePath());
   }
 
   /**
@@ -106,7 +106,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   getDefaultDirecoryPath(String filesRoot)
   {
     // NOTE: Use File because java.nio.file.Path is not available before Java 7.
-    return new File(new File(filesRoot, ".ndn"), "ndnsec-tpm-file").getPath();
+    return new File(new File(filesRoot, ".ndn"), "ndnsec-tpm-file").getAbsolutePath();
   }
 
   /**
@@ -469,13 +469,13 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   private String
   maintainMapping(String keyName) throws SecurityException
   {
-    String keyFilePathNoExtension = nameTransform(keyName, "").getPath();
+    String keyFilePathNoExtension = nameTransform(keyName, "").getAbsolutePath();
 
     File mappingFilePath = new File(keyStorePath_, "mapping.txt");
 
     try{
       BufferedWriter writer = new BufferedWriter
-        (new FileWriter(mappingFilePath.getPath(), true));
+        (new FileWriter(mappingFilePath.getAbsolutePath(), true));
       try {
         writer.write(keyName + ' ' + keyFilePathNoExtension + '\n');
         writer.flush();
@@ -508,7 +508,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       if (keyClass == KeyClass.PRIVATE)
         filePath = maintainMapping(keyName.toUri()) + extension;
       else
-        filePath = nameTransform(keyName.toUri(), extension).getPath();
+        filePath = nameTransform(keyName.toUri(), extension).getAbsolutePath();
 
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
       try{
@@ -544,7 +544,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     StringBuilder contents = new StringBuilder();
     try{
       BufferedReader reader = new BufferedReader
-        (new FileReader(nameTransform(keyName.toUri(), extension).getPath()));
+        (new FileReader(nameTransform(keyName.toUri(), extension).getAbsolutePath()));
       // Use "try/finally instead of "try-with-resources" or "using"
       // which are not supported before Java 7.
       try {

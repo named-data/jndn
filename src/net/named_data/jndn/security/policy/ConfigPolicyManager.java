@@ -510,7 +510,7 @@ public class ConfigPolicyManager extends PolicyManager {
 
         IdentityCertificate cert;
         try {
-          cert = loadIdentityCertificateFromFile(file.getPath());
+          cert = loadIdentityCertificateFromFile(file.getAbsolutePath());
         }
         catch (SecurityException ex) {
           // Allow files that are not certificates.
