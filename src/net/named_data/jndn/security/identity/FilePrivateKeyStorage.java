@@ -545,7 +545,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     StringBuilder contents = new StringBuilder();
     try{
       BufferedReader reader = new BufferedReader
-        (new FileReader(nameTransform(keyName.toUri(), extension)));
+        (new FileReader(nameTransform(keyName.toUri(), extension).getAbsolutePath()));
       // Use "try/finally instead of "try-with-resources" or "using"
       // which are not supported before Java 7.
       try {
