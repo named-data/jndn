@@ -95,7 +95,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   public static String
   getDefaultDirecoryPath(File filesRoot)
   {
-    return getDefaultDirecoryPath(filesRoot.getAbsolutePath());
+    return getDefaultDirecoryPath(filesRoot.getPath());
   }
 
   /**
@@ -107,7 +107,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   getDefaultDirecoryPath(String filesRoot)
   {
     // NOTE: Use File because java.nio.file.Path is not available before Java 7.
-    return new File(new File(filesRoot, ".ndn"), "ndnsec-tpm-file").getAbsolutePath();
+    return new File(new File(filesRoot, ".ndn"), "ndnsec-tpm-file").getPath();
   }
 
   /**
@@ -476,7 +476,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
 
     try{
       BufferedWriter writer = new BufferedWriter
-        (new FileWriter(mappingFilePath, true));
+        (new FileWriter(mappingFilePath.getPath(), true));
       try {
         writer.write(keyName + ' ' + keyFilePathNoExtension + '\n');
         writer.flush();
@@ -545,7 +545,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     StringBuilder contents = new StringBuilder();
     try{
       BufferedReader reader = new BufferedReader
-        (new FileReader(nameTransform(keyName.toUri(), extension).getAbsolutePath()));
+        (new FileReader(nameTransform(keyName.toUri(), extension).getPath()));
       // Use "try/finally instead of "try-with-resources" or "using"
       // which are not supported before Java 7.
       try {
