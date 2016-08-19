@@ -448,23 +448,13 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   private File
   nameTransform(String keyName, String extension) throws SecurityException
   {
-    MessageDigest sha256;
+    byte[] hash;
     try {
-      sha256 = MessageDigest.getInstance("SHA-256");
-    }
-    catch (NoSuchAlgorithmException exception) {
-      // We don't expect this to happen.
-      throw new Error
-        ("MessageDigest: SHA-256 is not supported: " + exception.getMessage());
-    }
-    try {
-      sha256.update(keyName.getBytes("UTF-8"));
+      hash = Common.digestSha256(keyName.getBytes("UTF-8"));
     } catch (UnsupportedEncodingException ex) {
       // We don't expect this to happen.
       throw new Error("UTF-8 encoder not supported: " + ex.getMessage());
     }
-    byte[] hash = sha256.digest();
-
     String digest = Common.base64Encode(hash);
     digest = digest.replace('/', '%');
 
