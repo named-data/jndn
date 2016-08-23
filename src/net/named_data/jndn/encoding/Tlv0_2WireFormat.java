@@ -72,13 +72,16 @@ public class Tlv0_2WireFormat extends WireFormat {
    * Decode input as a name in NDN-TLV and set the fields of the Name object.
    * @param name The Name object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding.
    */
   public void
-  decodeName(Name name, ByteBuffer input) throws EncodingException
+  decodeName(Name name, ByteBuffer input, boolean copy) throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
-    decodeName(name, new int[1], new int[1], decoder);
+    decodeName(name, new int[1], new int[1], decoder, copy);
   }
 
   /**
@@ -182,21 +185,24 @@ public class Tlv0_2WireFormat extends WireFormat {
    * of the signed portion. The signed portion starts from the first
    * name component and ends just before the final name component (which is
    * assumed to be a signature for a signed interest).
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding.
    */
   public void
   decodeInterest
     (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
-     int[] signedPortionEndOffset) throws EncodingException
+     int[] signedPortionEndOffset, boolean copy) throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
 
     int endOffset = decoder.readNestedTlvsStart(Tlv.Interest);
     decodeName
       (interest.getName(), signedPortionBeginOffset,signedPortionEndOffset,
-       decoder);
+       decoder, copy);
     if (decoder.peekType(Tlv.Selectors, endOffset))
-      decodeSelectors(interest, decoder);
+      decodeSelectors(interest, decoder, copy);
     // Require a Nonce, but don't force it to be 4 bytes.
     ByteBuffer nonce = decoder.readBlobTlv(Tlv.Nonce);
     interest.setInterestLifetimeMilliseconds
@@ -209,7 +215,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       decoder.seek(linkEndOffset);
 
       interest.setLinkWireEncoding
-        (new Blob(decoder.getSlice(linkBeginOffset, linkEndOffset), true), this);
+        (new Blob(decoder.getSlice(linkBeginOffset, linkEndOffset), copy), this);
     }
     else
       interest.unsetLink();
@@ -221,7 +227,7 @@ public class Tlv0_2WireFormat extends WireFormat {
         ("Interest has a selected delegation, but no link object");
 
     // Set the nonce last because setting other interest fields clears it.
-    interest.setNonce(new Blob(nonce, true));
+    interest.setNonce(new Blob(nonce, copy));
 
     decoder.finishNestedTlvs(endOffset);
   }
@@ -280,26 +286,29 @@ public class Tlv0_2WireFormat extends WireFormat {
    * end of the signed portion by setting signedPortionEndOffset[0]. If you are
    * not decoding in order to verify, you can call decodeData(data, input) to
    * ignore this returned value.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding.
    */
   public void
   decodeData
     (Data data, ByteBuffer input, int[] signedPortionBeginOffset,
-     int[] signedPortionEndOffset) throws EncodingException
+     int[] signedPortionEndOffset, boolean copy) throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
 
     int endOffset = decoder.readNestedTlvsStart(Tlv.Data);
     signedPortionBeginOffset[0] = decoder.getOffset();
 
-    decodeName(data.getName(), new int[1], new int[1], decoder);
-    decodeMetaInfo(data.getMetaInfo(), decoder);
-    data.setContent(new Blob(decoder.readBlobTlv(Tlv.Content), true));
-    decodeSignatureInfo(data, decoder);
+    decodeName(data.getName(), new int[1], new int[1], decoder, copy);
+    decodeMetaInfo(data.getMetaInfo(), decoder, copy);
+    data.setContent(new Blob(decoder.readBlobTlv(Tlv.Content), copy));
+    decodeSignatureInfo(data, decoder, copy);
 
     signedPortionEndOffset[0] = decoder.getOffset();
     data.getSignature().setSignature
-      (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
+      (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), copy));
 
     decoder.finishNestedTlvs(endOffset);
   }
@@ -324,15 +333,18 @@ public class Tlv0_2WireFormat extends WireFormat {
    * updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding
    */
   public void
   decodeControlParameters
-    (ControlParameters controlParameters, ByteBuffer input)
+    (ControlParameters controlParameters, ByteBuffer input, boolean copy)
     throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
-    decodeControlParameters(controlParameters, decoder);
+    decodeControlParameters(controlParameters, decoder, copy);
   }
 
   /**
@@ -371,11 +383,14 @@ public class Tlv0_2WireFormat extends WireFormat {
    * updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding
    */
   public void
   decodeControlResponse
-    (ControlResponse controlResponse, ByteBuffer input)
+    (ControlResponse controlResponse, ByteBuffer input, boolean copy)
     throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
@@ -383,15 +398,17 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     controlResponse.setStatusCode
       ((int)decoder.readNonNegativeIntegerTlv(Tlv.NfdCommand_StatusCode));
+    // Set copy false since we just immediately get a string.
     Blob statusText = new Blob
-      (decoder.readBlobTlv(Tlv.NfdCommand_StatusText), true);
+      (decoder.readBlobTlv(Tlv.NfdCommand_StatusText), false);
     controlResponse.setStatusText(statusText.toString());
 
     // Decode the body.
     if (decoder.peekType(Tlv.ControlParameters_ControlParameters, endOffset)) {
       controlResponse.setBodyAsControlParameters(new ControlParameters());
       // Decode into the existing ControlParameters to avoid copying.
-      decodeControlParameters(controlResponse.getBodyAsControlParameters(), decoder);
+      decodeControlParameters
+        (controlResponse.getBodyAsControlParameters(), decoder, copy);
     }
     else
       controlResponse.setBodyAsControlParameters(null);
@@ -436,21 +453,25 @@ public class Tlv0_2WireFormat extends WireFormat {
    * from position() to limit(), but does not change the position.
    * @param signatureValue The signature value input buffer to decode. This reads
    * from position() to limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @return A new object which is a subclass of Signature.
    * @throws EncodingException For invalid encoding.
    */
   public Signature
   decodeSignatureInfoAndValue
-    (ByteBuffer signatureInfo, ByteBuffer signatureValue) throws EncodingException
+    (ByteBuffer signatureInfo, ByteBuffer signatureValue, boolean copy)
+    throws EncodingException
   {
     // Use a SignatureHolder to imitate a Data object for _decodeSignatureInfo.
     SimpleSignatureHolder signatureHolder = new SimpleSignatureHolder();
     TlvDecoder decoder = new TlvDecoder(signatureInfo);
-    decodeSignatureInfo(signatureHolder, decoder);
+    decodeSignatureInfo(signatureHolder, decoder, copy);
 
     decoder = new TlvDecoder(signatureValue);
     signatureHolder.getSignature().setSignature
-      (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
+      (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), copy));
 
     return signatureHolder.getSignature();
   }
@@ -476,10 +497,14 @@ public class Tlv0_2WireFormat extends WireFormat {
    * @param lpPacket The LpPacket object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding.
    */
   public void
-  decodeLpPacket(LpPacket lpPacket, ByteBuffer input) throws EncodingException
+  decodeLpPacket
+    (LpPacket lpPacket, ByteBuffer input, boolean copy) throws EncodingException
   {
     lpPacket.clear();
 
@@ -497,7 +522,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       if (fieldType == Tlv.LpPacket_Fragment) {
         // Set the fragment to the bytes of the TLV value.
         lpPacket.setFragmentWireEncoding
-          (new Blob(decoder.getSlice(decoder.getOffset(), fieldEndOffset), true));
+          (new Blob(decoder.getSlice(decoder.getOffset(), fieldEndOffset), copy));
         decoder.seek(fieldEndOffset);
 
         // The fragment is supposed to be the last field.
@@ -587,11 +612,15 @@ public class Tlv0_2WireFormat extends WireFormat {
    * @param delegationSet The DelegationSet object whose fields are updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding.
    */
   public void
   decodeDelegationSet
-    (DelegationSet delegationSet, ByteBuffer input) throws EncodingException
+    (DelegationSet delegationSet, ByteBuffer input, boolean copy)
+    throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
     int endOffset = input.limit();
@@ -601,7 +630,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       decoder.readTypeAndLength(Tlv.Link_Delegation);
       int preference = (int)decoder.readNonNegativeIntegerTlv(Tlv.Link_Preference);
       Name name = new Name();
-      decodeName(name, new int[1], new int[1], decoder);
+      decodeName(name, new int[1], new int[1], decoder, copy);
 
       // Add unsorted to preserve the order so that Interest selected delegation
       // index will work.
@@ -645,11 +674,14 @@ public class Tlv0_2WireFormat extends WireFormat {
    * updated.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException For invalid encoding
    */
   public void
   decodeEncryptedContent
-    (EncryptedContent encryptedContent, ByteBuffer input)
+    (EncryptedContent encryptedContent, ByteBuffer input, boolean copy)
     throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
@@ -657,7 +689,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       (Tlv.Encrypt_EncryptedContent);
 
     Tlv0_2WireFormat.decodeKeyLocator
-      (Tlv.KeyLocator, encryptedContent.getKeyLocator(), decoder);
+      (Tlv.KeyLocator, encryptedContent.getKeyLocator(), decoder, copy);
 
     int algorithmType = (int)decoder.readNonNegativeIntegerTlv
        (Tlv.Encrypt_EncryptionAlgorithm);
@@ -675,9 +707,9 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     encryptedContent.setInitialVector
       (new Blob(decoder.readOptionalBlobTlv
-        (Tlv.Encrypt_InitialVector, endOffset), true));
+        (Tlv.Encrypt_InitialVector, endOffset), copy));
     encryptedContent.setPayload
-      (new Blob(decoder.readBlobTlv(Tlv.Encrypt_EncryptedPayload), true));
+      (new Blob(decoder.readBlobTlv(Tlv.Encrypt_EncryptedPayload), copy));
 
     decoder.finishNestedTlvs(endOffset);
   }
@@ -711,18 +743,21 @@ public class Tlv0_2WireFormat extends WireFormat {
    * Decode the name component as NDN-TLV and return the component. This handles
    * different component types such as ImplicitSha256DigestComponent.
    * @param decoder The decoder with the input to decode.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @return A new Name.Component.
    * @throws EncodingException
    */
   private static Name.Component
-  decodeNameComponent(TlvDecoder decoder) throws EncodingException
+  decodeNameComponent(TlvDecoder decoder, boolean copy) throws EncodingException
   {
     int savePosition = decoder.getOffset();
     int type = decoder.readVarNumber();
     // Restore the position.
     decoder.seek(savePosition);
 
-    Blob value = new Blob(decoder.readBlobTlv(type), true);
+    Blob value = new Blob(decoder.readBlobTlv(type), copy);
     if (type == Tlv.ImplicitSha256DigestComponent)
       return Name.Component.fromImplicitSha256Digest(value);
     else
@@ -785,12 +820,15 @@ public class Tlv0_2WireFormat extends WireFormat {
    * assumed to be a signature for a signed interest).
    * If you are not decoding in order to verify, you can ignore this returned value.
    * @param decoder The decoder with the input to decode.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
    * @throws EncodingException
    */
   private static void
   decodeName
     (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset,
-     TlvDecoder decoder) throws EncodingException
+     TlvDecoder decoder, boolean copy) throws EncodingException
   {
     name.clear();
 
@@ -802,7 +840,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     while (decoder.getOffset() < endOffset) {
       signedPortionEndOffset[0] = decoder.getOffset();
-      name.append(decodeNameComponent(decoder));
+      name.append(decodeNameComponent(decoder, copy));
     }
 
     decoder.finishNestedTlvs(endOffset);
@@ -840,7 +878,8 @@ public class Tlv0_2WireFormat extends WireFormat {
   }
 
   private static void
-  decodeSelectors(Interest interest, TlvDecoder decoder) throws EncodingException
+  decodeSelectors
+    (Interest interest, TlvDecoder decoder, boolean copy) throws EncodingException
   {
     int endOffset = decoder.readNestedTlvsStart(Tlv.Selectors);
 
@@ -851,12 +890,12 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     if (decoder.peekType(Tlv.PublisherPublicKeyLocator, endOffset))
       decodeKeyLocator
-        (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), decoder);
+        (Tlv.PublisherPublicKeyLocator, interest.getKeyLocator(), decoder, copy);
     else
       interest.getKeyLocator().clear();
 
     if (decoder.peekType(Tlv.Exclude, endOffset))
-      decodeExclude(interest.getExclude(), decoder);
+      decodeExclude(interest.getExclude(), decoder, copy);
     else
       interest.getExclude().clear();
 
@@ -887,7 +926,8 @@ public class Tlv0_2WireFormat extends WireFormat {
   }
 
   private static void
-  decodeExclude(Exclude exclude, TlvDecoder decoder) throws EncodingException
+  decodeExclude
+    (Exclude exclude, TlvDecoder decoder, boolean copy) throws EncodingException
   {
     int endOffset = decoder.readNestedTlvsStart(Tlv.Exclude);
 
@@ -899,7 +939,7 @@ public class Tlv0_2WireFormat extends WireFormat {
         exclude.appendAny();
       }
       else
-        exclude.appendComponent(decodeNameComponent(decoder));
+        exclude.appendComponent(decodeNameComponent(decoder, copy));
     }
 
     decoder.finishNestedTlvs(endOffset);
@@ -926,7 +966,8 @@ public class Tlv0_2WireFormat extends WireFormat {
 
   private static void
   decodeKeyLocator
-    (int expectedType, KeyLocator keyLocator, TlvDecoder decoder) throws EncodingException
+    (int expectedType, KeyLocator keyLocator, TlvDecoder decoder, boolean copy)
+    throws EncodingException
   {
     int endOffset = decoder.readNestedTlvsStart(expectedType);
 
@@ -939,13 +980,13 @@ public class Tlv0_2WireFormat extends WireFormat {
     if (decoder.peekType(Tlv.Name, endOffset)) {
       // KeyLocator is a Name.
       keyLocator.setType(KeyLocatorType.KEYNAME);
-      decodeName(keyLocator.getKeyName(), new int[1], new int[1], decoder);
+      decodeName(keyLocator.getKeyName(), new int[1], new int[1], decoder, copy);
     }
     else if (decoder.peekType(Tlv.KeyLocatorDigest, endOffset)) {
       // KeyLocator is a KeyLocatorDigest.
       keyLocator.setType(KeyLocatorType.KEY_LOCATOR_DIGEST);
       keyLocator.setKeyData
-        (new Blob(decoder.readBlobTlv(Tlv.KeyLocatorDigest), true));
+        (new Blob(decoder.readBlobTlv(Tlv.KeyLocatorDigest), copy));
     }
     else
       throw new EncodingException
@@ -1019,7 +1060,8 @@ public class Tlv0_2WireFormat extends WireFormat {
 
   private static void
   decodeSignatureInfo
-    (SignatureHolder signatureHolder, TlvDecoder decoder) throws EncodingException
+    (SignatureHolder signatureHolder, TlvDecoder decoder, boolean copy)
+    throws EncodingException
   {
     int beginOffset = decoder.getOffset();
     int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
@@ -1031,19 +1073,22 @@ public class Tlv0_2WireFormat extends WireFormat {
         //   and set it, then the holder will have to copy all the fields.
         Sha256WithRsaSignature signatureInfo =
           (Sha256WithRsaSignature)signatureHolder.getSignature();
-        decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
+        decodeKeyLocator
+          (Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder, copy);
     }
     else if (signatureType == Tlv.SignatureType_SignatureSha256WithEcdsa) {
         signatureHolder.setSignature(new Sha256WithEcdsaSignature());
         Sha256WithEcdsaSignature signatureInfo =
           (Sha256WithEcdsaSignature)signatureHolder.getSignature();
-        decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
+        decodeKeyLocator
+          (Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder, copy);
     }
     else if (signatureType == Tlv.SignatureType_SignatureHmacWithSha256) {
         signatureHolder.setSignature(new HmacWithSha256Signature());
         HmacWithSha256Signature signatureInfo =
           (HmacWithSha256Signature)signatureHolder.getSignature();
-        decodeKeyLocator(Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder);
+        decodeKeyLocator
+          (Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder, copy);
     }
     else if (signatureType == Tlv.SignatureType_DigestSha256)
         signatureHolder.setSignature(new DigestSha256Signature());
@@ -1054,7 +1099,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
       // Get the bytes of the SignatureInfo TLV.
       signatureInfo.setSignatureInfoEncoding
-        (new Blob(decoder.getSlice(beginOffset, endOffset), true), signatureType);
+        (new Blob(decoder.getSlice(beginOffset, endOffset), copy), signatureType);
     }
 
     decoder.finishNestedTlvs(endOffset);
@@ -1098,7 +1143,8 @@ public class Tlv0_2WireFormat extends WireFormat {
   }
 
   private static void
-  decodeMetaInfo(MetaInfo metaInfo, TlvDecoder decoder) throws EncodingException
+  decodeMetaInfo
+    (MetaInfo metaInfo, TlvDecoder decoder, boolean copy) throws EncodingException
   {
     int endOffset = decoder.readNestedTlvsStart(Tlv.MetaInfo);
 
@@ -1125,7 +1171,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.FreshnessPeriod, endOffset));
     if (decoder.peekType(Tlv.FinalBlockId, endOffset)) {
       int finalBlockIdEndOffset = decoder.readNestedTlvsStart(Tlv.FinalBlockId);
-      metaInfo.setFinalBlockId(decodeNameComponent(decoder));
+      metaInfo.setFinalBlockId(decodeNameComponent(decoder, copy));
       decoder.finishNestedTlvs(finalBlockIdEndOffset);
     }
     else
@@ -1187,7 +1233,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
   private static void
   decodeControlParameters
-    (ControlParameters controlParameters, TlvDecoder decoder)
+    (ControlParameters controlParameters, TlvDecoder decoder, boolean copy)
     throws EncodingException
   {
     controlParameters.clear();
@@ -1198,7 +1244,7 @@ public class Tlv0_2WireFormat extends WireFormat {
     // decode name
     if (decoder.peekType(Tlv.Name, endOffset)) {
       Name name = new Name();
-      decodeName(name, new int[1], new int[1], decoder);
+      decodeName(name, new int[1], new int[1], decoder, copy);
       controlParameters.setName(name);
     }
 
@@ -1209,8 +1255,9 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     // decode URI
     if (decoder.peekType(Tlv.ControlParameters_Uri, endOffset)) {
+      // Set copy false since we just immediately get the string.
       Blob uri = new Blob
-        (decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), true);
+        (decoder.readOptionalBlobTlv(Tlv.ControlParameters_Uri, endOffset), false);
       controlParameters.setUri("" + uri);
     }
 
@@ -1236,7 +1283,8 @@ public class Tlv0_2WireFormat extends WireFormat {
     if (decoder.peekType(Tlv.ControlParameters_Strategy, endOffset)) {
       int strategyEndOffset = decoder.readNestedTlvsStart
         (Tlv.ControlParameters_Strategy);
-      decodeName(controlParameters.getStrategy(), new int[1], new int[1], decoder);
+      decodeName
+        (controlParameters.getStrategy(), new int[1], new int[1], decoder, copy);
       decoder.finishNestedTlvs(strategyEndOffset);
     }
 

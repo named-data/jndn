@@ -90,7 +90,7 @@ public class ControlParameters {
   public final void
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
-    wireFormat.decodeControlParameters(this, input);
+    wireFormat.decodeControlParameters(this, input, true);
   }
 
   /**
@@ -115,7 +115,7 @@ public class ControlParameters {
   public final void
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
-    wireDecode(input.buf(), wireFormat);
+    wireFormat.decodeControlParameters(this, input.buf(), false);
   }
 
   /**

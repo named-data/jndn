@@ -127,7 +127,8 @@ public class Data implements ChangeCountable, SignatureHolder {
     int[] signedPortionBeginOffset = new int[1];
     int[] signedPortionEndOffset = new int[1];
     wireFormat.decodeData
-      (this, input.buf(), signedPortionBeginOffset, signedPortionEndOffset);
+      (this, input.buf(), signedPortionBeginOffset, signedPortionEndOffset,
+       false);
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // This is the default wire encoding.
@@ -218,11 +219,11 @@ public class Data implements ChangeCountable, SignatureHolder {
   getFullName(WireFormat wireFormat) throws EncodingException
   {
     // The default full name depends on the default wire encoding.
-    if (!getDefaultWireEncoding().isNull() && defaultfullName_.size() > 0 &&
+    if (!getDefaultWireEncoding().isNull() && defaultFullName_.size() > 0 &&
         getDefaultWireEncodingFormat() == wireFormat)
       // We already have a full name. A non-null default wire encoding means
       // that the Data packet fields have not changed.
-      return defaultfullName_;
+      return defaultFullName_;
 
     Name fullName = new Name(getName());
     // wireEncode will use the cached encoding if possible.
@@ -231,7 +232,7 @@ public class Data implements ChangeCountable, SignatureHolder {
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // wireEncode has already set defaultWireEncodingFormat_.
-      defaultfullName_ = fullName;
+      defaultFullName_ = fullName;
 
     return fullName;
   }
@@ -386,7 +387,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   private Blob content_ = new Blob();
   private LpPacket lpPacket_ = null;
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
-  private Name defaultfullName_ = new Name();
+  private Name defaultFullName_ = new Name();
   private WireFormat defaultWireEncodingFormat_;
   private long getDefaultWireEncodingChangeCount_ = 0;
   private long changeCount_ = 0;

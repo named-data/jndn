@@ -150,15 +150,22 @@ public class Interest implements ChangeCountable {
   public final void
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
+    wireDecodeHelper(input, wireFormat, true);
+  }
+
+  private void
+  wireDecodeHelper
+    (ByteBuffer input, WireFormat wireFormat, boolean copy) throws EncodingException
+  {
     int[] signedPortionBeginOffset = new int[1];
     int[] signedPortionEndOffset = new int[1];
     wireFormat.decodeInterest
-      (this, input, signedPortionBeginOffset, signedPortionEndOffset);
+      (this, input, signedPortionBeginOffset, signedPortionEndOffset, copy);
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // This is the default wire encoding.
       setDefaultWireEncoding
-        (new SignedBlob(input, true, signedPortionBeginOffset[0],
+        (new SignedBlob(input, copy, signedPortionBeginOffset[0],
          signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
     else
       setDefaultWireEncoding(new SignedBlob(), null);
@@ -188,18 +195,7 @@ public class Interest implements ChangeCountable {
   public final void
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
-    int[] signedPortionBeginOffset = new int[1];
-    int[] signedPortionEndOffset = new int[1];
-    wireFormat.decodeInterest
-      (this, input.buf(), signedPortionBeginOffset, signedPortionEndOffset);
-
-    if (wireFormat == WireFormat.getDefaultWireFormat())
-      // This is the default wire encoding.
-      setDefaultWireEncoding
-        (new SignedBlob(input, signedPortionBeginOffset[0],
-         signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
-    else
-      setDefaultWireEncoding(new SignedBlob(), null);
+    wireDecodeHelper(input.buf(), wireFormat, false);
   }
 
   /**

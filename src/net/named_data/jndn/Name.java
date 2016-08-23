@@ -1158,7 +1158,7 @@ public class Name implements ChangeCountable, Comparable {
   public final void
   wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
   {
-    wireFormat.decodeName(this, input);
+    wireFormat.decodeName(this, input, true);
   }
 
   /**
@@ -1183,7 +1183,7 @@ public class Name implements ChangeCountable, Comparable {
   public final void
   wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
   {
-    wireDecode(input.buf(), wireFormat);
+    wireFormat.decodeName(this, input.buf(), false);
   }
 
   /**

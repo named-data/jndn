@@ -91,13 +91,13 @@ public class ConfigFile {
     File filePath = new File
       (new File(System.getProperty("user.home", "."), ".ndn"), "client.conf");
     if (filePath.exists())
-      return filePath.getPath();
+      return filePath.getAbsolutePath();
 
     // Ignore the C++ SYSCONFDIR.
 
     filePath = new File("/etc/ndn/client.conf");
     if (filePath.exists())
-      return filePath.getPath();
+      return filePath.getAbsolutePath();
 
     return "";
   }

@@ -22,8 +22,6 @@ package net.named_data.jndn.security.identity;
 
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.SecurityException;
-import net.named_data.jndn.security.certificate.IdentityCertificate;
-import net.named_data.jndn.util.Blob;
 
 /**
  * SqliteIdentityStorageBase is an abstract base class for the storage of

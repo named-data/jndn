@@ -184,7 +184,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
     try {
       signature = wireFormat.decodeSignatureInfoAndValue
         (interest.getName().get(-2).getValue().buf(),
-         interest.getName().get(-1).getValue().buf());
+         interest.getName().get(-1).getValue().buf(), false);
     }
     catch (EncodingException ex) {
       logger_.log

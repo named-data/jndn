@@ -25,12 +25,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
@@ -211,7 +211,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       DerNode parsedNode = DerNode.parse(ByteBuffer.wrap(der), 0);
       List pkcs8Children = parsedNode.getChildren();
       List algorithmIdChildren = DerNode.getSequence(pkcs8Children, 1).getChildren();
-      oidString = ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal().toString();
+      oidString = "" + ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal();
     }
     catch (DerDecodingException ex) {
       throw new SecurityException("Cannot decode the PKCS #8 private key: " + ex);
@@ -447,18 +447,13 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   private File
   nameTransform(String keyName, String extension) throws SecurityException
   {
-    MessageDigest sha256;
+    byte[] hash;
     try {
-      sha256 = MessageDigest.getInstance("SHA-256");
+      hash = Common.digestSha256(keyName.getBytes("UTF-8"));
+    } catch (UnsupportedEncodingException ex) {
+      // We don't expect this to happen.
+      throw new Error("UTF-8 encoder not supported: " + ex.getMessage());
     }
-    catch (NoSuchAlgorithmException exception) {
-      // Don't expect this to happen.
-      throw new Error
-        ("MessageDigest: SHA-256 is not supported: " + exception.getMessage());
-    }
-    sha256.update(keyName.getBytes());
-    byte[] hash = sha256.digest();
-
     String digest = Common.base64Encode(hash);
     digest = digest.replace('/', '%');
 
@@ -474,13 +469,13 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   private String
   maintainMapping(String keyName) throws SecurityException
   {
-    String keyFilePathNoExtension = nameTransform(keyName, "").getPath();
+    String keyFilePathNoExtension = nameTransform(keyName, "").getAbsolutePath();
 
     File mappingFilePath = new File(keyStorePath_, "mapping.txt");
 
     try{
       BufferedWriter writer = new BufferedWriter
-        (new FileWriter(mappingFilePath, true));
+        (new FileWriter(mappingFilePath.getAbsolutePath(), true));
       try {
         writer.write(keyName + ' ' + keyFilePathNoExtension + '\n');
         writer.flush();
@@ -513,7 +508,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       if (keyClass == KeyClass.PRIVATE)
         filePath = maintainMapping(keyName.toUri()) + extension;
       else
-        filePath = nameTransform(keyName.toUri(), extension).getPath();
+        filePath = nameTransform(keyName.toUri(), extension).getAbsolutePath();
 
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
       try{
@@ -549,7 +544,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     StringBuilder contents = new StringBuilder();
     try{
       BufferedReader reader = new BufferedReader
-        (new FileReader(nameTransform(keyName.toUri(), extension)));
+        (new FileReader(nameTransform(keyName.toUri(), extension).getAbsolutePath()));
       // Use "try/finally instead of "try-with-resources" or "using"
       // which are not supported before Java 7.
       try {
