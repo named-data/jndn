@@ -429,7 +429,7 @@ public class Node implements ElementListener {
           }
         }
 
-        // We have process the network Nack packet.
+        // We have processed the network Nack packet.
         return;
       }
     }
