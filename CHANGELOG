@@ -8,7 +8,7 @@ Changes
 * https://redmine.named-data.net/issues/3447 In Data, added getFullName, and
   in Interest added matchesData to use it.
 * In ProtobufTlv, added utility method toName.
-* INSTALL: Added MacOS 10.12.
+* INSTALL: Added macOS 10.12.
 * Examples: In TestEncodeDecodeFibEntry, etc, use ProtobufTlv.toName.
 * Unit tests: In TestNameMethods, added testImplicitSha256Digest.
 * Unit tests: In TestInterestMethods, added testMatchesData.

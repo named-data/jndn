@@ -13,7 +13,7 @@ Prerequisites
 
 Following are the detailed steps for each platform to install the prerequisites.
 
-## OS X 10.9.5, OS X 10.10.2, OS X 10.11, MacOS 10.12
+## OS X 10.9.5, OS X 10.10.2, OS X 10.11, macOS 10.12
 Install Xcode.  (Xcode seems to already have the Command Line Tools.)
 
 To install Apache Maven, install MacPorts from http://www.macports.org/install.php .
