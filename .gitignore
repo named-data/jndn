@@ -11,6 +11,9 @@
 # Javadoc output
 /doc
 
+# Mac OSX
+.DS_Store
+
 # Emacs temp files
 *~
 

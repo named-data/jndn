@@ -33,6 +33,7 @@ import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
+import net.named_data.jndn.security.AesKeyParams;
 import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -121,6 +122,29 @@ public class TestAesAlgorithm {
 
     // Decrypt data in AES_CBC with specified IV.
     receivedBlob = AesAlgorithm.decrypt(decryptKey.getKeyBits(), cipherBlob, encryptParams);
+    assertTrue(receivedBlob.equals(plainBlob));
+  }
+
+  @Test
+  public void
+  testKeyGeneration()
+    throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException,
+      IllegalBlockSizeException, BadPaddingException,
+      InvalidAlgorithmParameterException
+  {
+    AesKeyParams keyParams = new AesKeyParams(128);
+    DecryptKey decryptKey = AesAlgorithm.generateKey(keyParams);
+    EncryptKey encryptKey = AesAlgorithm.deriveEncryptKey(decryptKey.getKeyBits());
+
+    Blob plainBlob = new Blob(PLAINTEXT, false);
+
+    // Encrypt/decrypt data in AES_CBC with auto-generated IV.
+    EncryptParams encryptParams = new EncryptParams
+      (EncryptAlgorithmType.AesEcb, 16);
+    Blob cipherBlob = AesAlgorithm.encrypt
+      (encryptKey.getKeyBits(), plainBlob, encryptParams);
+    Blob receivedBlob = AesAlgorithm.decrypt
+      (decryptKey.getKeyBits(), cipherBlob, encryptParams);
     assertTrue(receivedBlob.equals(plainBlob));
   }
 }

@@ -407,8 +407,9 @@ public class DerNode {
       int accSize = 0;
       while (accSize < size_) {
         DerNode node = parse(inputBuf, idx);
-        idx += node.getSize();
-        accSize += node.getSize();
+        int size = node.getSize();
+        idx += size;
+        accSize += size;
         addChild(node, false);
       }
     }

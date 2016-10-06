@@ -34,8 +34,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class Common {
   /**
    * Get the current time in milliseconds.
-   * @return  The current time in milliseconds since 1/1/1970, including
-   * fractions of a millisecond.
+   * @return  The current time in milliseconds since 1/1/1970 UTC.
    */
   public static double
   getNowMilliseconds() { return (double)System.currentTimeMillis(); }
