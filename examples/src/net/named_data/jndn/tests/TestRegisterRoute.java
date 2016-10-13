@@ -216,7 +216,7 @@ public class TestRegisterRoute {
 
       final boolean[] enabled = new boolean[] { true };
       SegmentFetcher.fetch
-        (face, interest, SegmentFetcher.DontVerifySegment,
+        (face, interest, (KeyChain)null,
          new SegmentFetcher.OnComplete() {
            public void onComplete(Blob content) {
              processFaceStatus(content, prefix, uri, face, enabled);

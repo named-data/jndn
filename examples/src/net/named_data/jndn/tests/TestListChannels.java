@@ -19,7 +19,6 @@
 
 package net.named_data.jndn.tests;
 
-import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
@@ -28,6 +27,7 @@ import net.named_data.jndn.encoding.ProtobufTlv;
 import net.named_data.jndn.tests.ChannelStatusProto.ChannelStatusMessage;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.SegmentFetcher;
+import net.named_data.jndn.security.KeyChain;
 
 /**
  * This sends a faces channels request to the local NFD and prints the response.
@@ -48,7 +48,7 @@ public class TestListChannels {
 
       final boolean[] enabled = new boolean[] { true };
       SegmentFetcher.fetch
-        (face, interest, SegmentFetcher.DontVerifySegment,
+        (face, interest, (KeyChain)null,
          new SegmentFetcher.OnComplete() {
            public void onComplete(Blob content) {
              enabled[0] = false;
