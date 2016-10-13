@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.13 (2016-10-07)
+Interim changes since jNDN v0.13 (2016-10-13)
 ---------------------------------------------
 
 Changes
@@ -7,6 +7,7 @@ Changes
   Name.appendImplicitSha256Digest.
 * https://redmine.named-data.net/issues/3447 In Data, added getFullName, and
   in Interest added matchesData to use it.
+* In SegmentFetcher.fetch, allow a validatorKeyChain for asynchronous Data validation.
 * In Face, removed the deprecated registerPrefix where onInterest is type OnInterest. Use the
   registerPrefix where onInterest is OnInterestCallback so you can call face.putData().
 * In ProtobufTlv, added utility method toName.
