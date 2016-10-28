@@ -34,7 +34,7 @@ import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnDataValidationFailed;
-import net.named_data.jndn.security.OnVerifyInterestFailed;
+import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.identity.IdentityStorage;
@@ -147,7 +147,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       try {
         onValidationFailed.onDataValidationFailed(data, failureReason[0]);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
+        logger_.log(Level.SEVERE, "Error in onDataValidationFailed", ex);
       }
     }
 
@@ -168,8 +168,9 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param onVerifyFailed If the signature check fails or can't find the public
-   * key, this calls onVerifyFailed.onVerifyInterestFailed(interest).
+   * @param onValidationFailed If the signature check fails or can't find the
+   * public key, this calls
+   * onValidationFailed.onInterestValidationFailed(interest, reason).
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
@@ -178,7 +179,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   public ValidationRequest
   checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat)
+     OnInterestValidationFailed onValidationFailed, WireFormat wireFormat)
     throws net.named_data.jndn.security.SecurityException
   {
     // Decode the last two name components of the signed interest
@@ -192,9 +193,10 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       logger_.log
         (Level.INFO, "Cannot decode the signed interest SignatureInfo and value", ex);
       try {
-        onVerifyFailed.onVerifyInterestFailed(interest);
+        onValidationFailed.onInterestValidationFailed
+          (interest, "Error decoding the signed interest signature: " + ex);
       } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
+        logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", exception);
       }
       return null;
     }
@@ -210,9 +212,9 @@ public class SelfVerifyPolicyManager extends PolicyManager {
     }
     else {
       try {
-        onVerifyFailed.onVerifyInterestFailed(interest);
+        onValidationFailed.onInterestValidationFailed(interest, failureReason[0]);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
+        logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", ex);
       }
     }
 

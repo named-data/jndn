@@ -44,7 +44,7 @@ import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnDataValidationFailed;
-import net.named_data.jndn.security.OnVerifyInterestFailed;
+import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.certificate.Certificate;
@@ -296,7 +296,7 @@ public class ConfigPolicyManager extends PolicyManager {
       try {
         onValidationFailed.onDataValidationFailed(data, failureReason[0]);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
+        logger_.log(Level.SEVERE, "Error in onDataValidationFailed", ex);
       }
       return null;
     }
@@ -321,7 +321,7 @@ public class ConfigPolicyManager extends PolicyManager {
         try {
           onValidationFailed.onDataValidationFailed(data, failureReason[0]);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
+          logger_.log(Level.SEVERE, "Error in onDataValidationFailed", ex);
         }
       }
 
@@ -339,8 +339,8 @@ public class ConfigPolicyManager extends PolicyManager {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param onVerifyFailed If the signature check fails, this calls
-   * onVerifyFailed(interest).
+   * @param onValidationFailed If the signature check fails, this calls
+   * onValidationFailed.onInterestValidationFailed(interest, reason).
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
@@ -350,20 +350,22 @@ public class ConfigPolicyManager extends PolicyManager {
   public final ValidationRequest
   checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat) throws SecurityException
+     OnInterestValidationFailed onValidationFailed, WireFormat wireFormat)
+    throws SecurityException
   {
-    Signature signature = extractSignature(interest, wireFormat);
+    String[] failureReason = new String[] { "unknown" };
+    Signature signature = extractSignature(interest, wireFormat, failureReason);
     if (signature == null) {
       // Can't get the signature from the interest name.
       try {
-        onVerifyFailed.onVerifyInterestFailed(interest);
+        onValidationFailed.onInterestValidationFailed
+          (interest, failureReason[0]);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
+        logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", ex);
       }
       return null;
     }
 
-    String[] failureReason = new String[] { "unknown" };
     // For command interests, we need to ignore the last 4 components when
     //   matching the name.
     Interest certificateInterest = getCertificateInterest
@@ -371,9 +373,10 @@ public class ConfigPolicyManager extends PolicyManager {
        failureReason);
     if (certificateInterest == null) {
       try {
-        onVerifyFailed.onVerifyInterestFailed(interest);
+        onValidationFailed.onInterestValidationFailed
+          (interest, failureReason[0]);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
+        logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", ex);
       }
       return null;
     }
@@ -382,8 +385,8 @@ public class ConfigPolicyManager extends PolicyManager {
       return new ValidationRequest
         (certificateInterest,
          new OnCertificateDownloadCompleteForInterest
-            (interest, stepCount, onVerified, onVerifyFailed, wireFormat),
-         new OnVerifyInterestFailedWrapper(onVerifyFailed, interest),
+            (interest, stepCount, onVerified, onValidationFailed, wireFormat),
+         new OnVerifyInterestFailedWrapper(onValidationFailed, interest),
          2, stepCount + 1);
     else {
       // For interests, we must check that the timestamp is fresh enough.
@@ -393,11 +396,12 @@ public class ConfigPolicyManager extends PolicyManager {
       Name keyName = IdentityCertificate.certificateNameToPublicKeyName(signatureName);
       double timestamp = interest.getName().get(-4).toNumber();
 
-      if (!interestTimestampIsFresh(keyName, timestamp)) {
+      if (!interestTimestampIsFresh(keyName, timestamp, failureReason)) {
         try {
-          onVerifyFailed.onVerifyInterestFailed(interest);
+          onValidationFailed.onInterestValidationFailed
+            (interest, failureReason[0]);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
+          logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", ex);
         }
         return null;
       }
@@ -414,9 +418,10 @@ public class ConfigPolicyManager extends PolicyManager {
       }
       else {
         try {
-          onVerifyFailed.onVerifyInterestFailed(interest);
+          onValidationFailed.onInterestValidationFailed
+            (interest, failureReason[0]);
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
+          logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", ex);
         }
       }
 
@@ -953,19 +958,26 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param interest The interest whose signature is needed.
    * @param wireFormat The wire format used to decode signature information
    * from the interest name.
+   * @param failureReason If can't decode, set failureReason[0] to the failure
+   * reason.
    * @return A shared_ptr for the Signature object. This is null if can't decode.
    */
   private static Signature
-  extractSignature(Interest interest, WireFormat wireFormat)
+  extractSignature
+    (Interest interest, WireFormat wireFormat, String[] failureReason)
   {
-    if (interest.getName().size() < 2)
+    if (interest.getName().size() < 2) {
+      failureReason[0] = "The signed interest has less than 2 components: " +
+        interest.getName().toUri();
       return null;
+    }
 
     try {
       return wireFormat.decodeSignatureInfoAndValue
               (interest.getName().get(-2).getValue().buf(),
                interest.getName().get(-1).getValue().buf(), false);
     } catch (EncodingException ex) {
+      failureReason[0] = "Error decoding the signed interest signature: " + ex;
       return null;
     }
   }
@@ -975,21 +987,35 @@ public class ConfigPolicyManager extends PolicyManager {
    * use of this key, or within the grace interval on first use.
    * @param keyName The name of the public key used to sign the interest.
    * @param timestamp The timestamp extracted from the interest name.
+   * @param failureReason If timestamp is not fresh, set failureReason[0] to the
+   * failure reason.
    * @return True if timestamp is fresh as described above.
    */
   private boolean
-  interestTimestampIsFresh(Name keyName, double timestamp)
+  interestTimestampIsFresh(Name keyName, double timestamp, String[] failureReason)
   {
     String keyNameUri = keyName.toUri();
     if (!keyTimestamps_.containsKey(keyNameUri)) {
       double now = Common.getNowMilliseconds();
       double notBefore = now - keyGraceInterval_;
       double notAfter = now + keyGraceInterval_;
-      return timestamp > notBefore && timestamp < notAfter;
+
+      if (!(timestamp > notBefore && timestamp < notAfter)) {
+        failureReason[0] =
+          "The command interest timestamp is not within the first use grace period of" +
+          keyGraceInterval_ + " milliseconds.";
+        return false;
+      }
+      return true;
     }
     else {
       double lastTimestamp = (double)(Double)keyTimestamps_.get(keyNameUri);
-      return timestamp > lastTimestamp;
+      if (timestamp <= lastTimestamp) {
+        failureReason[0] =
+          "The command interest timestamp is not newer than the previous timestamp";
+        return false;
+      }
+      return true;
     }
   }
 
@@ -1198,7 +1224,7 @@ public class ConfigPolicyManager extends PolicyManager {
           onValidationFailed_.onDataValidationFailed
             (originalData_, "Cannot decode certificate " + data.getName().toUri());
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
+          logger_.log(Level.SEVERE, "Error in onDataValidationFailed", exception);
         }
         return;
       }
@@ -1236,18 +1262,18 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param originalInterest The original interest from checkVerificationPolicy.
    * @param stepCount The value from checkVerificationPolicy.
    * @param onVerified The value from checkVerificationPolicy.
-   * @param onVerifyFailed The value from checkVerificationPolicy.
+   * @param onValidationFailed The value from checkVerificationPolicy.
    */
   private class OnCertificateDownloadCompleteForInterest implements OnVerified {
     public OnCertificateDownloadCompleteForInterest
       (Interest originalInterest, int stepCount,
-       OnVerifiedInterest onVerified, OnVerifyInterestFailed onVerifyFailed,
-       WireFormat wireFormat)
+       OnVerifiedInterest onVerified, 
+       OnInterestValidationFailed onValidationFailed, WireFormat wireFormat)
     {
       originalInterest_ = originalInterest;
       stepCount_ = stepCount;
       onVerified_ = onVerified;
-      onVerifyFailed_ = onVerifyFailed;
+      onValidationFailed_ = onValidationFailed;
       wireFormat_ = wireFormat;
     }
 
@@ -1259,9 +1285,10 @@ public class ConfigPolicyManager extends PolicyManager {
         certificate = new IdentityCertificate(data);
       } catch (DerDecodingException ex) {
         try {
-          onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+          onValidationFailed_.onInterestValidationFailed
+            (originalInterest_, "Cannot decode certificate " + data.getName().toUri());
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
+          logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", exception);
         }
         return;
       }
@@ -1269,14 +1296,16 @@ public class ConfigPolicyManager extends PolicyManager {
 
       try {
         // Now that we stored the needed certificate, increment stepCount and try again
-        //   to verify the originalData.
+        //   to verify the originalInterest.
         checkVerificationPolicy
-                (originalInterest_, stepCount_ + 1, onVerified_, onVerifyFailed_, wireFormat_);
+          (originalInterest_, stepCount_ + 1, onVerified_, onValidationFailed_,
+           wireFormat_);
       } catch (SecurityException ex) {
         try {
-          onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+          onValidationFailed_.onInterestValidationFailed
+            (originalInterest_, "Error in checkVerificationPolicy: " + ex);
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
+          logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", exception);
         }
       }
     }
@@ -1284,29 +1313,30 @@ public class ConfigPolicyManager extends PolicyManager {
     private final Interest originalInterest_;
     private final int stepCount_;
     private final OnVerifiedInterest onVerified_;
-    private final OnVerifyInterestFailed onVerifyFailed_;
+    private final OnInterestValidationFailed onValidationFailed_;
     private final WireFormat wireFormat_;
   }
 
   /**
-   * Ignore data and call onVerifyFailed(interest). This is so that an
-   * OnVerifyInterestFailed can be passed as an OnDataValidationFailed.
+   * Ignore data and call onInterestValidationFailed(interest, reason). This is
+   * so that an OnInterestValidationFailed can be passed as an
+   * OnDataValidationFailed.
    */
   private class OnVerifyInterestFailedWrapper implements OnDataValidationFailed {
     public OnVerifyInterestFailedWrapper
-      (OnVerifyInterestFailed onVerifyFailed, Interest interest)
+      (OnInterestValidationFailed onValidationFailed, Interest interest)
     {
-      onVerifyFailed_ = onVerifyFailed;
+      onValidationFailed_ = onValidationFailed;
       interest_ = interest;
     }
 
     public final void
     onDataValidationFailed(Data data, String reason)
     {
-      onVerifyFailed_.onVerifyInterestFailed(interest_);
+      onValidationFailed_.onInterestValidationFailed(interest_, reason);
     }
 
-    private final OnVerifyInterestFailed onVerifyFailed_;
+    private final OnInterestValidationFailed onValidationFailed_;
     private final Interest interest_;
   }
 

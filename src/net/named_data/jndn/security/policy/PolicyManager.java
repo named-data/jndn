@@ -37,7 +37,7 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnDataValidationFailed;
-import net.named_data.jndn.security.OnVerifyInterestFailed;
+import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Blob;
@@ -121,8 +121,8 @@ public abstract class PolicyManager {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param onVerifyFailed If the signature check fails, this calls
-   * onVerifyFailed.onVerifyInterestFailed(interest).
+   * @param onValidationFailed If the signature check fails, this calls
+   * onValidationFailed.onInterestValidationFailed(interest, reason).
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
@@ -132,15 +132,16 @@ public abstract class PolicyManager {
   public abstract ValidationRequest
   checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat) throws SecurityException;
+     OnInterestValidationFailed onValidationFailed, WireFormat wireFormat)
+    throws SecurityException;
 
   public ValidationRequest
   checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed) throws SecurityException
+     OnInterestValidationFailed onValidationFailed) throws SecurityException
   {
     return checkVerificationPolicy
-      (interest, stepCount, onVerified, onVerifyFailed,
+      (interest, stepCount, onVerified, onValidationFailed,
        WireFormat.getDefaultWireFormat());
   }
 

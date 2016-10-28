@@ -29,7 +29,7 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnDataValidationFailed;
-import net.named_data.jndn.security.OnVerifyInterestFailed;
+import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.ValidationRequest;
 
 /**
@@ -112,12 +112,12 @@ public class NoVerifyPolicyManager extends PolicyManager {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param onVerifyFailed Override to ignore this.
+   * @param onValidationFailed Override to ignore this.
    * @return null for no further step.
    */
   public final ValidationRequest checkVerificationPolicy
     (Interest interest, int stepCount, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, WireFormat wireFormat)
+     OnInterestValidationFailed onValidationFailed, WireFormat wireFormat)
     throws SecurityException
   {
     try {
