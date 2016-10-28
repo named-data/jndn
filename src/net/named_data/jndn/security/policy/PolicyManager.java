@@ -36,7 +36,7 @@ import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.SecurityException;
@@ -97,8 +97,8 @@ public abstract class PolicyManager {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param onVerifyFailed If the signature check fails, this calls
-   * onVerifyFailed(data).
+   * @param onValidationFailed If the signature check fails, this calls
+   * onValidationFailed.onDataValidationFailed(data, reason).
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
@@ -108,7 +108,7 @@ public abstract class PolicyManager {
   public abstract ValidationRequest
   checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified,
-     OnVerifyFailed onVerifyFailed) throws SecurityException;
+     OnDataValidationFailed onValidationFailed) throws SecurityException;
 
   /**
    * Check whether the received signed interest complies with the verification

@@ -27,12 +27,13 @@ import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
@@ -122,8 +123,8 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param onVerifyFailed If the signature check fails or can't find the public
-   * key, this calls onVerifyFailed(data).
+   * @param onValidationFailed If the signature check fails, this calls
+   * onValidationFailed.onDataValidationFailed(data, reason).
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
@@ -131,10 +132,11 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    */
   public ValidationRequest checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified,
-     OnVerifyFailed onVerifyFailed) throws SecurityException
+     OnDataValidationFailed onValidationFailed) throws SecurityException
   {
+    String[] failureReason = new String[] { "unknown" };
     // wireEncode returns the cached encoding if available.
-    if (verify(data.getSignature(), data.wireEncode())) {
+    if (verify(data.getSignature(), data.wireEncode(), failureReason)) {
       try {
         onVerified.onVerified(data);
       } catch (Throwable ex) {
@@ -143,7 +145,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
     }
     else {
       try {
-        onVerifyFailed.onVerifyFailed(data);
+        onValidationFailed.onDataValidationFailed(data, failureReason[0]);
       } catch (Throwable ex) {
         logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
       }
@@ -197,8 +199,9 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       return null;
     }
 
+    String[] failureReason = new String[] { "unknown" };
     // wireEncode returns the cached encoding if available.
-    if (verify(signature, interest.wireEncode(wireFormat))) {
+    if (verify(signature, interest.wireEncode(wireFormat), failureReason)) {
       try {
         onVerified.onVerifiedInterest(interest);
       } catch (Throwable ex) {
@@ -249,30 +252,42 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * @param signatureInfo An object of a subclass of Signature, e.g.
    * Sha256WithRsaSignature.
    * @param signedBlob the SignedBlob with the signed portion to verify.
+   * @param failureReason If matching fails, set failureReason[0] to the
+   * failure reason.
    * @return True if the signature is verified, false if failed.
    */
   private boolean
-  verify(net.named_data.jndn.Signature signatureInfo, SignedBlob signedBlob) throws net.named_data.jndn.security.SecurityException
+  verify(Signature signatureInfo, SignedBlob signedBlob, String[] failureReason)
+    throws net.named_data.jndn.security.SecurityException
   {
     Blob publicKeyDer = null;
     if (KeyLocator.canGetFromSignature(signatureInfo)) {
-      publicKeyDer = getPublicKeyDer(KeyLocator.getFromSignature(signatureInfo));
+      publicKeyDer = getPublicKeyDer
+        (KeyLocator.getFromSignature(signatureInfo), failureReason);
       if (publicKeyDer.isNull())
         return false;
     }
 
-    return verifySignature(signatureInfo, signedBlob, publicKeyDer);
+    if (verifySignature(signatureInfo, signedBlob, publicKeyDer))
+      return true;
+    else {
+      failureReason[0] = "The signature did not verify with the given public key";
+      return false;
+    }
   }
 
   /**
    * Look in the IdentityStorage for the public key with the name in the
-   * KeyLocator (if available). If the public key can't be found, return and
+   * KeyLocator (if available). If the public key can't be found, return an
    * empty Blob.
    * @param keyLocator The KeyLocator.
+   * @param failureReason If can't find the public key, set failureReason[0] to
+   * the failure reason.
    * @return The public key DER or an empty Blob if not found.
    */
   private Blob
-  getPublicKeyDer(KeyLocator keyLocator) throws SecurityException
+  getPublicKeyDer(KeyLocator keyLocator, String[] failureReason)
+    throws SecurityException
   {
     if (keyLocator.getType() == KeyLocatorType.KEYNAME &&
              identityStorage_ != null) {
@@ -282,13 +297,16 @@ public class SelfVerifyPolicyManager extends PolicyManager {
           (IdentityCertificate.certificateNameToPublicKeyName
            (keyLocator.getKeyName()));
       } catch (SecurityException ex) {
-        // The storage doesn't have the key.
+        failureReason[0] = "The identityStorage doesn't have the key named " +
+          keyLocator.getKeyName().toUri();
         return new Blob();
       }
     }
-    else
+    else {
       // Can't find a key to verify.
+      failureReason[0] = "The signature KeyLocator doesn't have a key name";
       return new Blob();
+    }
   }
 
   private final IdentityStorage identityStorage_;

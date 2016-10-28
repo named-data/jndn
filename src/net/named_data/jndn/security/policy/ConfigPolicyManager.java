@@ -43,7 +43,7 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.ValidationRequest;
@@ -276,8 +276,8 @@ public class ConfigPolicyManager extends PolicyManager {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param onVerifyFailed If the signature check fails, this calls
-   * onVerifyFailed.onVerifyFailed(data).
+   * @param onValidationFailed If the signature check fails, this calls
+   * onValidationFailed.onDataValidationFailed(data, reason).
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
@@ -287,13 +287,14 @@ public class ConfigPolicyManager extends PolicyManager {
   public final ValidationRequest
   checkVerificationPolicy
     (Data data, int stepCount, OnVerified onVerified,
-     OnVerifyFailed onVerifyFailed) throws SecurityException
+     OnDataValidationFailed onValidationFailed) throws SecurityException
   {
+    String[] failureReason = new String[] { "unknown" };
     Interest certificateInterest = getCertificateInterest
-      (stepCount, "data", data.getName(), data.getSignature());
+      (stepCount, "data", data.getName(), data.getSignature(), failureReason);
     if (certificateInterest == null) {
       try {
-        onVerifyFailed.onVerifyFailed(data);
+        onValidationFailed.onDataValidationFailed(data, failureReason[0]);
       } catch (Throwable ex) {
         logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
       }
@@ -304,12 +305,12 @@ public class ConfigPolicyManager extends PolicyManager {
       return new ValidationRequest
         (certificateInterest,
          new OnCertificateDownloadComplete
-           (data, stepCount, onVerified, onVerifyFailed),
-         onVerifyFailed, 2, stepCount + 1);
+           (data, stepCount, onVerified, onValidationFailed),
+         onValidationFailed, 2, stepCount + 1);
     else {
       // Certificate is known. Verify the signature.
       // wireEncode returns the cached encoding if available.
-      if (verify(data.getSignature(), data.wireEncode())) {
+      if (verify(data.getSignature(), data.wireEncode(), failureReason)) {
         try {
           onVerified.onVerified(data);
         } catch (Throwable ex) {
@@ -318,7 +319,7 @@ public class ConfigPolicyManager extends PolicyManager {
       }
       else {
         try {
-          onVerifyFailed.onVerifyFailed(data);
+          onValidationFailed.onDataValidationFailed(data, failureReason[0]);
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
         }
@@ -362,10 +363,12 @@ public class ConfigPolicyManager extends PolicyManager {
       return null;
     }
 
+    String[] failureReason = new String[] { "unknown" };
     // For command interests, we need to ignore the last 4 components when
     //   matching the name.
     Interest certificateInterest = getCertificateInterest
-      (stepCount, "interest", interest.getName().getPrefix(-4), signature);
+      (stepCount, "interest", interest.getName().getPrefix(-4), signature,
+       failureReason);
     if (certificateInterest == null) {
       try {
         onVerifyFailed.onVerifyInterestFailed(interest);
@@ -401,7 +404,7 @@ public class ConfigPolicyManager extends PolicyManager {
 
       // Certificate is known. Verify the signature.
       // wireEncode returns the cached encoding if available.
-      if (verify(signature, interest.wireEncode())) {
+      if (verify(signature, interest.wireEncode(), failureReason)) {
         try {
           onVerified.onVerifiedInterest(interest);
         } catch (Throwable ex) {
@@ -649,10 +652,14 @@ public class ConfigPolicyManager extends PolicyManager {
    * components.
    * @param rule The rule from the configuration file that matches the data or
    * interest.
+   * @param failureReason If matching fails, set failureReason[0] to the
+   * failure reason.
    * @return True if matches.
    */
   private boolean
-  checkSignatureMatch(Name signatureName, Name objectName, BoostInfoTree rule)
+  checkSignatureMatch
+    (Name signatureName, Name objectName, BoostInfoTree rule,
+     String[] failureReason)
     throws SecurityException
   {
     BoostInfoTree checker = (BoostInfoTree)rule.get("checker").get(0);
@@ -662,17 +669,34 @@ public class ConfigPolicyManager extends PolicyManager {
       String signerType = signerInfo.getFirstValue("type");
 
       Certificate cert = null;
-      if (signerType.equals("file"))
+      if (signerType.equals("file")) {
         cert = lookupCertificate(signerInfo.getFirstValue("file-name"), true);
-      else if (signerType.equals("base64"))
+        if (cert == null) {
+          failureReason[0] = "Can't find fixed-signer certificate file: " +
+            signerInfo.getFirstValue("file-name");
+          return false;
+        }
+      }
+      else if (signerType.equals("base64")) {
         cert = lookupCertificate(signerInfo.getFirstValue("base64-string"), false);
-      else
+        if (cert == null) {
+          failureReason[0] = "Can't find fixed-signer certificate base64: " +
+            signerInfo.getFirstValue("base64-string");
+          return false;
+        }
+      }
+      else {
+        failureReason[0] = "Unrecognized fixed-signer signerType: " + signerType;
         return false;
+      }
 
-      if (cert == null)
+      if (cert.getName().equals(signatureName))
+        return true;
+      else {
+        failureReason[0] = "fixed-signer cert name \"" + cert.getName().toUri() +
+          "\" does not equal signatureName \"" + signatureName.toUri() + "\"";
         return false;
-      else
-        return cert.getName().equals(signatureName);
+      }
     }
     else if (checkerType.equals("hierarchical")) {
       // This just means the data/interest name has the signing identity as a prefix.
@@ -682,10 +706,19 @@ public class ConfigPolicyManager extends PolicyManager {
       if (identityMatch != null) {
         Name identityPrefix = new Name(identityMatch.group(1)).append
           (new Name(identityMatch.group(2)));
-        return matchesRelation(objectName, identityPrefix, "is-prefix-of");
+        if (matchesRelation(objectName, identityPrefix, "is-prefix-of"))
+          return true;
+        else {
+          failureReason[0] = "The hierarchical objectName \"" + objectName.toUri() +
+            "\" is not a prefix of \"" + identityPrefix + "\"";
+          return false;
+        }
       }
-      else
+      else {
+        failureReason[0] = "The hierarchical identityRegex \"" + identityRegex +
+          "\" does not match signatureName \"" + signatureName.toUri() + "\"";
         return false;
+      }
     }
     else if (checkerType.equals("customized")) {
       BoostInfoTree keyLocatorInfo = (BoostInfoTree)checker.get("key-locator").get(0);
@@ -695,13 +728,27 @@ public class ConfigPolicyManager extends PolicyManager {
       String simpleRelationType = keyLocatorInfo.getFirstValue("relation");
       if (simpleRelationType != null) {
         Name matchName = new Name(keyLocatorInfo.getFirstValue("name"));
-        return matchesRelation(signatureName, matchName, simpleRelationType);
+        if (matchesRelation(signatureName, matchName, simpleRelationType))
+          return true;
+        else {
+          failureReason[0] = "The custom signatureName \"" + signatureName.toUri() +
+            "\" does not match matchName \"" + matchName.toUri() +
+            "\" using relation " + simpleRelationType;
+          return false;
+        }
       }
 
       // Is this a simple regex?
       String simpleKeyRegex = keyLocatorInfo.getFirstValue("regex");
-      if (simpleKeyRegex != null)
-        return NdnRegexMatcher.match(simpleKeyRegex, signatureName) != null;
+      if (simpleKeyRegex != null) {
+        if (NdnRegexMatcher.match(simpleKeyRegex, signatureName) != null)
+          return true;
+        else {
+          failureReason[0] = "The custom signatureName \"" + signatureName.toUri() +
+            "\" does not regex match simpleKeyRegex \"" + simpleKeyRegex + "\"";
+          return false;
+        }
+      }
 
       // Is this a hyper-relation?
       ArrayList hyperRelationList = keyLocatorInfo.get("hyper-relation");
@@ -716,22 +763,37 @@ public class ConfigPolicyManager extends PolicyManager {
         if (keyRegex != null && keyExpansion != null && nameRegex != null &&
             nameExpansion != null && relationType != null) {
           Matcher keyMatch = NdnRegexMatcher.match(keyRegex, signatureName);
-          if (keyMatch == null || keyMatch.groupCount() < 1)
+          if (keyMatch == null || keyMatch.groupCount() < 1) {
+            failureReason[0] = "The custom hyper-relation signatureName \"" +
+              signatureName.toUri() + "\" does not match the keyRegex \"" +
+              keyRegex + "\"";
             return false;
+          }
           String keyMatchPrefix = expand(keyMatch, keyExpansion);
 
           Matcher nameMatch = NdnRegexMatcher.match(nameRegex, objectName);
-          if (nameMatch == null || nameMatch.groupCount() < 1)
+          if (nameMatch == null || nameMatch.groupCount() < 1) {
+            failureReason[0] = "The custom hyper-relation objectName \"" +
+              objectName.toUri() + "\" does not match the nameRegex \"" +
+              nameRegex + "\"";
             return false;
+          }
           String nameMatchStr = expand(nameMatch, nameExpansion);
 
-          return matchesRelation
-            (new Name(nameMatchStr), new Name(keyMatchPrefix), relationType);
+          if (matchesRelation
+              (new Name(nameMatchStr), new Name(keyMatchPrefix), relationType))
+            return true;
+          else {
+            failureReason[0] = "The custom hyper-relation nameMatch \"" +
+              nameMatchStr + "\" does not match the keyMatchPrefix \"" +
+              keyMatchPrefix + "\" using relation " + relationType;
+            return false;
+          }
         }
       }
     }
 
-    // unknown type
+    failureReason[0] = "Unrecognized checkerType: " + checkerType;
     return false;
   }
 
@@ -984,10 +1046,13 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param signatureInfo An object of a subclass of Signature, e.g.
    * Sha256WithRsaSignature.
    * @param signedBlob the SignedBlob with the signed portion to verify.
+   * @param failureReason If verification fails, set failureReason[0] to the
+   * failure reason.
    * @return True if the signature verifies, False if not.
    */
   private boolean
-  verify(Signature signatureInfo, SignedBlob signedBlob) throws SecurityException
+  verify(Signature signatureInfo, SignedBlob signedBlob, String[] failureReason)
+    throws SecurityException
   {
     // We have already checked once that there is a key locator.
     KeyLocator keyLocator = KeyLocator.getFromSignature(signatureInfo);
@@ -999,19 +1064,31 @@ public class ConfigPolicyManager extends PolicyManager {
         refreshManager_.getCertificate(signatureName);
       if (certificate == null)
         certificate = certificateCache_.getCertificate(signatureName);
-      if (certificate == null)
+      if (certificate == null) {
+        failureReason[0] = "Cannot find a certificate with name " +
+          signatureName.toUri();
         return false;
+      }
 
       Blob publicKeyDer = certificate.getPublicKeyInfo().getKeyDer();
-      if (publicKeyDer.isNull())
-        // Can't find the public key with the name.
+      if (publicKeyDer.isNull()) {
+        // We don't expect this to happen.
+        failureReason[0] = "There is no public key in the certificate with name " +
+          certificate.getName().toUri();
         return false;
+      }
 
-      return verifySignature(signatureInfo, signedBlob, publicKeyDer);
+      if (verifySignature(signatureInfo, signedBlob, publicKeyDer))
+        return true;
+      else {
+        failureReason[0] = "The signature did not verify with the given public key";
+        return false;
+      }
     }
-    else
-      // Can't find a key to verify.
+    else {
+      failureReason[0] = "The KeyLocator does not have a key name";
       return false;
+    }
   }
 
   /**
@@ -1023,6 +1100,8 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param matchType Either "data" or "interest".
    * @param objectName The name of the data or interest packet.
    * @param signature The Signature object for the data or interest packet.
+   * @param failureReason If verification fails, set failureReason[0] to the
+   * failure reason.
    * @return null if validation failed, otherwise the interest for the
    * ValidationRequest to fetch the next certificate. However, if the interest
    * has an empty name, the validation succeeded and no need to fetch a
@@ -1030,33 +1109,43 @@ public class ConfigPolicyManager extends PolicyManager {
    */
   private Interest
   getCertificateInterest
-    (int stepCount, String matchType, Name objectName, Signature signature)
+    (int stepCount, String matchType, Name objectName, Signature signature,
+     String[] failureReason)
       throws SecurityException
   {
-    if (stepCount > maxDepth_)
+    if (stepCount > maxDepth_) {
+      failureReason[0] = "The verification stepCount " + stepCount +
+        " exceeded the maxDepth " + maxDepth_;
       return null;
+    }
 
-    if (!KeyLocator.canGetFromSignature(signature))
+    if (!KeyLocator.canGetFromSignature(signature)) {
       // We only support signature types with key locators.
+      failureReason[0] = "The signature type does not support a KeyLocator";
       return null;
+    }
 
     KeyLocator keyLocator;
     keyLocator = KeyLocator.getFromSignature(signature);
 
     Name signatureName = keyLocator.getKeyName();
     // No key name in KeyLocator -> fail.
-    if (signatureName.size() == 0)
+    if (signatureName.size() == 0) {
+      failureReason[0] = "The signature KeyLocator doesn't have a key name";
       return null;
+    }
 
     // first see if we can find a rule to match this packet
     BoostInfoTree matchedRule = findMatchingRule(objectName, matchType);
 
     // No matching rule -> fail.
-    if (matchedRule == null)
+    if (matchedRule == null) {
+      failureReason[0] = "No matching rule found for " + objectName.toUri();
       return null;
+    }
 
     boolean signatureMatches = checkSignatureMatch
-      (signatureName, objectName, matchedRule);
+      (signatureName, objectName, matchedRule, failureReason);
     if (!signatureMatches)
       return null;
 
@@ -1085,17 +1174,17 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param originalData The original data from checkVerificationPolicy.
    * @param stepCount The value from checkVerificationPolicy.
    * @param onVerified The value from checkVerificationPolicy.
-   * @param onVerifyFailed The value from checkVerificationPolicy.
+   * @param onValidationFailed The value from checkVerificationPolicy.
    */
   private class OnCertificateDownloadComplete implements OnVerified {
     public OnCertificateDownloadComplete
       (Data originalData, int stepCount, OnVerified onVerified,
-       OnVerifyFailed onVerifyFailed)
+       OnDataValidationFailed onValidationFailed)
     {
       originalData_ = originalData;
       stepCount_ = stepCount;
       onVerified_ = onVerified;
-      onVerifyFailed_ = onVerifyFailed;
+      onValidationFailed_ = onValidationFailed;
     }
 
     public final void
@@ -1106,7 +1195,8 @@ public class ConfigPolicyManager extends PolicyManager {
         certificate = new IdentityCertificate(data);
       } catch (DerDecodingException ex) {
         try {
-          onVerifyFailed_.onVerifyFailed(originalData_);
+          onValidationFailed_.onDataValidationFailed
+            (originalData_, "Cannot decode certificate " + data.getName().toUri());
         } catch (Throwable exception) {
           logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
         }
@@ -1118,12 +1208,13 @@ public class ConfigPolicyManager extends PolicyManager {
         // Now that we stored the needed certificate, increment stepCount and try again
         //   to verify the originalData.
         checkVerificationPolicy
-          (originalData_, stepCount_ + 1, onVerified_, onVerifyFailed_);
+          (originalData_, stepCount_ + 1, onVerified_, onValidationFailed_);
       } catch (SecurityException ex) {
         try {
-          onVerifyFailed_.onVerifyFailed(originalData_);
+          onValidationFailed_.onDataValidationFailed
+            (originalData_, "Error in checkVerificationPolicy: " + ex);
         } catch (Throwable exception) {
-          logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
+          logger_.log(Level.SEVERE, "Error in onDataValidationFailed", exception);
         }
       }
     }
@@ -1131,7 +1222,7 @@ public class ConfigPolicyManager extends PolicyManager {
     private final Data originalData_;
     private final int stepCount_;
     private final OnVerified onVerified_;
-    private final OnVerifyFailed onVerifyFailed_;
+    private final OnDataValidationFailed onValidationFailed_;
   }
 
   /**
@@ -1199,9 +1290,9 @@ public class ConfigPolicyManager extends PolicyManager {
 
   /**
    * Ignore data and call onVerifyFailed(interest). This is so that an
-   * OnVerifyInterestFailed can be passed as an OnVerifyFailed.
+   * OnVerifyInterestFailed can be passed as an OnDataValidationFailed.
    */
-  private class OnVerifyInterestFailedWrapper implements OnVerifyFailed {
+  private class OnVerifyInterestFailedWrapper implements OnDataValidationFailed {
     public OnVerifyInterestFailedWrapper
       (OnVerifyInterestFailed onVerifyFailed, Interest interest)
     {
@@ -1210,7 +1301,7 @@ public class ConfigPolicyManager extends PolicyManager {
     }
 
     public final void
-    onVerifyFailed(Data data)
+    onDataValidationFailed(Data data, String reason)
     {
       onVerifyFailed_.onVerifyInterestFailed(interest_);
     }
@@ -1257,7 +1348,8 @@ public class ConfigPolicyManager extends PolicyManager {
 
     public abstract boolean
     checkSignatureMatch
-      (ConfigPolicyManager policyManager, Name signatureName, Name objectName, BoostInfoTree rule)
+      (ConfigPolicyManager policyManager, Name signatureName, Name objectName, 
+       BoostInfoTree rule, String[] failureReason)
       throws SecurityException;
   }
 
@@ -1274,10 +1366,12 @@ public class ConfigPolicyManager extends PolicyManager {
 
     public boolean
     checkSignatureMatch
-      (ConfigPolicyManager policyManager, Name signatureName, Name objectName, BoostInfoTree rule)
+      (ConfigPolicyManager policyManager, Name signatureName, Name objectName, 
+       BoostInfoTree rule, String[] failureReason)
       throws SecurityException
     {
-      return policyManager.checkSignatureMatch(signatureName, objectName, rule);
+      return policyManager.checkSignatureMatch
+        (signatureName, objectName, rule, failureReason);
     }
   }
 
