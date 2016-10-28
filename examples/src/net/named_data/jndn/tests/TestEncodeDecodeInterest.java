@@ -27,7 +27,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerifiedInterest;
-import net.named_data.jndn.security.OnVerifyInterestFailed;
+import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
@@ -204,7 +204,7 @@ public class TestEncodeDecodeInterest {
        "" + interest.getNonce().toHex() : "<none>"));
   }
 
-  private static class VerifyCallbacks implements OnVerifiedInterest, OnVerifyInterestFailed {
+  private static class VerifyCallbacks implements OnVerifiedInterest, OnInterestValidationFailed {
     public VerifyCallbacks(String prefix) { prefix_ = prefix; }
 
     private final String prefix_;
@@ -214,9 +214,10 @@ public class TestEncodeDecodeInterest {
       System.out.println(prefix_ + " signature verification: VERIFIED");
     }
 
-    public void onVerifyInterestFailed(Interest interest)
+    public void onInterestValidationFailed(Interest interest, String reason)
     {
-      System.out.println(prefix_ + " signature verification: FAILED");
+      System.out.println
+        (prefix_ + " signature verification: FAILED. Reason: " + reason);
     }
   }
 
