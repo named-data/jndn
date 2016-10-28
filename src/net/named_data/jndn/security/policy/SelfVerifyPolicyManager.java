@@ -182,8 +182,19 @@ public class SelfVerifyPolicyManager extends PolicyManager {
      OnInterestValidationFailed onValidationFailed, WireFormat wireFormat)
     throws net.named_data.jndn.security.SecurityException
   {
+    if (interest.getName().size() < 2) {
+      try {
+        onValidationFailed.onInterestValidationFailed
+          (interest, "The signed interest has less than 2 components: " +
+           interest.getName().toUri());
+      } catch (Throwable exception) {
+        logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", exception);
+      }
+      return null;
+    }
+
     // Decode the last two name components of the signed interest
-    net.named_data.jndn.Signature signature;
+    Signature signature;
     try {
       signature = wireFormat.decodeSignatureInfoAndValue
         (interest.getName().get(-2).getValue().buf(),
