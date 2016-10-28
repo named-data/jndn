@@ -39,7 +39,7 @@ import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.OnVerifyInterestFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.ValidationRequest;
@@ -60,14 +60,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-class VerificationResult implements OnVerified, OnVerifyFailed,
+class VerificationResult implements OnVerified, OnDataValidationFailed,
     OnVerifiedInterest, OnVerifyInterestFailed {
   public void onVerified(Data data)
   {
     ++successCount_;
   }
 
-  public void onVerifyFailed(Data data)
+  public void onDataValidationFailed(Data data, String reason)
   {
     ++failureCount_;
   }

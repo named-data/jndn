@@ -28,7 +28,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerified;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
@@ -240,7 +240,7 @@ public class IntegrationTestsCommon {
   });
 }
 
-class VerifyCounter implements OnVerified, OnVerifyFailed
+class VerifyCounter implements OnVerified, OnDataValidationFailed
 {
   public void
   onVerified(Data data)
@@ -249,7 +249,7 @@ class VerifyCounter implements OnVerified, OnVerifyFailed
   }
 
   public void
-  onVerifyFailed(Data data)
+  onDataValidationFailed(Data data, String reason)
   {
     ++onVerifyFailedCallCount_;
   }
