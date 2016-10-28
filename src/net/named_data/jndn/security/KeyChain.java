@@ -786,6 +786,41 @@ public class KeyChain {
     verifyData(data, onVerified, onValidationFailed, 0);
   }
 
+  /**
+   * Check the signature on the Data object and call either onVerify.onVerify or
+   * onVerifyFailed.onVerifyFailed.
+   * We use callback functions because verify may fetch information to check the
+   * signature.
+   * @deprecated Use verifyData with OnDataValidationFailed.
+   * @param data The Data object with the signature to check. It is an error if
+   * data does not have a wireEncoding.
+   * To set the wireEncoding, you can call data.wireDecode.
+   * @param onVerified If the signature is verified, this calls
+   * onVerified.onVerified(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onVerifyFailed If the signature check fails, this calls
+   * onVerifyFailed.onVerifyFailed(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   */
+  public final void
+  verifyData
+    (Data data, OnVerified onVerified, final OnVerifyFailed onVerifyFailed)
+    throws SecurityException
+  {
+    // Wrap the onVerifyFailed in an OnDataValidationFailed.
+    verifyData
+      (data, onVerified,
+       new OnDataValidationFailed() {
+         public void onDataValidationFailed(Data localData, String reason) {
+           onVerifyFailed.onVerifyFailed(localData);
+         }
+       });
+  }
+
   public final void
   verifyInterest
     (Interest interest, OnVerifiedInterest onVerified,
@@ -855,6 +890,40 @@ public class KeyChain {
      OnInterestValidationFailed onValidationFailed) throws SecurityException
   {
     verifyInterest(interest, onVerified, onValidationFailed, 0);
+  }
+
+  /**
+   * Check the signature on the signed interest and call either
+   * onVerify.onVerifiedInterest or onVerifyFailed.onVerifyInterestFailed. We
+   * use callback functions because verify may fetch information to check the
+   * signature.
+   * @deprecated Use verifyInterest with OnInterestValidationFailed.
+   * @param interest The interest with the signature to check.
+   * @param onVerified If the signature is verified, this calls
+   * onVerified.onVerifiedInterest(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onVerifyFailed If the signature check fails, this calls
+   * onVerifyFailed.onVerifyInterestFailed(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   */
+  public final void
+  verifyInterest
+    (Interest interest, OnVerifiedInterest onVerified,
+     final OnVerifyInterestFailed onVerifyFailed) throws SecurityException
+  {
+    // Wrap the onVerifyFailed in an OnInterestValidationFailed.
+    verifyInterest
+      (interest, onVerified,
+       new OnInterestValidationFailed() {
+         public void onInterestValidationFailed
+           (Interest localInterest, String reason) {
+           onVerifyFailed.onVerifyInterestFailed(localInterest);
+         }
+       });
   }
 
   /**
