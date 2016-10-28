@@ -41,7 +41,7 @@ import net.named_data.jndn.encrypt.algo.Encryptor;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.OnVerified;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Blob;
 
@@ -125,10 +125,12 @@ public class Consumer {
                     onError);
                }
              },
-             new OnVerifyFailed() {
-               public void onVerifyFailed(Data d) {
+             new OnDataValidationFailed() {
+               public void onDataValidationFailed(Data d, String reason) {
                  try {
-                   onError.onError(ErrorCode.Validation, "verifyData failed");
+                   onError.onError
+                     (ErrorCode.Validation, "verifyData failed. Reason: " +
+                      reason);
                  } catch (Exception ex) {
                    logger_.log(Level.SEVERE, "Error in onError", ex);
                  }
@@ -370,10 +372,12 @@ public class Consumer {
                       onError);
                  }
                },
-               new OnVerifyFailed() {
-                 public void onVerifyFailed(Data d) {
+               new OnDataValidationFailed() {
+                 public void onDataValidationFailed(Data d, String reason) {
                    try {
-                     onError.onError(ErrorCode.Validation, "verifyData failed");
+                     onError.onError
+                       (ErrorCode.Validation, "verifyData failed. Reason: " +
+                        reason);
                    } catch (Exception ex) {
                      logger_.log(Level.SEVERE, "Error in onError", ex);
                    }
@@ -491,10 +495,12 @@ public class Consumer {
                       onError);
                  }
                },
-               new OnVerifyFailed() {
-                 public void onVerifyFailed(Data d) {
+               new OnDataValidationFailed() {
+                 public void onDataValidationFailed(Data d, String reason) {
                    try {
-                     onError.onError(ErrorCode.Validation, "verifyData failed");
+                     onError.onError
+                       (ErrorCode.Validation, "verifyData failed. Reason: " +
+                        reason);
                    } catch (Exception ex) {
                      logger_.log(Level.SEVERE, "Error in onError", ex);
                    }

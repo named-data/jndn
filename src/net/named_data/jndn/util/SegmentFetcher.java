@@ -32,6 +32,9 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.security.KeyChain;
+import net.named_data.jndn.security.OnVerified;
+import net.named_data.jndn.security.OnDataValidationFailed;
 
 /**
  * SegmentFetcher is a utility class to fetch the latest version of segmented data.
@@ -72,21 +75,20 @@ import net.named_data.jndn.encoding.EncodingException;
  * - `DATA_HAS_NO_SEGMENT`: if any of the retrieved Data packets don't have a segment
  *   as the last component of the name (not counting the implicit digest)
  * - `SEGMENT_VERIFICATION_FAILED`: if any retrieved segment fails
- *   the user-provided VerifySegment callback
+ *   the user-provided VerifySegment callback or KeyChain verifyData.
  * - `IO_ERROR`: for I/O errors when sending an Interest.
  *
- * In order to validate individual segments, a VerifySegment callback needs to
- * be specified. If the callback returns false, the fetching process is aborted
- * with SEGMENT_VERIFICATION_FAILED. If data validation is not required, the
- * provided DontVerifySegment object can be used.
+ * In order to validate individual segments, a KeyChain needs to be supplied.
+ * If verifyData fails, the fetching process is aborted with
+ * SEGMENT_VERIFICATION_FAILED. If data validation is not required, pass
+ * (KeyChain)null.
  *
  * Example:
  *     Interest interest = new Interest(new Name("/data/prefix"));
  *     interest.setInterestLifetimeMilliseconds(1000);
  *
  *     SegmentFetcher.fetch
- *       (face, interest, SegmentFetcher.DontVerifySegment,
- *        new SegmentFetcher.OnComplete() {
+ *       (face, interest, 0, new SegmentFetcher.OnComplete() {
  *          public void onComplete(Blob content) {
  *            ...
  *          }},
@@ -95,7 +97,7 @@ import net.named_data.jndn.encoding.EncodingException;
  *            ...
  *          }});
  */
-public class SegmentFetcher implements OnData, OnTimeout {
+public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout {
   public enum ErrorCode {
     INTEREST_TIMEOUT,
     DATA_HAS_NO_SEGMENT,
@@ -157,13 +159,54 @@ public class SegmentFetcher implements OnData, OnTimeout {
     (Face face, Interest baseInterest, VerifySegment verifySegment,
      OnComplete onComplete, OnError onError)
   {
-    new SegmentFetcher(face, verifySegment, onComplete, onError)
+    new SegmentFetcher(face, null, verifySegment, onComplete, onError)
       .fetchFirstSegment(baseInterest);
   }
 
   /**
-   * Create a new SegmentFetcher to use the Face.
+   * Initiate segment fetching. For more details, see the documentation for
+   * the class.
    * @param face This calls face.expressInterest to fetch more segments.
+   * @param baseInterest An Interest for the initial segment of the requested
+   * data, where baseInterest.getName() has the name prefix.
+   * This interest may include a custom InterestLifetime and selectors that will
+   * propagate to all subsequent Interests. The only exception is that the
+   * initial Interest will be forced to include selectors "ChildSelector=1" and
+   * "MustBeFresh=true" which will be turned off in subsequent Interests.
+   * @param validatorKeyChain When a Data packet is received this calls
+   * validatorKeyChain->verifyData(data). If validation fails then abort
+   * fetching and call onError with SEGMENT_VERIFICATION_FAILED. This does not
+   * make a copy of the KeyChain; the object must remain valid while fetching.
+   * If validatorKeyChain is null, this does not validate the data packet.
+   * @param onComplete When all segments are received, call
+   * onComplete.onComplete(content) where content is the concatenation of the
+   * content of all the segments.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onError Call onError.onError(errorCode, message) for timeout or an
+   * error processing segments.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   */
+  public static void
+  fetch
+    (Face face, Interest baseInterest, KeyChain validatorKeyChain,
+     OnComplete onComplete, OnError onError)
+  {
+    new SegmentFetcher
+      (face, validatorKeyChain, DontVerifySegment, onComplete, onError)
+      .fetchFirstSegment(baseInterest);
+  }
+
+  /**
+   * Create a new SegmentFetcher to use the Face. See the static fetch method
+   * for details. If validatorKeyChain is not null, use it and ignore
+   * verifySegment. After creating the SegmentFetcher, call fetchFirstSegment.
+   * @param face This calls face.expressInterest to fetch more segments.
+   * @param validatorKeyChain If this is not null, use its verifyData instead of
+   * the verifySegment callback.
    * @param verifySegment When a Data packet is received this calls
    * verifySegment.verifySegment(data). If it returns false then abort fetching
    * and call onError.onError with ErrorCode.SEGMENT_VERIFICATION_FAILED.
@@ -174,9 +217,11 @@ public class SegmentFetcher implements OnData, OnTimeout {
    * error processing segments.
    */
   private SegmentFetcher
-    (Face face, VerifySegment verifySegment, OnComplete onComplete, OnError onError)
+    (Face face, KeyChain validatorKeyChain, VerifySegment verifySegment,
+     OnComplete onComplete, OnError onError)
   {
     face_ = face;
+    validatorKeyChain_ = validatorKeyChain;
     verifySegment_ = verifySegment;
     onComplete_ = onComplete;
     onError_ = onError;
@@ -223,24 +268,53 @@ public class SegmentFetcher implements OnData, OnTimeout {
   }
 
   public void
-  onData(Interest originalInterest, Data data)
+  onData(final Interest originalInterest, Data data)
   {
-    boolean verified = false;
-    try {
-      verified = verifySegment_.verifySegment(data);
-    } catch (Throwable ex) {
-      logger_.log(Level.SEVERE, "Error in verifySegment", ex);
-    }
-    if (!verified) {
+    if (validatorKeyChain_ != null) {
       try {
-        onError_.onError
-          (ErrorCode.SEGMENT_VERIFICATION_FAILED, "Segment verification failed");
+        final SegmentFetcher thisSegmentFetcher = this;
+        validatorKeyChain_.verifyData
+          (data,
+           new OnVerified() {
+             public void onVerified(Data localData) {
+               thisSegmentFetcher.onVerified(localData, originalInterest);
+             }
+           },
+           this);
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, "Error in onError", ex);
+        try {
+          onError_.onError
+            (ErrorCode.SEGMENT_VERIFICATION_FAILED,
+             "Error in KeyChain.verifyData " + ex.getMessage());
+        } catch (Throwable ex2) {
+          logger_.log(Level.SEVERE, "Error in onError", ex2);
+        }
       }
-      return;
     }
+    else {
+      boolean verified = false;
+      try {
+        verified = verifySegment_.verifySegment(data);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, "Error in verifySegment", ex);
+      }
+      if (!verified) {
+        try {
+          onError_.onError
+            (ErrorCode.SEGMENT_VERIFICATION_FAILED, "Segment verification failed");
+        } catch (Throwable ex) {
+          logger_.log(Level.SEVERE, "Error in onError", ex);
+        }
+        return;
+      }
 
+      onVerified(data, originalInterest);
+    }
+  }
+
+  public void
+  onVerified(Data data, Interest originalInterest)
+  {
     if (!endsWithSegmentNumber(data.getName())) {
       // We don't expect a name without a segment number.  Treat it as a bad packet.
       try {
@@ -323,6 +397,19 @@ public class SegmentFetcher implements OnData, OnTimeout {
   }
 
   public void
+  onDataValidationFailed(Data data, String reason)
+  {
+    try {
+      onError_.onError
+        (ErrorCode.SEGMENT_VERIFICATION_FAILED,
+         "Segment verification failed for " + data.getName().toUri() +
+         " . Reason: " + reason);
+    } catch (Throwable ex) {
+      logger_.log(Level.SEVERE, "Error in onError", ex);
+    }
+  }
+
+  public void
   onTimeout(Interest interest)
   {
     try {
@@ -348,6 +435,7 @@ public class SegmentFetcher implements OnData, OnTimeout {
   // Use a non-template ArrayList so it works with older Java compilers.
   private final ArrayList contentParts_ = new ArrayList(); // of Blob
   private final Face face_;
+  private final KeyChain validatorKeyChain_;
   private final VerifySegment verifySegment_;
   private final OnComplete onComplete_;
   private final OnError onError_;

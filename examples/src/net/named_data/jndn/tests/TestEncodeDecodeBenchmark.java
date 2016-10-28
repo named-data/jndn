@@ -31,7 +31,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerified;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
@@ -281,15 +281,15 @@ public class TestEncodeDecodeBenchmark {
     return finish - start;
   }
 
-  private static class VerifyCallbacks implements OnVerified, OnVerifyFailed {
+  private static class VerifyCallbacks implements OnVerified, OnDataValidationFailed {
     public void onVerified(Data data)
     {
     }
 
-    public void onVerifyFailed(Data data)
+    public void onDataValidationFailed(Data data, String reason)
     {
       // Don't expect this to happen.
-      System.out.println("signature verification FAILED");
+      System.out.println("signature verification FAILED. Reason: " + reason);
     }
   }
 

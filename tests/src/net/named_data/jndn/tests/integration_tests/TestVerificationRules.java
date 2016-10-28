@@ -330,12 +330,13 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
     Name signatureName2 =
       ((Sha256WithRsaSignature)data2.getSignature()).getKeyLocator().getKeyName();
 
+    String[] failureReason = new String[] { "unknown" };
     assertFalse
       ("Hierarchical matcher matched short data name to long key name",
        friendAccess.checkSignatureMatch
-        (policyManager, signatureName1, dataName1, matchedRule));
+        (policyManager, signatureName1, dataName1, matchedRule, failureReason));
     assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName2, dataName2, matchedRule));
+      (policyManager, signatureName2, dataName2, matchedRule, failureReason));
 
     keyChain.sign(data1, shortCertName);
     keyChain.sign(data2, shortCertName);
@@ -346,9 +347,9 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
       ((Sha256WithRsaSignature)data1.getSignature()).getKeyLocator().getKeyName();
 
     assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName1, dataName1, matchedRule));
+      (policyManager, signatureName1, dataName1, matchedRule, failureReason));
     assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName2, dataName2, matchedRule));
+      (policyManager, signatureName2, dataName2, matchedRule, failureReason));
   }
 
   @Test
@@ -372,10 +373,11 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
     Name signatureName2 =
       ((Sha256WithRsaSignature)data2.getSignature()).getKeyLocator().getKeyName();
 
+    String[] failureReason = new String[] { "unknown" };
     assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName1, dataName, matchedRule));
+      (policyManager, signatureName1, dataName, matchedRule, failureReason));
     assertFalse(friendAccess.checkSignatureMatch
-      (policyManager, signatureName2, dataName, matchedRule));
+      (policyManager, signatureName2, dataName, matchedRule, failureReason));
 
     dataName = new Name("/SecurityTestSecRule/Basic/Other/Data1");
     data1 = new Data(dataName);
@@ -392,8 +394,8 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
       ((Sha256WithRsaSignature)data2.getSignature()).getKeyLocator().getKeyName();
 
     assertFalse(friendAccess.checkSignatureMatch
-      (policyManager, signatureName1, dataName, matchedRule));
+      (policyManager, signatureName1, dataName, matchedRule, failureReason));
     assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName2, dataName, matchedRule));
+      (policyManager, signatureName2, dataName, matchedRule, failureReason));
   }
 }
