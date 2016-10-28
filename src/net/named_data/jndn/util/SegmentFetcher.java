@@ -34,7 +34,7 @@ import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.OnVerified;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 
 /**
  * SegmentFetcher is a utility class to fetch the latest version of segmented data.
@@ -97,7 +97,7 @@ import net.named_data.jndn.security.OnVerifyFailed;
  *            ...
  *          }});
  */
-public class SegmentFetcher implements OnData, OnVerifyFailed, OnTimeout {
+public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout {
   public enum ErrorCode {
     INTEREST_TIMEOUT,
     DATA_HAS_NO_SEGMENT,
@@ -397,12 +397,13 @@ public class SegmentFetcher implements OnData, OnVerifyFailed, OnTimeout {
   }
 
   public void
-  onVerifyFailed(Data data)
+  onDataValidationFailed(Data data, String reason)
   {
     try {
       onError_.onError
         (ErrorCode.SEGMENT_VERIFICATION_FAILED,
-         "Segment verification failed for " + data.getName().toUri());
+         "Segment verification failed for " + data.getName().toUri() +
+         " . Reason: " + reason);
     } catch (Throwable ex) {
       logger_.log(Level.SEVERE, "Error in onError", ex);
     }
