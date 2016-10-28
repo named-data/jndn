@@ -23,18 +23,20 @@ package net.named_data.jndn.security;
 import net.named_data.jndn.Interest;
 
 public class ValidationRequest {
-  public ValidationRequest(Interest interest, OnVerified onVerified, OnVerifyFailed onVerifyFailed, int retry, int stepCount)
+  public ValidationRequest
+    (Interest interest, OnVerified onVerified,
+     OnDataValidationFailed onValidationFailed, int retry, int stepCount)
   {
     interest_ = interest;
     onVerified_ = onVerified;
-    onVerifyFailed_ = onVerifyFailed;
+    onValidationFailed_ = onValidationFailed;
     retry_ = retry;
     stepCount_ = stepCount;
   }
 
   public final Interest interest_;             // An interest packet to fetch the requested data.
   public final OnVerified onVerified_;         // A callback function if the requested certificate has been validated.
-  public final OnVerifyFailed onVerifyFailed_; // A callback function if the requested certificate cannot be validated.
+  public final OnDataValidationFailed onValidationFailed_; // A callback function if the requested certificate cannot be validated.
   public final int retry_;                     // The number of retrials when there is an interest timeout.
   public final int stepCount_;
 }
