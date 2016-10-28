@@ -265,7 +265,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * @param signatureInfo An object of a subclass of Signature, e.g.
    * Sha256WithRsaSignature.
    * @param signedBlob the SignedBlob with the signed portion to verify.
-   * @param failureReason If matching fails, set failureReason[0] to the
+   * @param failureReason If verification fails, set failureReason[0] to the
    * failure reason.
    * @return True if the signature is verified, false if failed.
    */

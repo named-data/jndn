@@ -1126,9 +1126,9 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param matchType Either "data" or "interest".
    * @param objectName The name of the data or interest packet.
    * @param signature The Signature object for the data or interest packet.
-   * @param failureReason If verification fails, set failureReason[0] to the
-   * failure reason.
-   * @return null if validation failed, otherwise the interest for the
+   * @param failureReason If can't determine the interest, set failureReason[0]
+   * to the failure reason.
+   * @return null if can't determine the interest, otherwise the interest for the
    * ValidationRequest to fetch the next certificate. However, if the interest
    * has an empty name, the validation succeeded and no need to fetch a
    * certificate.
