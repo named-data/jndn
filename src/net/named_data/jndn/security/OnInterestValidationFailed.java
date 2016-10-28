@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2016 Regents of the University of California.
+ * Copyright (C) 2016 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -22,21 +22,16 @@ package net.named_data.jndn.security;
 
 import net.named_data.jndn.Interest;
 
-public class ValidationRequest {
-  public ValidationRequest
-    (Interest interest, OnVerified onVerified,
-     OnDataValidationFailed onValidationFailed, int retry, int stepCount)
-  {
-    interest_ = interest;
-    onVerified_ = onVerified;
-    onValidationFailed_ = onValidationFailed;
-    retry_ = retry;
-    stepCount_ = stepCount;
-  }
-
-  public final Interest interest_;             // An interest packet to fetch the requested data.
-  public final OnVerified onVerified_;         // A callback function if the requested certificate has been validated.
-  public final OnDataValidationFailed onValidationFailed_; // A callback function if the requested certificate cannot be validated.
-  public final int retry_;                     // The number of retrials when there is an interest timeout.
-  public final int stepCount_;
+/**
+ * A class implements OnInterestValidationFailed if it has
+ * onInterestValidationFailed which is called by verifyInterest to report a
+ * failed verification.
+ */
+public interface OnInterestValidationFailed {
+  /**
+   * When verifyInterest fails, onInterestValidationFailed is called.
+   * @param interest The interest object being verified.
+   * @param reason The reason for the failed validation.
+   */
+  void onInterestValidationFailed(Interest interest, String reason);
 }

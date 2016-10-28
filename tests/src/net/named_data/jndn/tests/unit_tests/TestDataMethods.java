@@ -35,7 +35,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerified;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
@@ -51,7 +51,7 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-class VerifyCounter implements OnVerified, OnVerifyFailed
+class VerifyCounter implements OnVerified, OnDataValidationFailed
 {
   public void
   onVerified(Data data)
@@ -60,7 +60,7 @@ class VerifyCounter implements OnVerified, OnVerifyFailed
   }
 
   public void
-  onVerifyFailed(Data data)
+  onDataValidationFailed(Data data, String reason)
   {
     ++onVerifyFailedCallCount_;
   }
@@ -122,7 +122,7 @@ class CredentialStorage {
 
   public void
   verifyData
-    (Data data, OnVerified verifiedCallback, OnVerifyFailed failedCallback)
+    (Data data, OnVerified verifiedCallback, OnDataValidationFailed failedCallback)
     throws SecurityException
   {
     keyChain_.verifyData(data, verifiedCallback, failedCallback);

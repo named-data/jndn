@@ -35,7 +35,7 @@ import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerified;
-import net.named_data.jndn.security.OnVerifyFailed;
+import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
@@ -281,7 +281,7 @@ public class TestEncodeDecodeData {
     }
   }
 
-  private static class VerifyCallbacks implements OnVerified, OnVerifyFailed {
+  private static class VerifyCallbacks implements OnVerified, OnDataValidationFailed {
     public VerifyCallbacks(String prefix) { prefix_ = prefix; }
 
     private final String prefix_;
@@ -291,9 +291,10 @@ public class TestEncodeDecodeData {
       System.out.println(prefix_ + " signature verification: VERIFIED");
     }
 
-    public void onVerifyFailed(Data data)
+    public void onDataValidationFailed(Data data, String reason)
     {
-      System.out.println(prefix_ + " signature verification: FAILED");
+      System.out.println
+        (prefix_ + " signature verification: FAILED. Reason: " + reason);
     }
   }
 

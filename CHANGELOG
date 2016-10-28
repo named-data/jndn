@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.13 (2016-10-13)
+Interim changes since jNDN v0.13 (2016-10-28)
 ---------------------------------------------
 
 Changes
@@ -7,6 +7,8 @@ Changes
   Name.appendImplicitSha256Digest.
 * https://redmine.named-data.net/issues/3447 In Data, added getFullName, and
   in Interest added matchesData to use it.
+* https://redmine.named-data.net/issues/3798 In KeyChain.verifyData and verifyInterest,
+  use onValidationFailed callbacks which include a reason string.
 * In SegmentFetcher.fetch, allow a validatorKeyChain for asynchronous Data validation.
 * In Face, removed the deprecated registerPrefix where onInterest is type OnInterest. Use the
   registerPrefix where onInterest is OnInterestCallback so you can call face.putData().
@@ -16,6 +18,14 @@ Changes
 * Unit tests: In TestNameMethods, added testImplicitSha256Digest.
 * Unit tests: In TestInterestMethods, added testMatchesData.
 * Unit tests: In TestDataMethods, added testFullName.
+
+Deprecated
+* In KeyChain, deprecated verifyData that takes an OnVerified callback.
+  Use the verifyData which takes an OnDataValidationFailed callback with a
+  reason string.
+* In KeyChain, deprecated verifyInterest that takes an OnVerifyInterestFailed callback.
+  Use the verifyInterest which takes an OnInterestValidationFailed callback with a
+  reason string.
 
 Bug fixes
 * https://github.com/named-data/jndn/pull/17 AsyncTcpTransport: move reconnect 

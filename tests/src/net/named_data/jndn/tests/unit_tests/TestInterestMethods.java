@@ -37,7 +37,7 @@ import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.OnVerifiedInterest;
-import net.named_data.jndn.security.OnVerifyInterestFailed;
+import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-class VerifyInterestCounter implements OnVerifiedInterest, OnVerifyInterestFailed
+class VerifyInterestCounter implements OnVerifiedInterest, OnInterestValidationFailed
 {
   public void
   onVerifiedInterest(Interest interest)
@@ -61,7 +61,7 @@ class VerifyInterestCounter implements OnVerifiedInterest, OnVerifyInterestFaile
   }
 
   public void
-  onVerifyInterestFailed(Interest interest)
+  onInterestValidationFailed(Interest interest, String reason)
   {
     ++onVerifyFailedCallCount_;
   }

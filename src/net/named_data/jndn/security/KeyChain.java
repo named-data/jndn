@@ -716,7 +716,7 @@ public class KeyChain {
 
   public final void
   verifyData
-    (Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed,
+    (Data data, OnVerified onVerified, OnDataValidationFailed onValidationFailed,
      int stepCount) throws SecurityException
   {
     Logger.getLogger(this.getClass().getName()).log
@@ -724,18 +724,19 @@ public class KeyChain {
 
     if (policyManager_.requireVerify(data)) {
       ValidationRequest nextStep = policyManager_.checkVerificationPolicy
-        (data, stepCount, onVerified, onVerifyFailed);
+        (data, stepCount, onVerified, onValidationFailed);
       if (nextStep != null) {
         VerifyCallbacks callbacks = new VerifyCallbacks
-          (nextStep, nextStep.retry_, onVerifyFailed, data);
+          (nextStep, nextStep.retry_, onValidationFailed, data);
         try {
           face_.expressInterest(nextStep.interest_, callbacks, callbacks);
         }
         catch (IOException ex) {
           try {
-            onVerifyFailed.onVerifyFailed(data);
+            onValidationFailed.onDataValidationFailed
+              (data, "Error calling expressInterest " + ex);
           } catch (Throwable exception) {
-            logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
+            logger_.log(Level.SEVERE, "Error in onDataValidationFailed", exception);
           }
         }
       }
@@ -749,9 +750,11 @@ public class KeyChain {
     }
     else {
       try {
-        onVerifyFailed.onVerifyFailed(data);
+        onValidationFailed.onDataValidationFailed
+          (data,
+           "The packet has no verify rule but skipVerifyAndTrust is false");
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
+        logger_.log(Level.SEVERE, "Error in onDataValidationFailed", ex);
       }
     }
   }
@@ -769,6 +772,34 @@ public class KeyChain {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
+   * @param onValidationFailed If the signature check fails, this calls
+   * onValidationFailed.onDataValidationFailed(data, reason).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   */
+  public final void
+  verifyData
+    (Data data, OnVerified onVerified, OnDataValidationFailed onValidationFailed)
+    throws SecurityException
+  {
+    verifyData(data, onVerified, onValidationFailed, 0);
+  }
+
+  /**
+   * Check the signature on the Data object and call either onVerify.onVerify or
+   * onVerifyFailed.onVerifyFailed.
+   * We use callback functions because verify may fetch information to check the
+   * signature.
+   * @deprecated Use verifyData with OnDataValidationFailed.
+   * @param data The Data object with the signature to check. It is an error if
+   * data does not have a wireEncoding.
+   * To set the wireEncoding, you can call data.wireDecode.
+   * @param onVerified If the signature is verified, this calls
+   * onVerified.onVerified(data).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed.onVerifyFailed(data).
    * NOTE: The library will log any exceptions thrown by this callback, but for
@@ -776,34 +807,44 @@ public class KeyChain {
    * exceptions.
    */
   public final void
-  verifyData(Data data, OnVerified onVerified, OnVerifyFailed onVerifyFailed)
+  verifyData
+    (Data data, OnVerified onVerified, final OnVerifyFailed onVerifyFailed)
     throws SecurityException
   {
-    verifyData(data, onVerified, onVerifyFailed, 0);
+    // Wrap the onVerifyFailed in an OnDataValidationFailed.
+    verifyData
+      (data, onVerified,
+       new OnDataValidationFailed() {
+         public void onDataValidationFailed(Data localData, String reason) {
+           onVerifyFailed.onVerifyFailed(localData);
+         }
+       });
   }
 
   public final void
   verifyInterest
     (Interest interest, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed, int stepCount) throws SecurityException
+     OnInterestValidationFailed onValidationFailed, int stepCount)
+    throws SecurityException
   {
     Logger.getLogger(this.getClass().getName()).log
       (Level.INFO, "Enter Verify");
 
     if (policyManager_.requireVerify(interest)) {
       ValidationRequest nextStep = policyManager_.checkVerificationPolicy
-        (interest, stepCount, onVerified, onVerifyFailed);
+        (interest, stepCount, onVerified, onValidationFailed);
       if (nextStep != null) {
         VerifyCallbacksForVerifyInterest callbacks = new VerifyCallbacksForVerifyInterest
-          (nextStep, nextStep.retry_, onVerifyFailed, interest);
+          (nextStep, nextStep.retry_, onValidationFailed, interest);
         try {
           face_.expressInterest(nextStep.interest_, callbacks, callbacks);
         }
         catch (IOException ex) {
           try {
-            onVerifyFailed.onVerifyInterestFailed(interest);
+            onValidationFailed.onInterestValidationFailed
+              (interest, "Error calling expressInterest " + ex);
           } catch (Throwable exception) {
-            logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
+            logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", exception);
           }
         }
       }
@@ -817,9 +858,11 @@ public class KeyChain {
     }
     else {
       try {
-        onVerifyFailed.onVerifyInterestFailed(interest);
+        onValidationFailed.onInterestValidationFailed
+          (interest,
+           "The packet has no verify rule but skipVerifyAndTrust is false");
       } catch (Throwable ex) {
-        logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
+        logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", ex);
       }
     }
   }
@@ -835,6 +878,32 @@ public class KeyChain {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
+   * @param onValidationFailed If the signature check fails, this calls
+   * onValidationFailed.onInterestValidationFailed(interest, reason).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   */
+  public final void
+  verifyInterest
+    (Interest interest, OnVerifiedInterest onVerified,
+     OnInterestValidationFailed onValidationFailed) throws SecurityException
+  {
+    verifyInterest(interest, onVerified, onValidationFailed, 0);
+  }
+
+  /**
+   * Check the signature on the signed interest and call either
+   * onVerify.onVerifiedInterest or onVerifyFailed.onVerifyInterestFailed. We
+   * use callback functions because verify may fetch information to check the
+   * signature.
+   * @deprecated Use verifyInterest with OnInterestValidationFailed.
+   * @param interest The interest with the signature to check.
+   * @param onVerified If the signature is verified, this calls
+   * onVerified.onVerifiedInterest(interest).
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
    * @param onVerifyFailed If the signature check fails, this calls
    * onVerifyFailed.onVerifyInterestFailed(interest).
    * NOTE: The library will log any exceptions thrown by this callback, but for
@@ -844,9 +913,17 @@ public class KeyChain {
   public final void
   verifyInterest
     (Interest interest, OnVerifiedInterest onVerified,
-     OnVerifyInterestFailed onVerifyFailed) throws SecurityException
+     final OnVerifyInterestFailed onVerifyFailed) throws SecurityException
   {
-    verifyInterest(interest, onVerified, onVerifyFailed, 0);
+    // Wrap the onVerifyFailed in an OnInterestValidationFailed.
+    verifyInterest
+      (interest, onVerified,
+       new OnInterestValidationFailed() {
+         public void onInterestValidationFailed
+           (Interest localInterest, String reason) {
+           onVerifyFailed.onVerifyInterestFailed(localInterest);
+         }
+       });
   }
 
   /**
@@ -932,12 +1009,12 @@ public class KeyChain {
    */
   private class VerifyCallbacks implements OnData, OnTimeout {
     public VerifyCallbacks
-      (ValidationRequest nextStep, int retry, OnVerifyFailed onVerifyFailed,
-       Data originalData)
+      (ValidationRequest nextStep, int retry, 
+       OnDataValidationFailed onValidationFailed, Data originalData)
     {
       nextStep_ = nextStep;
       retry_ = retry;
-      onVerifyFailed_ = onVerifyFailed;
+      onValidationFailed_ = onValidationFailed;
       originalData_ = originalData;
     }
 
@@ -947,7 +1024,7 @@ public class KeyChain {
         // Try to verify the certificate (data) according to the parameters in
         //   nextStep.
         verifyData
-          (data, nextStep_.onVerified_, nextStep_.onVerifyFailed_,
+          (data, nextStep_.onVerified_, nextStep_.onValidationFailed_,
            nextStep_.stepCount_);
       } catch (SecurityException ex) {
         Logger.getLogger(KeyChain.class.getName()).log(Level.SEVERE, null, ex);
@@ -960,47 +1037,53 @@ public class KeyChain {
         // Issue the same expressInterest as in verifyData except decrement
         //   retry.
         VerifyCallbacks callbacks = new VerifyCallbacks
-          (nextStep_, retry_ - 1, onVerifyFailed_, originalData_);
+          (nextStep_, retry_ - 1, onValidationFailed_, originalData_);
         try {
           face_.expressInterest(interest, callbacks, callbacks);
         }
         catch (IOException ex) {
           try {
-            onVerifyFailed_.onVerifyFailed(originalData_);
+            onValidationFailed_.onDataValidationFailed
+              (originalData_, 
+               "Error in expressInterest to retry after timeout for fetching " +
+               interest.getName().toUri() + ": " + ex);
           } catch (Throwable exception) {
-            logger_.log(Level.SEVERE, "Error in onVerifyFailed", exception);
+            logger_.log(Level.SEVERE, "Error in onDataValidationFailed", exception);
           }
         }
       }
       else {
         try {
-          onVerifyFailed_.onVerifyFailed(originalData_);
+          onValidationFailed_.onDataValidationFailed
+            (originalData_,
+               "The retry count is zero after timeout for fetching " +
+               interest.getName().toUri());
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, "Error in onVerifyFailed", ex);
+          logger_.log(Level.SEVERE, "Error in onDataValidationFailed", ex);
         }
       }
     }
 
     private final ValidationRequest nextStep_;
     private final int retry_;
-    private final OnVerifyFailed onVerifyFailed_;
+    private final OnDataValidationFailed onValidationFailed_;
     private final Data originalData_;
   }
 
   /**
    * A VerifyCallbacksForVerifyInterest is used for callbacks from verifyInterest.
    * This is the same as VerifyCallbacks, but we call
-   * onVerifyFailed.onVerifyInterestFailed(originalInterest) if we have too many
-   * retries.
+   * onValidationFailed.onInterestValidationFailed(originalInterest, reason) if
+   * we have too many retries.
    */
   private class VerifyCallbacksForVerifyInterest implements OnData, OnTimeout {
     public VerifyCallbacksForVerifyInterest
-      (ValidationRequest nextStep, int retry, OnVerifyInterestFailed onVerifyFailed,
-       Interest originalInterest)
+      (ValidationRequest nextStep, int retry, 
+       OnInterestValidationFailed onValidationFailed, Interest originalInterest)
     {
       nextStep_ = nextStep;
       retry_ = retry;
-      onVerifyFailed_ = onVerifyFailed;
+      onValidationFailed_ = onValidationFailed;
       originalInterest_ = originalInterest;
     }
 
@@ -1010,7 +1093,7 @@ public class KeyChain {
         // Try to verify the certificate (data) according to the parameters in
         //   nextStep.
         verifyData
-          (data, nextStep_.onVerified_, nextStep_.onVerifyFailed_,
+          (data, nextStep_.onVerified_, nextStep_.onValidationFailed_,
            nextStep_.stepCount_);
       } catch (SecurityException ex) {
         Logger.getLogger(KeyChain.class.getName()).log(Level.SEVERE, null, ex);
@@ -1023,30 +1106,36 @@ public class KeyChain {
         // Issue the same expressInterest as in verifyData except decrement
         //   retry.
         VerifyCallbacksForVerifyInterest callbacks = new VerifyCallbacksForVerifyInterest
-          (nextStep_, retry_ - 1, onVerifyFailed_, originalInterest_);
+          (nextStep_, retry_ - 1, onValidationFailed_, originalInterest_);
         try {
           face_.expressInterest(interest, callbacks, callbacks);
         }
         catch (IOException ex) {
           try {
-            onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+            onValidationFailed_.onInterestValidationFailed
+              (originalInterest_,
+               "Error in expressInterest to retry after timeout for fetching " +
+               interest.getName().toUri() + ": " + ex);
           } catch (Throwable exception) {
-            logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", exception);
+            logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", exception);
           }
         }
       }
       else {
         try {
-          onVerifyFailed_.onVerifyInterestFailed(originalInterest_);
+          onValidationFailed_.onInterestValidationFailed
+            (originalInterest_,
+               "The retry count is zero after timeout for fetching " +
+               interest.getName().toUri());
         } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, "Error in onVerifyInterestFailed", ex);
+          logger_.log(Level.SEVERE, "Error in onInterestValidationFailed", ex);
         }
       }
     }
 
     private final ValidationRequest nextStep_;
     private final int retry_;
-    private final OnVerifyInterestFailed onVerifyFailed_;
+    private final OnInterestValidationFailed onValidationFailed_;
     private final Interest originalInterest_;
   }
 
