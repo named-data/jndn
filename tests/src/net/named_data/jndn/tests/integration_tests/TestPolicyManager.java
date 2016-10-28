@@ -40,7 +40,7 @@ import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnDataValidationFailed;
-import net.named_data.jndn.security.OnVerifyInterestFailed;
+import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
@@ -61,7 +61,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 class VerificationResult implements OnVerified, OnDataValidationFailed,
-    OnVerifiedInterest, OnVerifyInterestFailed {
+    OnVerifiedInterest, OnInterestValidationFailed {
   public void onVerified(Data data)
   {
     ++successCount_;
@@ -77,7 +77,7 @@ class VerificationResult implements OnVerified, OnDataValidationFailed,
     ++successCount_;
   }
 
-  public void onVerifyInterestFailed(Interest interest)
+  public void onInterestValidationFailed(Interest interest, String reason)
   {
     ++failureCount_;
   }
