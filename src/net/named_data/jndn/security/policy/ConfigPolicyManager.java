@@ -1002,11 +1002,12 @@ public class ConfigPolicyManager extends PolicyManager {
 
       if (!(timestamp > notBefore && timestamp < notAfter)) {
         failureReason[0] =
-          "The command interest timestamp is not within the first use grace period of" +
+          "The command interest timestamp is not within the first use grace period of " +
           keyGraceInterval_ + " milliseconds.";
         return false;
       }
-      return true;
+      else
+        return true;
     }
     else {
       double lastTimestamp = (double)(Double)keyTimestamps_.get(keyNameUri);
