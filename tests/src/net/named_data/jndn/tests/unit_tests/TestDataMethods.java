@@ -62,11 +62,11 @@ class VerifyCounter implements OnVerified, OnDataValidationFailed
   public void
   onDataValidationFailed(Data data, String reason)
   {
-    ++onVerifyFailedCallCount_;
+    ++onValidationFailedCallCount_;
   }
 
   public int onVerifiedCallCount_ = 0;
-  public int onVerifyFailedCallCount_ = 0;
+  public int onValidationFailedCallCount_ = 0;
 }
 
 class CredentialStorage {
@@ -515,7 +515,7 @@ public class TestDataMethods {
     }
 
     credentials.verifyData(freshData, counter, counter);
-    assertEquals("Signature verification failed", 0, counter.onVerifyFailedCallCount_);
+    assertEquals("Signature verification failed", 0, counter.onValidationFailedCallCount_);
     assertEquals("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }
 
@@ -532,7 +532,7 @@ public class TestDataMethods {
     }
 
     credentials.verifyData(freshData, counter, counter);
-    assertEquals("Signature verification failed", 0, counter.onVerifyFailedCallCount_);
+    assertEquals("Signature verification failed", 0, counter.onValidationFailedCallCount_);
     assertEquals("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }
 
@@ -549,7 +549,7 @@ public class TestDataMethods {
     }
 
     credentials.verifyData(freshData, counter, counter);
-    assertEquals("Signature verification failed", 0, counter.onVerifyFailedCallCount_);
+    assertEquals("Signature verification failed", 0, counter.onValidationFailedCallCount_);
     assertEquals("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }
 
