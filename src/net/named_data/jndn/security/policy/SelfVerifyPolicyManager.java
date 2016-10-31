@@ -115,7 +115,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   /**
    * Look in the IdentityStorage for the public key with the name in the
    * KeyLocator (if available) and use it to verify the data packet.  If the
-   * public key can't be found, call onVerifyFailed.
+   * public key can't be found, call onValidationFailed.onDataValidationFailed.
    * @param data The Data object with the signature to check.
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress. (stepCount is ignored.)
@@ -159,7 +159,8 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * Use wireFormat.decodeSignatureInfoAndValue to decode the last two name
    * components of the signed interest. Look in the IdentityStorage for the
    * public key with the name in the KeyLocator (if available) and use it to
-   * verify the interest. If the public key can't be found, call onVerifyFailed.
+   * verify the interest. If the public key can't be found, call
+   * onValidationFailed.onInterestValidationFailed.
    * @param interest The interest with the signature to check.
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress. (stepCount is ignored.)
