@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.13 (2016-10-28)
----------------------------------------------
+jNDN v0.14 (2016-11-02)
+-----------------------
 
 Changes
 * Added support for the Name component type ImplicitSha256Digest, and methods:
