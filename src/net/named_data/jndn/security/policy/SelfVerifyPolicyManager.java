@@ -305,14 +305,22 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   {
     if (keyLocator.getType() == KeyLocatorType.KEYNAME &&
              identityStorage_ != null) {
+      Name keyName;
       try {
         // Assume the key name is a certificate name.
-        return identityStorage_.getKey
-          (IdentityCertificate.certificateNameToPublicKeyName
-           (keyLocator.getKeyName()));
+        keyName = IdentityCertificate.certificateNameToPublicKeyName
+           (keyLocator.getKeyName());
+      } catch (Throwable ex) {
+        failureReason[0] = "Cannot get a public key name from the certificate named: " +
+          keyLocator.getKeyName().toUri();
+        return new Blob();
+      }
+      try {
+        // Assume the key name is a certificate name.
+        return identityStorage_.getKey(keyName);
       } catch (SecurityException ex) {
         failureReason[0] = "The identityStorage doesn't have the key named " +
-          keyLocator.getKeyName().toUri();
+          keyName.toUri();
         return new Blob();
       }
     }
