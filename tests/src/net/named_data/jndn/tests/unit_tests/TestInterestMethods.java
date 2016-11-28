@@ -63,11 +63,11 @@ class VerifyInterestCounter implements OnVerifiedInterest, OnInterestValidationF
   public void
   onInterestValidationFailed(Interest interest, String reason)
   {
-    ++onVerifyFailedCallCount_;
+    ++onValidationFailedCallCount_;
   }
 
   public int onVerifiedCallCount_ = 0;
-  public int onVerifyFailedCallCount_ = 0;
+  public int onValidationFailedCallCount_ = 0;
 };
 
 public class TestInterestMethods {
@@ -368,7 +368,7 @@ public class TestInterestMethods {
     VerifyInterestCounter counter = new VerifyInterestCounter();
     keyChain.verifyInterest(interest, counter, counter);
     assertEquals
-      ("Signature verification failed", 0, counter.onVerifyFailedCallCount_);
+      ("Signature verification failed", 0, counter.onValidationFailedCallCount_);
     assertEquals
       ("Verification callback was not used", 1, counter.onVerifiedCallCount_);
   }

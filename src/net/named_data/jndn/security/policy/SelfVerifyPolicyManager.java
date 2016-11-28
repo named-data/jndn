@@ -115,7 +115,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   /**
    * Look in the IdentityStorage for the public key with the name in the
    * KeyLocator (if available) and use it to verify the data packet.  If the
-   * public key can't be found, call onVerifyFailed.
+   * public key can't be found, call onValidationFailed.onDataValidationFailed.
    * @param data The Data object with the signature to check.
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress. (stepCount is ignored.)
@@ -159,7 +159,8 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * Use wireFormat.decodeSignatureInfoAndValue to decode the last two name
    * components of the signed interest. Look in the IdentityStorage for the
    * public key with the name in the KeyLocator (if available) and use it to
-   * verify the interest. If the public key can't be found, call onVerifyFailed.
+   * verify the interest. If the public key can't be found, call
+   * onValidationFailed.onInterestValidationFailed.
    * @param interest The interest with the signature to check.
    * @param stepCount The number of verification steps that have been done, used
    * to track the verification progress. (stepCount is ignored.)
@@ -265,7 +266,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
    * @param signatureInfo An object of a subclass of Signature, e.g.
    * Sha256WithRsaSignature.
    * @param signedBlob the SignedBlob with the signed portion to verify.
-   * @param failureReason If matching fails, set failureReason[0] to the
+   * @param failureReason If verification fails, set failureReason[0] to the
    * failure reason.
    * @return True if the signature is verified, false if failed.
    */
@@ -304,14 +305,22 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   {
     if (keyLocator.getType() == KeyLocatorType.KEYNAME &&
              identityStorage_ != null) {
+      Name keyName;
       try {
         // Assume the key name is a certificate name.
-        return identityStorage_.getKey
-          (IdentityCertificate.certificateNameToPublicKeyName
-           (keyLocator.getKeyName()));
+        keyName = IdentityCertificate.certificateNameToPublicKeyName
+           (keyLocator.getKeyName());
+      } catch (Throwable ex) {
+        failureReason[0] = "Cannot get a public key name from the certificate named: " +
+          keyLocator.getKeyName().toUri();
+        return new Blob();
+      }
+      try {
+        // Assume the key name is a certificate name.
+        return identityStorage_.getKey(keyName);
       } catch (SecurityException ex) {
         failureReason[0] = "The identityStorage doesn't have the key named " +
-          keyLocator.getKeyName().toUri();
+          keyName.toUri();
         return new Blob();
       }
     }

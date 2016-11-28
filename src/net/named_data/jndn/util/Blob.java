@@ -238,7 +238,6 @@ public class Blob implements Comparable {
    * Write a hex string of the contents of buffer from position to limit to the
    * output.
    * @param buffer The buffer.
-   * @return A string of hex bytes.
    * @param output The StringBuffer to write to.
    */
   public static void

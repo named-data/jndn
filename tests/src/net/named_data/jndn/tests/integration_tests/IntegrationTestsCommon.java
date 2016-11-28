@@ -251,9 +251,9 @@ class VerifyCounter implements OnVerified, OnDataValidationFailed
   public void
   onDataValidationFailed(Data data, String reason)
   {
-    ++onVerifyFailedCallCount_;
+    ++onValidationFailedCallCount_;
   }
 
   public int onVerifiedCallCount_ = 0;
-  public int onVerifyFailedCallCount_ = 0;
+  public int onValidationFailedCallCount_ = 0;
 }

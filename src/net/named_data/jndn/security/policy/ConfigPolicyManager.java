@@ -1002,11 +1002,12 @@ public class ConfigPolicyManager extends PolicyManager {
 
       if (!(timestamp > notBefore && timestamp < notAfter)) {
         failureReason[0] =
-          "The command interest timestamp is not within the first use grace period of" +
+          "The command interest timestamp is not within the first use grace period of " +
           keyGraceInterval_ + " milliseconds.";
         return false;
       }
-      return true;
+      else
+        return true;
     }
     else {
       double lastTimestamp = (double)(Double)keyTimestamps_.get(keyNameUri);
@@ -1126,9 +1127,9 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param matchType Either "data" or "interest".
    * @param objectName The name of the data or interest packet.
    * @param signature The Signature object for the data or interest packet.
-   * @param failureReason If verification fails, set failureReason[0] to the
-   * failure reason.
-   * @return null if validation failed, otherwise the interest for the
+   * @param failureReason If can't determine the interest, set failureReason[0]
+   * to the failure reason.
+   * @return null if can't determine the interest, otherwise the interest for the
    * ValidationRequest to fetch the next certificate. However, if the interest
    * has an empty name, the validation succeeded and no need to fetch a
    * certificate.
