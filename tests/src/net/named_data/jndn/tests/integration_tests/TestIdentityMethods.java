@@ -300,7 +300,6 @@ public class TestIdentityMethods {
 
     // Check the self-signature.
     VerifyCounter counter = new VerifyCounter();
-    Name certName = identityStorage.getDefaultCertificateNameForKey(keyName);
     keyChain.verifyData(cert, counter, counter);
     assertEquals
       ("Verification callback was not used.", 1, counter.onVerifiedCallCount_);
