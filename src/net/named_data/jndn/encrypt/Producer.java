@@ -406,7 +406,8 @@ public class Producer {
 
     OnNetworkNack onNetworkNack = new OnNetworkNack() {
       public void onNetworkNack(Interest interest, NetworkNack networkNack) {
-        handleNetworkNack(interest, networkNack, timeSlot, onEncryptedKeys);
+        handleNetworkNack
+          (interest, networkNack, timeSlot, onEncryptedKeys, onError);
       }
     };
 
@@ -471,7 +472,7 @@ public class Producer {
   private void
   handleNetworkNack
     (Interest interest, NetworkNack networkNack, double timeSlot,
-     OnEncryptedKeys onEncryptedKeys)
+     OnEncryptedKeys onEncryptedKeys, OnError onError)
   {
     double timeCount = Math.round(timeSlot);
     updateKeyRequest
