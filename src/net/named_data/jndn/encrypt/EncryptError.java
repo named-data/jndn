@@ -31,6 +31,7 @@ public class EncryptError {
     InvalidEncryptedFormat(33),
     NoDecryptKey(34),
     EncryptionFailure(35),
+    DataRetrievalFailure(36),
     SecurityException(100),
     IOException(102);
 
