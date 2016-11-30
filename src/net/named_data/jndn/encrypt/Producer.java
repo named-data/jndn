@@ -453,8 +453,9 @@ public class Producer {
       sendKeyInterest(interest, timeSlot, onEncryptedKeys, onError);
     }
     else
-      // No more retrials.
-      updateKeyRequest(keyRequest, timeCount, onEncryptedKeys);
+      // Treat an eventual timeout as a network Nack.
+      handleNetworkNack
+        (interest, new NetworkNack(), timeSlot, onEncryptedKeys, onError);
   }
 
   /**
@@ -474,6 +475,7 @@ public class Producer {
     (Interest interest, NetworkNack networkNack, double timeSlot,
      OnEncryptedKeys onEncryptedKeys, OnError onError)
   {
+    // We have run out of options....
     double timeCount = Math.round(timeSlot);
     updateKeyRequest
       ((KeyRequest)keyRequests_.get(timeCount), timeCount, onEncryptedKeys);
