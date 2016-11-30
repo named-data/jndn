@@ -40,6 +40,7 @@ import net.named_data.jndn.Data;
 import net.named_data.jndn.Exclude;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.Link;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.NetworkNack;
 import net.named_data.jndn.OnData;
@@ -87,6 +88,43 @@ public class Producer {
    * @param keyChain The keyChain used to sign data packets.
    * @param database The ProducerDb database for storing keys.
    * @param repeatAttempts The maximum retry for retrieving keys.
+   * @param keyRetrievalLink The Link object to use in Interests for key
+   * retrieval. This makes a copy of the Link object. If the Link object's
+   * getDelegations().size() is zero, don't use it.
+   */
+  public Producer
+    (Name prefix, Name dataType, Face face, KeyChain keyChain,
+     ProducerDb database, int repeatAttempts, Link keyRetrievalLink)
+  {
+    face_ = face;
+    keyChain_ = keyChain;
+    database_ = database;
+    maxRepeatAttempts_ = repeatAttempts;
+    // Copy the Link object.
+    keyRetrievalLink_ = new Link(keyRetrievalLink);
+
+    construct(prefix, dataType);
+  }
+
+  /**
+   * Create a Producer to use the given ProducerDb, Face and other values.
+   *
+   * A producer can produce data with a naming convention:
+   *   /{prefix}/SAMPLE/{dataType}/[timestamp]
+   *
+   * The produced data packet is encrypted with a content key,
+   * which is stored in the ProducerDb database.
+   *
+   * A producer also needs to produce data containing a content key
+   * encrypted with E-KEYs. A producer can retrieve E-KEYs through the face,
+   * and will re-try for at most repeatAttemps times when E-KEY retrieval fails.
+   * @param prefix The producer name prefix. This makes a copy of the Name.
+   * @param dataType The dataType portion of the producer name. This makes a
+   * copy of the Name.
+   * @param face The face used to retrieve keys.
+   * @param keyChain The keyChain used to sign data packets.
+   * @param database The ProducerDb database for storing keys.
+   * @param repeatAttempts The maximum retry for retrieving keys.
    */
   public Producer
     (Name prefix, Name dataType, Face face, KeyChain keyChain,
@@ -96,6 +134,7 @@ public class Producer {
     keyChain_ = keyChain;
     database_ = database;
     maxRepeatAttempts_ = repeatAttempts;
+    keyRetrievalLink_ = NO_LINK;
 
     construct(prefix, dataType);
   }
@@ -126,6 +165,7 @@ public class Producer {
     keyChain_ = keyChain;
     database_ = database;
     maxRepeatAttempts_ = 3;
+    keyRetrievalLink_ = NO_LINK;
 
     construct(prefix, dataType);
   }
@@ -370,7 +410,18 @@ public class Producer {
       }
     };
 
-    face_.expressInterest(interest, onKey, onTimeout, onNetworkNack);
+    Interest request;
+    if (keyRetrievalLink_.getDelegations().size() == 0)
+      // We can use the supplied interest without copying.
+      request = interest;
+    else {
+      // Copy the supplied interest and add the Link.
+      request = new Interest(interest);
+      // This will use a cached encoding if available.
+      request.setLinkWireEncoding(keyRetrievalLink_.wireEncode());
+    }
+
+    face_.expressInterest(request, onKey, onTimeout, onNetworkNack);
   }
 
   /**
@@ -785,8 +836,10 @@ public class Producer {
     new HashMap(); /**< The map key is the double time stamp. The value is a KeyRequest. */
   private final ProducerDb database_;
   private final int maxRepeatAttempts_;
+  private final Link keyRetrievalLink_;
   private static final Logger logger_ = Logger.getLogger(Producer.class.getName());
 
   private static final int START_TIME_STAMP_INDEX = -2;
   private static final int END_TIME_STAMP_INDEX = -1;
+  private static final Link NO_LINK = new Link();
 }
