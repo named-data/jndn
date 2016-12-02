@@ -1,3 +1,10 @@
+Interim changes since jNDN v0.14 (2016-12-02)
+---------------------------------------------
+
+Changes
+* https://redmine.named-data.net/issues/3543 Support for Link objects in the
+  encrypt package Producer and Consumer.
+
 jNDN v0.14 (2016-11-02)
 -----------------------
 
