@@ -36,9 +36,12 @@ import javax.crypto.NoSuchPaddingException;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.Link;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
+import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encrypt.Consumer;
@@ -385,7 +388,7 @@ public class TestGroupConsumer implements Consumer.Friend {
       public long
       expressInterest
         (Interest interest, OnData onData, OnTimeout onTimeout,
-         WireFormat wireFormat) throws IOException
+         OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
         if (interest.matchesName(contentData.getName())) {
           contentCount[0] = 1;
@@ -429,6 +432,105 @@ public class TestGroupConsumer implements Consumer.Friend {
            fail("consume error " + code + ": " + message);
          }
        });
+
+    assertEquals("contentCount", 1, contentCount[0]);
+    assertEquals("cKeyCount", 1, cKeyCount[0]);
+    assertEquals("dKeyCount", 1, dKeyCount[0]);
+    assertEquals("finalCount", 1, finalCount[0]);
+  }
+
+  @Test
+  public void
+  testCosumerWithLink()
+    throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+      IllegalBlockSizeException, BadPaddingException,
+      InvalidAlgorithmParameterException, InvalidKeySpecException, SecurityException, ConsumerDb.Error
+  {
+    final Data contentData = createEncryptedContent();
+    final Data cKeyData = createEncryptedCKey();
+    final Data dKeyData = createEncryptedDKey();
+
+    final int[] contentCount = new int[] { 0 };
+    final int[] cKeyCount = new int[] { 0 };
+    final int[] dKeyCount = new int[] { 0 };
+
+    // Prepare a TestFace to instantly answer calls to expressInterest.
+    class TestFace extends Face {
+      public TestFace()
+      {
+        super("localhost");
+      }
+
+      public long
+      expressInterest
+        (Interest interest, OnData onData, OnTimeout onTimeout,
+         OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
+      {
+        try {
+          assertEquals(3, interest.getLink().getDelegations().size());
+        } catch (EncodingException ex) {
+          fail("Error in getLink: " + ex);
+        }
+
+        if (interest.matchesName(contentData.getName())) {
+          contentCount[0] = 1;
+          onData.onData(interest, contentData);
+        }
+        else if (interest.matchesName(cKeyData.getName())) {
+          cKeyCount[0] = 1;
+          onData.onData(interest, cKeyData);
+        }
+        else if (interest.matchesName(dKeyData.getName())) {
+          dKeyCount[0] = 1;
+          onData.onData(interest, dKeyData);
+        }
+        else
+          onTimeout.onTimeout(interest);
+
+        return 0;
+      }
+    }
+
+    TestFace face = new TestFace();
+
+    // Create the consumer.
+    Link ckeyLink = new Link();
+    ckeyLink.addDelegation(10,  new Name("/ckey1"));
+    ckeyLink.addDelegation(20,  new Name("/ckey2"));
+    ckeyLink.addDelegation(100, new Name("/ckey3"));
+    Link dkeyLink = new Link();
+    dkeyLink.addDelegation(10,  new Name("/dkey1"));
+    dkeyLink.addDelegation(20,  new Name("/dkey2"));
+    dkeyLink.addDelegation(100, new Name("/dkey3"));
+    Link dataLink = new Link();
+    dataLink.addDelegation(10,  new Name("/data1"));
+    dataLink.addDelegation(20,  new Name("/data2"));
+    dataLink.addDelegation(100, new Name("/data3"));
+    keyChain.sign(ckeyLink);
+    keyChain.sign(dkeyLink);
+    keyChain.sign(dataLink);
+
+    Consumer consumer = new Consumer
+      (face, keyChain, groupName, uName,
+       new Sqlite3ConsumerDb(databaseFilePath.getPath()), ckeyLink, dkeyLink);
+    consumer.addDecryptionKey(uKeyName, fixtureUDKeyBlob);
+
+    final int[] finalCount = new int[] { 0 };
+    consumer.consume
+      (contentName,
+       new Consumer.OnConsumeComplete() {
+         public void onConsumeComplete(Data data, Blob result) {
+           finalCount[0] = 1;
+           assertTrue("consumeComplete",
+                      result.equals(new Blob(DATA_CONTENT, false)));
+         }
+       },
+       new EncryptError.OnError() {
+         public void onError(EncryptError.ErrorCode code, String message) {
+           fail("consume error " + code + ": " + message);
+         }
+       },
+       dataLink);
 
     assertEquals("contentCount", 1, contentCount[0]);
     assertEquals("cKeyCount", 1, cKeyCount[0]);
