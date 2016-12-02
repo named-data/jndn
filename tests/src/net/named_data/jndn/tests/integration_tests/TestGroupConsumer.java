@@ -38,6 +38,7 @@ import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
@@ -385,7 +386,7 @@ public class TestGroupConsumer implements Consumer.Friend {
       public long
       expressInterest
         (Interest interest, OnData onData, OnTimeout onTimeout,
-         WireFormat wireFormat) throws IOException
+         OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
         if (interest.matchesName(contentData.getName())) {
           contentCount[0] = 1;

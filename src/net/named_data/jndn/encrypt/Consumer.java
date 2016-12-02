@@ -29,9 +29,12 @@ import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.NetworkNack;
 import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encrypt.EncryptError.ErrorCode;
 import net.named_data.jndn.encrypt.EncryptError.OnError;
 import net.named_data.jndn.encrypt.algo.AesAlgorithm;
@@ -99,7 +102,7 @@ public class Consumer {
   {
     Interest interest = new Interest(contentName);
     sendInterest
-      (interest,
+      (interest, 1,
        new OnVerified() {
          public void onVerified(final Data validData) {
            // Decrypt the content.
@@ -282,7 +285,7 @@ public class Consumer {
       interestName.append(Encryptor.NAME_COMPONENT_FOR).append(groupName_);
       Interest interest = new Interest(interestName);
       sendInterest
-        (interest,
+        (interest, 1,
          new OnVerified() {
            public void onVerified(Data validCKeyData) {
              decryptCKey
@@ -339,7 +342,7 @@ public class Consumer {
       interestName.append(Encryptor.NAME_COMPONENT_FOR).append(consumerName_);
       Interest interest = new Interest(interestName);
       sendInterest
-        (interest,
+        (interest, 1,
          new OnVerified() {
            public void onVerified(Data validDKeyData) {
              decryptDKey
@@ -439,15 +442,20 @@ public class Consumer {
   /**
    * Express the interest, call verifyData for the fetched Data packet and call
    * onVerified if verify succeeds. If verify fails, call
-   * onError.onError(ErrorCode.Validation, "verifyData failed").
+   * onError.onError(ErrorCode.Validation, "verifyData failed"). If the interest
+   * times out, re-express nRetrials times. If the interest times out nRetrials
+   * times, or for a network Nack, call
+   * onError.onError(ErrorCode.DataRetrievalFailure, interest.getName().toUri()).
    * @param interest The Interest to express.
+   * @param nRetrials The number of retrials left after a timeout.
    * @param onVerified When the fetched Data packet validation succeeds, this
    * calls onVerified.onVerified(data).
    * @param onError This calls onError.onError(errorCode, message) for an error.
    */
   private void
   sendInterest
-    (Interest interest, final OnVerified onVerified, final OnError onError)
+    (Interest interest, final int nRetrials, final OnVerified onVerified,
+     final OnError onError)
   {
     // Prepare the callback functions.
     final OnData onData = new OnData() {
@@ -480,34 +488,29 @@ public class Consumer {
       }
     };
 
-    OnTimeout onTimeout = new OnTimeout() {
-      public void onTimeout(final Interest interest) {
-        // We should re-try at least once.
+    final OnNetworkNack onNetworkNack = new OnNetworkNack() {
+      public void onNetworkNack(Interest interest, NetworkNack networkNack) {
+        // We have run out of options. Report a retrieval failure.
         try {
-          face_.expressInterest
-            (interest, onData,
-             new OnTimeout() {
-               public void onTimeout(Interest contentInterest) {
-                 try {
-                   onError.onError(ErrorCode.Timeout, interest.getName().toUri());
-                 } catch (Exception ex) {
-                   logger_.log(Level.SEVERE, "Error in onError", ex);
-                 }
-               }
-             });
-        } catch (IOException ex) {
-          try {
-            onError.onError
-             (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
-          } catch (Exception exception) {
-            logger_.log(Level.SEVERE, "Error in onError", exception);
-          }
+          onError.onError
+            (ErrorCode.DataRetrievalFailure, interest.getName().toUri());
+        } catch (Exception exception) {
+          logger_.log(Level.SEVERE, "Error in onError", exception);
         }
       }
     };
 
+    OnTimeout onTimeout = new OnTimeout() {
+      public void onTimeout(final Interest interest) {
+        if (nRetrials > 0)
+          sendInterest(interest, nRetrials - 1, onVerified, onError);
+        else
+          onNetworkNack.onNetworkNack(interest, new NetworkNack());
+      }
+    };
+
     try {
-      face_.expressInterest(interest, onData, onTimeout);
+      face_.expressInterest(interest, onData, onTimeout, onNetworkNack);
     } catch (IOException ex) {
       try {
         onError.onError
