@@ -175,7 +175,7 @@ public class TestFaceInterestMethods {
   public void
   testTimeout()
   {
-    String uri = "/test/timeout";
+    String uri = "/test123/timeout";
     CallbackCounter counter = runExpressNameTest(face, uri);
 
     // we're expecting a timeout callback, and only 1
