@@ -47,7 +47,8 @@ public class NdnRegexMatcher {
 
     pattern = pattern.replaceAll("<>", "(?:<.+?>)");
     pattern = pattern.replaceAll(">", "");
-    pattern = pattern.replaceAll("<(?!!)", "/");
+    // Explicitly use regex replace for portability.
+    pattern = Pattern.compile("<(?!!)").matcher(pattern).replaceAll("/");
 
     Matcher match = Pattern.compile(pattern).matcher(nameUri);
     if (match.find())
