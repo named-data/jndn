@@ -103,8 +103,8 @@ public class TestInterestMethods {
 1
   });
 
-  static String dump(Object s1) { return s1.toString(); }
-  static String dump(Object s1, Object s2) { return s1.toString() + " " + s2.toString(); }
+  static String dump(Object s1) { return "" + s1; }
+  static String dump(Object s1, Object s2) { return s1 + " " + s2; }
 
   private static ArrayList initialDump = new ArrayList(Arrays.asList(new Object[] {
     "name: /ndn/abc",

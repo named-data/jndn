@@ -160,7 +160,7 @@ public class TestDerEncodeDecode {
   testRepresentation()
   {
     assertEquals("Certificate dump does not have expected format",
-                 CERT_STRING, toyCert.toString());
+                 CERT_STRING, "" + toyCert);
   }
 
   @Test
@@ -176,7 +176,7 @@ public class TestDerEncodeDecode {
     Certificate decoded_cert = new Certificate(plainData);
 
     assertEquals("Certificate representation changed after encoding",
-                 toyCert.toString(), decoded_cert.toString());
+                 "" + toyCert, "" + decoded_cert);
   }
 
   @Test
@@ -221,7 +221,7 @@ public class TestDerEncodeDecode {
       (CertificateExtension)decodedCert.getExtensionList().get(0);
     assertEquals
       ("Certificate extension has the wrong OID after decoding",
-       oidString, decodedExtension.getOid().toString());
+       oidString, "" + decodedExtension.getOid());
     assertEquals
       ("Certificate extension has the wrong isCritical value after decoding",
        isCritical, decodedExtension.getIsCritical());
@@ -238,7 +238,7 @@ public class TestDerEncodeDecode {
     DerInteger decodedTrustLevel = (DerInteger)decodedExtValueRoot.get(2);
     assertEquals
       ("Wrong extension value name after decoding",
-       name, ((Blob)decodedName.toVal()).toString());
+       name, "" + decodedName.toVal());
     assertEquals
       ("Wrong extension value trust class after decoding",
        trustClass, (int)(Integer)decodedTrustClass.toVal());
@@ -257,7 +257,7 @@ public class TestDerEncodeDecode {
     Certificate realCert = new Certificate(data);
 
     assertEquals("Certificate representation changed after decoding",
-                 REAL_CERT_STRING, realCert.toString());
+                 REAL_CERT_STRING, "" + realCert);
   }
 
   @Test
@@ -302,6 +302,6 @@ public class TestDerEncodeDecode {
     // Make a copy to test encoding.
     IdentityCertificate certificateCopy = new IdentityCertificate(newCertificate);
     assertEquals("Prepared unsigned certificate dump does not have the expected format",
-                 toyCert.toString(), certificateCopy.toString());
+                 "" + toyCert, "" + certificateCopy);
   }
 }
