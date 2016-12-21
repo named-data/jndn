@@ -26,6 +26,7 @@ import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.toIsoString;
 import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
 import net.named_data.jndn.encrypt.Interval;
 import net.named_data.jndn.encrypt.RepetitiveInterval;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -211,4 +212,7 @@ public class TestRepetitiveInterval {
                                             fromIsoString("20150828T000000"),
                                          5, 10, 2, RepetitiveInterval.RepeatUnit.MONTH)));
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import net.named_data.jndn.util.Common;
 
 /**
  * UnitTestsCommon has static methods to help in unit tests.
@@ -61,4 +62,6 @@ public class UnitTestsCommon {
   }
 
   static SimpleDateFormat dateFormat = getDateFormat();
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

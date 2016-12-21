@@ -25,6 +25,7 @@ import java.text.ParseException;
 import net.named_data.jndn.encrypt.Interval;
 import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.toIsoString;
 import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
@@ -165,4 +166,7 @@ public class TestInterval {
     assertEquals("20150825T030000", toIsoString(tempInterval.getStartTime()));
     assertEquals("20150825T050000", toIsoString(tempInterval.getEndTime()));
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
