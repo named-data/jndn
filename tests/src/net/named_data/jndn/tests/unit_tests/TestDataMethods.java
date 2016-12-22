@@ -320,8 +320,8 @@ public class TestDataMethods {
   0x81, 0x10, 1, 2, 3 // Bad TLV encoding (length 0x10 doesn't match the value length.
 });
 
-  static String dump(Object s1) { return s1.toString(); }
-  static String dump(Object s1, Object s2) { return s1.toString() + " " + s2.toString(); }
+  static String dump(Object s1) { return "" + s1; }
+  static String dump(Object s1, Object s2) { return s1 + " " + s2; }
 
   private static ArrayList
   dumpData(Data data)
@@ -347,7 +347,7 @@ public class TestDataMethods {
     }
     result.add(dump("metaInfo.freshnessPeriod (milliseconds):",
       data.getMetaInfo().getFreshnessPeriod() >= 0 ?
-        "" + data.getMetaInfo().getFreshnessPeriod() : "<none>"));
+        "" + (long)data.getMetaInfo().getFreshnessPeriod() : "<none>"));
     result.add(dump("metaInfo.finalBlockId:",
       data.getMetaInfo().getFinalBlockId().getValue().size() > 0 ?
         data.getMetaInfo().getFinalBlockId().toEscapedString() : "<none>"));
@@ -378,7 +378,7 @@ public class TestDataMethods {
     "name: /ndn/abc",
     "content (raw): SUCCESS!",
     "content (hex): 5355434345535321",
-    "metaInfo.freshnessPeriod (milliseconds): 5000.0",
+    "metaInfo.freshnessPeriod (milliseconds): 5000",
     "metaInfo.finalBlockId: %00%09",
     "signature.signature: 1a03c39c4fc55c36a2e79cee52fe45a7e10cfb95acb49bccb6a0c34aaa45bfbfdf0b51d5a48bf2ab45971c24d8e2c28a4d4012d77701eb7435f14dddd0f3a69ab7a4f17fa78434d7082552808b6c4293041e071f4f764318f2f8511a56afe6a931cb6c1c0aa40110fcc866ce2e9c0b2d7fb464a0ee2282c834f79af551122a84",
     "signature.keyLocator: KeyName: /testname/KEY/DSK-123/ID-CERT"
@@ -468,8 +468,8 @@ public class TestDataMethods {
     } catch (EncodingException ex) {
       fail("Can't decode reDecodedData");
     }
-    assertEquals("Re-decoded data does not match original dump",
-                 initialDump, dumpData(reDecodedData));
+    assertArrayEquals("Re-decoded data does not match original dump",
+                 initialDump.toArray(), dumpData(reDecodedData).toArray());
   }
 
   @Test
