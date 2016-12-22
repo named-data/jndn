@@ -103,8 +103,8 @@ public class TestInterestMethods {
 1
   });
 
-  static String dump(Object s1) { return s1.toString(); }
-  static String dump(Object s1, Object s2) { return s1.toString() + " " + s2.toString(); }
+  static String dump(Object s1) { return "" + s1; }
+  static String dump(Object s1, Object s2) { return s1 + " " + s2; }
 
   private static ArrayList initialDump = new ArrayList(Arrays.asList(new Object[] {
     "name: /ndn/abc",
@@ -115,7 +115,7 @@ public class TestInterestMethods {
     "childSelector: 1",
     "mustBeFresh: true",
     "nonce: 61626162",
-    "lifetimeMilliseconds: 30000.0"}));
+    "lifetimeMilliseconds: 30000"}));
 
   private static ArrayList
   dumpInterest(Interest interest)
@@ -144,12 +144,12 @@ public class TestInterestMethods {
       interest.getExclude().size() > 0 ? interest.getExclude().toUri() :"<none>"));
     result.add(dump("childSelector:",
       interest.getChildSelector() >= 0 ? interest.getChildSelector() : "<none>"));
-    result.add(dump("mustBeFresh:", interest.getMustBeFresh()));
+    result.add(dump("mustBeFresh:", interest.getMustBeFresh() ? "true" : "false"));
     result.add(dump("nonce:", interest.getNonce().size() == 0 ?
       "<none>" : interest.getNonce().toHex()));
     result.add(dump("lifetimeMilliseconds:",
       interest.getInterestLifetimeMilliseconds() < 0 ?
-        "<none>" : interest.getInterestLifetimeMilliseconds()));
+        "<none>" : "" + (long)interest.getInterestLifetimeMilliseconds()));
     return result;
   }
 
