@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.TimeZone;
 import net.named_data.jndn.encoding.OID;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.DynamicByteBuffer;
 
 /**
@@ -856,7 +857,8 @@ public class DerNode {
     private static String
     toDerTimeString(double msSince1970)
     {
-      Date utcTime = new Date((long)Math.round(msSince1970));
+      Date utcTime = Common.millisecondsSince1970ToDate
+        ((long)Math.round(msSince1970));
       return dateFormat_.format(utcTime);
     }
 

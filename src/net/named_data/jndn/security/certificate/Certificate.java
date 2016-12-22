@@ -277,8 +277,10 @@ public class Certificate extends Data {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    String notBeforeStr = dateFormat.format(new Date((long)Math.round(notBefore_)));
-    String notAfterStr = dateFormat.format(new Date((long)Math.round(notAfter_)));
+    String notBeforeStr = dateFormat.format
+      (Common.millisecondsSince1970ToDate((long)Math.round(notBefore_)));
+    String notAfterStr = dateFormat.format
+      (Common.millisecondsSince1970ToDate((long)Math.round(notAfter_)));
 
     s += "  NotBefore: " + notBeforeStr + "\n";
     s += "  NotAfter: " + notAfterStr + "\n";

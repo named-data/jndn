@@ -32,6 +32,7 @@ import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 /**
  * Schedule is used to manage the times when a member can access data using two
@@ -356,7 +357,8 @@ public class Schedule {
   public static String
   toIsoString(double msSince1970)
   {
-    return dateFormat.format(new Date((long)Math.round(msSince1970)));
+    return dateFormat.format
+      (Common.millisecondsSince1970ToDate((long)Math.round(msSince1970)));
   }
 
   private static SimpleDateFormat
