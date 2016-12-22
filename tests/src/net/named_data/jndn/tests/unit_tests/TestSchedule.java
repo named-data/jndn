@@ -29,6 +29,7 @@ import net.named_data.jndn.encrypt.Schedule;
 import net.named_data.jndn.util.Blob;
 import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.toIsoString;
 import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -325,4 +326,7 @@ public class TestSchedule {
     assertEquals("20150826T060000", toIsoString(result.interval.getStartTime()));
     assertEquals("20150826T080000", toIsoString(result.interval.getEndTime()));
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

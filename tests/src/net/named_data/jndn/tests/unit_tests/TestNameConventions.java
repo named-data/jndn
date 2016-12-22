@@ -23,6 +23,7 @@ package net.named_data.jndn.tests.unit_tests;
 
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -131,4 +132,7 @@ public class TestNameConventions {
       fail("Error while parsing a nonNegativeInteger: " + ex.getMessage());
     }
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
