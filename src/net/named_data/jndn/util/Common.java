@@ -24,6 +24,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -219,6 +220,18 @@ public class Common {
     } catch (Exception ex) {
       throw new UnsupportedOperationException("base64Decode: Error invoking method: " + ex);
     }
+  }
+
+  /**
+   * Convert the milliseconds to a Date object. This is a centralized utility
+   * method to support portability.
+   * @param millisecondsSince1970 The milliseconds since 1970.
+   * @return A new Date object.
+   */
+  public static Date
+  millisecondsSince1970ToDate(long millisecondsSince1970)
+  {
+    return new Date(millisecondsSince1970);
   }
 
   /**
