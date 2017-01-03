@@ -235,6 +235,18 @@ public class Common {
   }
 
   /**
+   * Convert a Date object milliseconds. This is a centralized utility
+   * method to support portability.
+   * @param date the Date object.
+   * @return The milliseconds since 1970.
+   */
+  public static long
+  dateToMillisecondsSince1970(Date date)
+  {
+    return date.getTime();
+  }
+
+  /**
    * The practical limit of the size of a network-layer packet. If a packet is
    * larger than this, the library or application MAY drop it. This constant is
    * defined in this low-level class so that internal code can use it, but
