@@ -348,7 +348,8 @@ public class Schedule {
   fromIsoString(String dateString) throws EncodingException
   {
     try {
-      return (double)dateFormat.parse(dateString).getTime();
+      return (double)Common.dateToMillisecondsSince1970
+        (dateFormat.parse(dateString));
     } catch (ParseException ex) {
       throw new EncodingException("Cannot parse date string " + dateString);
     }

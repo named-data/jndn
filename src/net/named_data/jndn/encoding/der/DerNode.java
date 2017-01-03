@@ -884,7 +884,7 @@ public class DerNode {
       String timeStr = "" + new Blob(payload_.flippedBuffer(), false);
       try {
         Date date = dateFormat_.parse(timeStr);
-        return (double)date.getTime();
+        return (double)Common.dateToMillisecondsSince1970(date);
       } catch (ParseException ex) {
         throw new DerDecodingException
           ("DerGeneralizedTime: Error decoding the date string: " + ex);
