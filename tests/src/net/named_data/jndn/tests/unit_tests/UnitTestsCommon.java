@@ -38,7 +38,8 @@ public class UnitTestsCommon {
   public static String
   toIsoString(double msSince1970)
   {
-    return dateFormat.format(new Date((long)Math.round(msSince1970)));
+    return dateFormat.format(Common.millisecondsSince1970ToDate
+      ((long)Math.round(msSince1970)));
   }
 
   /**
@@ -50,7 +51,8 @@ public class UnitTestsCommon {
   public static double
   fromIsoString(String timeString) throws ParseException
   {
-    return (double)dateFormat.parse(timeString).getTime();
+    return (double)Common.dateToMillisecondsSince1970
+      (dateFormat.parse(timeString));
   }
 
   private static SimpleDateFormat
