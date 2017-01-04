@@ -250,7 +250,8 @@ public class Schedule {
 
     // Encode backwards.
     encoder.writeNonNegativeIntegerTlv
-      (Tlv.Encrypt_RepeatUnit, repetitiveInterval.getRepeatUnit().getNumericType());
+      (Tlv.Encrypt_RepeatUnit, 
+       RepetitiveInterval.getRepeatUnitNumericType(repetitiveInterval.getRepeatUnit()));
     encoder.writeNonNegativeIntegerTlv
       (Tlv.Encrypt_NRepeats, repetitiveInterval.getNRepeats());
     encoder.writeNonNegativeIntegerTlv
@@ -291,13 +292,13 @@ public class Schedule {
     int repeatUnitCode = (int)decoder.readNonNegativeIntegerTlv
       (Tlv.Encrypt_RepeatUnit);
     RepetitiveInterval.RepeatUnit repeatUnit;
-    if (repeatUnitCode == RepetitiveInterval.RepeatUnit.NONE.getNumericType())
+    if (repeatUnitCode == Tlv.Encrypt_RepeatUnit_NONE)
       repeatUnit = RepetitiveInterval.RepeatUnit.NONE;
-    else if (repeatUnitCode == RepetitiveInterval.RepeatUnit.DAY.getNumericType())
+    else if (repeatUnitCode == Tlv.Encrypt_RepeatUnit_DAY)
       repeatUnit = RepetitiveInterval.RepeatUnit.DAY;
-    else if (repeatUnitCode == RepetitiveInterval.RepeatUnit.MONTH.getNumericType())
+    else if (repeatUnitCode == Tlv.Encrypt_RepeatUnit_MONTH)
       repeatUnit = RepetitiveInterval.RepeatUnit.MONTH;
-    else if (repeatUnitCode == RepetitiveInterval.RepeatUnit.YEAR.getNumericType())
+    else if (repeatUnitCode == Tlv.Encrypt_RepeatUnit_YEAR)
       repeatUnit = RepetitiveInterval.RepeatUnit.YEAR;
     else
       throw new EncodingException

@@ -30,20 +30,26 @@ import java.util.TimeZone;
  */
 public class RepetitiveInterval implements Comparable {
   public enum RepeatUnit {
-    NONE(0),
-    DAY(1),
-    MONTH(2),
-    YEAR(3);
+    NONE, DAY, MONTH, YEAR
+  }
 
-    RepeatUnit (int type)
-    {
-      type_ = type;
-    }
-
-    public final int
-    getNumericType() { return type_; }
-
-    private final int type_;
+  /**
+   * Get the numeric value associated with the repeatUnit. This is a separate
+   * method for portability.
+   * @param repeatUnit The RepeatUnit.
+   * @return The numeric value for repeatUnit.
+   */
+  public static final int
+  getRepeatUnitNumericType(RepeatUnit repeatUnit)
+  {
+    if (repeatUnit == RepeatUnit.DAY)
+      return 1;
+    else if (repeatUnit == RepeatUnit.MONTH)
+      return 2;
+    else if (repeatUnit == RepeatUnit.YEAR)
+      return 3;
+    else
+      return 0;
   }
 
   public static class Result {
@@ -238,9 +244,11 @@ public class RepetitiveInterval implements Comparable {
 
     // Lastly, compare the repeat units.
     // Compare without using Integer.compare so it works in older Java compilers.
-    if (repeatUnit_.getNumericType() < other.repeatUnit_.getNumericType())
+    if (getRepeatUnitNumericType(repeatUnit_) <
+        getRepeatUnitNumericType(other.repeatUnit_))
       return -1;
-    else if (repeatUnit_.getNumericType() == other.repeatUnit_.getNumericType())
+    else if (getRepeatUnitNumericType(repeatUnit_) ==
+             getRepeatUnitNumericType(other.repeatUnit_))
       return 0;
     else
       return 1;
@@ -270,7 +278,7 @@ public class RepetitiveInterval implements Comparable {
     hash = 73 * hash + intervalStartHour_;
     hash = 73 * hash + intervalEndHour_;
     hash = 73 * hash + nRepeats_;
-    hash = 73 * hash + repeatUnit_.getNumericType();
+    hash = 73 * hash + getRepeatUnitNumericType(repeatUnit_);
     return hash;
   }
 
