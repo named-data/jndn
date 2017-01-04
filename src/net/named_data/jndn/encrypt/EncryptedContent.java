@@ -53,7 +53,8 @@ public class EncryptedContent {
 
   /**
    * Get the algorithm type.
-   * @return The algorithm type. If not specified, return null.
+   * @return The algorithm type. If not specified, return
+   * EncryptAlgorithmType.NONE.
    */
   public final EncryptAlgorithmType
   getAlgorithmType() { return algorithmType_; }
@@ -81,7 +82,8 @@ public class EncryptedContent {
 
   /**
    * Set the algorithm type.
-   * @param algorithmType The algorithm type. If not specified, set to null.
+   * @param algorithmType The algorithm type. If not specified, set to
+   * EncryptAlgorithmType.NONE.
    * @return This EncryptedContent so that you can chain calls to update values.
    */
   public final EncryptedContent
@@ -203,7 +205,7 @@ public class EncryptedContent {
     wireDecode(input, WireFormat.getDefaultWireFormat());
   }
 
-  private EncryptAlgorithmType algorithmType_ = null;
+  private EncryptAlgorithmType algorithmType_ = EncryptAlgorithmType.NONE;
   private KeyLocator keyLocator_ = new KeyLocator();
   private Blob initialVector_ = new Blob();
   private Blob payload_ = new Blob();
