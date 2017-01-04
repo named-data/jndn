@@ -95,7 +95,7 @@ public class TestEncryptedContent {
   {
     // Check default settings.
     EncryptedContent content = new EncryptedContent();
-    assertEquals(null, content.getAlgorithmType());
+    assertEquals(EncryptAlgorithmType.NONE, content.getAlgorithmType());
     assertEquals(true, content.getPayload().isNull());
     assertEquals(true, content.getInitialVector().isNull());
     assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());
@@ -301,7 +301,7 @@ public class TestEncryptedContent {
   testSetterGetter() throws EncodingException
   {
     EncryptedContent content = new EncryptedContent();
-    assertEquals(null, content.getAlgorithmType());
+    assertEquals(EncryptAlgorithmType.NONE, content.getAlgorithmType());
     assertEquals(true, content.getPayload().isNull());
     assertEquals(true, content.getInitialVector().isNull());
     assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());
