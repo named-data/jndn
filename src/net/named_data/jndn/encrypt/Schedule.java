@@ -323,8 +323,8 @@ public class Schedule {
     (TreeSet list, double timeStamp, Interval positiveResult,
      Interval negativeResult)
   {
-    for (Iterator i = list.iterator(); i.hasNext(); ) {
-      RepetitiveInterval element = (RepetitiveInterval)i.next();
+    for (Object elementObj : list) {
+      RepetitiveInterval element = (RepetitiveInterval)elementObj;
 
       RepetitiveInterval.Result result = element.getInterval(timeStamp);
       Interval tempInterval = result.interval;
