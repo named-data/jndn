@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2016 Regents of the University of California.
+ * Copyright (C) 2014-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN unit-tests by Adeola Bannis.
  *
@@ -175,7 +175,7 @@ public class TestFaceInterestMethods {
   public void
   testTimeout()
   {
-    String uri = "/test/timeout";
+    String uri = "/test123/timeout";
     CallbackCounter counter = runExpressNameTest(face, uri);
 
     // we're expecting a timeout callback, and only 1

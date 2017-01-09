@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 Regents of the University of California.
+ * Copyright (C) 2015-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt src/repetitive-interval https://github.com/named-data/ndn-group-encrypt
  *
@@ -30,32 +30,26 @@ import java.util.TimeZone;
  */
 public class RepetitiveInterval implements Comparable {
   public enum RepeatUnit {
-    NONE(0),
-    DAY(1),
-    MONTH(2),
-    YEAR(3);
+    NONE, DAY, MONTH, YEAR
+  }
 
-    RepeatUnit (int type)
-    {
-      type_ = type;
-    }
-
-    public final int
-    getNumericType() { return type_; }
-
-    public final int
-    compare(RepeatUnit other)
-    {
-      // Compare without using Integer.compare so it works in older Java compilers.
-      if (getNumericType() < other.getNumericType())
-        return -1;
-      else if (getNumericType() == other.getNumericType())
-        return 0;
-      else
-        return 1;
-    }
-
-    private final int type_;
+  /**
+   * Get the numeric value associated with the repeatUnit. This is a separate
+   * method for portability.
+   * @param repeatUnit The RepeatUnit.
+   * @return The numeric value for repeatUnit.
+   */
+  public static final int
+  getRepeatUnitNumericType(RepeatUnit repeatUnit)
+  {
+    if (repeatUnit == RepeatUnit.DAY)
+      return 1;
+    else if (repeatUnit == RepeatUnit.MONTH)
+      return 2;
+    else if (repeatUnit == RepeatUnit.YEAR)
+      return 3;
+    else
+      return 0;
   }
 
   public static class Result {
@@ -248,7 +242,16 @@ public class RepetitiveInterval implements Comparable {
     if (nRepeats_ > other.nRepeats_)
       return 1;
 
-    return repeatUnit_.compare(other.repeatUnit_);
+    // Lastly, compare the repeat units.
+    // Compare without using Integer.compare so it works in older Java compilers.
+    if (getRepeatUnitNumericType(repeatUnit_) <
+        getRepeatUnitNumericType(other.repeatUnit_))
+      return -1;
+    else if (getRepeatUnitNumericType(repeatUnit_) ==
+             getRepeatUnitNumericType(other.repeatUnit_))
+      return 0;
+    else
+      return 1;
   }
 
   public int
@@ -275,7 +278,7 @@ public class RepetitiveInterval implements Comparable {
     hash = 73 * hash + intervalStartHour_;
     hash = 73 * hash + intervalEndHour_;
     hash = 73 * hash + nRepeats_;
-    hash = 73 * hash + repeatUnit_.getNumericType();
+    hash = 73 * hash + getRepeatUnitNumericType(repeatUnit_);
     return hash;
   }
 

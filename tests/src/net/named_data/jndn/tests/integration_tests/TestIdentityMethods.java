@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 Regents of the University of California.
+ * Copyright (C) 2015-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN unit-tests by Adeola Bannis.
  *
@@ -300,7 +300,6 @@ public class TestIdentityMethods {
 
     // Check the self-signature.
     VerifyCounter counter = new VerifyCounter();
-    Name certName = identityStorage.getDefaultCertificateNameForKey(keyName);
     keyChain.verifyData(cert, counter, counter);
     assertEquals
       ("Verification callback was not used.", 1, counter.onVerifiedCallCount_);

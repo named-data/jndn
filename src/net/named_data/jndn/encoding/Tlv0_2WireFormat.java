@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2016 Regents of the University of California.
+ * Copyright (C) 2016-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -48,6 +48,8 @@ import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.lp.IncomingFaceId;
 import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.NetworkNack;
+import net.named_data.jndn.encrypt.Schedule;
+import net.named_data.jndn.security.ValidityPeriod;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -995,6 +997,42 @@ public class Tlv0_2WireFormat extends WireFormat {
     decoder.finishNestedTlvs(endOffset);
   }
 
+  private static void
+  encodeValidityPeriod(ValidityPeriod validityPeriod, TlvEncoder encoder)
+  {
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    encoder.writeBlobTlv(Tlv.ValidityPeriod_NotAfter,
+      new Blob(Schedule.toIsoString(validityPeriod.getNotAfter())).buf());
+    encoder.writeBlobTlv(Tlv.ValidityPeriod_NotBefore,
+      new Blob(Schedule.toIsoString(validityPeriod.getNotBefore())).buf());
+
+    encoder.writeTypeAndLength
+      (Tlv.ValidityPeriod_ValidityPeriod, encoder.getLength() - saveLength);
+  }
+
+  private static void
+  decodeValidityPeriod
+    (ValidityPeriod validityPeriod, TlvDecoder decoder) throws EncodingException
+  {
+    int endOffset = decoder.readNestedTlvsStart(Tlv.ValidityPeriod_ValidityPeriod);
+
+    validityPeriod.clear();
+
+    // Set copy false since we just immediately get the string.
+    Blob isoString = new Blob
+      (decoder.readBlobTlv(Tlv.ValidityPeriod_NotBefore), false);
+    double notBefore = Schedule.fromIsoString("" + isoString);
+    isoString = new Blob
+      (decoder.readBlobTlv(Tlv.ValidityPeriod_NotAfter), false);
+    double notAfter = Schedule.fromIsoString("" + isoString);
+
+    validityPeriod.setPeriod(notBefore, notAfter);
+
+    decoder.finishNestedTlvs(endOffset);
+  }
+
   /**
    * An internal method to encode signature as the appropriate form of
    * SignatureInfo in NDN-TLV.
@@ -1028,6 +1066,9 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     // Encode backwards.
     if (signature instanceof Sha256WithRsaSignature) {
+      if (((Sha256WithRsaSignature)signature).getValidityPeriod().hasPeriod())
+        encodeValidityPeriod
+          (((Sha256WithRsaSignature)signature).getValidityPeriod(), encoder);
       encodeKeyLocator
         (Tlv.KeyLocator, ((Sha256WithRsaSignature)signature).getKeyLocator(),
          encoder);
@@ -1035,6 +1076,9 @@ public class Tlv0_2WireFormat extends WireFormat {
         (Tlv.SignatureType, Tlv.SignatureType_SignatureSha256WithRsa);
     }
     else if (signature instanceof Sha256WithEcdsaSignature) {
+      if (((Sha256WithEcdsaSignature)signature).getValidityPeriod().hasPeriod())
+        encodeValidityPeriod
+          (((Sha256WithEcdsaSignature)signature).getValidityPeriod(), encoder);
       encodeKeyLocator
         (Tlv.KeyLocator, ((Sha256WithEcdsaSignature)signature).getKeyLocator(),
          encoder);
@@ -1075,6 +1119,8 @@ public class Tlv0_2WireFormat extends WireFormat {
           (Sha256WithRsaSignature)signatureHolder.getSignature();
         decodeKeyLocator
           (Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder, copy);
+        if (decoder.peekType(Tlv.ValidityPeriod_ValidityPeriod, endOffset))
+          decodeValidityPeriod(signatureInfo.getValidityPeriod(), decoder);
     }
     else if (signatureType == Tlv.SignatureType_SignatureSha256WithEcdsa) {
         signatureHolder.setSignature(new Sha256WithEcdsaSignature());
@@ -1082,6 +1128,8 @@ public class Tlv0_2WireFormat extends WireFormat {
           (Sha256WithEcdsaSignature)signatureHolder.getSignature();
         decodeKeyLocator
           (Tlv.KeyLocator, signatureInfo.getKeyLocator(), decoder, copy);
+        if (decoder.peekType(Tlv.ValidityPeriod_ValidityPeriod, endOffset))
+          decodeValidityPeriod(signatureInfo.getValidityPeriod(), decoder);
     }
     else if (signatureType == Tlv.SignatureType_SignatureHmacWithSha256) {
         signatureHolder.setSignature(new HmacWithSha256Signature());

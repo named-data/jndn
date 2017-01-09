@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2016 Regents of the University of California.
+ * Copyright (C) 2013-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From PyNDN der_node.py by Adeola Bannis <thecodemaiden@gmail.com>.
  * @author: Originally from code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.TimeZone;
 import net.named_data.jndn.encoding.OID;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.DynamicByteBuffer;
 
 /**
@@ -856,7 +857,8 @@ public class DerNode {
     private static String
     toDerTimeString(double msSince1970)
     {
-      Date utcTime = new Date((long)Math.round(msSince1970));
+      Date utcTime = Common.millisecondsSince1970ToDate
+        ((long)Math.round(msSince1970));
       return dateFormat_.format(utcTime);
     }
 
@@ -882,7 +884,7 @@ public class DerNode {
       String timeStr = "" + new Blob(payload_.flippedBuffer(), false);
       try {
         Date date = dateFormat_.parse(timeStr);
-        return (double)date.getTime();
+        return (double)Common.dateToMillisecondsSince1970(date);
       } catch (ParseException ex) {
         throw new DerDecodingException
           ("DerGeneralizedTime: Error decoding the date string: " + ex);

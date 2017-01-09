@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 Regents of the University of California.
+ * Copyright (C) 2015-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt src/consumer https://github.com/named-data/ndn-group-encrypt
  *
@@ -28,8 +28,11 @@ import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.Link;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.NetworkNack;
 import net.named_data.jndn.OnData;
+import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.EncryptError.ErrorCode;
@@ -60,6 +63,36 @@ public class Consumer {
    * @param consumerName The identity of the consumer. This makes a copy of the
    * Name.
    * @param database The ConsumerDb database for storing decryption keys.
+   * @param cKeyLink The Link object to use in Interests for C-KEY retrieval.
+   * This makes a copy of the Link object. If the Link object's
+   * getDelegations().size() is zero, don't use it.
+   * @param dKeyLink The Link object to use in Interests for D-KEY retrieval.
+   * This makes a copy of the Link object. If the Link object's
+   * getDelegations().size() is zero, don't use it.
+   */
+  public Consumer
+    (Face face, KeyChain keyChain, Name groupName, Name consumerName,
+     ConsumerDb database, Link cKeyLink, Link dKeyLink)
+  {
+    database_ = database;
+    keyChain_ = keyChain;
+    face_ = face;
+    groupName_ = new Name(groupName);
+    consumerName_ = new Name(consumerName);
+    // Copy the Link object.
+    cKeyLink_ = new Link(cKeyLink);
+    dKeyLink_ = new Link(dKeyLink);
+  }
+
+  /**
+   * Create a Consumer to use the given ConsumerDb, Face and other values.
+   * @param face The face used for data packet and key fetching.
+   * @param keyChain The keyChain used to verify data packets.
+   * @param groupName The reading group name that the consumer belongs to.
+   * This makes a copy of the Name.
+   * @param consumerName The identity of the consumer. This makes a copy of the
+   * Name.
+   * @param database The ConsumerDb database for storing decryption keys.
    */
   public Consumer
     (Face face, KeyChain keyChain, Name groupName, Name consumerName,
@@ -70,10 +103,60 @@ public class Consumer {
     face_ = face;
     groupName_ = new Name(groupName);
     consumerName_ = new Name(consumerName);
+    cKeyLink_ = NO_LINK;
+    dKeyLink_ = NO_LINK;
   }
 
   public interface OnConsumeComplete {
     void onConsumeComplete(Data data, Blob result);
+  }
+
+  /**
+   * Express an Interest to fetch the content packet with contentName, and
+   * decrypt it, fetching keys as needed.
+   * @param contentName The name of the content packet.
+   * @param onConsumeComplete When the content packet is fetched and decrypted,
+   * this calls onConsumeComplete.onConsumeComplete(contentData, result) where
+   * contentData is the fetched Data packet and result is the decrypted plain
+   * text Blob.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onError This calls onError.onError(errorCode, message) for an error.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param link The Link object to use in Interests for data retrieval. This
+   * makes a copy of the Link object. If the Link object's
+   * getDelegations().size() is zero, don't use it.
+   */
+  public final void
+  consume
+    (Name contentName, final OnConsumeComplete onConsumeComplete,
+     final OnError onError, Link link)
+  {
+    Interest interest = new Interest(contentName);
+    // Copy the Link object since the passed link may become invalid.
+    sendInterest
+      (interest, 1, new Link(link),
+       new OnVerified() {
+         public void onVerified(final Data validData) {
+           // Decrypt the content.
+           decryptContent
+             (validData,
+              new OnPlainText() {
+                public void onPlainText(Blob plainText) {
+                  try {
+                    onConsumeComplete.onConsumeComplete(validData, plainText);
+                  } catch (Exception ex) {
+                    logger_.log(Level.SEVERE, "Error in onConsumeComplete", ex);
+                  }
+                }
+              },
+              onError);
+         }
+       },
+       onError);
   }
 
   /**
@@ -97,93 +180,7 @@ public class Consumer {
     (Name contentName, final OnConsumeComplete onConsumeComplete,
      final OnError onError)
   {
-    final Interest interest = new Interest(contentName);
-
-    // Prepare the callback functions.
-    final OnData onData = new OnData() {
-      public void onData(Interest contentInterest, final Data contentData) {
-        // The Interest has no selectors, so assume the library correctly
-        // matched with the Data name before calling onData.
-
-        try {
-          keyChain_.verifyData
-            (contentData,
-             new OnVerified() {
-               public void onVerified(Data validData) {
-                 // Decrypt the content.
-                 decryptContent
-                   (validData,
-                    new OnPlainText() {
-                      public void onPlainText(Blob plainText) {
-                        try {
-                          onConsumeComplete.onConsumeComplete(contentData, plainText);
-                        } catch (Exception ex) {
-                          logger_.log(Level.SEVERE, "Error in onConsumeComplete", ex);
-                        }
-                      }
-                    },
-                    onError);
-               }
-             },
-             new OnDataValidationFailed() {
-               public void onDataValidationFailed(Data d, String reason) {
-                 try {
-                   onError.onError
-                     (ErrorCode.Validation, "verifyData failed. Reason: " +
-                      reason);
-                 } catch (Exception ex) {
-                   logger_.log(Level.SEVERE, "Error in onError", ex);
-                 }
-               }
-             });
-        } catch (SecurityException ex) {
-          try {
-            onError.onError
-             (ErrorCode.SecurityException, "verifyData error: " + ex.getMessage());
-          } catch (Exception exception) {
-            logger_.log(Level.SEVERE, "Error in onError", exception);
-          }
-        }
-      }
-    };
-
-    OnTimeout onTimeout = new OnTimeout() {
-      public void onTimeout(Interest contentInterest) {
-        // We should re-try at least once.
-        try {
-          face_.expressInterest
-            (interest, onData,
-             new OnTimeout() {
-               public void onTimeout(Interest contentInterest) {
-                 try {
-                   onError.onError(ErrorCode.Timeout, interest.getName().toUri());
-                 } catch (Exception ex) {
-                   logger_.log(Level.SEVERE, "Error in onError", ex);
-                 }
-               }
-             });
-        } catch (IOException ex) {
-          try {
-            onError.onError
-             (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
-          } catch (Exception exception) {
-            logger_.log(Level.SEVERE, "Error in onError", exception);
-          }
-        }
-      }
-    };
-
-    // Express the Interest.
-    try {
-      face_.expressInterest(interest, onData, onTimeout);
-    } catch (IOException ex) {
-      try {
-        onError.onError
-         (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
-      } catch (Exception exception) {
-        logger_.log(Level.SEVERE, "Error in onError", exception);
-      }
-    }
+    consume(contentName, onConsumeComplete, onError, NO_LINK);
   }
 
   /**
@@ -346,91 +343,25 @@ public class Consumer {
       // Retrieve the C-KEY Data from the network.
       Name interestName = new Name(cKeyName);
       interestName.append(Encryptor.NAME_COMPONENT_FOR).append(groupName_);
-      final Interest interest = new Interest(interestName);
-
-      // Prepare the callback functions.
-      final OnData onData = new OnData() {
-        public void onData(Interest cKeyInterest, Data cKeyData) {
-          // The Interest has no selectors, so assume the library correctly
-          // matched with the Data name before calling onData.
-
-          try {
-            keyChain_.verifyData
-              (cKeyData,
-               new OnVerified() {
-                 public void onVerified(Data validCKeyData) {
-                   decryptCKey
-                     (validCKeyData,
-                      new OnPlainText() {
-                        public void onPlainText(Blob cKeyBits) {
-                          // cKeyName is already a copy inside the local dataEncryptedContent.
-                          cKeyMap_.put(cKeyName, cKeyBits);
-                          decrypt
-                            (dataEncryptedContent, cKeyBits, onPlainText, onError);
-                        }
-                      },
-                      onError);
-                 }
-               },
-               new OnDataValidationFailed() {
-                 public void onDataValidationFailed(Data d, String reason) {
-                   try {
-                     onError.onError
-                       (ErrorCode.Validation, "verifyData failed. Reason: " +
-                        reason);
-                   } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, "Error in onError", ex);
-                   }
-                 }
-               });
-          } catch (SecurityException ex) {
-            try {
-              onError.onError
-               (ErrorCode.SecurityException, "verifyData error: " + ex.getMessage());
-            } catch (Exception exception) {
-              logger_.log(Level.SEVERE, "Error in onError", exception);
-            }
-          }
-        }
-      };
-
-      OnTimeout onTimeout = new OnTimeout() {
-        public void onTimeout(Interest dKeyInterest) {
-          // We should re-try at least once.
-          try {
-            face_.expressInterest
-              (interest, onData,
-               new OnTimeout() {
-                 public void onTimeout(Interest contentInterest) {
-                   try {
-                     onError.onError(ErrorCode.Timeout, interest.getName().toUri());
-                   } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, "Error in onError", ex);
-                   }
-                 }
-               });
-          } catch (IOException ex) {
-            try {
-              onError.onError
-               (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
-            } catch (Exception exception) {
-              logger_.log(Level.SEVERE, "Error in onError", exception);
-            }
-          }
-        }
-      };
-
-      // Express the Interest.
-      try {
-        face_.expressInterest(interest, onData, onTimeout);
-      } catch (IOException ex) {
-        try {
-          onError.onError
-           (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
-        } catch (Exception exception) {
-          logger_.log(Level.SEVERE, "Error in onError", exception);
-        }
-      }
+      Interest interest = new Interest(interestName);
+      sendInterest
+        (interest, 1, cKeyLink_,
+         new OnVerified() {
+           public void onVerified(Data validCKeyData) {
+             decryptCKey
+               (validCKeyData,
+                new OnPlainText() {
+                  public void onPlainText(Blob cKeyBits) {
+                    // cKeyName is already a copy inside the local dataEncryptedContent.
+                    cKeyMap_.put(cKeyName, cKeyBits);
+                    decrypt
+                      (dataEncryptedContent, cKeyBits, onPlainText, onError);
+                  }
+                },
+                onError);
+           }
+         },
+         onError);
     }
   }
 
@@ -469,91 +400,25 @@ public class Consumer {
       // Get the D-Key Data.
       Name interestName = new Name(dKeyName);
       interestName.append(Encryptor.NAME_COMPONENT_FOR).append(consumerName_);
-      final Interest interest = new Interest(interestName);
-
-      // Prepare the callback functions.
-      final OnData onData = new OnData() {
-        public void onData(Interest dKeyInterest, Data dKeyData) {
-          // The Interest has no selectors, so assume the library correctly
-          // matched with the Data name before calling onData.
-
-          try {
-            keyChain_.verifyData
-              (dKeyData,
-               new OnVerified() {
-                 public void onVerified(Data validDKeyData) {
-                   decryptDKey
-                     (validDKeyData,
-                      new OnPlainText() {
-                        public void onPlainText(Blob dKeyBits) {
-                          // dKeyName is already a local copy.
-                          dKeyMap_.put(dKeyName, dKeyBits);
-                          decrypt
-                            (cKeyEncryptedContent, dKeyBits, onPlainText, onError);
-                        }
-                      },
-                      onError);
-                 }
-               },
-               new OnDataValidationFailed() {
-                 public void onDataValidationFailed(Data d, String reason) {
-                   try {
-                     onError.onError
-                       (ErrorCode.Validation, "verifyData failed. Reason: " +
-                        reason);
-                   } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, "Error in onError", ex);
-                   }
-                 }
-               });
-          } catch (SecurityException ex) {
-            try {
-              onError.onError
-               (ErrorCode.SecurityException, "verifyData error: " + ex.getMessage());
-            } catch (Exception exception) {
-              logger_.log(Level.SEVERE, "Error in onError", exception);
-            }
-          }
-        }
-      };
-
-      OnTimeout onTimeout = new OnTimeout() {
-        public void onTimeout(Interest dKeyInterest) {
-          // We should re-try at least once.
-          try {
-            face_.expressInterest
-              (interest, onData,
-               new OnTimeout() {
-                 public void onTimeout(Interest contentInterest) {
-                   try {
-                     onError.onError(ErrorCode.Timeout, interest.getName().toUri());
-                   } catch (Exception ex) {
-                     logger_.log(Level.SEVERE, "Error in onError", ex);
-                   }
-                 }
-               });
-          } catch (IOException ex) {
-            try {
-              onError.onError
-               (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
-              } catch (Exception exception) {
-                logger_.log(Level.SEVERE, "Error in onError", exception);
-              }
-          }
-        }
-      };
-
-      // Express the Interest.
-      try {
-        face_.expressInterest(interest, onData, onTimeout);
-      } catch (IOException ex) {
-        try {
-          onError.onError
-           (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
-        } catch (Exception exception) {
-          logger_.log(Level.SEVERE, "Error in onError", exception);
-        }
-      }
+      Interest interest = new Interest(interestName);
+      sendInterest
+        (interest, 1, dKeyLink_,
+         new OnVerified() {
+           public void onVerified(Data validDKeyData) {
+             decryptDKey
+               (validDKeyData,
+                new OnPlainText() {
+                  public void onPlainText(Blob dKeyBits) {
+                    // dKeyName is already a local copy.
+                    dKeyMap_.put(dKeyName, dKeyBits);
+                    decrypt
+                      (cKeyEncryptedContent, dKeyBits, onPlainText, onError);
+                  }
+                },
+                onError);
+           }
+         },
+         onError);
     }
   }
 
@@ -635,6 +500,102 @@ public class Consumer {
   }
 
   /**
+   * Express the interest, call verifyData for the fetched Data packet and call
+   * onVerified if verify succeeds. If verify fails, call
+   * onError.onError(ErrorCode.Validation, "verifyData failed"). If the interest
+   * times out, re-express nRetrials times. If the interest times out nRetrials
+   * times, or for a network Nack, call
+   * onError.onError(ErrorCode.DataRetrievalFailure, interest.getName().toUri()).
+   * @param interest The Interest to express.
+   * @param nRetrials The number of retrials left after a timeout.
+   * @param link The Link object to use in the Interest. This does not make a
+   * copy of the Link object. If the Link object's getDelegations().size() is
+   * zero, don't use it.
+   * @param onVerified When the fetched Data packet validation succeeds, this
+   * calls onVerified.onVerified(data).
+   * @param onError This calls onError.onError(errorCode, message) for an error.
+   */
+  private void
+  sendInterest
+    (Interest interest, final int nRetrials, final Link link,
+     final OnVerified onVerified, final OnError onError)
+  {
+    // Prepare the callback functions.
+    final OnData onData = new OnData() {
+      public void onData(Interest contentInterest, final Data contentData) {
+        // The Interest has no selectors, so assume the library correctly
+        // matched with the Data name before calling onData.
+
+        try {
+          keyChain_.verifyData
+            (contentData, onVerified,
+             new OnDataValidationFailed() {
+               public void onDataValidationFailed(Data d, String reason) {
+                 try {
+                   onError.onError
+                     (ErrorCode.Validation, "verifyData failed. Reason: " +
+                      reason);
+                 } catch (Exception ex) {
+                   logger_.log(Level.SEVERE, "Error in onError", ex);
+                 }
+               }
+             });
+        } catch (SecurityException ex) {
+          try {
+            onError.onError
+             (ErrorCode.SecurityException, "verifyData error: " + ex.getMessage());
+          } catch (Exception exception) {
+            logger_.log(Level.SEVERE, "Error in onError", exception);
+          }
+        }
+      }
+    };
+
+    final OnNetworkNack onNetworkNack = new OnNetworkNack() {
+      public void onNetworkNack(Interest interest, NetworkNack networkNack) {
+        // We have run out of options. Report a retrieval failure.
+        try {
+          onError.onError
+            (ErrorCode.DataRetrievalFailure, interest.getName().toUri());
+        } catch (Exception exception) {
+          logger_.log(Level.SEVERE, "Error in onError", exception);
+        }
+      }
+    };
+
+    OnTimeout onTimeout = new OnTimeout() {
+      public void onTimeout(final Interest interest) {
+        if (nRetrials > 0)
+          sendInterest(interest, nRetrials - 1, link, onVerified, onError);
+        else
+          onNetworkNack.onNetworkNack(interest, new NetworkNack());
+      }
+    };
+
+    Interest request;
+    if (link.getDelegations().size() == 0)
+      // We can use the supplied interest without copying.
+      request = interest;
+    else {
+      // Copy the supplied interest and add the Link.
+      request = new Interest(interest);
+      // This will use a cached encoding if available.
+      request.setLinkWireEncoding(link.wireEncode());
+    }
+
+    try {
+      face_.expressInterest(request, onData, onTimeout, onNetworkNack);
+    } catch (IOException ex) {
+      try {
+        onError.onError
+         (ErrorCode.IOException, "expressInterest error: " + ex.getMessage());
+      } catch (Exception exception) {
+        logger_.log(Level.SEVERE, "Error in onError", exception);
+      }
+    }
+  }
+
+  /**
    * Get the encoded blob of the decryption key with decryptionKeyName from the
    * database.
    * @param decryptionKeyName The key name.
@@ -703,10 +664,13 @@ public class Consumer {
   private final Face face_;
   private Name groupName_;
   private final Name consumerName_;
+  private final Link cKeyLink_;
   // Use HashMap without generics so it works with older Java compilers.
   private final HashMap cKeyMap_ =
     new HashMap(); /**< The map key is the C-KEY name. The value is the encoded key Blob. */
+  private final Link dKeyLink_;
   private final HashMap dKeyMap_ =
     new HashMap(); /**< The map key is the D-KEY name. The value is the encoded key Blob. */
+  private static final Link NO_LINK = new Link();
   private static final Logger logger_ = Logger.getLogger(Consumer.class.getName());
 }

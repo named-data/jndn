@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 Regents of the University of California.
+ * Copyright (C) 2015-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt unit tests
  * https://github.com/named-data/ndn-group-encrypt/blob/master/tests/unit-tests/encrypted-content.t.cpp
@@ -95,7 +95,7 @@ public class TestEncryptedContent {
   {
     // Check default settings.
     EncryptedContent content = new EncryptedContent();
-    assertEquals(null, content.getAlgorithmType());
+    assertEquals(EncryptAlgorithmType.NONE, content.getAlgorithmType());
     assertEquals(true, content.getPayload().isNull());
     assertEquals(true, content.getInitialVector().isNull());
     assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());
@@ -301,7 +301,7 @@ public class TestEncryptedContent {
   testSetterGetter() throws EncodingException
   {
     EncryptedContent content = new EncryptedContent();
-    assertEquals(null, content.getAlgorithmType());
+    assertEquals(EncryptAlgorithmType.NONE, content.getAlgorithmType());
     assertEquals(true, content.getPayload().isNull());
     assertEquals(true, content.getInitialVector().isNull());
     assertEquals(KeyLocatorType.NONE, content.getKeyLocator().getType());

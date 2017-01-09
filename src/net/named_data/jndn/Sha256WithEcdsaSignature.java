@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2016 Regents of the University of California.
+ * Copyright (C) 2013-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 
 package net.named_data.jndn;
 
+import net.named_data.jndn.security.ValidityPeriod;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCounter;
 
@@ -66,6 +67,13 @@ public class Sha256WithEcdsaSignature extends Signature {
   getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
 
   /**
+   * Get the validity period.
+   * @return The validity period.
+   */
+  public final ValidityPeriod
+  getValidityPeriod() { return (ValidityPeriod)validityPeriod_.get(); }
+
+  /**
    * Set the signature bytes to the given value.
    * @param signature A Blob with the signature bytes.
    */
@@ -93,6 +101,7 @@ public class Sha256WithEcdsaSignature extends Signature {
   {
     // Make sure each of the checkChanged is called.
     boolean changed = keyLocator_.checkChanged();
+    changed = validityPeriod_.checkChanged() || changed;
     if (changed)
       // A child object has changed, so update the change count.
       ++changeCount_;
@@ -102,5 +111,6 @@ public class Sha256WithEcdsaSignature extends Signature {
 
   private Blob signature_ = new Blob();
   private final ChangeCounter keyLocator_ = new ChangeCounter(new KeyLocator());
+  private final ChangeCounter validityPeriod_ = new ChangeCounter(new ValidityPeriod());
   private long changeCount_ = 0;
 }

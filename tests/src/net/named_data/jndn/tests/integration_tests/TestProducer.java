@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 Regents of the University of California.
+ * Copyright (C) 2015-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt unit tests
  * https://github.com/named-data/ndn-group-encrypt/blob/master/tests/unit-tests/producer.t.cpp
@@ -40,6 +40,7 @@ import javax.crypto.NoSuchPaddingException;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.Link;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnNetworkNack;
@@ -453,6 +454,70 @@ public class TestProducer {
     // out. The result vector should not contain elements that have timed out.
     ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
+    producer.createContentKey
+      (testTime,
+       new Producer.OnEncryptedKeys() {
+         public void onEncryptedKeys(List result) {
+           assertEquals(4, timeoutCount[0]);
+           assertEquals(0, result.size());
+         }
+       });
+  }
+
+  @Test
+  public void
+  testProducerWithLink()
+    throws ParseException, ProducerDb.Error, IOException, SecurityException
+  {
+    Name prefix = new Name("/prefix");
+    Name suffix = new Name("/suffix");
+    final Name expectedInterest = new Name(prefix);
+    expectedInterest.append(Encryptor.NAME_COMPONENT_READ);
+    expectedInterest.append(suffix);
+    expectedInterest.append(Encryptor.NAME_COMPONENT_E_KEY);
+
+    double testTime = fromIsoString("20150101T100001");
+
+    final int[] timeoutCount = new int[] { 0 };
+
+    // Prepare a TestFace to instantly answer calls to expressInterest.
+    class TestFace extends Face {
+      public TestFace()
+      {
+        super("localhost");
+      }
+
+      public long
+      expressInterest
+        (Interest interest, OnData onData, OnTimeout onTimeout,
+         OnNetworkNack onNetworkNack, WireFormat wireFormat) 
+           throws IOException
+      {
+        assertEquals(expectedInterest, interest.getName());
+        try {
+          assertEquals(3, interest.getLink().getDelegations().size());
+        } catch (EncodingException ex) {
+          fail("Error in getLink: " + ex);
+        }
+        ++timeoutCount[0];
+        onTimeout.onTimeout(interest);
+
+        return 0;
+      }
+    }
+
+    TestFace face = new TestFace();
+
+    // Verify that if no response is received, the producer appropriately times
+    // out. The result vector should not contain elements that have timed out.
+    Link link = new Link();
+    link.addDelegation(10,  new Name("/test1"));
+    link.addDelegation(20,  new Name("/test2"));
+    link.addDelegation(100, new Name("/test3"));
+    keyChain.sign(link);
+    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
+    Producer producer = new Producer
+      (prefix, suffix, face, keyChain, testDb, 3, link);
     producer.createContentKey
       (testTime,
        new Producer.OnEncryptedKeys() {

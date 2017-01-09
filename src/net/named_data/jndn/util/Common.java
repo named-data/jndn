@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2016 Regents of the University of California.
+ * Copyright (C) 2014-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -219,6 +220,30 @@ public class Common {
     } catch (Exception ex) {
       throw new UnsupportedOperationException("base64Decode: Error invoking method: " + ex);
     }
+  }
+
+  /**
+   * Convert the milliseconds to a Date object. This is a centralized utility
+   * method to support portability.
+   * @param millisecondsSince1970 The milliseconds since 1970.
+   * @return A new Date object.
+   */
+  public static Date
+  millisecondsSince1970ToDate(long millisecondsSince1970)
+  {
+    return new Date(millisecondsSince1970);
+  }
+
+  /**
+   * Convert a Date object milliseconds. This is a centralized utility
+   * method to support portability.
+   * @param date the Date object.
+   * @return The milliseconds since 1970.
+   */
+  public static long
+  dateToMillisecondsSince1970(Date date)
+  {
+    return date.getTime();
   }
 
   /**

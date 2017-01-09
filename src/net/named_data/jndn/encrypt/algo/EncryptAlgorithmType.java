@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 Regents of the University of California.
+ * Copyright (C) 2015-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt https://github.com/named-data/ndn-group-encrypt
  *
@@ -21,6 +21,7 @@
 package net.named_data.jndn.encrypt.algo;
 
 public enum EncryptAlgorithmType {
+  NONE(-1),
   // These correspond to the TLV codes.
   AesEcb(0),
   AesCbc(1),

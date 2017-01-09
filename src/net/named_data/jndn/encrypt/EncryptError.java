@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2016 Regents of the University of California.
+ * Copyright (C) 2016-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,6 +31,7 @@ public class EncryptError {
     InvalidEncryptedFormat(33),
     NoDecryptKey(34),
     EncryptionFailure(35),
+    DataRetrievalFailure(36),
     SecurityException(100),
     IOException(102);
 

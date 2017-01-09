@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2016 Regents of the University of California.
+ * Copyright (C) 2016-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN unit-tests by Adeola Bannis.
  *
@@ -42,7 +42,7 @@ import org.junit.Before;
 
 import org.junit.Test;
 
-public class TestFaceRegisterMethods {
+public class TestFaceCallRegisterMethods {
   Face faceIn;
   Face faceOut;
   KeyChain keyChain;
@@ -184,5 +184,5 @@ public class TestFaceRegisterMethods {
   public static double
   getNowMilliseconds() { return (double)System.currentTimeMillis(); }
   private static final Logger logger = Logger.getLogger
-    (TestFaceRegisterMethods.class.getName());
+    (TestFaceCallRegisterMethods.class.getName());
 }

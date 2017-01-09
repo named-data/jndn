@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 Regents of the University of California.
+ * Copyright (C) 2015-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN ndn_regex.py by Adeola Bannis.
  * Originally from Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>.
@@ -47,7 +47,8 @@ public class NdnRegexMatcher {
 
     pattern = pattern.replaceAll("<>", "(?:<.+?>)");
     pattern = pattern.replaceAll(">", "");
-    pattern = pattern.replaceAll("<(?!!)", "/");
+    // Explicitly use regex replace for portability.
+    pattern = Pattern.compile("<(?!!)").matcher(pattern).replaceAll("/");
 
     Matcher match = Pattern.compile(pattern).matcher(nameUri);
     if (match.find())
