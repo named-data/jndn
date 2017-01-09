@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.TimeZone;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
@@ -178,6 +179,14 @@ public class Certificate extends Data {
   {
     double now = Common.getNowMilliseconds();
     return now > notAfter_;
+  }
+
+  public final boolean
+  isInValidityPeriod(double time)
+  {
+    // Debug: Generalize this from Sha256WithRsaSignature.
+    return ((Sha256WithRsaSignature)getSignature()).getValidityPeriod().isValid
+      (time);
   }
 
   /**
