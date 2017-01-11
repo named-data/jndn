@@ -23,7 +23,6 @@ package net.named_data.jndn.encrypt;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -171,8 +170,9 @@ public class Schedule {
     // Encode backwards.
     // Encode the blackIntervalList.
     int saveLengthForList = encoder.getLength();
-    for (Iterator i = blackIntervalList_.descendingIterator(); i.hasNext(); ) {
-      RepetitiveInterval element = (RepetitiveInterval)i.next();
+    Object[] array = blackIntervalList_.toArray();
+    for (int i = array.length - 1; i >= 0; --i) {
+      RepetitiveInterval element = (RepetitiveInterval)array[i];
       encodeRepetitiveInterval(element, encoder);
     }
     encoder.writeTypeAndLength
@@ -180,8 +180,9 @@ public class Schedule {
 
     // Encode the whiteIntervalList.
     saveLengthForList = encoder.getLength();
-    for (Iterator i = whiteIntervalList_.descendingIterator(); i.hasNext(); ) {
-      RepetitiveInterval element = (RepetitiveInterval)i.next();
+    array = whiteIntervalList_.toArray();
+    for (int i = array.length - 1; i >= 0; --i) {
+      RepetitiveInterval element = (RepetitiveInterval)array[i];
       encodeRepetitiveInterval(element, encoder);
     }
     encoder.writeTypeAndLength
