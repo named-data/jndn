@@ -45,6 +45,7 @@ public class Sha256WithRsaSignature extends Signature {
   {
     signature_ = signature.signature_;
     keyLocator_.set(new KeyLocator(signature.getKeyLocator()));
+    validityPeriod_.set(new ValidityPeriod(signature.getValidityPeriod()));
   }
 
   /**
@@ -89,7 +90,20 @@ public class Sha256WithRsaSignature extends Signature {
   setKeyLocator(KeyLocator keyLocator)
   {
     keyLocator_.set
-      ((keyLocator == null ? new KeyLocator() : new KeyLocator(keyLocator)));
+      (keyLocator == null ? new KeyLocator() : new KeyLocator(keyLocator));
+    ++changeCount_;
+  }
+
+  /**
+   * Set the validity period to a copy of the given ValidityPeriod.
+   * @param validityPeriod The ValidityPeriod which is copied.
+   */
+  public final void
+  setValidityPeriod(ValidityPeriod validityPeriod)
+  {
+    validityPeriod_.set
+      (validityPeriod == null ?
+       new ValidityPeriod() : new ValidityPeriod(validityPeriod));
     ++changeCount_;
   }
 
