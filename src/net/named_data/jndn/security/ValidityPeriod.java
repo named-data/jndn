@@ -31,6 +31,17 @@ public class ValidityPeriod implements ChangeCountable {
   public ValidityPeriod() {}
 
   /**
+   * Create a new ValidityPeriod with a copy of the fields in the given
+   * validityPeriod.
+   * @param validityPeriod The ValidityPeriod to copy.
+   */
+  public ValidityPeriod(ValidityPeriod validityPeriod)
+  {
+    notBefore_ = validityPeriod.notBefore_;
+    notAfter_ = validityPeriod.notAfter_;
+  }
+
+  /**
    * Check if the period has been set.
    * @return True if the period has been set, false if the period is not
    * specified (after calling the default constructor or clear).
