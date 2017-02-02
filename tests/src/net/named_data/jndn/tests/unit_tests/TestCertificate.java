@@ -2,6 +2,7 @@
  * Copyright (C) 2014-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From ndn-cxx Certificate unit tests:
+ * https://github.com/named-data/ndn-cxx/blob/master/tests/unit-tests/security/v2/certificate.t.cpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -23,10 +24,12 @@ package net.named_data.jndn.tests.unit_tests;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.security.ValidityPeriod;
 import net.named_data.jndn.security.certificate.Certificate;
 import net.named_data.jndn.util.Blob;
 import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
@@ -85,13 +88,13 @@ public class TestCertificate {
 
   private static final ByteBuffer CERT = toBuffer(new int[] {
 0x06, 0xFD, 0x01, 0xBB, // Data
-  0x07, 0x33, // Name /ndn/site1/ksk-1416425377094/KEY/0123/%FD%00%00%01I%C9%8B
+  0x07, 0x33, // Name /ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B
     0x08, 0x03, 0x6E, 0x64, 0x6E,
     0x08, 0x05, 0x73, 0x69, 0x74, 0x65, 0x31,
+    0x08, 0x03, 0x4B, 0x45, 0x59,
     0x08, 0x11,
       0x6B, 0x73, 0x6B, 0x2D, 0x31, 0x34, 0x31, 0x36, 0x34, 0x32, 0x35, 0x33, 0x37, 0x37, 0x30, 0x39,
       0x34,
-    0x08, 0x03, 0x4B, 0x45, 0x59,
     0x08, 0x04, 0x30, 0x31, 0x32, 0x33,
     0x08, 0x07, 0xFD, 0x00, 0x00, 0x01, 0x49, 0xC9, 0x8B,
   0x14, 0x09, // MetaInfo
@@ -110,18 +113,18 @@ public class TestCertificate {
     0xEF, 0xED, 0x35, 0xE7, 0x7A, 0x62, 0xEA, 0x76, 0x7C, 0xBB, 0x08, 0x26, 0xC7, 0x02, 0x01, 0x11,
   0x16, 0x55, // SignatureInfo
     0x1B, 0x01, 0x01, // SignatureType
-    0x1C, 0x26, // KeyLocator: /ndn/site1/ksk-2516425377094/KEY
+    0x1C, 0x26, // KeyLocator: /ndn/site1/KEY/ksk-2516425377094
       0x07, 0x24,
         0x08, 0x03, 0x6E, 0x64, 0x6E,
         0x08, 0x05, 0x73, 0x69, 0x74, 0x65, 0x31,
+        0x08, 0x03, 0x4B, 0x45, 0x59,
         0x08, 0x11,
           0x6B, 0x73, 0x6B, 0x2D, 0x32, 0x35, 0x31, 0x36, 0x34, 0x32, 0x35, 0x33, 0x37, 0x37, 0x30, 0x39,
           0x34,
-        0x08, 0x03, 0x4B, 0x45, 0x59,
-    0xFD, 0x00, 0xFD, 0x26, // ValidityPeriod
-      0xFD, 0x00, 0xFE, 0x0F, // NotBefore = 20150814T223739
+    0xFD, 0x00, 0xFD, 0x26, // ValidityPeriod: (20150814T223739, 20150818T223738)
+      0xFD, 0x00, 0xFE, 0x0F,
         0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x31, 0x34, 0x54, 0x32, 0x32, 0x33, 0x37, 0x33, 0x39,
-      0xFD, 0x00, 0xFF, 0x0F, // NotAfter =  20150818T223739
+      0xFD, 0x00, 0xFF, 0x0F,
         0x32, 0x30, 0x31, 0x35, 0x30, 0x38, 0x31, 0x38, 0x54, 0x32, 0x32, 0x33, 0x37, 0x33, 0x38,
   0x17, 0x80, // SignatureValue
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -133,6 +136,28 @@ public class TestCertificate {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
   });
+
+  private static Sha256WithRsaSignature
+  generateFakeSignature() throws ParseException
+  {
+    Sha256WithRsaSignature signatureInfo = new Sha256WithRsaSignature();
+
+    Name keyLocatorName = new Name("/ndn/site1/KEY/ksk-2516425377094");
+    KeyLocator keyLocator = new KeyLocator();
+    keyLocator.setType(KeyLocatorType.KEYNAME);
+    keyLocator.setKeyName(keyLocatorName);
+    signatureInfo.setKeyLocator(keyLocator);
+
+    ValidityPeriod period = new ValidityPeriod();
+    period.setPeriod(fromIsoString("20141111T050000"),
+                     fromIsoString("20141111T060000"));
+    signatureInfo.setValidityPeriod(period);
+
+    Blob block2 = new Blob(SIG_VALUE, false);
+    signatureInfo.setSignature(block2);
+
+    return signatureInfo;
+  }
 
   @Test
   public void
@@ -151,28 +176,14 @@ public class TestCertificate {
   {
     Certificate certificate = new Certificate();
     certificate.setName
-      (new Name("/ndn/site1/ksk-1416425377094/KEY/0123/%FD%00%00%01I%C9%8B"));
+      (new Name("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B"));
     certificate.getMetaInfo().setFreshnessPeriod(3600 * 1000.0);
     certificate.setContent(new Blob(PUBLIC_KEY, false));
+    certificate.setSignature(generateFakeSignature());
 
-    certificate.setSignature(new Sha256WithRsaSignature());
-    Sha256WithRsaSignature signatureInfo =
-      (Sha256WithRsaSignature)certificate.getSignature();
-
-    signatureInfo.getKeyLocator().setType(KeyLocatorType.KEYNAME);
-    signatureInfo.getKeyLocator().setKeyName
-      (new Name("/ndn/site1/ksk-2516425377094/KEY"));
-
-    double notBefore = fromIsoString("20150819T120000");
-    double notAfter =  fromIsoString("20150823T120000");
-    signatureInfo.getValidityPeriod().setPeriod(notBefore, notAfter);
-
-    signatureInfo.setSignature(new Blob(SIG_VALUE, false));
-
-    assertEquals(false, certificate.isInValidityPeriod(fromIsoString("20150819T115959")));
-    assertEquals(true,  certificate.isInValidityPeriod(fromIsoString("20150819T120000")));
-    assertEquals(true,  certificate.isInValidityPeriod(fromIsoString("20150823T120000")));
-    assertEquals(false, certificate.isInValidityPeriod(fromIsoString("20150823T120001")));
-    assertEquals(false, certificate.isInValidityPeriod(fromIsoString("20150921T130000")));
+    assertEquals(true,  certificate.isInValidityPeriod(fromIsoString("20141111T050000")));
+    assertEquals(true,  certificate.isInValidityPeriod(fromIsoString("20141111T060000")));
+    assertEquals(false, certificate.isInValidityPeriod(fromIsoString("20141111T045959")));
+    assertEquals(false, certificate.isInValidityPeriod(fromIsoString("20141111T060001")));
   }
 }
