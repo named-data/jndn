@@ -185,6 +185,55 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
   }
 
   /**
+   * A PrefixAndSessionNo holds a user's data prefix and session number (used to
+   * return a list from getProducerPrefixes).
+   */
+  public static class PrefixAndSessionNo {
+    public PrefixAndSessionNo(String dataPrefixUri, long sessionNo)
+    {
+      dataPrefixUri_ = dataPrefixUri;
+      sessionNo_ = sessionNo;
+    }
+
+    /**
+     * Get the application data prefix for this sync state message.
+     * @return The application data prefix as a Name URI string.
+     */
+    public final String
+    getDataPrefix() { return dataPrefixUri_; }
+
+    /**
+     * Get the session number associated with the application data prefix for
+     * this sync state message.
+     * @return The session number.
+     */
+    public final long
+    getSessionNo() { return sessionNo_; }
+
+    private final String dataPrefixUri_;
+    private final long sessionNo_;
+  }
+
+  /**
+   * Get a copy of the current list of producer data prefixes, and the
+   * associated session number. You can use these in getProducerSequenceNo().
+   * This includes the prefix for this user.
+   * @return A copy of the list of each producer prefix and session number.
+   */
+  public final List<PrefixAndSessionNo>
+  getProducerPrefixes()
+  {
+    List<PrefixAndSessionNo> prefixes = new ArrayList<PrefixAndSessionNo>();
+
+    for (int i = 0; i < digestTree_.size(); ++i) {
+      DigestTree.Node node = digestTree_.get(i);
+      prefixes.add
+        (new PrefixAndSessionNo(node.getDataPrefix(), node.getSessionNo()));
+    }
+    return prefixes;
+  }
+
+  /**
    * Get the current sequence number in the digest tree for the given
    * producer dataPrefix and sessionNo.
    * @param dataPrefix The producer data prefix as a Name URI string.

@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.14 (2017-01-04)
+Interim changes since jNDN v0.14 (2017-02-13)
 ---------------------------------------------
 
 Breaking Changes
@@ -8,6 +8,7 @@ Breaking Changes
 Changes
 * https://redmine.named-data.net/issues/3543 Support for Link objects in the
   encrypt package Producer and Consumer.
+* ChronoSync2013: Added method getProducerPrefixes().
 
 jNDN v0.14 (2016-11-02)
 -----------------------
