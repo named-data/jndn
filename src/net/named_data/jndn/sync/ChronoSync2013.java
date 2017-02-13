@@ -196,15 +196,14 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
     }
 
     /**
-     * Get the application data prefix for this sync state message.
+     * Get the application data prefix.
      * @return The application data prefix as a Name URI string.
      */
     public final String
     getDataPrefix() { return dataPrefixUri_; }
 
     /**
-     * Get the session number associated with the application data prefix for
-     * this sync state message.
+     * Get the session number associated with the application data prefix.
      * @return The session number.
      */
     public final long
