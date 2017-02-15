@@ -27,8 +27,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A ConfigFile locates, opens, and parses a library configuration file, and
@@ -89,7 +87,7 @@ public class ConfigFile {
   {
     // NOTE: Use File because java.nio.file.Path is not available before Java 7.
     File filePath = new File
-      (new File(System.getProperty("user.home", "."), ".ndn"), "client.conf");
+      (new File(Common.getHomeDirectory(), ".ndn"), "client.conf");
     if (filePath.exists())
       return filePath.getAbsolutePath();
 
