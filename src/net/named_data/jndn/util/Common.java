@@ -247,6 +247,13 @@ public class Common {
   }
 
   /**
+   * Return true if the platform is OS X.
+   * @return True if OS X, false if not.
+   */
+  public static boolean
+  platformIsOSX() { return System.getProperty("os.name").equals("Mac OS X"); }
+
+  /**
    * The practical limit of the size of a network-layer packet. If a packet is
    * larger than this, the library or application MAY drop it. This constant is
    * defined in this low-level class so that internal code can use it, but
