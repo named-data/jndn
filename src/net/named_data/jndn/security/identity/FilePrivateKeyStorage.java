@@ -66,7 +66,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   public FilePrivateKeyStorage()
   {
     keyStorePath_ = new File
-      (getDefaultDirecoryPath(System.getProperty("user.home", ".")));
+      (getDefaultDirecoryPath(Common.getHomeDirectory()));
     keyStorePath_.mkdirs();
   }
 

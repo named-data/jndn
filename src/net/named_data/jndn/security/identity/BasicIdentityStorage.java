@@ -37,6 +37,7 @@ import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 /**
  * BasicIdentityStorage extends IdentityStorage to implement basic storage of
@@ -51,7 +52,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   public BasicIdentityStorage() throws SecurityException
   {
     // NOTE: Use File because java.nio.file.Path is not available before Java 7.
-    File identityDir = new File(System.getProperty("user.home", "."), ".ndn");
+    File identityDir = new File(Common.getHomeDirectory(), ".ndn");
     identityDir.mkdirs();
     File databasePath = new File(identityDir, "ndnsec-public-info.db");
     construct(databasePath.getAbsolutePath());
