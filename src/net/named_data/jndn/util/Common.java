@@ -19,6 +19,7 @@
 
 package net.named_data.jndn.util;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -258,12 +259,12 @@ public class Common {
 
   /**
    * Get the user's home directory.
-   * @return The home directory, or "." if unknown.
+   * @return The home directory as a File object, or new File(".") if unknown.
    */
-  public static String
+  public static File
   getHomeDirectory()
   {
-    return System.getProperty("user.home", ".");
+    return new File(System.getProperty("user.home", "."));
   }
 
   /**
