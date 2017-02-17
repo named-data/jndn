@@ -60,7 +60,7 @@ public class TestEncryptor {
     return result;
   }
 
-  interface SymmetricEncryptInput
+  public interface SymmetricEncryptInput
   {
     String testName();
     Name keyName();
@@ -180,7 +180,7 @@ public class TestEncryptor {
     }
   }
 
-  interface AsymmetricEncryptInput
+  public interface AsymmetricEncryptInput
   {
     String testName();
     EncryptAlgorithmType type();
