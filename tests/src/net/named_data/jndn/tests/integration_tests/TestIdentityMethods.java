@@ -69,7 +69,7 @@ public class TestIdentityMethods {
     databaseFilePath = new File(policyConfigDirectory, "test-public-info.db");
     databaseFilePath.delete();
 
-    identityStorage = new BasicIdentityStorage(databaseFilePath.getPath());
+    identityStorage = new BasicIdentityStorage(databaseFilePath.getAbsolutePath());
     identityManager = new IdentityManager
       (identityStorage, new FilePrivateKeyStorage());
     policyManager = new SelfVerifyPolicyManager(identityStorage);

@@ -414,7 +414,7 @@ public class TestGroupConsumer implements Consumer.Friend {
     // Create the consumer.
     Consumer consumer = new Consumer
       (face, keyChain, groupName, uName,
-       new Sqlite3ConsumerDb(databaseFilePath.getPath()));
+       new Sqlite3ConsumerDb(databaseFilePath.getAbsolutePath()));
     consumer.addDecryptionKey(uKeyName, fixtureUDKeyBlob);
 
     final int[] finalCount = new int[] { 0 };
@@ -512,7 +512,7 @@ public class TestGroupConsumer implements Consumer.Friend {
 
     Consumer consumer = new Consumer
       (face, keyChain, groupName, uName,
-       new Sqlite3ConsumerDb(databaseFilePath.getPath()), ckeyLink, dkeyLink);
+       new Sqlite3ConsumerDb(databaseFilePath.getAbsolutePath()), ckeyLink, dkeyLink);
     consumer.addDecryptionKey(uKeyName, fixtureUDKeyBlob);
 
     final int[] finalCount = new int[] { 0 };

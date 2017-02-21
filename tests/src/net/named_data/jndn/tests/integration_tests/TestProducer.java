@@ -210,7 +210,7 @@ public class TestProducer {
 
     // Verify that the content key is correctly encrypted for each domain, and
     // the produce method encrypts the provided data with the same content key.
-    final ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
+    final ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getAbsolutePath());
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
     final Blob[] contentKey = new Blob[] { null };
 
@@ -392,7 +392,7 @@ public class TestProducer {
 
     // Verify that if a key is found, but not within the right time slot, the
     // search is refined until a valid time slot is found.
-    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
+    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getAbsolutePath());
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
     producer.createContentKey
       (testTime,
@@ -452,7 +452,7 @@ public class TestProducer {
 
     // Verify that if no response is received, the producer appropriately times
     // out. The result vector should not contain elements that have timed out.
-    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
+    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getAbsolutePath());
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
     producer.createContentKey
       (testTime,
@@ -515,7 +515,7 @@ public class TestProducer {
     link.addDelegation(20,  new Name("/test2"));
     link.addDelegation(100, new Name("/test3"));
     keyChain.sign(link);
-    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getPath());
+    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getAbsolutePath());
     Producer producer = new Producer
       (prefix, suffix, face, keyChain, testDb, 3, link);
     producer.createContentKey

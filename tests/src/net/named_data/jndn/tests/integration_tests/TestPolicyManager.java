@@ -266,7 +266,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     privateKeyStorage_ = new MemoryPrivateKeyStorage();
     identityManager_ = new IdentityManager(identityStorage_, privateKeyStorage_);
     policyManager_ = new ConfigPolicyManager
-      (new File(policyConfigDirectory_, "simple_rules.conf").getPath());
+      (new File(policyConfigDirectory_, "simple_rules.conf").getAbsolutePath());
 
     identityName_ = new Name("/TestConfigPolicyManager/temp");
     // To match the anchor cert.

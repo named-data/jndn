@@ -130,7 +130,7 @@ public class TestGroupManagerDb {
     databaseFilePath = new File(policyConfigDirectory, "test.db");
     databaseFilePath.delete();
 
-    database = new Sqlite3GroupManagerDb(databaseFilePath.getPath());
+    database = new Sqlite3GroupManagerDb(databaseFilePath.getAbsolutePath());
   }
 
   @After

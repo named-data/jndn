@@ -60,7 +60,7 @@ public class TestProducerDb {
   testDatabaseFunctions() throws ProducerDb.Error, ParseException
   {
     // Test construction.
-    ProducerDb database = new Sqlite3ProducerDb(databaseFilePath.getPath());
+    ProducerDb database = new Sqlite3ProducerDb(databaseFilePath.getAbsolutePath());
 
     // Create member.
     AesKeyParams params = new AesKeyParams(128);

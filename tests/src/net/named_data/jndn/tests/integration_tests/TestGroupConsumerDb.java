@@ -88,7 +88,7 @@ public class TestGroupConsumerDb {
   testOperateAesDecryptionKey() throws ConsumerDb.Error
   {
     // Test construction.
-    ConsumerDb database = new Sqlite3ConsumerDb(databaseFilePath.getPath());
+    ConsumerDb database = new Sqlite3ConsumerDb(databaseFilePath.getAbsolutePath());
 
     // Generate key blobs.
     Blob[] encryptionKeyBlob = { null };
@@ -116,7 +116,7 @@ public class TestGroupConsumerDb {
       DerDecodingException
   {
     // Test construction.
-    ConsumerDb database = new Sqlite3ConsumerDb(databaseFilePath.getPath());
+    ConsumerDb database = new Sqlite3ConsumerDb(databaseFilePath.getAbsolutePath());
 
     // Generate key blobs.
     Blob[] encryptionKeyBlob = { null };
