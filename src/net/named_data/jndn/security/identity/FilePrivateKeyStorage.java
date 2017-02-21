@@ -106,7 +106,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
   getDefaultDirecoryPath(String filesRoot)
   {
     // NOTE: Use File because java.nio.file.Path is not available before Java 7.
-    return new File(new File(filesRoot, ".ndn"), "ndnsec-tpm-file").getAbsolutePath();
+    return new File(new File(new File(filesRoot), ".ndn"), "ndnsec-tpm-file").getAbsolutePath();
   }
 
   /**
