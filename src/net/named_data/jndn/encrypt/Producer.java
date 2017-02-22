@@ -245,7 +245,6 @@ public class Producer {
     // Check if the current E-KEYs can cover the content key.
     Exclude timeRange = new Exclude();
     excludeAfter(timeRange, new Name.Component(Schedule.toIsoString(timeSlot)));
-    eKeyInfo_.entrySet().iterator();
     for (Object entryObj : eKeyInfo_.entrySet()) {
       // For each current E-KEY.
       Map.Entry entry = (Map.Entry)entryObj;
