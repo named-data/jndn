@@ -24,7 +24,6 @@ import net.named_data.jndn.encrypt.algo.Encryptor;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -110,8 +109,8 @@ public class GroupManager {
     result.add(data);
 
     // Encrypt the private key with the public key from each member's certificate.
-    for (Iterator i = memberKeys.entrySet().iterator(); i.hasNext(); ) {
-      Map.Entry entry = (Map.Entry)i.next();
+    for (Object entryObj : memberKeys.entrySet()) {
+      Map.Entry entry = (Map.Entry)entryObj;
       Name keyName = (Name)entry.getKey();
       Blob certificateKey = (Blob)entry.getValue();
 
