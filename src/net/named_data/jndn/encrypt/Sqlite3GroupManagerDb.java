@@ -66,9 +66,6 @@ public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
       // Use "try/finally instead of "try-with-resources" or "using" which are
       // not supported before Java 7.
       try {
-        // Enable foreign keys.
-        statement.executeUpdate(PRAGMA_foreign_keys);
-
         // Initialize database-specific tables.
         statement.executeUpdate(INITIALIZATION1);
         statement.executeUpdate(INITIALIZATION2);
@@ -269,10 +266,26 @@ public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
   public void
   deleteSchedule(String name) throws GroupManagerDb.Error
   {
+    int scheduleId = getScheduleId(name);
+    if (scheduleId == -1)
+      return;
+
     try {
+      // First delete the members. We don't use FOREIGN KEY because some SQLite
+      // implementations don's support it.
+      PreparedStatement membersStatement = database_.prepareStatement
+        (DELETE_deleteScheduleMembers);
+      membersStatement.setInt(1, scheduleId);
+
+      try {
+        membersStatement.executeUpdate();
+      } finally {
+        membersStatement.close();
+      }
+
       PreparedStatement statement = database_.prepareStatement
         (DELETE_deleteSchedule);
-      statement.setString(1, name);
+      statement.setInt(1, scheduleId);
 
       try {
         statement.executeUpdate();
