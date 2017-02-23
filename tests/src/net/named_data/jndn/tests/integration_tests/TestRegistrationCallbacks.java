@@ -26,6 +26,7 @@ import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.OnRegisterSuccess;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.util.Common;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,4 +96,7 @@ public class TestRegistrationCallbacks {
 
     public int count = 0;
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
