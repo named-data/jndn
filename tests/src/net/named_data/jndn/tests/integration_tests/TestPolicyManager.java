@@ -420,7 +420,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
   {
     StringBuilder encodedData = new StringBuilder();
     BufferedReader dataFile = new BufferedReader(new FileReader
-      (new File(policyConfigDirectory_, "testData")));
+      (new File(policyConfigDirectory_, "testData").getAbsolutePath()));
     // Use "try/finally instead of "try-with-resources" or "using"
     // which are not supported before Java 7.
     try {
@@ -458,7 +458,8 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
     keyChain_.signByIdentity(cert, identityName_);
     Blob signedCertBlob = cert.wireEncode();
     String encodedCert = Common.base64Encode(signedCertBlob.getImmutableArray());
-    BufferedWriter certFile = new BufferedWriter(new FileWriter(testCertFile_));
+    BufferedWriter certFile = new BufferedWriter
+      (new FileWriter(testCertFile_.getAbsolutePath()));
     try {
       certFile.write(encodedCert, 0, encodedCert.length());
       certFile.flush();
