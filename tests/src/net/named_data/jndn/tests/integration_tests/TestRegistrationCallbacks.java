@@ -19,6 +19,7 @@
 
 package src.net.named_data.jndn.tests.integration_tests;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Name;
@@ -27,7 +28,7 @@ import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.OnRegisterSuccess;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Common;
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,14 +69,14 @@ public class TestRegistrationCallbacks {
         @Override
         public void onRegisterFailed(Name prefix) {
           long endTime = System.currentTimeMillis();
-          logger.info("Registration failed in (ms): " + (endTime - startTime));
+          logger.log(Level.INFO, "Registration failed in (ms): " + (endTime - startTime));
         }
       }, new OnRegisterSuccess() {
         @Override
         public void onRegisterSuccess(Name prefix, long registeredPrefixId) {
           long endTime = System.currentTimeMillis();
           counter.count++;
-          logger.info("Registration succeeded in (ms): " + (endTime - startTime));
+          logger.log(Level.INFO, "Registration succeeded in (ms): " + (endTime - startTime));
         }
       });
 
@@ -86,7 +87,7 @@ public class TestRegistrationCallbacks {
       Thread.sleep(PROCESS_EVENTS_INTERVAL_MS);
     }
 
-    Assert.assertEquals(1, counter.count);
+    assertEquals(1, counter.count);
   }
 
   /**
