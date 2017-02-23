@@ -91,7 +91,7 @@ public class TestRegistrationCallbacks {
   /**
    * Helper class for enclosing a final reference int the callbacks
    */
-  private class Counter {
+  public class Counter {
 
     public int count = 0;
   }
