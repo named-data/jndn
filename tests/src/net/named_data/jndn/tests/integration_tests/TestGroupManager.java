@@ -148,6 +148,8 @@ public class TestGroupManager implements GroupManager.Friend {
     certificate.setName(new Name("/ndn/memberA/KEY/ksk-123/ID-CERT/123"));
     PublicKey contentPublicKey = new PublicKey(encryptKeyBlob);
     certificate.setPublicKeyInfo(contentPublicKey);
+    certificate.setNotBefore(0);
+    certificate.setNotAfter(1000);
     certificate.encode();
 
     Blob signatureInfoBlob = new Blob(SIG_INFO, false);
