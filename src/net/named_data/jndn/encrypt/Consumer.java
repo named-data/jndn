@@ -633,8 +633,8 @@ public class Consumer {
    */
   public static void setFriendAccess(Friend friend)
   {
-    if (friend.getClass().getName().equals
-          ("src.net.named_data.jndn.tests.integration_tests.TestGroupConsumer"))
+    if (friend.getClass().getName().endsWith
+          ("net.named_data.jndn.tests.integration_tests.TestGroupConsumer"))
     {
       friend.setConsumerFriendAccess(new FriendAccessImpl());
     }

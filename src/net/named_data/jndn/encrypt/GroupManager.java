@@ -381,8 +381,8 @@ public class GroupManager {
    */
   public static void setFriendAccess(Friend friend)
   {
-    if (friend.getClass().getName().equals
-          ("src.net.named_data.jndn.tests.integration_tests.TestGroupManager"))
+    if (friend.getClass().getName().endsWith
+          ("net.named_data.jndn.tests.integration_tests.TestGroupManager"))
     {
       friend.setGroupManagerFriendAccess(new FriendAccessImpl());
     }
