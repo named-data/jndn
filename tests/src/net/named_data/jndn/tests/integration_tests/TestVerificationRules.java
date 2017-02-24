@@ -309,7 +309,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
   testHierarchical() throws IOException, SecurityException
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "/hierarchical_ruleset.conf").getAbsolutePath());
+      (new File(policyConfigDirectory, "hierarchical_ruleset.conf").getAbsolutePath());
 
     Name dataName1 = new Name("/SecurityTestSecRule/Basic/Data1");
     Name dataName2 = new Name("/SecurityTestSecRule/Basic/Longer/Data2");
@@ -357,7 +357,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
   testHyperRelation() throws IOException, SecurityException
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "/hyperrelation_ruleset.conf").getAbsolutePath());
+      (new File(policyConfigDirectory, "hyperrelation_ruleset.conf").getAbsolutePath());
 
     Name dataName = new Name("/SecurityTestSecRule/Basic/Longer/Data2");
     Data data1 = new Data(dataName);
