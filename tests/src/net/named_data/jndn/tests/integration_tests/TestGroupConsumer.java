@@ -370,19 +370,28 @@ public class TestGroupConsumer implements Consumer.Friend {
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException, SecurityException, ConsumerDb.Error
   {
-    final Data contentData = createEncryptedContent();
-    final Data cKeyData = createEncryptedCKey();
-    final Data dKeyData = createEncryptedDKey();
+    Data contentData = createEncryptedContent();
+    Data cKeyData = createEncryptedCKey();
+    Data dKeyData = createEncryptedDKey();
 
-    final int[] contentCount = new int[] { 0 };
-    final int[] cKeyCount = new int[] { 0 };
-    final int[] dKeyCount = new int[] { 0 };
+    int[] contentCount = new int[] { 0 };
+    int[] cKeyCount = new int[] { 0 };
+    int[] dKeyCount = new int[] { 0 };
 
     // Prepare a TestFace to instantly answer calls to expressInterest.
     class TestFace extends Face {
-      public TestFace()
+      public TestFace
+        (Data contentData, Data cKeyData, Data dKeyData, int[] contentCount,
+         int[] cKeyCount, int[] dKeyCount)
       {
         super("localhost");
+
+        contentData_ = contentData;
+        cKeyData_ = cKeyData;
+        dKeyData_ = dKeyData;
+        contentCount_ = contentCount;
+        cKeyCount_ = cKeyCount;
+        dKeyCount_ = dKeyCount;
       }
 
       public long
@@ -390,26 +399,35 @@ public class TestGroupConsumer implements Consumer.Friend {
         (Interest interest, OnData onData, OnTimeout onTimeout,
          OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
-        if (interest.matchesName(contentData.getName())) {
-          contentCount[0] = 1;
-          onData.onData(interest, contentData);
+        if (interest.matchesName(contentData_.getName())) {
+          contentCount_[0] = 1;
+          onData.onData(interest, contentData_);
         }
-        else if (interest.matchesName(cKeyData.getName())) {
-          cKeyCount[0] = 1;
-          onData.onData(interest, cKeyData);
+        else if (interest.matchesName(cKeyData_.getName())) {
+          cKeyCount_[0] = 1;
+          onData.onData(interest, cKeyData_);
         }
-        else if (interest.matchesName(dKeyData.getName())) {
-          dKeyCount[0] = 1;
-          onData.onData(interest, dKeyData);
+        else if (interest.matchesName(dKeyData_.getName())) {
+          dKeyCount_[0] = 1;
+          onData.onData(interest, dKeyData_);
         }
         else
           onTimeout.onTimeout(interest);
 
         return 0;
       }
+
+      private Data contentData_;
+      private Data cKeyData_;
+      private Data dKeyData_;
+
+      private int[] contentCount_;
+      private int[] cKeyCount_;
+      private int[] dKeyCount_;
     }
 
-    TestFace face = new TestFace();
+    TestFace face = new TestFace
+      (contentData, cKeyData, dKeyData, contentCount, cKeyCount, dKeyCount);
 
     // Create the consumer.
     Consumer consumer = new Consumer
@@ -446,19 +464,28 @@ public class TestGroupConsumer implements Consumer.Friend {
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException, SecurityException, ConsumerDb.Error
   {
-    final Data contentData = createEncryptedContent();
-    final Data cKeyData = createEncryptedCKey();
-    final Data dKeyData = createEncryptedDKey();
+    Data contentData = createEncryptedContent();
+    Data cKeyData = createEncryptedCKey();
+    Data dKeyData = createEncryptedDKey();
 
-    final int[] contentCount = new int[] { 0 };
-    final int[] cKeyCount = new int[] { 0 };
-    final int[] dKeyCount = new int[] { 0 };
+    int[] contentCount = new int[] { 0 };
+    int[] cKeyCount = new int[] { 0 };
+    int[] dKeyCount = new int[] { 0 };
 
     // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace extends Face {
-      public TestFace()
+    class TestFace2 extends Face {
+      public TestFace2
+        (Data contentData, Data cKeyData, Data dKeyData, int[] contentCount,
+         int[] cKeyCount, int[] dKeyCount)
       {
         super("localhost");
+
+        contentData_ = contentData;
+        cKeyData_ = cKeyData;
+        dKeyData_ = dKeyData;
+        contentCount_ = contentCount;
+        cKeyCount_ = cKeyCount;
+        dKeyCount_ = dKeyCount;
       }
 
       public long
@@ -472,26 +499,35 @@ public class TestGroupConsumer implements Consumer.Friend {
           fail("Error in getLink: " + ex);
         }
 
-        if (interest.matchesName(contentData.getName())) {
-          contentCount[0] = 1;
-          onData.onData(interest, contentData);
+        if (interest.matchesName(contentData_.getName())) {
+          contentCount_[0] = 1;
+          onData.onData(interest, contentData_);
         }
-        else if (interest.matchesName(cKeyData.getName())) {
-          cKeyCount[0] = 1;
-          onData.onData(interest, cKeyData);
+        else if (interest.matchesName(cKeyData_.getName())) {
+          cKeyCount_[0] = 1;
+          onData.onData(interest, cKeyData_);
         }
-        else if (interest.matchesName(dKeyData.getName())) {
-          dKeyCount[0] = 1;
-          onData.onData(interest, dKeyData);
+        else if (interest.matchesName(dKeyData_.getName())) {
+          dKeyCount_[0] = 1;
+          onData.onData(interest, dKeyData_);
         }
         else
           onTimeout.onTimeout(interest);
 
         return 0;
       }
+
+      private Data contentData_;
+      private Data cKeyData_;
+      private Data dKeyData_;
+
+      private int[] contentCount_;
+      private int[] cKeyCount_;
+      private int[] dKeyCount_;
     }
 
-    TestFace face = new TestFace();
+    TestFace2 face = new TestFace2
+      (contentData, cKeyData, dKeyData, contentCount, cKeyCount, dKeyCount);
 
     // Create the consumer.
     Link ckeyLink = new Link();
