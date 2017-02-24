@@ -74,7 +74,7 @@ class CallbackCounter implements OnData, OnTimeout, OnNetworkNack {
 
 public class TestFaceInterestMethods {
   public static double
-  getNowMilliseconds() { return (double)System.currentTimeMillis(); }
+  getNowMilliseconds() { return Common.getNowMilliseconds(); }
 
   // Returns a CallbackCounter object so we can test data callback, nack callback
   // and timeout behavior.

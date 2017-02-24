@@ -36,6 +36,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -182,7 +183,8 @@ public class TestFaceCallRegisterMethods {
   }
 
   public static double
-  getNowMilliseconds() { return (double)System.currentTimeMillis(); }
+  getNowMilliseconds() { return Common.getNowMilliseconds(); }
+
   private static final Logger logger = Logger.getLogger
     (TestFaceCallRegisterMethods.class.getName());
 }

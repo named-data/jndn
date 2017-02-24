@@ -46,7 +46,7 @@ import static org.junit.Assert.fail;
 
 public class TestIdentityMethods {
   private static double
-  getNowSeconds() { return (double)System.currentTimeMillis() / 1000.0; }
+  getNowSeconds() { return Common.getNowMilliseconds() / 1000.0; }
 
   private static String RSA_DER =
 "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuFoDcNtffwbfFix64fw0" +

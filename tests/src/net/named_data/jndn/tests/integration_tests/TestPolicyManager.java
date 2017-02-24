@@ -222,7 +222,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
 "BmWVlUfyAg8noGdPRS8MGQs24vw=";
 
   private static double
-  getNowSeconds() { return (double)System.currentTimeMillis() / 1000.0; }
+  getNowSeconds() { return Common.getNowMilliseconds() / 1000.0; }
 
   private static VerificationResult
   doVerify(PolicyManager policyManager, Data toVerify) throws SecurityException
