@@ -459,7 +459,7 @@ public class TestGroupConsumer implements Consumer.Friend {
 
   @Test
   public void
-  testCosumerWithLink()
+  testConsumerWithLink()
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException, SecurityException, ConsumerDb.Error
