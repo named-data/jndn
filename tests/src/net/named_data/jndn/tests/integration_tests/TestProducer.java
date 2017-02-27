@@ -182,9 +182,9 @@ public class TestProducer {
 
     int[] expressInterestCallCount = new int[] { 0 };
 
-    // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace extends Face {
-      public TestFace(Name timeMarker, int[] expressInterestCallCount)
+    // Prepare a LocalTestFace to instantly answer calls to expressInterest.
+    class LocalTestFace extends Face {
+      public LocalTestFace(Name timeMarker, int[] expressInterestCallCount)
       {
         super("localhost");
 
@@ -211,7 +211,7 @@ public class TestProducer {
       private int[] expressInterestCallCount_;
     }
 
-    TestFace face = new TestFace(timeMarker, expressInterestCallCount);
+    LocalTestFace face = new LocalTestFace(timeMarker, expressInterestCallCount);
 
     // Verify that the content key is correctly encrypted for each domain, and
     // the produce method encrypts the provided data with the same content key.
@@ -369,9 +369,9 @@ public class TestProducer {
 
     final int[] requestCount = new int[] { 0 };
 
-    // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace2 extends Face {
-      public TestFace2
+    // Prepare a LocalTestFace to instantly answer calls to expressInterest.
+    class LocalTestFace2 extends Face {
+      public LocalTestFace2
         (Name expectedInterest, Name timeMarkerFirstHop,
          Name timeMarkerSecondHop, Name timeMarkerThirdHop,
          int[] requestCount)
@@ -424,7 +424,7 @@ public class TestProducer {
       private final int[] requestCount_;
     }
 
-    TestFace2 face = new TestFace2
+    LocalTestFace2 face = new LocalTestFace2
       (expectedInterest, timeMarkerFirstHop, timeMarkerSecondHop,
        timeMarkerThirdHop, requestCount);
 
@@ -466,9 +466,9 @@ public class TestProducer {
 
     final int[] timeoutCount = new int[] { 0 };
 
-    // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace3 extends Face {
-      public TestFace3(Name expectedInterest, int[] timeoutCount)
+    // Prepare a LocalTestFace to instantly answer calls to expressInterest.
+    class LocalTestFace3 extends Face {
+      public LocalTestFace3(Name expectedInterest, int[] timeoutCount)
       {
         super("localhost");
 
@@ -492,7 +492,7 @@ public class TestProducer {
       private final int[] timeoutCount_;
     }
 
-    TestFace3 face = new TestFace3(expectedInterest, timeoutCount);
+    LocalTestFace3 face = new LocalTestFace3(expectedInterest, timeoutCount);
 
     // Verify that if no response is received, the producer appropriately times
     // out. The result vector should not contain elements that have timed out.
@@ -524,9 +524,9 @@ public class TestProducer {
 
     final int[] timeoutCount = new int[] { 0 };
 
-    // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace4 extends Face {
-      public TestFace4(Name expectedInterest, int[] timeoutCount)
+    // Prepare a LocalTestFace to instantly answer calls to expressInterest.
+    class LocalTestFace4 extends Face {
+      public LocalTestFace4(Name expectedInterest, int[] timeoutCount)
       {
         super("localhost");
 
@@ -553,10 +553,10 @@ public class TestProducer {
       }
 
       private final Name expectedInterest_;
-      private final int[] timeoutCount_;
+      private int[] timeoutCount_;
     }
 
-    TestFace4 face = new TestFace4(expectedInterest, timeoutCount);
+    LocalTestFace4 face = new LocalTestFace4(expectedInterest, timeoutCount);
 
     // Verify that if no response is received, the producer appropriately times
     // out. The result vector should not contain elements that have timed out.

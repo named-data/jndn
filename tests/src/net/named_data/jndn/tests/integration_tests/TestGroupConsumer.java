@@ -378,9 +378,9 @@ public class TestGroupConsumer implements Consumer.Friend {
     int[] cKeyCount = new int[] { 0 };
     int[] dKeyCount = new int[] { 0 };
 
-    // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace extends Face {
-      public TestFace
+    // Prepare a LocalTestFace to instantly answer calls to expressInterest.
+    class LocalTestFace extends Face {
+      public LocalTestFace
         (Data contentData, Data cKeyData, Data dKeyData, int[] contentCount,
          int[] cKeyCount, int[] dKeyCount)
       {
@@ -426,7 +426,7 @@ public class TestGroupConsumer implements Consumer.Friend {
       private int[] dKeyCount_;
     }
 
-    TestFace face = new TestFace
+    LocalTestFace face = new LocalTestFace
       (contentData, cKeyData, dKeyData, contentCount, cKeyCount, dKeyCount);
 
     // Create the consumer.
@@ -472,9 +472,9 @@ public class TestGroupConsumer implements Consumer.Friend {
     int[] cKeyCount = new int[] { 0 };
     int[] dKeyCount = new int[] { 0 };
 
-    // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace2 extends Face {
-      public TestFace2
+    // Prepare a LocalTestFace to instantly answer calls to expressInterest.
+    class LocalTestFace2 extends Face {
+      public LocalTestFace2
         (Data contentData, Data cKeyData, Data dKeyData, int[] contentCount,
          int[] cKeyCount, int[] dKeyCount)
       {
@@ -526,7 +526,7 @@ public class TestGroupConsumer implements Consumer.Friend {
       private int[] dKeyCount_;
     }
 
-    TestFace2 face = new TestFace2
+    LocalTestFace2 face = new LocalTestFace2
       (contentData, cKeyData, dKeyData, contentCount, cKeyCount, dKeyCount);
 
     // Create the consumer.
