@@ -66,7 +66,6 @@ import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
-import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.toIsoString;
 import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
 import org.junit.After;
 import org.junit.Before;
@@ -162,17 +161,17 @@ public class TestProducer {
     expectedInterest.append(suffix);
     expectedInterest.append(Encryptor.NAME_COMPONENT_E_KEY);
 
-    final Name cKeyName = new Name(prefix);
+    Name cKeyName = new Name(prefix);
     cKeyName.append(Encryptor.NAME_COMPONENT_SAMPLE);
     cKeyName.append(suffix);
     cKeyName.append(Encryptor.NAME_COMPONENT_C_KEY);
 
-    final Name timeMarker = new Name("20150101T100000/20150101T120000");
+    Name timeMarker = new Name("20150101T100000/20150101T120000");
     final double testTime1 = fromIsoString("20150101T100001");
     final double testTime2 = fromIsoString("20150101T110001");
     final Name.Component testTimeRounded1 = new Name.Component("20150101T100000");
     final Name.Component testTimeRounded2 = new Name.Component("20150101T110000");
-    final Name.Component testTimeComponent2 = new Name.Component("20150101T110001");
+    Name.Component testTimeComponent2 = new Name.Component("20150101T110001");
 
     // Create content keys required for this test case:
     for (int i = 0; i < suffix.size(); ++i) {
@@ -181,13 +180,16 @@ public class TestProducer {
         (Encryptor.NAME_COMPONENT_E_KEY);
     }
 
-    final int[] expressInterestCallCount = new int[] { 0 };
+    int[] expressInterestCallCount = new int[] { 0 };
 
     // Prepare a TestFace to instantly answer calls to expressInterest.
     class TestFace extends Face {
-      public TestFace()
+      public TestFace(Name timeMarker, int[] expressInterestCallCount)
       {
         super("localhost");
+
+        timeMarker_ = timeMarker;
+        expressInterestCallCount_ = expressInterestCallCount;
       }
 
       public long
@@ -195,43 +197,56 @@ public class TestProducer {
         (Interest interest, OnData onData, OnTimeout onTimeout,
          OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
-        ++expressInterestCallCount[0];
+        ++expressInterestCallCount_[0];
         
         Name interestName = new Name(interest.getName());
-        interestName.append(timeMarker);
+        interestName.append(timeMarker_);
         assertEquals(true, encryptionKeys.containsKey(interestName));
         onData.onData(interest, (Data)encryptionKeys.get(interestName));
 
         return 0;
       }
+
+      private final Name timeMarker_;
+      private int[] expressInterestCallCount_;
     }
 
-    TestFace face = new TestFace();
+    TestFace face = new TestFace(timeMarker, expressInterestCallCount);
 
     // Verify that the content key is correctly encrypted for each domain, and
     // the produce method encrypts the provided data with the same content key.
-    final ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getAbsolutePath());
+    ProducerDb testDb = new Sqlite3ProducerDb(databaseFilePath.getAbsolutePath());
     Producer producer = new Producer(prefix, suffix, face, keyChain, testDb);
-    final Blob[] contentKey = new Blob[] { null };
+    Blob[] contentKey = new Blob[] { null };
 
     class CheckEncryptionKeys {
+      public CheckEncryptionKeys
+        (int[] expressInterestCallCount, Blob[] contentKey, Name cKeyName,
+         ProducerDb testDb)
+      {
+        expressInterestCallCount_ = expressInterestCallCount;
+        contentKey_ = contentKey;
+        cKeyName_ = cKeyName;
+        testDb_ = testDb;
+      }
+
       public void
       checkEncryptionKeys
         (List result, double testTime, Name.Component roundedTime,
          int expectedExpressInterestCallCount)
       {
-        assertEquals(expectedExpressInterestCallCount, expressInterestCallCount[0]);
+        assertEquals(expectedExpressInterestCallCount, expressInterestCallCount_[0]);
 
         try {
-          assertEquals(true, testDb.hasContentKey(testTime));
-          contentKey[0] = testDb.getContentKey(testTime);
+          assertEquals(true, testDb_.hasContentKey(testTime));
+          contentKey_[0] = testDb_.getContentKey(testTime);
         } catch (ProducerDb.Error ex) { fail("Error in ProducerDb: " + ex); }
 
         EncryptParams params = new EncryptParams(EncryptAlgorithmType.RsaOaep);
         for (int i = 0; i < result.size(); ++i) {
           Data key = (Data)result.get(i);
           Name keyName = key.getName();
-          assertEquals(cKeyName, keyName.getSubName(0, 6));
+          assertEquals(cKeyName_, keyName.getSubName(0, 6));
           assertEquals(keyName.get(6), roundedTime);
           assertEquals(keyName.get(7), Encryptor.NAME_COMPONENT_FOR);
           assertEquals(true, decryptionKeys.containsKey(keyName.getSubName(8)));
@@ -255,14 +270,20 @@ public class TestProducer {
             fail("Error in RsaAlgorithm.decrypt: " + ex);
           }
 
-          assertTrue(contentKey[0].equals(retrievedKey));
+          assertTrue(contentKey_[0].equals(retrievedKey));
         }
 
         assertEquals(3, result.size());
       }
+
+      private final int[] expressInterestCallCount_;
+      private final Blob[] contentKey_;
+      private final Name cKeyName_;
+      private final ProducerDb testDb_;
     }
 
-    final CheckEncryptionKeys checkEncryptionKeys = new CheckEncryptionKeys();
+    final CheckEncryptionKeys checkEncryptionKeys = new CheckEncryptionKeys
+      (expressInterestCallCount, contentKey, cKeyName, testDb);
 
     // An initial test to confirm that keys are created for this time slot.
     Name contentKeyName1 = producer.createContentKey
@@ -323,8 +344,8 @@ public class TestProducer {
       InvalidAlgorithmParameterException, InvalidKeySpecException,
       SecurityException, DerDecodingException, ProducerDb.Error, IOException
   {
-    final Name timeMarkerFirstHop = new Name("20150101T070000/20150101T080000");
-    final Name timeMarkerSecondHop = new Name("20150101T080000/20150101T090000");
+    Name timeMarkerFirstHop = new Name("20150101T070000/20150101T080000");
+    Name timeMarkerSecondHop = new Name("20150101T080000/20150101T090000");
     final Name timeMarkerThirdHop = new Name("20150101T100000/20150101T110000");
 
     Name prefix = new Name("/prefix");
@@ -349,10 +370,19 @@ public class TestProducer {
     final int[] requestCount = new int[] { 0 };
 
     // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace extends Face {
-      public TestFace()
+    class TestFace2 extends Face {
+      public TestFace2
+        (Name expectedInterest, Name timeMarkerFirstHop,
+         Name timeMarkerSecondHop, Name timeMarkerThirdHop,
+         int[] requestCount)
       {
         super("localhost");
+
+        expectedInterest_ = expectedInterest;
+        timeMarkerFirstHop_ = timeMarkerFirstHop;
+        timeMarkerSecondHop_ = timeMarkerSecondHop;
+        timeMarkerThirdHop_ = timeMarkerThirdHop;
+        requestCount_ = requestCount;
       }
 
       public long
@@ -360,23 +390,23 @@ public class TestProducer {
         (Interest interest, OnData onData, OnTimeout onTimeout,
          OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
-        assertEquals(expectedInterest, interest.getName());
+        assertEquals(expectedInterest_, interest.getName());
 
         boolean gotInterestName = false;
         Name interestName = null;
         for (int i = 0; i < 3; ++i) {
           interestName = new Name(interest.getName());
           if (i == 0)
-            interestName.append(timeMarkerFirstHop);
+            interestName.append(timeMarkerFirstHop_);
           else if (i == 1)
-            interestName.append(timeMarkerSecondHop);
+            interestName.append(timeMarkerSecondHop_);
           else if (i == 2)
-            interestName.append(timeMarkerThirdHop);
+            interestName.append(timeMarkerThirdHop_);
 
           // matchesName will check the Exclude.
           if (interest.matchesName(interestName)) {
             gotInterestName = true;
-            ++requestCount[0];
+            ++requestCount_[0];
             break;
           }
         }
@@ -386,9 +416,17 @@ public class TestProducer {
 
         return 0;
       }
+
+      private final Name expectedInterest_;
+      private final Name timeMarkerFirstHop_;
+      private final Name timeMarkerSecondHop_;
+      private final Name timeMarkerThirdHop_;
+      private final int[] requestCount_;
     }
 
-    TestFace face = new TestFace();
+    TestFace2 face = new TestFace2
+      (expectedInterest, timeMarkerFirstHop, timeMarkerSecondHop,
+       timeMarkerThirdHop, requestCount);
 
     // Verify that if a key is found, but not within the right time slot, the
     // search is refined until a valid time slot is found.
@@ -419,7 +457,7 @@ public class TestProducer {
   {
     Name prefix = new Name("/prefix");
     Name suffix = new Name("/suffix");
-    final Name expectedInterest = new Name(prefix);
+    Name expectedInterest = new Name(prefix);
     expectedInterest.append(Encryptor.NAME_COMPONENT_READ);
     expectedInterest.append(suffix);
     expectedInterest.append(Encryptor.NAME_COMPONENT_E_KEY);
@@ -429,10 +467,13 @@ public class TestProducer {
     final int[] timeoutCount = new int[] { 0 };
 
     // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace extends Face {
-      public TestFace()
+    class TestFace3 extends Face {
+      public TestFace3(Name expectedInterest, int[] timeoutCount)
       {
         super("localhost");
+
+        expectedInterest_ = expectedInterest;
+        timeoutCount_ = timeoutCount;
       }
 
       public long
@@ -440,15 +481,18 @@ public class TestProducer {
         (Interest interest, OnData onData, OnTimeout onTimeout,
          OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
-        assertEquals(expectedInterest, interest.getName());
-        ++timeoutCount[0];
+        assertEquals(expectedInterest_, interest.getName());
+        ++timeoutCount_[0];
         onTimeout.onTimeout(interest);
 
         return 0;
       }
+
+      private final Name expectedInterest_;
+      private final int[] timeoutCount_;
     }
 
-    TestFace face = new TestFace();
+    TestFace3 face = new TestFace3(expectedInterest, timeoutCount);
 
     // Verify that if no response is received, the producer appropriately times
     // out. The result vector should not contain elements that have timed out.
@@ -471,7 +515,7 @@ public class TestProducer {
   {
     Name prefix = new Name("/prefix");
     Name suffix = new Name("/suffix");
-    final Name expectedInterest = new Name(prefix);
+    Name expectedInterest = new Name(prefix);
     expectedInterest.append(Encryptor.NAME_COMPONENT_READ);
     expectedInterest.append(suffix);
     expectedInterest.append(Encryptor.NAME_COMPONENT_E_KEY);
@@ -481,10 +525,13 @@ public class TestProducer {
     final int[] timeoutCount = new int[] { 0 };
 
     // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace extends Face {
-      public TestFace()
+    class TestFace4 extends Face {
+      public TestFace4(Name expectedInterest, int[] timeoutCount)
       {
         super("localhost");
+
+        expectedInterest_ = expectedInterest;
+        timeoutCount_ = timeoutCount;
       }
 
       public long
@@ -493,20 +540,23 @@ public class TestProducer {
          OnNetworkNack onNetworkNack, WireFormat wireFormat) 
            throws IOException
       {
-        assertEquals(expectedInterest, interest.getName());
+        assertEquals(expectedInterest_, interest.getName());
         try {
           assertEquals(3, interest.getLink().getDelegations().size());
         } catch (EncodingException ex) {
           fail("Error in getLink: " + ex);
         }
-        ++timeoutCount[0];
+        ++timeoutCount_[0];
         onTimeout.onTimeout(interest);
 
         return 0;
       }
+
+      private final Name expectedInterest_;
+      private final int[] timeoutCount_;
     }
 
-    TestFace face = new TestFace();
+    TestFace4 face = new TestFace4(expectedInterest, timeoutCount);
 
     // Verify that if no response is received, the producer appropriately times
     // out. The result vector should not contain elements that have timed out.
