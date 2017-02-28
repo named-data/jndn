@@ -20,6 +20,7 @@
 
 package net.named_data.jndn.sync;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -150,11 +151,14 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
    * Protobuf definition in the ChronoSync API.
    */
   public static class SyncState {
-    public SyncState(String dataPrefixUri, long sessionNo, long sequenceNo)
+    public SyncState
+      (String dataPrefixUri, long sessionNo, long sequenceNo,
+       Blob applicationInfo)
     {
       dataPrefixUri_ = dataPrefixUri;
       sessionNo_ = sessionNo;
       sequenceNo_ = sequenceNo;
+      applicationInfo_ = applicationInfo;
     }
 
     /**
@@ -179,9 +183,19 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
     public final long
     getSequenceNo() { return sequenceNo_; }
 
+    /**
+     * Get the application info which was included when the sender published
+     * the next sequence number.
+     * @return The applicationInfo Blob. If the sender did not provide any,
+     * return an isNull Blob.
+     */
+    public final Blob
+    getApplicationInfo() { return applicationInfo_; }
+
     private final String dataPrefixUri_;
     private final long sessionNo_;
     private final long sequenceNo_;
+    private final Blob applicationInfo_;
   }
 
   /**
@@ -259,13 +273,17 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
    * update with the name applicationBroadcastPrefix + the new root digest.
    * After this, your application should publish the content for the new
    * sequence number. You can get the new sequence number with getSequenceNo().
+   * @param applicationInfo (optional) This appends applicationInfo to the
+   * content of the sync messages. This same info is provided to the receiving
+   * application in the SyncState state object provided to the
+   * onReceivedSyncState callback.
    * @note Your application must call processEvents. Since processEvents
    * modifies the internal ChronoSync data structures, your application should
    * make sure that it calls processEvents in the same thread as
    * publishNextSequenceNo() (which also modifies the data structures).
    */
   public final void
-  publishNextSequenceNo() throws IOException, SecurityException
+  publishNextSequenceNo(Blob applicationInfo) throws IOException, SecurityException
   {
     ++sequenceNo_;
 
@@ -276,6 +294,9 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
       .setType(SyncStateProto.SyncState.ActionType.UPDATE)
       .getSeqnoBuilder().setSeq(sequenceNo_)
                         .setSession(sessionNo_);
+    if (!applicationInfo.isNull() && applicationInfo.size() > 0)
+      builder.getSsBuilder(0).setApplicationInfo
+        (ByteString.copyFrom(applicationInfo.buf()));
     SyncStateProto.SyncStateMsg syncMessage = builder.build();
 
     broadcastSyncState(digestTree_.getRoot(), syncMessage);
@@ -292,6 +313,26 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
     interest.getName().append(digestTree_.getRoot());
     interest.setInterestLifetimeMilliseconds(syncLifetime_);
     face_.expressInterest(interest, this, this);
+  }
+
+  /**
+   * Increment the sequence number, create a sync message with the new
+   * sequence number and publish a data packet where the name is
+   * the applicationBroadcastPrefix + the root digest of the current digest
+   * tree. Then add the sync message to the digest tree and digest log which
+   * creates a new root digest. Finally, express an interest for the next sync
+   * update with the name applicationBroadcastPrefix + the new root digest.
+   * After this, your application should publish the content for the new
+   * sequence number. You can get the new sequence number with getSequenceNo().
+   * @note Your application must call processEvents. Since processEvents
+   * modifies the internal ChronoSync data structures, your application should
+   * make sure that it calls processEvents in the same thread as
+   * publishNextSequenceNo() (which also modifies the data structures).
+   */
+  public final void
+  publishNextSequenceNo() throws IOException, SecurityException
+  {
+    publishNextSequenceNo(new Blob());
   }
 
   /**
@@ -514,10 +555,19 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
 
       // Only report UPDATE sync states.
       if (syncState.getType().equals
-           (SyncStateProto.SyncState.ActionType.UPDATE))
+           (SyncStateProto.SyncState.ActionType.UPDATE)) {
+        Blob applicationInfo;
+        if (syncState.hasApplicationInfo() &&
+            syncState.getApplicationInfo().size() > 0)
+          applicationInfo = new Blob
+            (syncState.getApplicationInfo().asReadOnlyByteBuffer(), true);
+        else
+          applicationInfo = new Blob();
+
         syncStates.add(new SyncState
           (syncState.getName(), syncState.getSeqno().getSession(),
-           syncState.getSeqno().getSeq()));
+           syncState.getSeqno().getSeq(), applicationInfo));
+      }
     }
     try {
       onReceivedSyncState_.onReceivedSyncState(syncStates, isRecovery);

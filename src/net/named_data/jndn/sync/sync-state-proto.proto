@@ -16,6 +16,7 @@ message SyncState
     required uint64 session = 2;
   }
   optional SeqNo seqno = 3;
+  optional bytes application_info = 4;
 }
 
 message SyncStateMsg
