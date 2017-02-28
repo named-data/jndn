@@ -60,10 +60,16 @@ public class TestFilePrivateKeyStorage {
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     try{
       instance.deleteKey(new Name("/test/KEY/123"));
-      instance.deleteKey(new Name("/test/KEY/temp1"));
     }
     catch(Exception e){
       System.err.println("Failed to clean up generated keys");
+    }
+
+    try {
+      instance.deleteKey(new Name("/test/KEY/temp1"));
+    }
+    catch (Exception e) {
+      // Not all tests create this key so ignore if we don't delete it.
     }
   }
 
