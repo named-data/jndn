@@ -50,9 +50,6 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
       (databaseFilePath, null,
        SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.CREATE_IF_NECESSARY);
 
-    // Enable foreign keys.
-    database_.execSQL(PRAGMA_foreign_keys);
-
     // Initialize database-specific tables.
     database_.execSQL(INITIALIZATION1);
     database_.execSQL(INITIALIZATION2);
@@ -206,7 +203,15 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
   public void
   deleteSchedule(String name) throws GroupManagerDb.Error
   {
-    database_.execSQL(DELETE_deleteSchedule, new Object[] { name });
+    int scheduleId = getScheduleId(name);
+    if (scheduleId == -1)
+      return;
+
+    // First delete the members. We don't use FOREIGN KEY because some SQLite
+    // implementations don's support it.
+    database_.execSQL(DELETE_deleteScheduleMembers, new Object[] { scheduleId });
+
+    database_.execSQL(DELETE_deleteSchedule, new Object[] { scheduleId });
   }
 
   /**

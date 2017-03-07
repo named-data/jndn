@@ -35,6 +35,7 @@ import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 
 /**
  * Common static methods and package classes for integration tests.
@@ -49,7 +50,7 @@ public class IntegrationTestsCommon {
    */
   public static File
     getPolicyConfigDirectory() {
-    File result = new File(System.getProperty("user.dir"));
+    File result = Common.getCurrentDirectory();
     String[] path
       = {"tests", "src", "net", "named_data", "jndn", "tests", "integration_tests", "policy_config"};
     for (int i = 0; i < path.length; ++i) {

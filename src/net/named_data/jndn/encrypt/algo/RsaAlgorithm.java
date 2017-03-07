@@ -92,7 +92,7 @@ public class RsaAlgorithm {
     DerNode parsedNode = DerNode.parse(keyBits.buf(), 0);
     List pkcs8Children = parsedNode.getChildren();
     List algorithmIdChildren = DerNode.getSequence(pkcs8Children, 1).getChildren();
-    String oidString = ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal().toString();
+    String oidString = "" + ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal();
     Blob rsaPrivateKeyDer = ((DerNode)pkcs8Children.get(2)).getPayload();
 
     final String RSA_ENCRYPTION_OID = "1.2.840.113549.1.1.1";

@@ -148,6 +148,8 @@ public class TestGroupManager implements GroupManager.Friend {
     certificate.setName(new Name("/ndn/memberA/KEY/ksk-123/ID-CERT/123"));
     PublicKey contentPublicKey = new PublicKey(encryptKeyBlob);
     certificate.setPublicKeyInfo(contentPublicKey);
+    certificate.setNotBefore(0);
+    certificate.setNotAfter(0);
     certificate.encode();
 
     Blob signatureInfoBlob = new Blob(SIG_INFO, false);
@@ -259,7 +261,7 @@ public class TestGroupManager implements GroupManager.Friend {
     // Create the group manager.
     GroupManager manager = new GroupManager
       (new Name("Alice"), new Name("data_type"), 
-       new Sqlite3GroupManagerDb(dKeyDatabaseFilePath.getPath()), 2048, 1,
+       new Sqlite3GroupManagerDb(dKeyDatabaseFilePath.getAbsolutePath()), 2048, 1,
        keyChain);
 
     Blob newCertificateBlob = certificate.wireEncode();
@@ -311,7 +313,7 @@ public class TestGroupManager implements GroupManager.Friend {
     // Create the group manager.
     GroupManager manager = new GroupManager
       (new Name("Alice"), new Name("data_type"),
-       new Sqlite3GroupManagerDb(eKeyDatabaseFilePath.getPath()), 1024, 1,
+       new Sqlite3GroupManagerDb(eKeyDatabaseFilePath.getAbsolutePath()), 1024, 1,
        keyChain);
     setManager(manager);
 
@@ -333,7 +335,7 @@ public class TestGroupManager implements GroupManager.Friend {
     // Create the group manager.
     GroupManager manager = new GroupManager
       (new Name("Alice"), new Name("data_type"),
-       new Sqlite3GroupManagerDb(intervalDatabaseFilePath.getPath()), 1024, 1,
+       new Sqlite3GroupManagerDb(intervalDatabaseFilePath.getAbsolutePath()), 1024, 1,
        keyChain);
     setManager(manager);
 
@@ -372,7 +374,7 @@ public class TestGroupManager implements GroupManager.Friend {
     // Create the group manager.
     GroupManager manager = new GroupManager
       (new Name("Alice"), new Name("data_type"),
-       new Sqlite3GroupManagerDb(groupKeyDatabaseFilePath.getPath()), 1024, 1,
+       new Sqlite3GroupManagerDb(groupKeyDatabaseFilePath.getAbsolutePath()), 1024, 1,
        keyChain);
     setManager(manager);
 

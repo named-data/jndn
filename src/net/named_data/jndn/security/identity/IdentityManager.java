@@ -1206,7 +1206,7 @@ public class IdentityManager {
 
     if (tpmLocator.equals("")) {
       // Use the system default.
-      if (System.getProperty("os.name").equals("Mac OS X")) {
+      if (Common.platformIsOSX()) {
         canonicalTpmLocator[0] = "tpm-osxkeychain:";
         throw new SecurityException
           ("OSXPrivateKeyStorage is not implemented yet. You must create an IdentityManager with a different PrivateKeyStorage.");

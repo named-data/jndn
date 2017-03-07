@@ -228,11 +228,11 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
   testNameRelation() throws IOException, SecurityException
   {
     ConfigPolicyManager policyManagerPrefix = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "relation_ruleset_prefix.conf").getPath());
+      (new File(policyConfigDirectory, "relation_ruleset_prefix.conf").getAbsolutePath());
     ConfigPolicyManager policyManagerStrict = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "relation_ruleset_strict.conf").getPath());
+      (new File(policyConfigDirectory, "relation_ruleset_strict.conf").getAbsolutePath());
     ConfigPolicyManager policyManagerEqual = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "relation_ruleset_equal.conf").getPath());
+      (new File(policyConfigDirectory, "relation_ruleset_equal.conf").getAbsolutePath());
 
     Name dataName = new Name("/TestRule1");
     assertNotNull
@@ -273,7 +273,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
   testSimpleRegex() throws IOException, SecurityException
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "regex_ruleset.conf").getPath());
+      (new File(policyConfigDirectory, "regex_ruleset.conf").getAbsolutePath());
 
     Name dataName1 = new Name("/SecurityTestSecRule/Basic");
     Name dataName2 = new Name("/SecurityTestSecRule/Basic/More");
@@ -309,7 +309,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
   testHierarchical() throws IOException, SecurityException
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "/hierarchical_ruleset.conf").getPath());
+      (new File(policyConfigDirectory, "hierarchical_ruleset.conf").getAbsolutePath());
 
     Name dataName1 = new Name("/SecurityTestSecRule/Basic/Data1");
     Name dataName2 = new Name("/SecurityTestSecRule/Basic/Longer/Data2");
@@ -357,7 +357,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
   testHyperRelation() throws IOException, SecurityException
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "/hyperrelation_ruleset.conf").getPath());
+      (new File(policyConfigDirectory, "hyperrelation_ruleset.conf").getAbsolutePath());
 
     Name dataName = new Name("/SecurityTestSecRule/Basic/Longer/Data2");
     Data data1 = new Data(dataName);

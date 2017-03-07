@@ -33,6 +33,7 @@ import net.named_data.jndn.OnNetworkNack;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -73,7 +74,7 @@ class CallbackCounter implements OnData, OnTimeout, OnNetworkNack {
 
 public class TestFaceInterestMethods {
   public static double
-  getNowMilliseconds() { return (double)System.currentTimeMillis(); }
+  getNowMilliseconds() { return Common.getNowMilliseconds(); }
 
   // Returns a CallbackCounter object so we can test data callback, nack callback
   // and timeout behavior.
@@ -282,4 +283,7 @@ public class TestFaceInterestMethods {
     assertEquals("Network Nack has unexpected reason",
                  NetworkNack.Reason.NO_ROUTE, counter.networkNack_.getReason());
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

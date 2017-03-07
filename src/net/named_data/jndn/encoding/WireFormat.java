@@ -722,8 +722,14 @@ public class WireFormat {
   public static WireFormat
   getDefaultWireFormat()
   {
+    if (!defaultWireFormatIsInitialized_) {
+      defaultWireFormatIsInitialized_ = true;
+      defaultWireFormat_ = TlvWireFormat.get();
+    }
+
     return defaultWireFormat_;
   }
 
-  private static WireFormat defaultWireFormat_ = TlvWireFormat.get();
+  private static boolean defaultWireFormatIsInitialized_ = false;
+  private static WireFormat defaultWireFormat_;
 }

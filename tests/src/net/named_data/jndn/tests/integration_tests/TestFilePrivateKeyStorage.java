@@ -23,11 +23,11 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyClass;
-import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.security.identity.FilePrivateKeyStorage;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.Common;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class TestFilePrivateKeyStorage {
   /**
    * Keep a reference to the key storage folder
    */
-  private static final File ndnFolder_ = new File (new File(System.getProperty("user.home", "."), ".ndn"), "ndnsec-tpm-file");;
+  private static final File ndnFolder_ = new File (new File(Common.getHomeDirectory(), ".ndn"), "ndnsec-tpm-file");;
 
   /**
    * Create a few keys before testing
@@ -60,10 +60,16 @@ public class TestFilePrivateKeyStorage {
     FilePrivateKeyStorage instance = new FilePrivateKeyStorage();
     try{
       instance.deleteKey(new Name("/test/KEY/123"));
-      instance.deleteKey(new Name("/test/KEY/temp1"));
     }
     catch(Exception e){
       System.err.println("Failed to clean up generated keys");
+    }
+
+    try {
+      instance.deleteKey(new Name("/test/KEY/temp1"));
+    }
+    catch (Exception e) {
+      // Not all tests create this key so ignore if we don't delete it.
     }
   }
 

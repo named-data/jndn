@@ -19,6 +19,7 @@
 
 package net.named_data.jndn.util;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -244,6 +245,36 @@ public class Common {
   dateToMillisecondsSince1970(Date date)
   {
     return date.getTime();
+  }
+
+  /**
+   * Return true if the platform is OS X.
+   * @return True if OS X, false if not.
+   */
+  public static boolean
+  platformIsOSX()
+  {
+    return System.getProperty("os.name").equals("Mac OS X");
+  }
+
+  /**
+   * Get the user's home directory.
+   * @return The home directory as a File object, or new File(".") if unknown.
+   */
+  public static File
+  getHomeDirectory()
+  {
+    return new File(System.getProperty("user.home", "."));
+  }
+
+  /**
+   * Get the current directory.
+   * @return The current directory as a File object.
+   */
+  public static File
+  getCurrentDirectory()
+  {
+    return new File(System.getProperty("user.dir", "."));
   }
 
   /**

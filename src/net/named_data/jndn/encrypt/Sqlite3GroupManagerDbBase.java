@@ -75,18 +75,11 @@ public abstract class Sqlite3GroupManagerDbBase extends GroupManagerDb {
     "    schedule_id         INTEGER NOT NULL,          \n" +
     "    member_name         BLOB NOT NULL,             \n" +
     "    key_name            BLOB NOT NULL,             \n" +
-    "    pubkey              BLOB NOT NULL,             \n" +
-    "    FOREIGN KEY(schedule_id)                       \n" +
-    "      REFERENCES schedules(schedule_id)            \n" +
-    "      ON DELETE CASCADE                            \n" +
-    "      ON UPDATE CASCADE                            \n" +
+    "    pubkey              BLOB NOT NULL              \n" +
     "  );                                               \n";
   protected static final String INITIALIZATION4 =
     "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
     "   memNameIndex ON members(member_name);           \n";
-
-  protected static final String PRAGMA_foreign_keys =
-    "PRAGMA foreign_keys = ON";
 
   protected static final String SELECT_hasSchedule =
     "SELECT schedule_id FROM schedules where schedule_name=?";
@@ -100,8 +93,10 @@ public abstract class Sqlite3GroupManagerDbBase extends GroupManagerDb {
     "WHERE schedule_name=?";
   protected static final String INSERT_addSchedule =
     "INSERT INTO schedules (schedule_name, schedule) values (?, ?)";
+  protected static final String DELETE_deleteScheduleMembers =
+    "DELETE FROM members WHERE schedule_id=?";
   protected static final String DELETE_deleteSchedule =
-    "DELETE FROM schedules WHERE schedule_name=?";
+    "DELETE FROM schedules WHERE schedule_id=?";
   protected static final String WHERE_renameSchedule = "schedule_name=?";
   protected static final String UPDATE_renameSchedule =
     "UPDATE schedules SET schedule_name=? WHERE " + WHERE_renameSchedule;

@@ -23,10 +23,9 @@ package net.named_data.jndn.encrypt;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.HashSet;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
@@ -171,8 +170,10 @@ public class Schedule {
     // Encode backwards.
     // Encode the blackIntervalList.
     int saveLengthForList = encoder.getLength();
-    for (Iterator i = blackIntervalList_.descendingIterator(); i.hasNext(); ) {
-      RepetitiveInterval element = (RepetitiveInterval)i.next();
+    Object[] array = blackIntervalList_.toArray();
+    Arrays.sort(array);
+    for (int i = array.length - 1; i >= 0; --i) {
+      RepetitiveInterval element = (RepetitiveInterval)array[i];
       encodeRepetitiveInterval(element, encoder);
     }
     encoder.writeTypeAndLength
@@ -180,8 +181,10 @@ public class Schedule {
 
     // Encode the whiteIntervalList.
     saveLengthForList = encoder.getLength();
-    for (Iterator i = whiteIntervalList_.descendingIterator(); i.hasNext(); ) {
-      RepetitiveInterval element = (RepetitiveInterval)i.next();
+    array = whiteIntervalList_.toArray();
+    Arrays.sort(array);
+    for (int i = array.length - 1; i >= 0; --i) {
+      RepetitiveInterval element = (RepetitiveInterval)array[i];
       encodeRepetitiveInterval(element, encoder);
     }
     encoder.writeTypeAndLength
@@ -320,10 +323,12 @@ public class Schedule {
    */
   private static void
   calculateIntervalResult
-    (TreeSet list, double timeStamp, Interval positiveResult,
+    (HashSet<RepetitiveInterval> list, double timeStamp, Interval positiveResult,
      Interval negativeResult)
   {
-    for (Object elementObj : list) {
+    Object[] array = list.toArray();
+    Arrays.sort(array);
+    for (Object elementObj : array) {
       RepetitiveInterval element = (RepetitiveInterval)elementObj;
 
       RepetitiveInterval.Result result = element.getInterval(timeStamp);
@@ -371,9 +376,8 @@ public class Schedule {
     return dateFormat;
   }
 
-  // Use TreeSet without generics so it works with older Java compilers.
-  private final TreeSet whiteIntervalList_ = new TreeSet(); // of RepetitiveInterval
-  private final TreeSet blackIntervalList_ = new TreeSet(); // of RepetitiveInterval
+  private final HashSet<RepetitiveInterval> whiteIntervalList_ = new HashSet<RepetitiveInterval>();
+  private final HashSet<RepetitiveInterval> blackIntervalList_ = new HashSet<RepetitiveInterval>();
   private static final SimpleDateFormat dateFormat = getDateFormat();
   private static final long MILLISECONDS_IN_DAY = 24 * 3600 * 1000;
 }

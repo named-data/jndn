@@ -304,7 +304,7 @@ public class Consumer {
       try {
         onError.onError
           (ErrorCode.UnsupportedEncryptionScheme,
-           encryptedContent.getAlgorithmType().toString());
+           "" + encryptedContent.getAlgorithmType());
       } catch (Exception ex) {
         logger_.log(Level.SEVERE, "Error in onError", ex);
       }
@@ -521,7 +521,7 @@ public class Consumer {
      final OnVerified onVerified, final OnError onError)
   {
     // Prepare the callback functions.
-    final OnData onData = new OnData() {
+    OnData onData = new OnData() {
       public void onData(Interest contentInterest, final Data contentData) {
         // The Interest has no selectors, so assume the library correctly
         // matched with the Data name before calling onData.
@@ -567,8 +567,15 @@ public class Consumer {
       public void onTimeout(final Interest interest) {
         if (nRetrials > 0)
           sendInterest(interest, nRetrials - 1, link, onVerified, onError);
-        else
-          onNetworkNack.onNetworkNack(interest, new NetworkNack());
+        else {
+          // We have run out of options. Report a retrieval failure.
+          try {
+            onError.onError
+              (ErrorCode.DataRetrievalFailure, interest.getName().toUri());
+          } catch (Exception exception) {
+            logger_.log(Level.SEVERE, "Error in onError", exception);
+          }
+        }
       }
     };
 
@@ -626,8 +633,8 @@ public class Consumer {
    */
   public static void setFriendAccess(Friend friend)
   {
-    if (friend.getClass().getName().equals
-          ("src.net.named_data.jndn.tests.integration_tests.TestGroupConsumer"))
+    if (friend.getClass().getName().endsWith
+          ("net.named_data.jndn.tests.integration_tests.TestGroupConsumer"))
     {
       friend.setConsumerFriendAccess(new FriendAccessImpl());
     }

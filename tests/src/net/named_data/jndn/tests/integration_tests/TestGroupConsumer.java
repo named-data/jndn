@@ -84,24 +84,24 @@ public class TestGroupConsumer implements Consumer.Friend {
     return result;
   }
 
-  private static final ByteBuffer DATA_CONTENT = toBuffer(new int[] {
+  private static ByteBuffer DATA_CONTENT = toBuffer(new int[] {
     0xcb, 0xe5, 0x6a, 0x80, 0x41, 0x24, 0x58, 0x23,
     0x84, 0x14, 0x15, 0x61, 0x80, 0xb9, 0x5e, 0xbd,
     0xce, 0x32, 0xb4, 0xbe, 0xbc, 0x91, 0x31, 0xd6,
     0x19, 0x00, 0x80, 0x8b, 0xfa, 0x00, 0x05, 0x9c
   });
 
-  private static final ByteBuffer AES_KEY = toBuffer(new int[] {
+  private static ByteBuffer AES_KEY = toBuffer(new int[] {
     0xdd, 0x60, 0x77, 0xec, 0xa9, 0x6b, 0x23, 0x1b,
     0x40, 0x6b, 0x5a, 0xf8, 0x7d, 0x3d, 0x55, 0x32
   });
 
-  private static final ByteBuffer INITIAL_VECTOR = toBuffer(new int[] {
+  private static ByteBuffer INITIAL_VECTOR = toBuffer(new int[] {
     0x73, 0x6f, 0x6d, 0x65, 0x72, 0x61, 0x6e, 0x64,
     0x6f, 0x6d, 0x76, 0x65, 0x63, 0x74, 0x6f, 0x72
   });
 
-  private static final ByteBuffer DEFAULT_RSA_PUBLIC_KEY_DER = toBuffer(new int[] {
+  private static ByteBuffer DEFAULT_RSA_PUBLIC_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
     0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0f, 0x00, 0x30, 0x82, 0x01, 0x0a, 0x02, 0x82, 0x01, 0x01,
     0x00, 0xd4, 0x4f, 0xd9, 0xae, 0x7a, 0xd2, 0x87, 0x80, 0x67, 0x11, 0x31, 0xb8, 0x5b, 0xac, 0x8b,
@@ -124,7 +124,7 @@ public class TestGroupConsumer implements Consumer.Friend {
   });
 
   // Java uses an unencrypted PKCS #8 PrivateKeyInfo, not a PKCS #1 RSAPrivateKey.
-  private static final ByteBuffer DEFAULT_RSA_PRIVATE_KEY_DER = toBuffer(new int[] {
+  private static ByteBuffer DEFAULT_RSA_PRIVATE_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x04, 0xbe, 0x02, 0x01, 0x00, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7,
     0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x04, 0x82, 0x04, 0xa8, 0x30, 0x82, 0x04, 0xa4, 0x02, 0x01,
     0x00, 0x02, 0x82, 0x01, 0x01, 0x00, 0xd4, 0x4f, 0xd9, 0xae, 0x7a, 0xd2, 0x87, 0x80, 0x67, 0x11,
@@ -370,19 +370,28 @@ public class TestGroupConsumer implements Consumer.Friend {
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException, SecurityException, ConsumerDb.Error
   {
-    final Data contentData = createEncryptedContent();
-    final Data cKeyData = createEncryptedCKey();
-    final Data dKeyData = createEncryptedDKey();
+    Data contentData = createEncryptedContent();
+    Data cKeyData = createEncryptedCKey();
+    Data dKeyData = createEncryptedDKey();
 
-    final int[] contentCount = new int[] { 0 };
-    final int[] cKeyCount = new int[] { 0 };
-    final int[] dKeyCount = new int[] { 0 };
+    int[] contentCount = new int[] { 0 };
+    int[] cKeyCount = new int[] { 0 };
+    int[] dKeyCount = new int[] { 0 };
 
-    // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace extends Face {
-      public TestFace()
+    // Prepare a LocalTestFace to instantly answer calls to expressInterest.
+    class LocalTestFace extends Face {
+      public LocalTestFace
+        (Data contentData, Data cKeyData, Data dKeyData, int[] contentCount,
+         int[] cKeyCount, int[] dKeyCount)
       {
         super("localhost");
+
+        contentData_ = contentData;
+        cKeyData_ = cKeyData;
+        dKeyData_ = dKeyData;
+        contentCount_ = contentCount;
+        cKeyCount_ = cKeyCount;
+        dKeyCount_ = dKeyCount;
       }
 
       public long
@@ -390,31 +399,40 @@ public class TestGroupConsumer implements Consumer.Friend {
         (Interest interest, OnData onData, OnTimeout onTimeout,
          OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
       {
-        if (interest.matchesName(contentData.getName())) {
-          contentCount[0] = 1;
-          onData.onData(interest, contentData);
+        if (interest.matchesName(contentData_.getName())) {
+          contentCount_[0] = 1;
+          onData.onData(interest, contentData_);
         }
-        else if (interest.matchesName(cKeyData.getName())) {
-          cKeyCount[0] = 1;
-          onData.onData(interest, cKeyData);
+        else if (interest.matchesName(cKeyData_.getName())) {
+          cKeyCount_[0] = 1;
+          onData.onData(interest, cKeyData_);
         }
-        else if (interest.matchesName(dKeyData.getName())) {
-          dKeyCount[0] = 1;
-          onData.onData(interest, dKeyData);
+        else if (interest.matchesName(dKeyData_.getName())) {
+          dKeyCount_[0] = 1;
+          onData.onData(interest, dKeyData_);
         }
         else
           onTimeout.onTimeout(interest);
 
         return 0;
       }
+
+      private Data contentData_;
+      private Data cKeyData_;
+      private Data dKeyData_;
+
+      private int[] contentCount_;
+      private int[] cKeyCount_;
+      private int[] dKeyCount_;
     }
 
-    TestFace face = new TestFace();
+    LocalTestFace face = new LocalTestFace
+      (contentData, cKeyData, dKeyData, contentCount, cKeyCount, dKeyCount);
 
     // Create the consumer.
     Consumer consumer = new Consumer
       (face, keyChain, groupName, uName,
-       new Sqlite3ConsumerDb(databaseFilePath.getPath()));
+       new Sqlite3ConsumerDb(databaseFilePath.getAbsolutePath()));
     consumer.addDecryptionKey(uKeyName, fixtureUDKeyBlob);
 
     final int[] finalCount = new int[] { 0 };
@@ -441,24 +459,33 @@ public class TestGroupConsumer implements Consumer.Friend {
 
   @Test
   public void
-  testCosumerWithLink()
+  testConsumerWithLink()
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException, SecurityException, ConsumerDb.Error
   {
-    final Data contentData = createEncryptedContent();
-    final Data cKeyData = createEncryptedCKey();
-    final Data dKeyData = createEncryptedDKey();
+    Data contentData = createEncryptedContent();
+    Data cKeyData = createEncryptedCKey();
+    Data dKeyData = createEncryptedDKey();
 
-    final int[] contentCount = new int[] { 0 };
-    final int[] cKeyCount = new int[] { 0 };
-    final int[] dKeyCount = new int[] { 0 };
+    int[] contentCount = new int[] { 0 };
+    int[] cKeyCount = new int[] { 0 };
+    int[] dKeyCount = new int[] { 0 };
 
-    // Prepare a TestFace to instantly answer calls to expressInterest.
-    class TestFace extends Face {
-      public TestFace()
+    // Prepare a LocalTestFace to instantly answer calls to expressInterest.
+    class LocalTestFace2 extends Face {
+      public LocalTestFace2
+        (Data contentData, Data cKeyData, Data dKeyData, int[] contentCount,
+         int[] cKeyCount, int[] dKeyCount)
       {
         super("localhost");
+
+        contentData_ = contentData;
+        cKeyData_ = cKeyData;
+        dKeyData_ = dKeyData;
+        contentCount_ = contentCount;
+        cKeyCount_ = cKeyCount;
+        dKeyCount_ = dKeyCount;
       }
 
       public long
@@ -472,26 +499,35 @@ public class TestGroupConsumer implements Consumer.Friend {
           fail("Error in getLink: " + ex);
         }
 
-        if (interest.matchesName(contentData.getName())) {
-          contentCount[0] = 1;
-          onData.onData(interest, contentData);
+        if (interest.matchesName(contentData_.getName())) {
+          contentCount_[0] = 1;
+          onData.onData(interest, contentData_);
         }
-        else if (interest.matchesName(cKeyData.getName())) {
-          cKeyCount[0] = 1;
-          onData.onData(interest, cKeyData);
+        else if (interest.matchesName(cKeyData_.getName())) {
+          cKeyCount_[0] = 1;
+          onData.onData(interest, cKeyData_);
         }
-        else if (interest.matchesName(dKeyData.getName())) {
-          dKeyCount[0] = 1;
-          onData.onData(interest, dKeyData);
+        else if (interest.matchesName(dKeyData_.getName())) {
+          dKeyCount_[0] = 1;
+          onData.onData(interest, dKeyData_);
         }
         else
           onTimeout.onTimeout(interest);
 
         return 0;
       }
+
+      private Data contentData_;
+      private Data cKeyData_;
+      private Data dKeyData_;
+
+      private int[] contentCount_;
+      private int[] cKeyCount_;
+      private int[] dKeyCount_;
     }
 
-    TestFace face = new TestFace();
+    LocalTestFace2 face = new LocalTestFace2
+      (contentData, cKeyData, dKeyData, contentCount, cKeyCount, dKeyCount);
 
     // Create the consumer.
     Link ckeyLink = new Link();
@@ -512,7 +548,7 @@ public class TestGroupConsumer implements Consumer.Friend {
 
     Consumer consumer = new Consumer
       (face, keyChain, groupName, uName,
-       new Sqlite3ConsumerDb(databaseFilePath.getPath()), ckeyLink, dkeyLink);
+       new Sqlite3ConsumerDb(databaseFilePath.getAbsolutePath()), ckeyLink, dkeyLink);
     consumer.addDecryptionKey(uKeyName, fixtureUDKeyBlob);
 
     final int[] finalCount = new int[] { 0 };

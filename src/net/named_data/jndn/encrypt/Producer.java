@@ -28,7 +28,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -246,10 +245,9 @@ public class Producer {
     // Check if the current E-KEYs can cover the content key.
     Exclude timeRange = new Exclude();
     excludeAfter(timeRange, new Name.Component(Schedule.toIsoString(timeSlot)));
-    eKeyInfo_.entrySet().iterator();
-    for (Iterator i = eKeyInfo_.entrySet().iterator(); i.hasNext(); ) {
+    for (Object entryObj : eKeyInfo_.entrySet()) {
       // For each current E-KEY.
-      Map.Entry entry = (Map.Entry)i.next();
+      Map.Entry entry = (Map.Entry)entryObj;
       KeyInfo keyInfo = (KeyInfo)entry.getValue();
       if (timeSlot < keyInfo.beginTimeSlot || timeSlot >= keyInfo.endTimeSlot) {
         // The current E-KEY cannot cover the content key, so retrieve one.
