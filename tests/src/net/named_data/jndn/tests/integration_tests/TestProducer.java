@@ -66,7 +66,7 @@ import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
-import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
+import static net.named_data.jndn.encrypt.Schedule.fromIsoString;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -342,7 +342,7 @@ public class TestProducer {
     throws ParseException, NoSuchAlgorithmException, NoSuchPaddingException,
       InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException,
-      SecurityException, DerDecodingException, ProducerDb.Error, IOException
+      SecurityException, DerDecodingException, ProducerDb.Error, IOException, EncodingException
   {
     Name timeMarkerFirstHop = new Name("20150101T070000/20150101T080000");
     Name timeMarkerSecondHop = new Name("20150101T080000/20150101T090000");
@@ -453,7 +453,7 @@ public class TestProducer {
   @Test
   public void
   testContentKeyTimeout()
-    throws ParseException, ProducerDb.Error, IOException, SecurityException
+    throws ParseException, ProducerDb.Error, IOException, SecurityException, EncodingException
   {
     Name prefix = new Name("/prefix");
     Name suffix = new Name("/suffix");
@@ -511,7 +511,7 @@ public class TestProducer {
   @Test
   public void
   testProducerWithLink()
-    throws ParseException, ProducerDb.Error, IOException, SecurityException
+    throws ParseException, ProducerDb.Error, IOException, SecurityException, EncodingException
   {
     Name prefix = new Name("/prefix");
     Name suffix = new Name("/suffix");

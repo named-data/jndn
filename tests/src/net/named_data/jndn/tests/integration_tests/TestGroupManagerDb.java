@@ -39,7 +39,7 @@ import net.named_data.jndn.encrypt.Schedule;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.util.Blob;
-import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
+import static net.named_data.jndn.encrypt.Schedule.fromIsoString;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -142,7 +142,7 @@ public class TestGroupManagerDb {
 
   @Test
   public void
-  testDatabaseFunctions() throws ParseException, GroupManagerDb.Error
+  testDatabaseFunctions() throws ParseException, GroupManagerDb.Error, EncodingException
   {
     Blob scheduleBlob = new Blob(SCHEDULE, false);
 

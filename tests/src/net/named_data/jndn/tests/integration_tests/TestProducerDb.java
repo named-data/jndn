@@ -23,6 +23,7 @@ package src.net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
 import java.text.ParseException;
+import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.ConsumerDb;
 import net.named_data.jndn.encrypt.ProducerDb;
 import net.named_data.jndn.encrypt.Sqlite3ProducerDb;
@@ -34,7 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
+import static net.named_data.jndn.encrypt.Schedule.fromIsoString;
 import static org.junit.Assert.fail;
 
 public class TestProducerDb {
@@ -57,7 +58,7 @@ public class TestProducerDb {
 
   @Test
   public void
-  testDatabaseFunctions() throws ProducerDb.Error, ParseException
+  testDatabaseFunctions() throws ProducerDb.Error, ParseException, EncodingException
   {
     // Test construction.
     ProducerDb database = new Sqlite3ProducerDb(databaseFilePath.getAbsolutePath());
