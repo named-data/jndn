@@ -160,6 +160,20 @@ public class Certificate extends Data {
   }
 
   /**
+   * Get the public key DER encoding.
+   * @return The DER encoding Blob.
+   * @throws Error if the public key is not set.
+   */
+  public final Blob
+  getPublicKeyDer()
+  {
+    if (key_.getKeyDer().isNull())
+      throw new Error("The public key is not set");
+
+    return key_.getKeyDer();
+  }
+
+  /**
    * Check if the certificate is valid.
    * @return True if the current time is earlier than notBefore.
    */
@@ -301,7 +315,7 @@ public class Certificate extends Data {
     }
 
     s += "Public key bits:\n";
-    Blob keyDer = key_.getKeyDer();
+    Blob keyDer = getPublicKeyDer();
     String encodedKey = Common.base64Encode(keyDer.getImmutableArray());
     for (int i = 0; i < encodedKey.length(); i += 64)
       s += encodedKey.substring(i, Math.min(i + 64, encodedKey.length())) + "\n";
