@@ -167,7 +167,7 @@ public class Certificate extends Data {
   isTooEarly()
   {
     double now = Common.getNowMilliseconds();
-    return now < notBefore_;
+    return now < getNotBefore();
   }
 
   /**
@@ -178,7 +178,7 @@ public class Certificate extends Data {
   isTooLate()
   {
     double now = Common.getNowMilliseconds();
-    return now > notAfter_;
+    return now > getNotAfter();
   }
 
   public final boolean
@@ -198,8 +198,8 @@ public class Certificate extends Data {
   {
     DerSequence root = new DerSequence();
     DerSequence validity = new DerSequence();
-    DerGeneralizedTime notBefore = new DerGeneralizedTime(notBefore_);
-    DerGeneralizedTime notAfter = new DerGeneralizedTime(notAfter_);
+    DerGeneralizedTime notBefore = new DerGeneralizedTime(getNotBefore());
+    DerGeneralizedTime notAfter = new DerGeneralizedTime(getNotAfter());
 
     validity.addChild(notBefore);
     validity.addChild(notAfter);
@@ -287,9 +287,9 @@ public class Certificate extends Data {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     String notBeforeStr = dateFormat.format
-      (Common.millisecondsSince1970ToDate((long)Math.round(notBefore_)));
+      (Common.millisecondsSince1970ToDate((long)Math.round(getNotBefore())));
     String notAfterStr = dateFormat.format
-      (Common.millisecondsSince1970ToDate((long)Math.round(notAfter_)));
+      (Common.millisecondsSince1970ToDate((long)Math.round(getNotAfter())));
 
     s += "  NotBefore: " + notBeforeStr + "\n";
     s += "  NotAfter: " + notAfterStr + "\n";
