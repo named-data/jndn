@@ -25,6 +25,10 @@ import net.named_data.jndn.encoding.ElementListener;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Common;
 
+/**
+ * A Transport object is used by Face to send packets and to listen for incoming
+ * packets. See connect() and processEvents() for more details.
+ */
 public abstract class Transport {
   /**
    * A Transport.ConnectionInfo is a base class for connection information used

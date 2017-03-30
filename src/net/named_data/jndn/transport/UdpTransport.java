@@ -28,6 +28,10 @@ import net.named_data.jndn.encoding.ElementReader;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Common;
 
+/**
+ * TcpTransport extends the Transport interface to implement communication over
+ * UDP.
+ */
 public class UdpTransport extends Transport {
   /**
    * A UdpTransport.ConnectionInfo extends Transport.ConnectionInfo to hold
