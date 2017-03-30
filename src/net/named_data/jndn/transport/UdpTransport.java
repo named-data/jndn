@@ -29,7 +29,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.util.Common;
 
 /**
- * TcpTransport extends the Transport interface to implement communication over
+ * UdpTransport extends the Transport interface to implement communication over
  * UDP.
  */
 public class UdpTransport extends Transport {
