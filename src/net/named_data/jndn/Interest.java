@@ -251,6 +251,15 @@ public class Interest implements ChangeCountable {
     return result.toString();
   }
 
+  /**
+   * @return the URI with selectors for this Interest
+   */
+  public final String
+  toString()
+  {
+    return toUri();
+  }
+
   public final Name
   getName() { return (Name)name_.get(); }
 
