@@ -54,7 +54,7 @@ public class TestGetAsync {
   main(String[] args)
   {
     try {
-      Face face = new Face("aleph.ndn.ucla.edu");
+      Face face = new Face("memoria.ndn.ucla.edu");
 
       Counter counter = new Counter();
 
@@ -64,7 +64,7 @@ public class TestGetAsync {
       face.expressInterest(name1, counter, counter);
 
       // Try to fetch using a known name.
-      Name name2 = new Name("/ndn/edu/ucla/remap/demo/ndn-js-test/hello.txt/%FDU%8D%9DM");
+      Name name2 = new Name("/ndn/edu/ucla/remap/demo/ndn-js-test/hello.txt/%FDX%DC5%1F");
       System.out.println("Express name " + name2.toUri());
       face.expressInterest(name2, counter, counter);
 

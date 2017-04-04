@@ -90,7 +90,7 @@ public class TestGetAsyncThreadPool {
       final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(2);
       Face face = new ThreadPoolFace
         (threadPool, new AsyncTcpTransport(threadPool),
-         new AsyncTcpTransport.ConnectionInfo("aleph.ndn.ucla.edu"));
+         new AsyncTcpTransport.ConnectionInfo("memoria.ndn.ucla.edu"));
 
       // Counter will stop the threadPool after callbacks for all expressInterest.
       Counter counter = new Counter(threadPool, 3);
@@ -101,7 +101,7 @@ public class TestGetAsyncThreadPool {
       face.expressInterest(name1, counter, counter);
 
       // Try to fetch using a known name.
-      Name name2 = new Name("/ndn/edu/ucla/remap/demo/ndn-js-test/hello.txt/%FDU%8D%9DM");
+      Name name2 = new Name("/ndn/edu/ucla/remap/demo/ndn-js-test/hello.txt/%FDX%DC5%1F");
       System.out.println("Express name " + name2.toUri());
       face.expressInterest(name2, counter, counter);
 
