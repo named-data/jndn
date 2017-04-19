@@ -71,6 +71,7 @@ public class Data implements ChangeCountable, SignatureHolder {
     metaInfo_.set(new MetaInfo(data.getMetaInfo()));
     content_ = data.content_;
     setDefaultWireEncoding(data.defaultWireEncoding_, null);
+    defaultFullName_ = new Name(data.defaultFullName_);
   }
 
   /**
