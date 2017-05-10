@@ -455,6 +455,63 @@ public class TestGroupManager implements GroupManager.Friend {
     assertEquals(0, manager.getGroupKey(timePoint3).size());
   }
 
+  @Test
+  public void
+  testGetGroupKeyWithoutRegeneration()
+    throws SecurityException, GroupManagerDb.Error, EncodingException,
+      DerDecodingException, ParseException
+  {
+    // Create the group manager.
+    GroupManager manager = new GroupManager
+      (new Name("Alice"), new Name("data_type"),
+       new Sqlite3GroupManagerDb(groupKeyDatabaseFilePath.getAbsolutePath()), 1024, 1,
+       keyChain);
+    setManager(manager);
+
+    // Get the data list from the group manager.
+    double timePoint1 = fromIsoString("20150825T093000");
+    List result = manager.getGroupKey(timePoint1);
+
+    assertEquals(4, result.size());
+
+    // The first data packet contains the group's encryption key (public key).
+    Data data1 = (Data)result.get(0);
+    assertEquals
+      ("/Alice/READ/data_type/E-KEY/20150825T090000/20150825T100000",
+       data1.getName().toUri());
+    EncryptKey groupEKey1 = new EncryptKey(data1.getContent());
+
+    // Get the second data packet.
+    data1 = (Data)result.get(1);
+    assertEquals
+      ("/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123",
+       data1.getName().toUri());
+
+    // Add new members to the database.
+    Blob dataBlob = certificate.wireEncode();
+    Data memberD = new Data();
+    memberD.wireDecode(dataBlob);
+    memberD.setName(new Name("/ndn/memberD/KEY/ksk-123/ID-CERT/123"));
+    manager.addMember("schedule1", memberD);
+
+    List result2 = manager.getGroupKey(timePoint1, false);
+    assertEquals(5, result2.size());
+
+    // Check that the new EKey is the same as the previous one.
+    Data data2 = (Data)result.get(0);
+    assertEquals
+      ("/Alice/READ/data_type/E-KEY/20150825T090000/20150825T100000",
+       data2.getName().toUri());
+    EncryptKey groupEKey2 = new EncryptKey(data2.getContent());
+    assertTrue(groupEKey1.getKeyBits().equals(groupEKey2.getKeyBits()));
+
+  // Check the second data packet.
+  data2 = (Data)result.get(1);
+    assertEquals
+      ("/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123",
+       data2.getName().toUri());
+  }
+
   private File dKeyDatabaseFilePath;
   private File eKeyDatabaseFilePath;
   private File intervalDatabaseFilePath;
