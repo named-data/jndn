@@ -55,6 +55,8 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
     database_.execSQL(INITIALIZATION2);
     database_.execSQL(INITIALIZATION3);
     database_.execSQL(INITIALIZATION4);
+    database_.execSQL(INITIALIZATION5);
+    database_.execSQL(INITIALIZATION6);
   }
 
   ////////////////////////////////////////////////////// Schedule management.
@@ -424,6 +426,130 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
   }
 
   /**
+   * Check if there is an EKey with the name eKeyName in the database.
+   * @param eKeyName The name of the EKey.
+   * @return True if the EKey exists.
+   * @throws GroupManagerDb.Error for a database error.
+   */
+  public boolean
+  hasEKey(Name eKeyName) throws GroupManagerDb.Error
+  {
+    // Use a statement because it allows binding a blob for the query.
+    SQLiteStatement statement = database_.compileStatement(SELECT_hasEKey);
+    try {
+      statement.bindBlob
+        (1, eKeyName.wireEncode(TlvWireFormat.get()).getImmutableArray());
+      try {
+        statement.simpleQueryForLong();
+        return true;
+      } catch (SQLiteDoneException ex) {
+        // No match.
+        return false;
+      }
+    } finally {
+      statement.close();
+    }
+  }
+
+  /**
+   * Add the EKey with name eKeyName to the database.
+   * @param eKeyName The name of the EKey. This copies the Name.
+   * @param publicKey The encoded public Key of the group key pair.
+   * @param privateKey The encoded private Key of the group key pair.
+   * @throws GroupManagerDb.Error If a key with name eKeyName already exists in
+   * the database, or other database error.
+   */
+  public void
+  addEKey(Name eKeyName, Blob publicKey, Blob privateKey) throws GroupManagerDb.Error
+  {
+    ContentValues values = new ContentValues();
+    values.put
+      ("ekey_name", eKeyName.wireEncode(TlvWireFormat.get()).getImmutableArray());
+    values.put("pub_key", publicKey.getImmutableArray());
+    if (database_.insert("ekeys", null, values) < 0)
+      throw new GroupManagerDb.Error
+        ("AndroidSqlite3GroupManagerDb.addEKey: SQLite error");
+
+    privateKeyBase_.put(new Name(eKeyName), privateKey);
+  }
+
+  /**
+   * Get the group key pair with the name eKeyName from the database.
+   * @param eKeyName The name of the EKey.
+   * @param publicKey Set publicKey[0] to the encoded public Key.
+   * @param privateKey Set publicKey[0] to the encoded private Key.
+   * @throws GroupManagerDb.Error If the key with name eKeyName does not exist
+   * in the database, or other database error.
+   */
+  public void
+  getEKey(Name eKeyName, Blob[] publicKey, Blob[] privateKey)
+    throws GroupManagerDb.Error
+  {
+    // First use a statement to get the key ID because the statement allows
+    // binding a blob for the query.
+    long ekeyId;
+    SQLiteStatement statement = database_.compileStatement
+      ("SELECT ekey_id FROM ekeys WHERE ekey_name=?");
+    try {
+      statement.bindBlob
+        (1, eKeyName.wireEncode(TlvWireFormat.get()).getImmutableArray());
+      try {
+        ekeyId = statement.simpleQueryForLong();
+      } catch (SQLiteDoneException ex) {
+        throw new GroupManagerDb.Error("getEKey: Cannot find the eKeyName");
+      }
+    } finally {
+      statement.close();
+    }
+
+    // Now use the ekeyId to get the key.
+    Cursor cursor = database_.rawQuery
+      ("SELECT pub_key FROM ekeys WHERE ekey_id=?",
+       new String[] { Long.toString(ekeyId) });
+    try {
+      if (cursor.moveToNext())
+        publicKey[0] = new Blob(cursor.getBlob(0));
+      else
+        // We don't expect this since we got the keyId.
+        throw new GroupManagerDb.Error("getEKey: Cannot find the eKeyName");
+    } finally {
+      cursor.close();
+    }
+
+    privateKey[0] = privateKeyBase_.get(eKeyName);
+  }
+
+  /**
+   * Delete all the EKeys in the database.
+   * The database will keep growing because EKeys will keep being added, so this
+   * method should be called periodically.
+   * @throws GroupManagerDb.Error for a database error.
+   */
+  public void
+  cleanEKeys() throws GroupManagerDb.Error
+  {
+    database_.execSQL(DELETE_cleanEKeys, new Object[0]);
+
+    privateKeyBase_.clear();
+  }
+
+  /**
+   * Delete the EKey with name eKeyName from the database. If no key with the
+   * name exists in the database, do nothing.
+   * @param eKeyName The name of the EKey.
+   * @throws GroupManagerDb.Error for a database error.
+   */
+  public void
+  deleteEKey(Name eKeyName) throws GroupManagerDb.Error
+  {
+    database_.execSQL
+      (DELETE_deleteEKey,
+       new Object[] { eKeyName.wireEncode(TlvWireFormat.get()).getImmutableArray() });
+
+    privateKeyBase_.remove(eKeyName);
+  }
+
+  /**
    * Get the ID for the schedule.
    * @param name The schedule name.
    * @return The ID, or -1 if the schedule name is not found.
@@ -445,4 +571,5 @@ public class AndroidSqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
   }
 
   private final SQLiteDatabase database_;
+  Map<Name, Blob> privateKeyBase_ = new HashMap<>();
 }
