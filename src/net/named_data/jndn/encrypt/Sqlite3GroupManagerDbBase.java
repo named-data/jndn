@@ -81,6 +81,17 @@ public abstract class Sqlite3GroupManagerDbBase extends GroupManagerDb {
     "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
     "   memNameIndex ON members(member_name);           \n";
 
+  protected static final String INITIALIZATION5 =
+    "CREATE TABLE IF NOT EXISTS                         \n" +
+    "  ekeys(                                           \n" +
+    "    ekey_id             INTEGER PRIMARY KEY,       \n" +
+    "    ekey_name           BLOB NOT NULL,             \n" +
+    "    pub_key             BLOB NOT NULL              \n" +
+    "  );                                               \n";
+  protected static final String INITIALIZATION6 =
+    "CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
+    "   ekeyNameIndex ON ekeys(ekey_name);              \n";
+
   protected static final String SELECT_hasSchedule =
     "SELECT schedule_id FROM schedules where schedule_name=?";
   protected static final String SELECT_listAllScheduleNames =
@@ -121,4 +132,14 @@ public abstract class Sqlite3GroupManagerDbBase extends GroupManagerDb {
     "UPDATE members SET schedule_id=? WHERE member_name=?";
   protected static final String DELETE_deleteMember =
     "DELETE FROM members WHERE member_name=?";
+
+  protected static final String SELECT_hasEKey =
+    "SELECT ekey_id FROM ekeys where ekey_name=?";
+  protected static final String INSERT_addEKey =
+    "INSERT INTO ekeys(ekey_name, pub_key) values (?, ?)";
+  protected static final String SELECT_getEKey =
+    "SELECT * FROM ekeys where ekey_name=?";
+  protected static final String DELETE_cleanEKeys = "DELETE FROM ekeys";
+  protected static final String DELETE_deleteEKey =
+    "DELETE FROM ekeys WHERE ekey_name=?";
 }
