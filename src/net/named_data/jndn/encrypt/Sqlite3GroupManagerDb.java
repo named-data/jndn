@@ -643,7 +643,7 @@ public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
         ResultSet result = statement.executeQuery();
 
         if (result.next())
-          publicKey[0] = new Blob(result.getBytes(2), false);
+          publicKey[0] = new Blob(result.getBytes(3), false);
         else
           throw new GroupManagerDb.Error
             ("Sqlite3GroupManagerDb.getEKey: Cannot get the result from the database");
