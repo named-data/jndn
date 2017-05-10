@@ -741,6 +741,6 @@ public class Sqlite3GroupManagerDb extends Sqlite3GroupManagerDbBase {
     }
   }
 
-  Connection database_ = null;
-  Map<Name, Blob> privateKeyBase_ = new HashMap<>();
+  private Connection database_ = null;
+  private final HashMap<Name, Blob> privateKeyBase_ = new HashMap<Name, Blob>();
 }
