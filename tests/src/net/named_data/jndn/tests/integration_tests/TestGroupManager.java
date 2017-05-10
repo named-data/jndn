@@ -498,15 +498,15 @@ public class TestGroupManager implements GroupManager.Friend {
     assertEquals(5, result2.size());
 
     // Check that the new EKey is the same as the previous one.
-    Data data2 = (Data)result.get(0);
+    Data data2 = (Data)result2.get(0);
     assertEquals
       ("/Alice/READ/data_type/E-KEY/20150825T090000/20150825T100000",
        data2.getName().toUri());
     EncryptKey groupEKey2 = new EncryptKey(data2.getContent());
     assertTrue(groupEKey1.getKeyBits().equals(groupEKey2.getKeyBits()));
 
-  // Check the second data packet.
-  data2 = (Data)result.get(1);
+    // Check the second data packet.
+    data2 = (Data)result2.get(1);
     assertEquals
       ("/Alice/READ/data_type/D-KEY/20150825T090000/20150825T100000/FOR/ndn/memberA/ksk-123",
        data2.getName().toUri());
