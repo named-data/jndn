@@ -23,6 +23,7 @@ package net.named_data.jndn.tests.unit_tests;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
+import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.KeyLocator;
 import net.named_data.jndn.KeyLocatorType;
@@ -33,12 +34,11 @@ import net.named_data.jndn.security.ValidityPeriod;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import static net.named_data.jndn.tests.unit_tests.UnitTestsCommon.fromIsoString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.Before;
 import org.junit.Test;
 
-public class TestCertificate {
+public class TestInvalidCertificate {
   // Convert the int array to a ByteBuffer.
   public static ByteBuffer
   toBuffer(int[] array)
@@ -50,20 +50,6 @@ public class TestCertificate {
     result.flip();
     return result;
   }
-
-  private static final ByteBuffer PUBLIC_KEY = toBuffer(new int[] {
-0x30, 0x81, 0x9d, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
-0x01, 0x05, 0x00, 0x03, 0x81, 0x8b, 0x00, 0x30, 0x81, 0x87, 0x02, 0x81, 0x81, 0x00, 0x9e,
-0x06, 0x3e, 0x47, 0x85, 0xb2, 0x34, 0x37, 0xaa, 0x85, 0x47, 0xac, 0x03, 0x24, 0x83, 0xb5,
-0x9c, 0xa8, 0x05, 0x3a, 0x24, 0x1e, 0xeb, 0x89, 0x01, 0xbb, 0xe9, 0x9b, 0xb2, 0xc3, 0x22,
-0xac, 0x68, 0xe3, 0xf0, 0x6c, 0x02, 0xce, 0x68, 0xa6, 0xc4, 0xd0, 0xa7, 0x06, 0x90, 0x9c,
-0xaa, 0x1b, 0x08, 0x1d, 0x8b, 0x43, 0x9a, 0x33, 0x67, 0x44, 0x6d, 0x21, 0xa3, 0x1b, 0x88,
-0x9a, 0x97, 0x5e, 0x59, 0xc4, 0x15, 0x0b, 0xd9, 0x2c, 0xbd, 0x51, 0x07, 0x61, 0x82, 0xad,
-0xc1, 0xb8, 0xd7, 0xbf, 0x9b, 0xcf, 0x7d, 0x24, 0xc2, 0x63, 0xf3, 0x97, 0x17, 0xeb, 0xfe,
-0x62, 0x25, 0xba, 0x5b, 0x4d, 0x8a, 0xc2, 0x7a, 0xbd, 0x43, 0x8a, 0x8f, 0xb8, 0xf2, 0xf1,
-0xc5, 0x6a, 0x30, 0xd3, 0x50, 0x8c, 0xc8, 0x9a, 0xdf, 0xef, 0xed, 0x35, 0xe7, 0x7a, 0x62,
-0xea, 0x76, 0x7c, 0xbb, 0x08, 0x26, 0xc7, 0x02, 0x01, 0x11
-  });
 
   private static final ByteBuffer SIG_VALUE = toBuffer(new int[] {
 0x17, 0x80, // SignatureValue
@@ -152,112 +138,79 @@ public class TestCertificate {
     return signatureInfo;
   }
 
-  @Test
+  Data certificateBase_;
+
+  @Before
   public void
-  testConstructor() throws EncodingException, ParseException, CertificateV2.Error
+  setUp() throws EncodingException, CertificateV2.Error, ParseException
   {
-    CertificateV2 certificate = new CertificateV2();
-    certificate.wireDecode(new Blob(CERT, false));
+    CertificateV2 certificateBase = new CertificateV2();
+    certificateBase.wireDecode(new Blob(CERT, false));
+    // Check no throw.
+    CertificateV2 temp1 = new CertificateV2(certificateBase);
 
-    assertEquals(new Name("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B"),
-                 certificate.getName());
-    assertEquals(new Name("/ndn/site1/KEY/ksk-1416425377094"),
-                 certificate.getKeyName());
-    assertEquals(new Name("/ndn/site1"), certificate.getIdentity());
-    assertEquals(new Name.Component("0123"), certificate.getIssuerId());
-    assertEquals(new Name.Component("ksk-1416425377094"), certificate.getKeyId());
-    assertEquals(new Name("/ndn/site1/KEY/ksk-2516425377094"),
-                KeyLocator.getFromSignature(certificate.getSignature()).getKeyName());
-    assertEquals(fromIsoString("20150814T223739"),
-                 certificate.getValidityPeriod().getNotBefore(), 0);
-    assertEquals(fromIsoString("20150818T223738"),
-                 certificate.getValidityPeriod().getNotAfter(), 0);
+    certificateBase_ = new Data(certificateBase);
+    certificateBase_.setSignature(generateFakeSignature());
 
-    try {
-      certificate.getPublicKey();
-    } catch (Exception ex) {
-      fail(ex.getMessage());
-    }
-
-    Data data = new Data();
-    data.wireDecode(new Blob(CERT, false));
-    CertificateV2 certificate2 = new CertificateV2(data);
-    assertEquals(certificate.getName(), certificate2.getName());
-    assertTrue(certificate.getPublicKey().equals(certificate2.getPublicKey()));
+    // Check no throw.
+    CertificateV2 temp2 = new CertificateV2(certificateBase_);
   }
 
   @Test
   public void
-  testSetters() throws ParseException
+  testInvalidName() throws ParseException
   {
-    CertificateV2 certificate = new CertificateV2();
-    certificate.setName
-      (new Name("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B"));
-    certificate.getMetaInfo().setFreshnessPeriod(3600 * 1000.0);
-    certificate.setContent(new Blob(PUBLIC_KEY, false));
-    certificate.setSignature(generateFakeSignature());
-
-    assertEquals(new Name("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B"),
-                 certificate.getName());
-    assertEquals(new Name("/ndn/site1/KEY/ksk-1416425377094"), certificate.getKeyName());
-    assertEquals(new Name("/ndn/site1"), certificate.getIdentity());
-    assertEquals(new Name.Component("0123"), certificate.getIssuerId());
-    assertEquals(new Name.Component("ksk-1416425377094"), certificate.getKeyId());
-    assertEquals(new Name("/ndn/site1/KEY/ksk-2516425377094"),
-                 KeyLocator.getFromSignature(certificate.getSignature()).getKeyName());
-    assertEquals(fromIsoString("20141111T050000"),
-                 certificate.getValidityPeriod().getNotBefore(), 0);
-    assertEquals(fromIsoString("20141111T060000"),
-                 certificate.getValidityPeriod().getNotAfter(), 0);
+    Data data = new Data(certificateBase_);
+    data.setName(new Name("/ndn/site1/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B"));
+    data.setSignature(generateFakeSignature());
 
     try {
-      certificate.getPublicKey();
-    } catch (Exception ex) {
-      fail(ex.getMessage());
+      new CertificateV2(data);
+      fail("The CertificateV2 constructor did not throw an exception");
     }
-}
-
-  @Test
-  public void
-  testValidityPeriodChecking() throws ParseException
-  {
-    CertificateV2 certificate = new CertificateV2();
-    certificate.setName
-      (new Name("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B"));
-    certificate.getMetaInfo().setFreshnessPeriod(3600 * 1000.0);
-    certificate.setContent(new Blob(PUBLIC_KEY, false));
-    certificate.setSignature(generateFakeSignature());
-
-    assertEquals(true,  certificate.isValid(fromIsoString("20141111T050000")));
-    assertEquals(true,  certificate.isValid(fromIsoString("20141111T060000")));
-    assertEquals(false, certificate.isValid(fromIsoString("20141111T045959")));
-    assertEquals(false, certificate.isValid(fromIsoString("20141111T060001")));
+    catch (CertificateV2.Error ex) {}
+    catch (Exception ex) { fail("The CertificateV2 constructor did not throw an exception"); }
   }
 
   @Test
   public void
-  testPrintCertificateInfo() throws EncodingException
+  testInvalidType() throws ParseException
   {
-    String expectedCertificateInfo =
-"Certificate name:\n" +
-"  /ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B\n" +
-"Validity:\n" +
-"  NotBefore: 20150814T223739\n" +
-"  NotAfter: 20150818T223738\n" +
-"Public key bits:\n" +
-"MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQCeBj5HhbI0N6qFR6wDJIO1nKgF\n" +
-"OiQe64kBu+mbssMirGjj8GwCzmimxNCnBpCcqhsIHYtDmjNnRG0hoxuImpdeWcQV\n" +
-"C9ksvVEHYYKtwbjXv5vPfSTCY/OXF+v+YiW6W02Kwnq9Q4qPuPLxxWow01CMyJrf\n" +
-"7+0153pi6nZ8uwgmxwIBEQ==\n" +
-"Signature Information:\n" +
-"  Signature Type: SignatureSha256WithRsa\n" +
-"  Key Locator: Name=/ndn/site1/KEY/ksk-2516425377094\n";
+    Data data = new Data(certificateBase_);
+    data.getMetaInfo().setType(ContentType.BLOB);
+    data.setSignature(generateFakeSignature());
 
-    CertificateV2 certificate = new CertificateV2();
-    certificate.wireDecode(new Blob(CERT, false));
+    try {
+      new CertificateV2(data);
+      fail("The CertificateV2 constructor did not throw an exception");
+    }
+    catch (CertificateV2.Error ex) {}
+    catch (Exception ex) { fail("The CertificateV2 constructor did not throw an exception"); }
+  }
 
-    StringBuffer actual = new StringBuffer();
-    certificate.printCertificate(actual);
-    assertEquals(expectedCertificateInfo, actual.toString());
+  @Test
+  public void
+  testEmptyContent() throws ParseException, CertificateV2.Error
+  {
+    Data data = new Data(certificateBase_);
+    data.setContent(new Blob());
+    data.setSignature(generateFakeSignature());
+
+    try {
+      new CertificateV2(data);
+      fail("The CertificateV2 constructor did not throw an exception");
+    }
+    catch (CertificateV2.Error ex) {}
+    catch (Exception ex) { fail("The CertificateV2 constructor did not throw an exception"); }
+
+    CertificateV2 certificate = new CertificateV2(certificateBase_);
+    certificate.setContent(new Blob());
+    certificate.setSignature(generateFakeSignature());
+    try {
+      certificate.getPublicKey();
+      fail("getPublicKey did not throw an exception");
+    }
+    catch (CertificateV2.Error ex) {}
+    catch (Exception ex) { fail("getPublicKey did not throw an exception"); }
   }
 }
