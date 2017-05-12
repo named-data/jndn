@@ -19,7 +19,11 @@
  */
 
 package net.named_data.jndn.security;
+import net.named_data.jndn.Sha256WithEcdsaSignature;
+import net.named_data.jndn.Sha256WithRsaSignature;
+import net.named_data.jndn.Signature;
 import net.named_data.jndn.util.ChangeCountable;
+import net.named_data.jndn.util.Common;
 
 /**
  * A ValidityPeriod is used in a Data packet's SignatureInfo and represents the
@@ -128,6 +132,52 @@ public class ValidityPeriod implements ChangeCountable {
   isValid(double time)
   {
     return notBefore_ <= time && time <= notAfter_;
+  }
+
+  /**
+   * Check if the current time falls within the validity period.
+   * @return True if the beginning of the validity period is less than or equal
+   * to the current time and the current time is less than or equal to the end
+   * of the validity period.
+   */
+  public final boolean
+  isValid() { return isValid(Common.getNowMilliseconds()); }
+
+  /**
+   * If the signature is a type that has a ValidityPeriod (so that
+   * getFromSignature will succeed), return true.
+   * Note: This is a static method of ValidityPeriod instead of a method of
+   * Signature so that the Signature base class does not need to be overloaded
+   * with all the different kinds of information that various signature
+   * algorithms may use.
+   * @param signature An object of a subclass of Signature.
+   * @return True if the signature is a type that has a ValidityPeriod,
+   * otherwise false.
+   */
+  public static boolean
+  canGetFromSignature(Signature signature)
+  {
+    return signature instanceof Sha256WithRsaSignature ||
+           signature instanceof Sha256WithEcdsaSignature;
+  }
+
+  /**
+   * If the signature is a type that has a ValidityPeriod, then return it.
+   * Otherwise throw an error.
+   * @param signature An object of a subclass of Signature.
+   * @return The signature's ValidityPeriod. It is an error if signature doesn't
+   * have a ValidityPeriod.
+   */
+  public static ValidityPeriod
+  getFromSignature(Signature signature)
+  {
+    if (signature instanceof Sha256WithRsaSignature)
+      return ((Sha256WithRsaSignature)signature).getValidityPeriod();
+    else if (signature instanceof Sha256WithEcdsaSignature)
+      return ((Sha256WithEcdsaSignature)signature).getValidityPeriod();
+    else
+      throw new Error
+        ("ValidityPeriod::getFromSignature: Signature type does not have a ValidityPeriod");
   }
 
   /**
