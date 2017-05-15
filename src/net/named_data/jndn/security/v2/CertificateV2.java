@@ -29,6 +29,8 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encrypt.Schedule;
 import net.named_data.jndn.security.ValidityPeriod;
 import net.named_data.jndn.util.Blob;
@@ -115,6 +117,12 @@ public class CertificateV2 extends Data {
     // Use the copy constructor.  It clones the signature object.
     super(data);
 
+    checkFormat();
+  }
+
+  private void
+  checkFormat() throws Error
+  {
     if (!isValidName(getName()))
       throw new Error
         ("The Data Name does not follow the certificate naming convention");
@@ -244,6 +252,23 @@ public class CertificateV2 extends Data {
       }
       else
         result.append("<no KeyLocator key name>\n");
+    }
+  }
+
+  /**
+   * Override to call the base class wireDecode then check the certificate
+   * format.
+   * @param input The input byte array to be decoded as an immutable Blob.
+   * @param wireFormat A WireFormat object used to decode the input.
+   */
+  public void
+  wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
+  {
+    super.wireDecode(input, wireFormat);
+    try {
+      checkFormat();
+    } catch (Error ex) {
+      throw new EncodingException(ex.getMessage());
     }
   }
 
