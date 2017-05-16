@@ -33,6 +33,7 @@ import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.ConfigPolicyManager;
+import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.BoostInfoTree;
 import static org.junit.Assert.assertFalse;
@@ -225,7 +226,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
 
   @Test
   public void
-  testNameRelation() throws IOException, SecurityException
+  testNameRelation() throws IOException, SecurityException, CertificateV2.Error
   {
     ConfigPolicyManager policyManagerPrefix = new ConfigPolicyManager
       (new File(policyConfigDirectory, "relation_ruleset_prefix.conf").getAbsolutePath());
@@ -270,7 +271,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
 
   @Test
   public void
-  testSimpleRegex() throws IOException, SecurityException
+  testSimpleRegex() throws IOException, SecurityException, CertificateV2.Error
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
       (new File(policyConfigDirectory, "regex_ruleset.conf").getAbsolutePath());
@@ -306,7 +307,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
 
   @Test
   public void
-  testHierarchical() throws IOException, SecurityException
+  testHierarchical() throws IOException, SecurityException, CertificateV2.Error
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
       (new File(policyConfigDirectory, "hierarchical_ruleset.conf").getAbsolutePath());
@@ -354,7 +355,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
 
   @Test
   public void
-  testHyperRelation() throws IOException, SecurityException
+  testHyperRelation() throws IOException, SecurityException, CertificateV2.Error
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
       (new File(policyConfigDirectory, "hyperrelation_ruleset.conf").getAbsolutePath());

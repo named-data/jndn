@@ -51,6 +51,7 @@ import net.named_data.jndn.security.policy.ConfigPolicyManager;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.security.policy.PolicyManager;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
+import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 import org.junit.After;
@@ -253,7 +254,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
 
   @Before
   public void
-  setUp() throws SecurityException, IOException
+  setUp() throws SecurityException, IOException, CertificateV2.Error
   {
     // Don't show INFO log messages.
     Logger.getLogger("").setLevel(Level.WARNING);
