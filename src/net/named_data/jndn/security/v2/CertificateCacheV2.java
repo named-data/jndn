@@ -77,7 +77,7 @@ public class CertificateCacheV2 {
    * @return The found certificate, or null if not found. You must not modify
    * the returned object. If you need to modify it, then make a copy.
    */
-  CertificateV2
+  public final CertificateV2
   find(Name certificatePrefix)
   {
     if (certificatePrefix.size() > 0 &&
