@@ -338,6 +338,5 @@ public class CertificateV2 extends Data {
   public static final int KEY_COMPONENT_OFFSET = -4;
   public static final int MIN_CERT_NAME_LENGTH = 4;
   public static final int MIN_KEY_NAME_LENGTH = 2;
-
-  private static final Name.Component KEY_COMPONENT = new Name.Component("KEY");
+  public static final Name.Component KEY_COMPONENT = new Name.Component("KEY");
 }
