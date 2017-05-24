@@ -209,7 +209,7 @@ public abstract class PolicyManager {
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
    */
-  protected static boolean
+  public static boolean
   verifySha256WithRsaSignature
     (Blob signature, SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
   {
@@ -267,7 +267,7 @@ public abstract class PolicyManager {
    * @param publicKeyDer The DER-encoded public key used to verify the signature.
    * @return true if the signature verifies, false if not.
    */
-  protected static boolean
+  public static boolean
   verifySha256WithEcdsaSignature
     (Blob signature, SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
   {
@@ -325,7 +325,7 @@ public abstract class PolicyManager {
    * @param signedBlob the SignedBlob with the signed portion to verify.
    * @return true if the signature verifies, false if not.
    */
-  protected static boolean
+  public static boolean
   verifyDigestSha256Signature(Blob signature, SignedBlob signedBlob)
   {
     // Set signedPortionDigest to the digest of the signed portion of the signedBlob.
