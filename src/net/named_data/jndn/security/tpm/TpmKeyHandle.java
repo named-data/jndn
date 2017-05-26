@@ -31,10 +31,10 @@ import net.named_data.jndn.util.Blob;
  */
 public abstract class TpmKeyHandle {
   /**
-   * Compute a digital signature from the byte array using this key with
+   * Compute a digital signature from the byte buffer using this key with
    * digestAlgorithm.
    * @param digestAlgorithm The digest algorithm.
-   * @param data The input byte array.
+   * @param data The input byte buffer.
    * @return The signature Blob, or an isNull Blob for an unrecognized
    * digestAlgorithm.
    */
@@ -47,7 +47,7 @@ public abstract class TpmKeyHandle {
 
   /**
    * Return the plain text which is decrypted from cipherText using this key.
-   * @param cipherText The cipher text byte array.
+   * @param cipherText The cipher text byte buffer.
    * @return The decrypted data.
    */
   public final Blob
