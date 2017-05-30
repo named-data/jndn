@@ -21,7 +21,10 @@
 package net.named_data.jndn.security.pib;
 
 import net.named_data.jndn.Name;
+import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.pib.detail.PibKeyImpl;
 import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.util.Blob;
 
 /**
  * The PibKey class provides access to a key at the second level in the PIB's
@@ -31,6 +34,62 @@ import net.named_data.jndn.security.v2.CertificateV2;
  * A certificate can be directly accessed by getting a CertificateV2 object.
  */
 public class PibKey {
+  /*
+   * Get the key name.
+   * @return The key name. You must not modify the Key object. If you need to
+   * modify it, make a copy.
+   * @throws AssertionError if the backend implementation instance is invalid.
+   */
+  public final Name
+  getName() { return lock().getName(); }
+
+  /**
+   * Get the name of the identity this key belongs to.
+   * @return The name of the identity. You must not modify the Key object. If
+   * you need to modify it, make a copy.
+   * @throws AssertionError if the backend implementation instance is invalid.
+   */
+  public final Name
+  getIdentityName() { return lock().getIdentityName(); }
+
+  /**
+   * Get the key type.
+   * @return The key type.
+   * @throws AssertionError if the backend implementation instance is invalid.
+   */
+  public final KeyType
+  getKeyType() { return lock().getKeyType(); }
+
+  /**
+   * Get the public key encoding.
+   * @return The public key encoding.
+   * @throws AssertionError if the backend implementation instance is invalid.
+   */
+  public final Blob
+  getPublicKey() { return lock().getPublicKey(); }
+
+  /**
+   * Get the certificate with name certificateName.
+   * @param certificateName The name of the certificate.
+   * @return A copy of the CertificateV2 object.
+   * @throws AssertionError if certificateName does not match the key name.
+   * @throws Pib.Error if the certificate does not exist.
+   */
+  public final CertificateV2
+  getCertificate(Name certificateName) throws Pib.Error, PibImpl.Error
+  {
+    return lock().getCertificate(certificateName);
+  }
+
+  /**
+   * Get the default certificate for this Key.
+   * @throws Pib::Error the default certificate does not exist.
+   */
+  public final CertificateV2
+  getDefaultCertificate() throws Pib.Error, PibImpl.Error
+  {
+    return lock().getDefaultCertificate();
+  }
 
   /**
    * Construct a key name based on the appropriate naming conventions.
@@ -77,4 +136,92 @@ public class PibKey {
     return keyName.getPrefix(-CertificateV2.MIN_KEY_NAME_LENGTH);
   }
 
+  /**
+   * Create a PibKey which uses the impl backend implementation. This
+   * constructor should only be called by PibKeyContainer.
+   */
+  public PibKey(PibKeyImpl impl)
+  {
+    impl_ = impl;
+  }
+
+  /**
+   * Add the certificate. If a certificate with the same name (without implicit
+   * digest) already exists, then overwrite the certificate. If no default
+   * certificate for the key has been set, then set the added certificate as
+   * default for the key.
+   * This should only be called by KeyChain.
+   * @param certificate The certificate to add. This copies the object.
+   * @throws IllegalArgumentException if the name of the certificate does not
+   * match the key name.
+   */
+  public final void
+  addCertificate_(CertificateV2 certificate)
+    throws CertificateV2.Error, PibImpl.Error
+  {
+    lock().addCertificate(certificate);
+  }
+
+  /**
+   * Remove the certificate with name certificateName. If the certificate does
+   * not exist, do nothing.
+   * This should only be called by KeyChain.
+   * @param certificateName The name of the certificate.
+   * @throws IllegalArgumentException if certificateName does not match the key
+   * name.
+   */
+  public final void
+  removeCertificate_(Name certificateName) throws PibImpl.Error
+  {
+    lock().removeCertificate(certificateName);
+  }
+
+  /**
+   * Set the existing certificate with name certificateName as the default
+   * certificate.
+   * This should only be called by KeyChain.
+   * @param certificateName The name of the certificate.
+   * @return The default certificate.
+   * @throws IllegalArgumentException if certificateName does not match the key
+   * name
+   * @throws Pib.Error if the certificate does not exist.
+   */
+  public final CertificateV2
+  setDefaultCertificate_(Name certificateName) throws Pib.Error, PibImpl.Error
+  {
+    return lock().setDefaultCertificate(certificateName);
+  }
+
+  /**
+   * Add the certificate and set it as the default certificate of the key.
+   * If a certificate with the same name (without implicit digest) already
+   * exists, then overwrite the certificate.
+   * This should only be called by KeyChain.
+   * @param certificate The certificate to add. This copies the object.
+   * @throws IllegalArgumentException if the name of the certificate does not
+   * match the key name.
+   * @return The default certificate.
+   */
+  public final CertificateV2
+  setDefaultCertificate_(CertificateV2 certificate)
+    throws CertificateV2.Error, PibImpl.Error, Pib.Error
+  {
+    return lock().setDefaultCertificate(certificate);
+  }
+
+  /**
+   * Check the validity of the impl_ instance.
+   * @return The PibKeyImpl when the instance is valid.
+   * @throws AssertionError if the backend implementation instance is invalid.
+   */
+  private PibKeyImpl
+  lock()
+  {
+    if (impl_ == null)
+      throw new AssertionError("Invalid key instance");
+
+    return impl_;
+  }
+
+  private final PibKeyImpl impl_;
 }
