@@ -1,4 +1,4 @@
-/**
+  /**
  * Copyright (C) 2015-2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From ndn-group-encrypt unit tests
@@ -22,7 +22,6 @@
 package src.net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
-import java.text.ParseException;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -70,6 +69,8 @@ import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
 import static net.named_data.jndn.encrypt.Schedule.toIsoString;
 import static net.named_data.jndn.encrypt.Schedule.fromIsoString;
+import net.named_data.jndn.security.pib.PibImpl;
+import net.named_data.jndn.security.tpm.TpmBackEnd;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -256,7 +257,9 @@ public class TestGroupManager implements GroupManager.Friend {
   testCreateDKeyData()
     throws SecurityException, GroupManagerDb.Error, EncodingException,
       InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException,
-      InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException
+      InvalidKeyException, IllegalBlockSizeException, BadPaddingException, 
+      InvalidAlgorithmParameterException, TpmBackEnd.Error, PibImpl.Error,
+      KeyChain.Error
   {
     // Create the group manager.
     GroupManager manager = new GroupManager
@@ -308,7 +311,8 @@ public class TestGroupManager implements GroupManager.Friend {
   public void
   testCreateEKeyData() 
     throws SecurityException, GroupManagerDb.Error, EncodingException,
-      DerDecodingException, ParseException
+      DerDecodingException, ParseException, TpmBackEnd.Error, PibImpl.Error,
+      KeyChain.Error
   {
     // Create the group manager.
     GroupManager manager = new GroupManager
@@ -369,7 +373,8 @@ public class TestGroupManager implements GroupManager.Friend {
       DerDecodingException, ParseException, InvalidKeySpecException,
       NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
-      InvalidAlgorithmParameterException
+      InvalidAlgorithmParameterException, TpmBackEnd.Error, PibImpl.Error,
+      KeyChain.Error
   {
     // Create the group manager.
     GroupManager manager = new GroupManager
@@ -459,7 +464,8 @@ public class TestGroupManager implements GroupManager.Friend {
   public void
   testGetGroupKeyWithoutRegeneration()
     throws SecurityException, GroupManagerDb.Error, EncodingException,
-      DerDecodingException, ParseException
+      DerDecodingException, ParseException, TpmBackEnd.Error, PibImpl.Error,
+      KeyChain.Error
   {
     // Create the group manager.
     GroupManager manager = new GroupManager

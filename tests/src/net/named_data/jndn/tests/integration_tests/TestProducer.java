@@ -67,6 +67,8 @@ import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.util.Blob;
 import static net.named_data.jndn.encrypt.Schedule.fromIsoString;
+import net.named_data.jndn.security.pib.PibImpl;
+import net.named_data.jndn.security.tpm.TpmBackEnd;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -152,7 +154,8 @@ public class TestProducer {
       NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
       BadPaddingException, InvalidAlgorithmParameterException,
       InvalidKeySpecException, SecurityException, DerDecodingException, 
-      ProducerDb.Error, IOException
+      ProducerDb.Error, IOException, TpmBackEnd.Error, PibImpl.Error,
+      KeyChain.Error
   {
     Name prefix = new Name("/prefix");
     Name suffix = new Name("/a/b/c");
@@ -342,7 +345,8 @@ public class TestProducer {
     throws ParseException, NoSuchAlgorithmException, NoSuchPaddingException,
       InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException,
-      SecurityException, DerDecodingException, ProducerDb.Error, IOException, EncodingException
+      SecurityException, DerDecodingException, ProducerDb.Error, IOException, 
+      EncodingException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
     Name timeMarkerFirstHop = new Name("20150101T070000/20150101T080000");
     Name timeMarkerSecondHop = new Name("20150101T080000/20150101T090000");
@@ -453,7 +457,8 @@ public class TestProducer {
   @Test
   public void
   testContentKeyTimeout()
-    throws ParseException, ProducerDb.Error, IOException, SecurityException, EncodingException
+    throws ParseException, ProducerDb.Error, IOException, SecurityException, 
+      EncodingException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
     Name prefix = new Name("/prefix");
     Name suffix = new Name("/suffix");
@@ -511,7 +516,8 @@ public class TestProducer {
   @Test
   public void
   testProducerWithLink()
-    throws ParseException, ProducerDb.Error, IOException, SecurityException, EncodingException
+    throws ParseException, ProducerDb.Error, IOException, SecurityException, 
+      EncodingException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
     Name prefix = new Name("/prefix");
     Name suffix = new Name("/suffix");
