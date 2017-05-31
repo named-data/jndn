@@ -559,6 +559,16 @@ public class KeyChain {
   public final void
   deleteIdentity(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      try {
+        deleteIdentity(pib_.getIdentity(identityName));
+      } catch (Pib.Error ex) {
+      } catch (PibImpl.Error ex) {
+      } catch (TpmBackEnd.Error ex) {
+      }
+      return;
+    }
+
     identityManager_.deleteIdentity(identityName);
   }
 
@@ -570,6 +580,16 @@ public class KeyChain {
   public final Name
   getDefaultIdentity() throws SecurityException
   {
+    if (!isSecurityV1_) {
+      try {
+        return pib_.getDefaultIdentity().getName();
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in getDefaultIdentity: " + ex);
+      } catch (Pib.Error ex) {
+        throw new SecurityException("Error in getDefaultIdentity: " + ex);
+      }
+    }
+
     return identityManager_.getDefaultIdentity();
   }
 
@@ -583,6 +603,17 @@ public class KeyChain {
   public final Name
   getDefaultCertificateName() throws SecurityException
   {
+    if (!isSecurityV1_) {
+      try {
+        return pib_.getDefaultIdentity().getDefaultKey().getDefaultCertificate()
+                .getName();
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in getDefaultCertificate: " + ex);
+      } catch (Pib.Error ex) {
+        throw new SecurityException("Error in getDefaultCertificate: " + ex);
+      }
+    }
+
     return identityManager_.getDefaultCertificateName();
   }
 
@@ -597,6 +628,10 @@ public class KeyChain {
   generateRSAKeyPair
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPair(identityName, isKsk, keySize);
   }
 
@@ -610,6 +645,10 @@ public class KeyChain {
   public final Name
   generateRSAKeyPair(Name identityName, boolean isKsk) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPair(identityName, isKsk);
   }
 
@@ -622,6 +661,10 @@ public class KeyChain {
   public final Name
   generateRSAKeyPair(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPair(identityName);
   }
 
@@ -636,6 +679,10 @@ public class KeyChain {
   generateEcdsaKeyPair
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPair(identityName, isKsk, keySize);
   }
 
@@ -649,6 +696,10 @@ public class KeyChain {
   public final Name
   generateEcdsaKeyPair(Name identityName, boolean isKsk) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPair(identityName, isKsk);
   }
 
@@ -661,6 +712,10 @@ public class KeyChain {
   public final Name
   generateEcdsaKeyPair(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPair(identityName);
   }
 
@@ -674,6 +729,10 @@ public class KeyChain {
   public final void
   setDefaultKeyForIdentity(Name keyName, Name identityNameCheck) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("setDefaultKeyForIdentity is not supported for security v2. Use getPib() methods.");
+
     identityManager_.setDefaultKeyForIdentity(keyName, identityNameCheck);
   }
 
@@ -685,6 +744,10 @@ public class KeyChain {
   public final void
   setDefaultKeyForIdentity(Name keyName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("setDefaultKeyForIdentity is not supported for security v2. Use getPib() methods.");
+
     identityManager_.setDefaultKeyForIdentity(keyName);
   }
 
@@ -700,6 +763,10 @@ public class KeyChain {
   generateRSAKeyPairAsDefault
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPairAsDefault(identityName, isKsk, keySize);
   }
 
@@ -713,6 +780,10 @@ public class KeyChain {
   public final Name
   generateRSAKeyPairAsDefault(Name identityName, boolean isKsk) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPairAsDefault(identityName, isKsk);
   }
 
@@ -726,6 +797,10 @@ public class KeyChain {
   public final Name
   generateRSAKeyPairAsDefault(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPairAsDefault(identityName);
   }
 
@@ -741,6 +816,10 @@ public class KeyChain {
   generateEcdsaKeyPairAsDefault
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPairAsDefault(identityName, isKsk, keySize);
   }
 
@@ -754,6 +833,10 @@ public class KeyChain {
   public final Name
   generateEcdsaKeyPairAsDefault(Name identityName, boolean isKsk) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPairAsDefault(identityName, isKsk);
   }
 
@@ -767,6 +850,10 @@ public class KeyChain {
   public final Name
   generateEcdsaKeyPairAsDefault(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPairAsDefault(identityName);
   }
 
@@ -779,6 +866,17 @@ public class KeyChain {
   public final Blob
   createSigningRequest(Name keyName) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      try {
+        return pib_.getIdentity(PibKey.extractIdentityFromKeyName(keyName))
+                .getKey(keyName).getPublicKey();
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in getKey: " + ex);
+      } catch (Pib.Error ex) {
+        throw new SecurityException("Error in getKey: " + ex);
+      }
+    }
+
     return identityManager_.getPublicKey(keyName).getKeyDer();
   }
 
@@ -789,6 +887,10 @@ public class KeyChain {
   public final void
   installIdentityCertificate(IdentityCertificate certificate) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("installIdentityCertificate is not supported for security v2. Use getPib() methods.");
+
     identityManager_.addCertificate(certificate);
   }
 
@@ -799,6 +901,10 @@ public class KeyChain {
   public final void
   setDefaultCertificateForKey(IdentityCertificate certificate) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("setDefaultCertificateForKey is not supported for security v2. Use getPib() methods.");
+
     identityManager_.setDefaultCertificateForKey(certificate);
   }
 
@@ -810,6 +916,10 @@ public class KeyChain {
   public final IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("getCertificate is not supported for security v2. Use getPib() methods.");
+
     return identityManager_.getCertificate(certificateName);
   }
 
@@ -819,6 +929,10 @@ public class KeyChain {
   public final IdentityCertificate
   getIdentityCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("getIdentityCertificate is not supported for security v2. Use getPib() methods.");
+
     return identityManager_.getCertificate(certificateName);
   }
 
@@ -847,7 +961,14 @@ public class KeyChain {
    * @return The identity manager.
    */
   public final IdentityManager
-  getIdentityManager() { return identityManager_; }
+  getIdentityManager()
+  {
+    if (!isSecurityV1_)
+      throw new AssertionError
+        ("getIdentityManager is not supported for security v2");
+
+    return identityManager_;
+  }
 
 
   /*****************************************
@@ -864,6 +985,21 @@ public class KeyChain {
   public final void
   sign(Data data, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSigningCertificateName(certificateName);
+      try {
+        sign(data, signingInfo, wireFormat);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     identityManager_.signByCertificate(data, certificateName, wireFormat);
   }
 
@@ -891,6 +1027,21 @@ public class KeyChain {
   public final void
   sign(Interest interest, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSigningCertificateName(certificateName);
+      try {
+        sign(interest, signingInfo, wireFormat);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     identityManager_.signInterestByCertificate
       (interest, certificateName, wireFormat);
   }
@@ -917,6 +1068,10 @@ public class KeyChain {
   public Signature
   sign(ByteBuffer buffer, Name certificateName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("sign(buffer, certificateName) is not supported for security v2. Use sign with SigningInfo.");
+
     return identityManager_.signByCertificate(buffer, certificateName);
   }
 
@@ -932,6 +1087,21 @@ public class KeyChain {
   signByIdentity
     (Data data, Name identityName, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSigningIdentity(identityName);
+      try {
+        sign(data, signingInfo, wireFormat);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     Name signingCertificateName;
 
     if (identityName.size() == 0) {
@@ -992,6 +1162,10 @@ public class KeyChain {
   public Signature
   signByIdentity(ByteBuffer buffer, Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("signByIdentity(buffer, identityName) is not supported for security v2. Use sign with SigningInfo.");
+
     Name signingCertificateName =
       identityManager_.getDefaultCertificateNameForIdentity(identityName);
 
@@ -1011,6 +1185,21 @@ public class KeyChain {
   public final void
   signWithSha256(Data data, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSha256Signing();
+      try {
+        sign(data, signingInfo, wireFormat);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     identityManager_.signWithSha256(data, wireFormat);
   }
 
@@ -1037,6 +1226,21 @@ public class KeyChain {
   public final void
   signWithSha256(Interest interest, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSha256Signing();
+      try {
+        sign(interest, signingInfo, wireFormat);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     identityManager_.signInterestWithSha256(interest, wireFormat);
   }
 
