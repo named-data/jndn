@@ -47,7 +47,7 @@ public class PibCertificateContainer {
   public final void
   add(CertificateV2 certificate) throws CertificateV2.Error, PibImpl.Error
   {
-    if (keyName_ != certificate.getKeyName())
+    if (!keyName_.equals(certificate.getKeyName()))
       throw new IllegalArgumentException
         ("The certificate name `" + certificate.getKeyName().toUri() +
          "` does not match the key name");
