@@ -153,6 +153,12 @@ public class PibCertificateContainer {
     certificateNames_ = pibImpl_.getCertificatesOfKey(keyName);
   }
 
+  /**
+   * Get the certificates_ map, which should only be used for testing.
+   */
+  public final HashMap<Name, CertificateV2>
+  getCertificates_() { return certificates_; }
+
   private final Name keyName_;
   private Set<Name> certificateNames_;
   // Cache of loaded certificates.
