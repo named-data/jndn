@@ -156,6 +156,12 @@ public class PibKeyContainer {
     keyNames_ = pibImpl_.getKeysOfIdentity(identityName);
   }
 
+  /**
+   * Get the keys_ map, which should only be used for testing.
+   */
+  public final HashMap<Name, PibKeyImpl>
+  getKeys_() { return keys_; }
+
   private final Name identityName_;
   private final Set<Name> keyNames_;
   // Cache of loaded PibKeyImpl objects.
