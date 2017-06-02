@@ -214,4 +214,77 @@ public class TestPibIdentityImpl {
     catch (Pib.Error ex) {}
     catch (Exception ex) { fail("Did not throw the expected exception"); }
   }
+
+  @Test
+  public void
+  testOverwrite() throws PibImpl.Error, Pib.Error
+  {
+    PibMemory pibImpl = new PibMemory();
+    PibIdentityImpl identity1 = new PibIdentityImpl(fixture.id1, pibImpl, true);
+
+    identity1.addKey(fixture.id1Key1.buf(), fixture.id1Key1Name);
+    assertTrue(identity1.getKey(fixture.id1Key1Name).getPublicKey().equals
+               (fixture.id1Key1));
+
+    // Overwriting the key should work.
+    identity1.addKey(fixture.id1Key2.buf(), fixture.id1Key1Name);
+    assertTrue(identity1.getKey(fixture.id1Key1Name).getPublicKey().equals
+               (fixture.id1Key2));
+  }
+
+  @Test
+  public void
+  testErrors() throws PibImpl.Error, Pib.Error
+  {
+    PibMemory pibImpl = new PibMemory();
+
+    try {
+      new PibIdentityImpl(fixture.id1, pibImpl, false);
+      fail("Did not throw the expected exception");
+    }
+    catch (Pib.Error ex) {}
+    catch (Exception ex) { fail("Did not throw the expected exception"); }
+
+    PibIdentityImpl identity1 = new PibIdentityImpl(fixture.id1, pibImpl, true);
+
+    identity1.addKey(fixture.id1Key1.buf(), fixture.id1Key1Name);
+    try {
+      identity1.addKey(fixture.id2Key1.buf(), fixture.id2Key1Name);
+      fail("Did not throw the expected exception");
+    }
+    catch (IllegalArgumentException ex) {}
+    catch (Exception ex) { fail("Did not throw the expected exception"); }
+
+    identity1.addKey(fixture.id1Key1.buf(), fixture.id1Key1Name);
+    try {
+      identity1.removeKey(fixture.id2Key1Name);
+      fail("Did not throw the expected exception");
+    }
+    catch (IllegalArgumentException ex) {}
+    catch (Exception ex) { fail("Did not throw the expected exception"); }
+
+    identity1.addKey(fixture.id1Key1.buf(), fixture.id1Key1Name);
+    try {
+      identity1.getKey(fixture.id2Key1Name);
+      fail("Did not throw the expected exception");
+    }
+    catch (IllegalArgumentException ex) {}
+    catch (Exception ex) { fail("Did not throw the expected exception"); }
+
+    identity1.addKey(fixture.id1Key1.buf(), fixture.id1Key1Name);
+    try {
+      identity1.setDefaultKey(fixture.id2Key1.buf(), fixture.id2Key1Name);
+      fail("Did not throw the expected exception");
+    }
+    catch (IllegalArgumentException ex) {}
+    catch (Exception ex) { fail("Did not throw the expected exception"); }
+
+    identity1.addKey(fixture.id1Key1.buf(), fixture.id1Key1Name);
+    try {
+      identity1.setDefaultKey(fixture.id2Key1Name);
+      fail("Did not throw the expected exception");
+    }
+    catch (IllegalArgumentException ex) {}
+    catch (Exception ex) { fail("Did not throw the expected exception"); }
+  }
 }
