@@ -99,7 +99,7 @@ public class DerNode {
    * @return The parsed size in the header.
    */
   protected final int
-  decodeHeader(ByteBuffer inputBuf, int startIdx)
+  decodeHeader(ByteBuffer inputBuf, int startIdx) throws DerDecodingException
   {
     int idx = startIdx;
 
@@ -121,6 +121,9 @@ public class DerNode {
       int lenCount = sizeLen & ((1<<7) - 1);
       size = 0;
       while (lenCount > 0) {
+        if (inputBuf.limit() <= idx)
+          throw new DerDecodingException
+            ("DerNode::parse: The input length is too small");
         byte b = inputBuf.get(idx);
         idx += 1;
         header.ensuredPut(b);
@@ -179,6 +182,9 @@ public class DerNode {
   public static DerNode
   parse(ByteBuffer inputBuf, int startIdx) throws DerDecodingException
   {
+    if (inputBuf.limit() <= startIdx)
+      throw new DerDecodingException
+        ("DerNode::parse: The input length is too small");
     int nodeType = ((int)inputBuf.get(startIdx)) & 0xff;
     // Don't increment idx. We're just peeking.
 
