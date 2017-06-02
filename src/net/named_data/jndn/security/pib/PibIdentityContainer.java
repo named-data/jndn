@@ -129,6 +129,12 @@ public class PibIdentityContainer {
     identityNames_ = pibImpl_.getIdentities();
   }
 
+  /**
+   * Get the identities_ map, which should only be used for testing.
+   */
+  public final HashMap<Name, PibIdentityImpl>
+  getIdentities_() { return identities_; }
+
   private Set<Name> identityNames_;
   // Cache of loaded PibIdentityImpl objects.
   private final HashMap<Name, PibIdentityImpl> identities_ =
