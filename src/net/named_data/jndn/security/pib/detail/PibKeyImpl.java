@@ -230,6 +230,12 @@ public class PibKeyImpl {
     return defaultCertificate_;
   }
 
+  /**
+   * Get the certificates_ container, which should only be used for testing.
+   */
+  public final PibCertificateContainer
+  getCertificates_() { return certificates_; }
+
   private final Name identityName_;
   private final Name keyName_;
   private final Blob keyEncoding_;
