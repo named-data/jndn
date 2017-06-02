@@ -24,7 +24,6 @@ package net.named_data.jndn.tests.unit_tests;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.pib.Pib;
-import net.named_data.jndn.security.pib.PibCertificateContainer;
 import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.pib.PibKey;
 import net.named_data.jndn.security.pib.PibKeyContainer;
