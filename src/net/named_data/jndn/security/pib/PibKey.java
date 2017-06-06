@@ -41,7 +41,7 @@ public class PibKey {
    * @throws AssertionError if the backend implementation instance is invalid.
    */
   public final Name
-  getName() { return lock().getName(); }
+  getName() { return lockImpl().getName(); }
 
   /**
    * Get the name of the identity this key belongs to.
@@ -50,7 +50,7 @@ public class PibKey {
    * @throws AssertionError if the backend implementation instance is invalid.
    */
   public final Name
-  getIdentityName() { return lock().getIdentityName(); }
+  getIdentityName() { return lockImpl().getIdentityName(); }
 
   /**
    * Get the key type.
@@ -58,7 +58,7 @@ public class PibKey {
    * @throws AssertionError if the backend implementation instance is invalid.
    */
   public final KeyType
-  getKeyType() { return lock().getKeyType(); }
+  getKeyType() { return lockImpl().getKeyType(); }
 
   /**
    * Get the public key encoding.
@@ -66,7 +66,7 @@ public class PibKey {
    * @throws AssertionError if the backend implementation instance is invalid.
    */
   public final Blob
-  getPublicKey() { return lock().getPublicKey(); }
+  getPublicKey() { return lockImpl().getPublicKey(); }
 
   /**
    * Get the certificate with name certificateName.
@@ -78,7 +78,7 @@ public class PibKey {
   public final CertificateV2
   getCertificate(Name certificateName) throws Pib.Error, PibImpl.Error
   {
-    return lock().getCertificate(certificateName);
+    return lockImpl().getCertificate(certificateName);
   }
 
   /**
@@ -88,7 +88,7 @@ public class PibKey {
   public final CertificateV2
   getDefaultCertificate() throws Pib.Error, PibImpl.Error
   {
-    return lock().getDefaultCertificate();
+    return lockImpl().getDefaultCertificate();
   }
 
   /**
@@ -159,7 +159,7 @@ public class PibKey {
   addCertificate_(CertificateV2 certificate)
     throws CertificateV2.Error, PibImpl.Error
   {
-    lock().addCertificate(certificate);
+    lockImpl().addCertificate(certificate);
   }
 
   /**
@@ -173,7 +173,7 @@ public class PibKey {
   public final void
   removeCertificate_(Name certificateName) throws PibImpl.Error
   {
-    lock().removeCertificate(certificateName);
+    lockImpl().removeCertificate(certificateName);
   }
 
   /**
@@ -189,7 +189,7 @@ public class PibKey {
   public final CertificateV2
   setDefaultCertificate_(Name certificateName) throws Pib.Error, PibImpl.Error
   {
-    return lock().setDefaultCertificate(certificateName);
+    return lockImpl().setDefaultCertificate(certificateName);
   }
 
   /**
@@ -206,7 +206,7 @@ public class PibKey {
   setDefaultCertificate_(CertificateV2 certificate)
     throws CertificateV2.Error, PibImpl.Error, Pib.Error
   {
-    return lock().setDefaultCertificate(certificate);
+    return lockImpl().setDefaultCertificate(certificate);
   }
 
   /**
@@ -215,7 +215,7 @@ public class PibKey {
    * @throws AssertionError if the backend implementation instance is invalid.
    */
   private PibKeyImpl
-  lock()
+  lockImpl()
   {
     if (impl_ == null)
       throw new AssertionError("Invalid key instance");

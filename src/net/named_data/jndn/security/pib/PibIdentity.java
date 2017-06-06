@@ -37,7 +37,7 @@ public class PibIdentity {
    * @throws AssertionError if the backend implementation instance is invalid.
    */
   public final Name
-  getName() { return lock().getName(); }
+  getName() { return lockImpl().getName(); }
 
   /**
    * Get the key with name keyName.
@@ -49,7 +49,7 @@ public class PibIdentity {
   public final PibKey
   getKey(Name keyName) throws Pib.Error, PibImpl.Error
   {
-    return lock().getKey(keyName);
+    return lockImpl().getKey(keyName);
   }
 
   /**
@@ -59,7 +59,7 @@ public class PibIdentity {
   public final PibKey
   getDefaultKey() throws Pib.Error, PibImpl.Error
   {
-    return lock().getDefaultKey();
+    return lockImpl().getDefaultKey();
   }
 
   /**
@@ -76,7 +76,7 @@ public class PibIdentity {
    * by KeyChain.
    */
   public final PibKeyContainer
-  getKeys_() { return lock().getKeys_(); }
+  getKeys_() { return lockImpl().getKeys_(); }
 
   /**
    * Check the validity of the impl_ instance.
@@ -84,7 +84,7 @@ public class PibIdentity {
    * @throws AssertionError if the backend implementation instance is invalid.
    */
   private PibIdentityImpl
-  lock()
+  lockImpl()
   {
     if (impl_ == null)
       throw new AssertionError("Invalid Identity instance");
