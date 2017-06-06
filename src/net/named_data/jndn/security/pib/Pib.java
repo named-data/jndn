@@ -88,7 +88,7 @@ public class Pib {
    * @throws Pib.Error if the TPM locator is empty.
    */
   public final String
-  getTpmLocator() throws Pib.Error
+  getTpmLocator() throws Pib.Error, PibImpl.Error
   {
     String tpmLocator = pibImpl_.getTpmLocator();
     if (tpmLocator.equals(""))

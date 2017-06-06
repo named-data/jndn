@@ -52,16 +52,18 @@ public abstract class PibImpl {
    * Set the corresponding TPM information to tpmLocator. This method does not
    * reset the contents of the PIB.
    * @param tpmLocator The TPM locator string.
+   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public abstract void
-  setTpmLocator(String tpmLocator);
+  setTpmLocator(String tpmLocator) throws PibImpl.Error;
 
   /**
    * Get the TPM Locator.
    * @return The TPM locator string.
+   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public abstract String
-  getTpmLocator();
+  getTpmLocator() throws PibImpl.Error;
 
   // Identity management.
 

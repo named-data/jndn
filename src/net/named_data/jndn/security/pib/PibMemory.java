@@ -32,9 +32,9 @@ import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 
 /**
- * PibMemory is used by the Pib class as an in-memory implementation of a PIB.
- * All the contents in the PIB are stored in memory and have the same lifetime
- * as the PibMemory instance.
+ * PibMemory extends PibImpl and is used by the Pib class as an in-memory
+ * implementation of a PIB. All the contents in the PIB are stored in memory and
+ * have the same lifetime as the PibMemory instance.
  */
 public class PibMemory extends PibImpl {
   public static String
@@ -48,14 +48,20 @@ public class PibMemory extends PibImpl {
    * @param tpmLocator The TPM locator string.
    */
   public void
-  setTpmLocator(String tpmLocator) { tpmLocator_ = tpmLocator; }
+  setTpmLocator(String tpmLocator) throws PibImpl.Error
+  {
+    tpmLocator_ = tpmLocator;
+  }
 
   /**
    * Get the TPM Locator.
    * @return The TPM locator string.
    */
   public String
-  getTpmLocator() { return tpmLocator_; }
+  getTpmLocator() throws PibImpl.Error
+  {
+    return tpmLocator_;
+  }
 
   // Identity management.
 
