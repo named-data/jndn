@@ -1,5 +1,9 @@
-Interim changes since jNDN v0.15 (2017-05-10)
+Interim changes since jNDN v0.15 (2017-06-12)
 ---------------------------------------------
+
+Bug fixes
+* https://redmine.named-data.net/issues/4023 Ported the latest NDN regex code
+  from ndn-cxx which fixes errors for complex expressions.
 
 Changes
 * https://redmine.named-data.net/issues/3812 In encrypt GroupManager, save private
