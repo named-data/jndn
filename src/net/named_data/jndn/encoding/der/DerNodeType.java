@@ -54,4 +54,5 @@ public class DerNodeType {
     public static final int EmbeddedPdv = 43;
     public static final int Sequence = 48;
     public static final int Set = 49;
+    public static final int ExplicitlyTagged = 0xa0;
 }
