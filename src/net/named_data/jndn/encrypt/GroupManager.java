@@ -318,27 +318,11 @@ public class GroupManager {
   {
     RsaKeyParams params = new RsaKeyParams(keySize_);
 
-    DecryptKey privateKey;
-    try {
-      privateKey = RsaAlgorithm.generateKey(params);
-    } catch (NoSuchAlgorithmException ex) {
-      // We don't expect this error.
-      throw new Error("Error in RsaAlgorithm.generateKey: " + ex.getMessage());
-    }
+    DecryptKey privateKey = RsaAlgorithm.generateKey(params);
 
     privateKeyBlob[0] = privateKey.getKeyBits();
 
-    EncryptKey publicKey;
-    try {
-      publicKey = RsaAlgorithm.deriveEncryptKey(privateKeyBlob[0]);
-    } catch (InvalidKeySpecException ex) {
-      // We don't expect this error.
-      throw new Error("Error in RsaAlgorithm.deriveEncryptKey: " + ex.getMessage());
-    } catch (DerDecodingException ex) {
-      // We don't expect this error.
-      throw new Error("Error in RsaAlgorithm.deriveEncryptKey: " + ex.getMessage());
-    }
-
+    EncryptKey publicKey = RsaAlgorithm.deriveEncryptKey(privateKeyBlob[0]);
     publicKeyBlob[0] = publicKey.getKeyBits();
   }
 
