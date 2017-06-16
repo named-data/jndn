@@ -20,8 +20,11 @@
 
 package net.named_data.jndn;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.util.Common;
-import net.named_data.jndn.util.NdnRegexMatcher;
+import net.named_data.jndn.util.regex.NdnRegexMatcherBase;
+import net.named_data.jndn.util.regex.NdnRegexTopMatcher;
 
 /**
  * An InterestFilter holds a Name prefix and optional regex match expression for
@@ -127,8 +130,13 @@ public class InterestFilter {
       if (!prefix_.match(name))
         return false;
 
-      return null != NdnRegexMatcher.match
-        (regexFilterPattern_, name.getSubName(prefix_.size()));
+      try {
+        return new NdnRegexTopMatcher(regexFilterPattern_).match
+           (name.getSubName(prefix_.size()));
+      } catch (NdnRegexMatcherBase.Error ex) {
+        Logger.getLogger(InterestFilter.class.getName()).log(Level.SEVERE, null, ex);
+        return false;
+      }
     }
     else
       // Just perform a prefix match.
@@ -158,7 +166,7 @@ public class InterestFilter {
 
   /**
    * If regexFilter doesn't already have them, add ^ to the beginning and $ to
-   * the end since these are required by NdnRegexMatcher.match.
+   * the end since these are required by NdnRegexTopMatcher.
    * @param regexFilter The regex filter.
    * @return The regex pattern with ^ and $.
    */
