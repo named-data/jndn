@@ -52,9 +52,10 @@ import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.BoostInfoParser;
 import net.named_data.jndn.util.BoostInfoTree;
-import net.named_data.jndn.util.NdnRegexMatcher;
 import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
+import net.named_data.jndn.util.regex.NdnRegexMatcherBase;
+import net.named_data.jndn.util.regex.NdnRegexTopMatcher;
 
 /**
  * A ConfigPolicyManager manages trust according to a configuration file in the
@@ -290,8 +291,14 @@ public class ConfigPolicyManager extends PolicyManager {
      OnDataValidationFailed onValidationFailed) throws SecurityException
   {
     String[] failureReason = new String[] { "unknown" };
-    Interest certificateInterest = getCertificateInterest
-      (stepCount, "data", data.getName(), data.getSignature(), failureReason);
+    Interest certificateInterest;
+    try {
+      certificateInterest = getCertificateInterest
+        (stepCount, "data", data.getName(), data.getSignature(), failureReason);
+    } catch (NdnRegexMatcherBase.Error ex) {
+      throw new SecurityException
+        ("ConfigPolicyManager: Error in getCertificateInterest:" + ex);
+    }
     if (certificateInterest == null) {
       try {
         onValidationFailed.onDataValidationFailed(data, failureReason[0]);
@@ -368,9 +375,15 @@ public class ConfigPolicyManager extends PolicyManager {
 
     // For command interests, we need to ignore the last 4 components when
     //   matching the name.
-    Interest certificateInterest = getCertificateInterest
-      (stepCount, "interest", interest.getName().getPrefix(-4), signature,
-       failureReason);
+    Interest certificateInterest;
+    try {
+      certificateInterest = getCertificateInterest
+        (stepCount, "interest", interest.getName().getPrefix(-4), signature,
+         failureReason);
+    } catch (NdnRegexMatcherBase.Error ex) {
+      throw new SecurityException
+        ("ConfigPolicyManager: Error in getCertificateInterest:" + ex);
+    }
     if (certificateInterest == null) {
       try {
         onValidationFailed.onInterestValidationFailed
@@ -665,7 +678,7 @@ public class ConfigPolicyManager extends PolicyManager {
   checkSignatureMatch
     (Name signatureName, Name objectName, BoostInfoTree rule,
      String[] failureReason)
-    throws SecurityException
+    throws SecurityException, NdnRegexMatcherBase.Error
   {
     BoostInfoTree checker = (BoostInfoTree)rule.get("checker").get(0);
     String checkerType = checker.getFirstValue("type");
@@ -707,10 +720,11 @@ public class ConfigPolicyManager extends PolicyManager {
       // This just means the data/interest name has the signing identity as a prefix.
       // That means everything before "ksk-?" in the key name.
       String identityRegex = "^([^<KEY>]*)<KEY>(<>*)<ksk-.+><ID-CERT>";
-      Matcher identityMatch = NdnRegexMatcher.match(identityRegex, signatureName);
-      if (identityMatch != null) {
-        Name identityPrefix = new Name(identityMatch.group(1)).append
-          (new Name(identityMatch.group(2)));
+      NdnRegexTopMatcher identityMatch = new NdnRegexTopMatcher
+        (identityRegex);
+      if (identityMatch.match(signatureName)) {
+        Name identityPrefix = identityMatch.expand("\\1")
+        .append(identityMatch.expand("\\2"));
         if (matchesRelation(objectName, identityPrefix, "is-prefix-of"))
           return true;
         else {
@@ -746,7 +760,7 @@ public class ConfigPolicyManager extends PolicyManager {
       // Is this a simple regex?
       String simpleKeyRegex = keyLocatorInfo.getFirstValue("regex");
       if (simpleKeyRegex != null) {
-        if (NdnRegexMatcher.match(simpleKeyRegex, signatureName) != null)
+        if (new NdnRegexTopMatcher(simpleKeyRegex).match(signatureName))
           return true;
         else {
           failureReason[0] = "The custom signatureName \"" + signatureName.toUri() +
@@ -767,30 +781,29 @@ public class ConfigPolicyManager extends PolicyManager {
         String relationType = hyperRelation.getFirstValue("h-relation");
         if (keyRegex != null && keyExpansion != null && nameRegex != null &&
             nameExpansion != null && relationType != null) {
-          Matcher keyMatch = NdnRegexMatcher.match(keyRegex, signatureName);
-          if (keyMatch == null || keyMatch.groupCount() < 1) {
+          NdnRegexTopMatcher keyMatch = new NdnRegexTopMatcher(keyRegex);
+          if (!keyMatch.match(signatureName)) {
             failureReason[0] = "The custom hyper-relation signatureName \"" +
               signatureName.toUri() + "\" does not match the keyRegex \"" +
               keyRegex + "\"";
             return false;
           }
-          String keyMatchPrefix = expand(keyMatch, keyExpansion);
+          Name keyMatchPrefix = keyMatch.expand(keyExpansion);
 
-          Matcher nameMatch = NdnRegexMatcher.match(nameRegex, objectName);
-          if (nameMatch == null || nameMatch.groupCount() < 1) {
+          NdnRegexTopMatcher nameMatch = new NdnRegexTopMatcher(nameRegex);
+          if (!nameMatch.match(objectName)) {
             failureReason[0] = "The custom hyper-relation objectName \"" +
               objectName.toUri() + "\" does not match the nameRegex \"" +
               nameRegex + "\"";
             return false;
           }
-          String nameMatchStr = expand(nameMatch, nameExpansion);
+          Name nameMatchExpansion = nameMatch.expand(nameExpansion);
 
-          if (matchesRelation
-              (new Name(nameMatchStr), new Name(keyMatchPrefix), relationType))
+          if (matchesRelation(nameMatchExpansion, keyMatchPrefix, relationType))
             return true;
           else {
             failureReason[0] = "The custom hyper-relation nameMatch \"" +
-              nameMatchStr + "\" does not match the keyMatchPrefix \"" +
+              nameMatchExpansion.toUri() + "\" does not match the keyMatchPrefix \"" +
               keyMatchPrefix + "\" using relation " + relationType;
             return false;
           }
@@ -878,6 +891,7 @@ public class ConfigPolicyManager extends PolicyManager {
    */
   private BoostInfoTree
   findMatchingRule(Name objName, String matchType)
+    throws NdnRegexMatcherBase.Error
   {
     ArrayList rules = config_.getRoot().get("validator/rule");
     for (int iRule = 0; iRule < rules.size(); ++iRule) {
@@ -903,7 +917,7 @@ public class ConfigPolicyManager extends PolicyManager {
               passed = matchesRelation(objName, matchName, matchRelation);
             }
             else
-              passed = (NdnRegexMatcher.match(regexPattern, objName) != null);
+              passed = new NdnRegexTopMatcher(regexPattern).match(objName);
 
             if (!passed)
               break;
@@ -1138,7 +1152,7 @@ public class ConfigPolicyManager extends PolicyManager {
   getCertificateInterest
     (int stepCount, String matchType, Name objectName, Signature signature,
      String[] failureReason)
-      throws SecurityException
+      throws SecurityException, NdnRegexMatcherBase.Error
   {
     if (stepCount > maxDepth_) {
       failureReason[0] = "The verification stepCount " + stepCount +
@@ -1375,13 +1389,15 @@ public class ConfigPolicyManager extends PolicyManager {
    */
   public abstract static class FriendAccess {
     public abstract BoostInfoTree
-    findMatchingRule(ConfigPolicyManager policyManager, Name objName, String matchType);
+    findMatchingRule
+      (ConfigPolicyManager policyManager, Name objName, String matchType)
+        throws NdnRegexMatcherBase.Error;
 
     public abstract boolean
     checkSignatureMatch
       (ConfigPolicyManager policyManager, Name signatureName, Name objectName, 
        BoostInfoTree rule, String[] failureReason)
-      throws SecurityException;
+      throws SecurityException, NdnRegexMatcherBase.Error;
   }
 
   /**
@@ -1390,7 +1406,9 @@ public class ConfigPolicyManager extends PolicyManager {
    */
   private static class FriendAccessImpl extends FriendAccess {
     public BoostInfoTree
-    findMatchingRule(ConfigPolicyManager policyManager, Name objName, String matchType)
+    findMatchingRule
+      (ConfigPolicyManager policyManager, Name objName, String matchType)
+      throws NdnRegexMatcherBase.Error
     {
       return policyManager.findMatchingRule(objName, matchType);
     }
@@ -1399,7 +1417,7 @@ public class ConfigPolicyManager extends PolicyManager {
     checkSignatureMatch
       (ConfigPolicyManager policyManager, Name signatureName, Name objectName, 
        BoostInfoTree rule, String[] failureReason)
-      throws SecurityException
+      throws SecurityException, NdnRegexMatcherBase.Error
     {
       return policyManager.checkSignatureMatch
         (signatureName, objectName, rule, failureReason);
