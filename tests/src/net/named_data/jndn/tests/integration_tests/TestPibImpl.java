@@ -21,12 +21,14 @@
 
 package src.net.named_data.jndn.tests.integration_tests;
 
+import java.io.File;
 import java.util.Set;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.pib.PibMemory;
+import net.named_data.jndn.security.pib.PibSqlite3;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import org.junit.After;
@@ -46,25 +48,46 @@ public class TestPibImpl {
     private final PibMemory myPib_ = new PibMemory();
   };
 
-  PibMemoryFixture pibMemoryFixture;
-  // TODO: PibSqlite3Fixture pibSqlite3Fixture;
+  class PibSqlite3Fixture extends PibDataFixture {
+    public PibSqlite3Fixture() throws EncodingException, CertificateV2.Error, PibImpl.Error
+    {
+      File databaseDirectoryPath =
+        IntegrationTestsCommon.getPolicyConfigDirectory();
+      String databaseFilename = "test-pib.db";
+      databaseFilePath = new File
+        (databaseDirectoryPath, databaseFilename);
+      databaseFilePath.delete();
 
-  PibDataFixture[] pibImpls = new PibDataFixture[1];
+      myPib_ = new PibSqlite3
+        (databaseDirectoryPath.getAbsolutePath(), databaseFilename);
+
+      pib = myPib_;
+    }
+
+    private final PibSqlite3 myPib_;
+  };
+
+  PibMemoryFixture pibMemoryFixture;
+  PibSqlite3Fixture pibSqlite3Fixture;
+
+  PibDataFixture[] pibImpls = new PibDataFixture[2];
   
   @Before
   public void
-  setUp() throws EncodingException, CertificateV2.Error
+  setUp() throws EncodingException, CertificateV2.Error, PibImpl.Error
   {
     pibMemoryFixture = new PibMemoryFixture();
-    // TODO: pibSqlite3Fixture = new PibSqlite3Fixture();
+    pibSqlite3Fixture = new PibSqlite3Fixture();
 
     pibImpls[0] = pibMemoryFixture;
+    pibImpls[1] = pibSqlite3Fixture;
   }
 
   @After
   public void
   tearDown()
   {
+    databaseFilePath.delete();
   }
 
   @Test
@@ -196,8 +219,8 @@ public class TestPibImpl {
       catch (Pib.Error ex) {}
       catch (Exception ex) { fail("Did not throw the expected exception"); }
 
-      // Add id2 again, which should be default.
-      pib.addIdentity(fixture.id2);
+      // Set id2 as the default. This should add id2 again.
+      pib.setDefaultIdentity(fixture.id2);
       assertEquals(fixture.id2, pib.getDefaultIdentity());
 
       // Get all the identities, which should have id1 and id2.
@@ -516,4 +539,6 @@ public class TestPibImpl {
       assertTrue(keyBits3.equals(fixture.id1Key2));
     }
   }
+
+  private File databaseFilePath;
 }
