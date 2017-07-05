@@ -22,8 +22,6 @@ package net.named_data.jndn.security.tpm;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.util.Blob;
