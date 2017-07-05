@@ -93,6 +93,9 @@ public class Encryptor {
         return;
       } catch (IllegalBlockSizeException ex) {
         // The payload is larger than the maximum plaintext size. Continue.
+      } catch (ArrayIndexOutOfBoundsException ex) {
+        // The payload is larger than the maximum plaintext size. Continue.
+        // (This is the exception thrown on Android.)
       }
 
       // 128-bit nonce.
