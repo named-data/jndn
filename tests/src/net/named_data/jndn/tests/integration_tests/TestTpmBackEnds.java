@@ -21,6 +21,7 @@
 
 package src.net.named_data.jndn.tests.integration_tests;
 
+import java.io.File;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -34,7 +35,6 @@ import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
 import net.named_data.jndn.security.DigestAlgorithm;
-import net.named_data.jndn.security.EcdsaKeyParams;
 import net.named_data.jndn.security.pib.PibKey;
 import net.named_data.jndn.security.tpm.Tpm;
 import net.named_data.jndn.security.tpm.TpmBackEnd;
@@ -43,6 +43,7 @@ import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.policy.PolicyManager;
+import net.named_data.jndn.security.tpm.TpmBackEndFile;
 import net.named_data.jndn.security.tpm.TpmKeyHandle;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.SignedBlob;
@@ -55,18 +56,27 @@ import static org.junit.Assert.fail;
 
 public class TestTpmBackEnds {
   TpmBackEndMemory backEndMemory;
-  // TODO: TpmBackEndFile backEndFile;
+  TpmBackEndFile backEndFile;
 
-  TpmBackEnd[] backEndList = new TpmBackEnd[1];
+  TpmBackEnd[] backEndList = new TpmBackEnd[2];
   
   @Before
   public void
   setUp() throws EncodingException, CertificateV2.Error
   {
     backEndMemory = new TpmBackEndMemory();
-    // TODO: backEndFile = new TpmBackEndFile();
+
+    File locationPath = new File
+      (IntegrationTestsCommon.getPolicyConfigDirectory(), "ndnsec-key-file");
+    if (locationPath.exists()) {
+      // Delete files from a previous test.
+      for (File file : locationPath.listFiles())
+        file.delete();
+    }
+    backEndFile = new TpmBackEndFile(locationPath.getAbsolutePath());
 
     backEndList[0] = backEndMemory;
+    backEndList[1] = backEndFile;
   }
 
   @After
