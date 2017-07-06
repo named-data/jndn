@@ -33,3 +33,4 @@ examples/src/net/named_data/jndn/tests/unit_tests/policy_config/test-public-info
 /integration-tests/target/
 integration-tests/src/net/named_data/jndn/tests/integration_tests/policy_config/test-public-info.db
 tests/src/net/named_data/jndn/tests/integration_tests/policy_config/test-public-info.db
+tests/src/net/named_data/jndn/tests/integration_tests/policy_config/ndnsec-key-file
