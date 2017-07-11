@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.15 (2017-07-05)
+Interim changes since jNDN v0.15 (2017-07-11)
 ---------------------------------------------
 
 Bug fixes
@@ -9,6 +9,7 @@ Bug fixes
 Changes
 * https://redmine.named-data.net/issues/3812 In encrypt GroupManager, save private
   keys in memory to avoid regenerate group key pairs.
+* Added ExponentialReExpress to use as OnTimeout.
 
 jNDN v0.15 (2017-03-16)
 -----------------------
