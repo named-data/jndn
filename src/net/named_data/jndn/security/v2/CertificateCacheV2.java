@@ -37,7 +37,7 @@ public class CertificateCacheV2 {
   /**
    * Create a CertificateCacheV2.
    * @param maxLifetimeMilliseconds The maximum time that certificates can live
-   * inside the cache, in milliseconds. If omitted, use getDefaultLifetime().
+   * inside the cache, in milliseconds.
    */
   public CertificateCacheV2(double maxLifetimeMilliseconds)
   {
