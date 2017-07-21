@@ -1,7 +1,6 @@
 /**
- * Copyright (C) 2015-2017 Regents of the University of California.
+ * Copyright (C) 2017 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * From PyNDN unit-tests by Adeola Bannis.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,37 +17,39 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
-package src.net.named_data.jndn.tests.integration_tests;
+package net.named_data.jndn.tests;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.Face;
+import net.named_data.jndn.Interest;
+import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
-import net.named_data.jndn.Sha256WithRsaSignature;
+import net.named_data.jndn.OnInterestCallback;
+import net.named_data.jndn.OnRegisterFailed;
+import net.named_data.jndn.ThreadPoolFace;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
-import net.named_data.jndn.security.policy.ConfigPolicyManager;
-import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
+import net.named_data.jndn.transport.AsyncTcpTransport;
 import net.named_data.jndn.util.Blob;
-import net.named_data.jndn.util.BoostInfoTree;
-import net.named_data.jndn.util.regex.NdnRegexMatcherBase;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
 
-public class TestVerificationRules implements ConfigPolicyManager.Friend {
+/**
+ * This uses ThreadPoolFace to call registerPrefix to connect to the local NFD
+ * hub, accept interests with prefix /testecho and echo back a data packet.
+ * Because it uses ThreadPoolFace, the application doesn't need to call
+ * processEvents. For the consumer, see TestEchoConsumer.
+ */
+public class TestPublishAsyncNfdThreadPool {
   // Convert the int array to a ByteBuffer.
-  public static ByteBuffer
+  private static ByteBuffer
   toBuffer(int[] array)
   {
     ByteBuffer result = ByteBuffer.allocate(array.length);
@@ -162,242 +163,90 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
     0xcb, 0xea, 0x8f
   });
 
-  @Before
-  public void
-  setUp() throws SecurityException
-  {
-    policyConfigDirectory = IntegrationTestsCommon.getPolicyConfigDirectory();
+  private static class Echo implements OnInterestCallback, OnRegisterFailed {
+    public Echo(KeyChain keyChain, Name certificateName)
+    {
+      keyChain_ = keyChain;
+      certificateName_ = certificateName;
+    }
 
-    identityStorage = new MemoryIdentityStorage();
-    privateKeyStorage = new MemoryPrivateKeyStorage();
-    // Not using keychain for verification so we don't need to set the
-    //   policy manager.
-    keyChain = new KeyChain(new IdentityManager(identityStorage, privateKeyStorage));
-    identityName = new Name("/SecurityTestSecRule/Basic/Longer");
+    public void
+    onInterest
+      (Name prefix, Interest interest, Face face, long interestFilterId,
+       InterestFilter filter)
+    {
+      ++responseCount_;
 
-    Name keyName = new Name(identityName).append("ksk-2439872");
-    defaultCertName = certNameFromKeyName(keyName);
-    identityStorage.addKey
-      (keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
-    privateKeyStorage.setKeyPairForKeyName
-      (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER,
-       DEFAULT_RSA_PRIVATE_KEY_DER);
+      // Make and sign a Data packet.
+      Data data = new Data(interest.getName());
+      String content = "Echo " + interest.getName().toUri();
+      data.setContent(new Blob(content));
 
-    keyName = new Name("/SecurityTestSecRule/Basic/ksk-0923489");
-    identityStorage.addKey
-      (keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
-    privateKeyStorage.setKeyPairForKeyName
-      (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER,
-       DEFAULT_RSA_PRIVATE_KEY_DER);
+      try {
+        keyChain_.sign(data, certificateName_);      }
+      catch (SecurityException exception) {
+        // Don't expect this to happen.
+        throw new Error
+          ("SecurityException in sign: " + exception.getMessage());
+      }
 
-    shortCertName = certNameFromKeyName(keyName, -2);
+      System.out.println("Sent content " + content);
+      try {
+        face.putData(data);
+      } catch (IOException ex) {
+        System.out.println("Echo: IOException in sending data " + ex.getMessage());
+      }
+    }
 
-    ConfigPolicyManager.setFriendAccess(this);
+    public void
+    onRegisterFailed(Name prefix)
+    {
+      ++responseCount_;
+      System.out.println("Register failed for prefix " + prefix.toUri());
+    }
+
+    KeyChain keyChain_;
+    Name certificateName_;
+    int responseCount_ = 0;
   }
 
-  public void
-  setConfigPolicyManagerFriendAccess(ConfigPolicyManager.FriendAccess friendAccess)
+  public static void
+  main(String[] args)
   {
-    this.friendAccess = friendAccess;
-  }
+    try {
+      final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(2);
+      Face face = new ThreadPoolFace
+        (threadPool, new AsyncTcpTransport(threadPool),
+         new AsyncTcpTransport.ConnectionInfo("localhost"));
 
-  private static Name
-  certNameFromKeyName(Name keyName, int keyIdx)
-  {
-    if (keyIdx < 0)
-      keyIdx = keyName.size() + keyIdx;
-    return keyName.getPrefix(keyIdx).append("KEY").append
-      (keyName.getSubName(keyIdx)).append("ID-CERT").append("0");
-  }
+      // For now, when setting face.setCommandSigningInfo, use a key chain with
+      //   a default private key instead of the system default key chain. This
+      //   is OK for now because NFD is configured to skip verification, so it
+      //   ignores the system default key chain.
+      MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
+      MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+      KeyChain keyChain = new KeyChain
+        (new IdentityManager(identityStorage, privateKeyStorage),
+         new SelfVerifyPolicyManager(identityStorage));
+      keyChain.setFace(face);
 
-  private static Name
-  certNameFromKeyName(Name keyName)
-  {
-    return certNameFromKeyName(keyName, -1);
-  }
+      // Initialize the storage.
+      Name keyName = new Name("/testname/DSK-123");
+      Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
+        ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
+      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
+      privateKeyStorage.setKeyPairForKeyName
+        (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
 
-  File policyConfigDirectory;
-  MemoryIdentityStorage identityStorage;
-  MemoryPrivateKeyStorage privateKeyStorage;
-  KeyChain keyChain;
-  Name identityName;
-  Name defaultCertName;
-  Name shortCertName;
-  ConfigPolicyManager.FriendAccess friendAccess;
+      face.setCommandSigningInfo(keyChain, certificateName);
 
-  @Test
-  public void
-  testNameRelation() throws IOException, SecurityException, NdnRegexMatcherBase.Error
-  {
-    ConfigPolicyManager policyManagerPrefix = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "relation_ruleset_prefix.conf").getAbsolutePath());
-    ConfigPolicyManager policyManagerStrict = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "relation_ruleset_strict.conf").getAbsolutePath());
-    ConfigPolicyManager policyManagerEqual = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "relation_ruleset_equal.conf").getAbsolutePath());
-
-    Name dataName = new Name("/TestRule1");
-    assertNotNull
-      ("Prefix relation should match prefix name",
-       friendAccess.findMatchingRule(policyManagerPrefix, dataName, "data"));
-    assertNotNull
-      ("Equal relation should match prefix name",
-       friendAccess.findMatchingRule(policyManagerEqual, dataName, "data"));
-    assertNull
-      ("Strict-prefix relation should not match prefix name",
-       friendAccess.findMatchingRule(policyManagerStrict, dataName, "data"));
-
-    dataName = new Name("/TestRule1/hi");
-    assertNotNull
-      ("Prefix relation should match longer name",
-       friendAccess.findMatchingRule(policyManagerPrefix, dataName, "data"));
-    assertNull
-      ("Equal relation should not match longer name",
-       friendAccess.findMatchingRule(policyManagerEqual, dataName, "data"));
-    assertNotNull
-      ("Strict-prefix relation should match longer name",
-       friendAccess.findMatchingRule(policyManagerStrict, dataName, "data"));
-
-    dataName = new Name("/Bad/TestRule1/");
-    assertNull
-      ("Prefix relation should not match inner components",
-       friendAccess.findMatchingRule(policyManagerPrefix, dataName, "data"));
-    assertNull
-      ("Equal relation should not match inner components",
-       friendAccess.findMatchingRule(policyManagerEqual, dataName, "data"));
-    assertNull
-      ("Strict-prefix relation should  not match inner components",
-       friendAccess.findMatchingRule(policyManagerStrict, dataName, "data"));
-  }
-
-  @Test
-  public void
-  testSimpleRegex() throws IOException, SecurityException, NdnRegexMatcherBase.Error
-  {
-    ConfigPolicyManager policyManager = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "regex_ruleset.conf").getAbsolutePath());
-
-    Name dataName1 = new Name("/SecurityTestSecRule/Basic");
-    Name dataName2 = new Name("/SecurityTestSecRule/Basic/More");
-    Name dataName3 = new Name("/SecurityTestSecRule/");
-    Name dataName4 = new Name("/SecurityTestSecRule/Other/TestData");
-    Name dataName5 = new Name("/Basic/Data");
-
-    BoostInfoTree matchedRule1 =
-      friendAccess.findMatchingRule(policyManager, dataName1, "data");
-    BoostInfoTree matchedRule2 =
-      friendAccess.findMatchingRule(policyManager, dataName2, "data");
-    BoostInfoTree matchedRule3 =
-      friendAccess.findMatchingRule(policyManager, dataName3, "data");
-    BoostInfoTree matchedRule4 =
-      friendAccess.findMatchingRule(policyManager, dataName4, "data");
-    BoostInfoTree matchedRule5 =
-      friendAccess.findMatchingRule(policyManager, dataName5, "data");
-
-    assertNotNull(matchedRule1);
-    assertNull(matchedRule2);
-    assertNotNull(matchedRule3);
-    assertNotSame("Rule regex matched extra components",
-      matchedRule3, matchedRule1);
-    assertNotNull(matchedRule4);
-    assertNotSame("Rule regex matched with missing component",
-      matchedRule4, matchedRule1);
-
-    assertNull(matchedRule5);
-  }
-
-  @Test
-  public void
-  testHierarchical() throws IOException, SecurityException, NdnRegexMatcherBase.Error
-  {
-    ConfigPolicyManager policyManager = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "hierarchical_ruleset.conf").getAbsolutePath());
-
-    Name dataName1 = new Name("/SecurityTestSecRule/Basic/Data1");
-    Name dataName2 = new Name("/SecurityTestSecRule/Basic/Longer/Data2");
-
-    Data data1 = new Data(dataName1);
-    Data data2 = new Data(dataName2);
-
-    BoostInfoTree matchedRule =
-      friendAccess.findMatchingRule(policyManager, dataName1, "data");
-    assertSame(matchedRule,
-      friendAccess.findMatchingRule(policyManager, dataName2, "data"));
-
-    keyChain.sign(data1, defaultCertName);
-    keyChain.sign(data2, defaultCertName);
-
-    Name signatureName1 =
-      ((Sha256WithRsaSignature)data1.getSignature()).getKeyLocator().getKeyName();
-    Name signatureName2 =
-      ((Sha256WithRsaSignature)data2.getSignature()).getKeyLocator().getKeyName();
-
-    String[] failureReason = new String[] { "unknown" };
-    assertFalse
-      ("Hierarchical matcher matched short data name to long key name",
-       friendAccess.checkSignatureMatch
-        (policyManager, signatureName1, dataName1, matchedRule, failureReason));
-    assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName2, dataName2, matchedRule, failureReason));
-
-    keyChain.sign(data1, shortCertName);
-    keyChain.sign(data2, shortCertName);
-
-    signatureName1 =
-      ((Sha256WithRsaSignature)data1.getSignature()).getKeyLocator().getKeyName();
-    signatureName2 =
-      ((Sha256WithRsaSignature)data1.getSignature()).getKeyLocator().getKeyName();
-
-    assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName1, dataName1, matchedRule, failureReason));
-    assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName2, dataName2, matchedRule, failureReason));
-  }
-
-  @Test
-  public void
-  testHyperRelation() throws IOException, SecurityException, NdnRegexMatcherBase.Error
-  {
-    ConfigPolicyManager policyManager = new ConfigPolicyManager
-      (new File(policyConfigDirectory, "hyperrelation_ruleset.conf").getAbsolutePath());
-
-    Name dataName = new Name("/SecurityTestSecRule/Basic/Longer/Data2");
-    Data data1 = new Data(dataName);
-    Data data2 = new Data(dataName);
-
-    BoostInfoTree matchedRule =
-      friendAccess.findMatchingRule(policyManager, dataName, "data");
-    keyChain.sign(data1, defaultCertName);
-    keyChain.sign(data2, shortCertName);
-
-    Name signatureName1 =
-      ((Sha256WithRsaSignature)data1.getSignature()).getKeyLocator().getKeyName();
-    Name signatureName2 =
-      ((Sha256WithRsaSignature)data2.getSignature()).getKeyLocator().getKeyName();
-
-    String[] failureReason = new String[] { "unknown" };
-    assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName1, dataName, matchedRule, failureReason));
-    assertFalse(friendAccess.checkSignatureMatch
-      (policyManager, signatureName2, dataName, matchedRule, failureReason));
-
-    dataName = new Name("/SecurityTestSecRule/Basic/Other/Data1");
-    data1 = new Data(dataName);
-    data2 = new Data(dataName);
-
-    matchedRule =
-      friendAccess.findMatchingRule(policyManager, dataName, "data");
-    keyChain.sign(data1, defaultCertName);
-    keyChain.sign(data2, shortCertName);
-
-    signatureName1 =
-      ((Sha256WithRsaSignature)data1.getSignature()).getKeyLocator().getKeyName();
-    signatureName2 =
-      ((Sha256WithRsaSignature)data2.getSignature()).getKeyLocator().getKeyName();
-
-    assertFalse(friendAccess.checkSignatureMatch
-      (policyManager, signatureName1, dataName, matchedRule, failureReason));
-    assertTrue(friendAccess.checkSignatureMatch
-      (policyManager, signatureName2, dataName, matchedRule, failureReason));
+      Echo echo = new Echo(keyChain, certificateName);
+      Name prefix = new Name("/testecho");
+      System.out.println("Register prefix  " + prefix.toUri());
+      face.registerPrefix(prefix, echo, echo);
+    }
+    catch (Exception e) {
+       System.out.println("exception: " + e.getMessage());
+    }
   }
 }

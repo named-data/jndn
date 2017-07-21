@@ -35,6 +35,7 @@ public class MetaInfo implements ChangeCountable {
   public MetaInfo(MetaInfo metaInfo)
   {
     type_ = metaInfo.type_;
+    otherTypeCode_ = metaInfo.otherTypeCode_;
     freshnessPeriod_ = metaInfo.freshnessPeriod_;
     // Name.Component is read-only, so we don't need a deep copy.
     finalBlockId_ = metaInfo.finalBlockId_;
