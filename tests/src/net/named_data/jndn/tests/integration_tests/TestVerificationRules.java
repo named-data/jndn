@@ -226,7 +226,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
 
   @Test
   public void
-  testNameRelation() throws IOException, SecurityException, CertificateV2.Error
+  testNameRelation() throws IOException, SecurityException, NdnRegexMatcherBase.Error
   {
     ConfigPolicyManager policyManagerPrefix = new ConfigPolicyManager
       (new File(policyConfigDirectory, "relation_ruleset_prefix.conf").getAbsolutePath());
@@ -271,7 +271,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
 
   @Test
   public void
-  testSimpleRegex() throws IOException, SecurityException, CertificateV2.Error
+  testSimpleRegex() throws IOException, SecurityException, NdnRegexMatcherBase.Error
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
       (new File(policyConfigDirectory, "regex_ruleset.conf").getAbsolutePath());
@@ -307,7 +307,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
 
   @Test
   public void
-  testHierarchical() throws IOException, SecurityException, CertificateV2.Error
+  testHierarchical() throws IOException, SecurityException, NdnRegexMatcherBase.Error
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
       (new File(policyConfigDirectory, "hierarchical_ruleset.conf").getAbsolutePath());
@@ -355,7 +355,7 @@ public class TestVerificationRules implements ConfigPolicyManager.Friend {
 
   @Test
   public void
-  testHyperRelation() throws IOException, SecurityException, CertificateV2.Error
+  testHyperRelation() throws IOException, SecurityException, NdnRegexMatcherBase.Error
   {
     ConfigPolicyManager policyManager = new ConfigPolicyManager
       (new File(policyConfigDirectory, "hyperrelation_ruleset.conf").getAbsolutePath());
