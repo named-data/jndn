@@ -20,8 +20,6 @@
 
 package net.named_data.jndn.security.v2;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.KeyLocator;
@@ -166,7 +164,7 @@ public class CertificateV2 extends Data {
   getIssuerId() { return getName().get(ISSUER_ID_OFFSET); }
 
   /**
-   * @brief Get public key DER encoding.
+   * Get public key DER encoding.
    * @return The DER encoding Blob.
    * @throws CertificateV2.Error If the public key is not set.
    */
@@ -305,11 +303,10 @@ public class CertificateV2 extends Data {
   public static Name
   extractIdentityFromCertName(Name certificateName)
   {
-    if (!isValidName(certificateName)) {
+    if (!isValidName(certificateName))
       throw new IllegalArgumentException
         ("Certificate name `" + certificateName.toUri() +
           "` does not follow the naming conventions");
-    }
 
     return certificateName.getPrefix(KEY_COMPONENT_OFFSET);
   }
