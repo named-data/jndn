@@ -433,6 +433,8 @@ public class ConfigPolicyManager extends PolicyManager {
     try {
       certificateInterest = getCertificateInterest
         (stepCount, "data", data.getName(), data.getSignature(), failureReason);
+    } catch (CertificateV2.Error ex) {
+      throw new SecurityException(ex.getMessage());
     } catch (NdnRegexMatcherBase.Error ex) {
       throw new SecurityException
         ("ConfigPolicyManager: Error in getCertificateInterest:" + ex);
@@ -518,6 +520,8 @@ public class ConfigPolicyManager extends PolicyManager {
       certificateInterest = getCertificateInterest
         (stepCount, "interest", interest.getName().getPrefix(-4), signature,
          failureReason);
+    } catch (CertificateV2.Error ex) {
+      throw new SecurityException(ex.getMessage());
     } catch (NdnRegexMatcherBase.Error ex) {
       throw new SecurityException
         ("ConfigPolicyManager: Error in getCertificateInterest:" + ex);
@@ -905,7 +909,7 @@ public class ConfigPolicyManager extends PolicyManager {
   checkSignatureMatch
     (Name signatureName, Name objectName, BoostInfoTree rule,
      String[] failureReason)
-    throws SecurityException, NdnRegexMatcherBase.Error
+    throws SecurityException, NdnRegexMatcherBase.Error, CertificateV2.Error
   {
     BoostInfoTree checker = (BoostInfoTree)rule.get("checker").get(0);
     String checkerType = checker.getFirstValue("type");
@@ -1478,7 +1482,7 @@ public class ConfigPolicyManager extends PolicyManager {
   getCertificateInterest
     (int stepCount, String matchType, Name objectName, Signature signature,
      String[] failureReason)
-      throws SecurityException, NdnRegexMatcherBase.Error
+    throws SecurityException, NdnRegexMatcherBase.Error, CertificateV2.Error
   {
     if (stepCount > maxDepth_) {
       failureReason[0] = "The verification stepCount " + stepCount +
@@ -1787,7 +1791,7 @@ public class ConfigPolicyManager extends PolicyManager {
     checkSignatureMatch
       (ConfigPolicyManager policyManager, Name signatureName, Name objectName, 
        BoostInfoTree rule, String[] failureReason)
-      throws SecurityException, NdnRegexMatcherBase.Error;
+      throws SecurityException, NdnRegexMatcherBase.Error, CertificateV2.Error;
   }
 
   /**
@@ -1807,7 +1811,7 @@ public class ConfigPolicyManager extends PolicyManager {
     checkSignatureMatch
       (ConfigPolicyManager policyManager, Name signatureName, Name objectName, 
        BoostInfoTree rule, String[] failureReason)
-      throws SecurityException, NdnRegexMatcherBase.Error
+      throws SecurityException, NdnRegexMatcherBase.Error, CertificateV2.Error
     {
       return policyManager.checkSignatureMatch
         (signatureName, objectName, rule, failureReason);
