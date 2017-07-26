@@ -74,7 +74,7 @@ public class TpmPrivateKey {
    * Load the unencrypted private key from a buffer with the PKCS #1 encoding.
    * This replaces any existing private key in this object.
    * @param encoding The byte buffer with the private key encoding.
-   * @param keyType The KeyType, such as KeyType.RSA. In null, then partially
+   * @param keyType The KeyType, such as KeyType.RSA. If null, then partially
    * decode the private key to determine the key type.
    * @throws TpmPrivateKey.Error for errors decoding the key.
    */
@@ -141,7 +141,7 @@ public class TpmPrivateKey {
    * Load the unencrypted private key from a buffer with the PKCS #8 encoding.
    * This replaces any existing private key in this object.
    * @param encoding The byte buffer with the private key encoding.
-   * @param keyType The KeyType, such as KeyType.RSA. In null, then partially
+   * @param keyType The KeyType, such as KeyType.RSA. If null, then partially
    * decode the private key to determine the key type.
    * @throws TpmPrivateKey.Error for errors decoding the key.
    */
