@@ -298,7 +298,7 @@ public class TestTpmPrivateKey {
 
     Blob decryptedText = key.decrypt(ByteBuffer.wrap(cipherText));
 
-    assertTrue(decryptedText.equals(new Blob(plainText)));
+    assertTrue(decryptedText.equals(plainText));
   }
 
   @Test
