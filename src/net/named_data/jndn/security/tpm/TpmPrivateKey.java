@@ -367,7 +367,7 @@ public class TpmPrivateKey {
   toPkcs1() throws TpmPrivateKey.Error
   {
     if (keyType_ == null)
-      throw new Error("derivePublicKey: The private key is not loaded");
+      throw new Error("toPkcs1: The private key is not loaded");
 
     // Decode the PKCS #8 private key.
     DerNode parsedNode;
