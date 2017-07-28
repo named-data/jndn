@@ -27,7 +27,7 @@ import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 
 /**
- * PibImpl is an abstract base class for the PIB implementation use by the Pib
+ * PibImpl is an abstract base class for the PIB implementation used by the Pib
  * class. This class defines the interface that an actual PIB implementation
  * should provide, for example PibMemory.
  */
@@ -134,7 +134,7 @@ public abstract class PibImpl {
    * Check for the existence of a key with keyName.
    * @param keyName The name of the key.
    * @return True if the key exists, otherwise false. Return false if the
-   * identity does not exist
+   * identity does not exist.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public abstract boolean
@@ -143,7 +143,7 @@ public abstract class PibImpl {
   /**
    * Add the key. If a key with the same name already exists, overwrite the key.
    * If the identity does not exist, it will be created. If no default key for
-   * the identity has been set, then set the added key as default for the
+   * the identity has been set, then set the added key as the default for the
    * identity.  If no default identity has been set, identity becomes the
    * default.
    * @param identityName The name of the identity that the key belongs to. This
@@ -224,7 +224,7 @@ public abstract class PibImpl {
    * Add the certificate. If a certificate with the same name (without implicit
    * digest) already exists, then overwrite the certificate. If the key or
    * identity does not exist, they will be created. If no default certificate
-   * for the key has been set, then set the added certificate as default for
+   * for the key has been set, then set the added certificate as the default for
    * the key. If no default key was set for the identity, it will be set as
    * default key for the identity. If no default identity was selected, the
    * certificate's identity becomes the default.

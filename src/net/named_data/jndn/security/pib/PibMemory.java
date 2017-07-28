@@ -190,7 +190,7 @@ public class PibMemory extends PibImpl {
   /**
    * Add the key. If a key with the same name already exists, overwrite the key.
    * If the identity does not exist, it will be created. If no default key for
-   * the identity has been set, then set the added key as default for the
+   * the identity has been set, then set the added key as the default for the
    * identity.  If no default identity has been set, identity becomes the
    * default.
    * @param identityName The name of the identity that the key belongs to. This
@@ -329,8 +329,8 @@ public class PibMemory extends PibImpl {
    * Add the certificate. If a certificate with the same name (without implicit
    * digest) already exists, then overwrite the certificate. If the key or
    * identity does not exist, they will be created. If no default certificate
-   * for the key has been set, then set the added certificate as default for
-   * the key. If no default key was set for the identity, it will be set as
+   * for the key has been set, then set the added certificate as the default for
+   * the key. If no default key was set for the identity, it will be set as the
    * default key for the identity. If no default identity was selected, the
    * certificate's identity becomes the default.
    * @param certificate The certificate to add. This copies the object.
