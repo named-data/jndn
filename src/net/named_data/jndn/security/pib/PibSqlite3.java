@@ -359,7 +359,7 @@ public class PibSqlite3 extends PibImpl {
   }
 
   /**
-   * Erase all certificates, keys, and identities
+   * Erase all certificates, keys, and identities.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
@@ -501,7 +501,7 @@ public class PibSqlite3 extends PibImpl {
    * Check for the existence of a key with keyName.
    * @param keyName The name of the key.
    * @return True if the key exists, otherwise false. Return false if the
-   * identity does not exist
+   * identity does not exist.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public boolean

@@ -96,7 +96,7 @@ public abstract class PibImpl {
   removeIdentity(Name identityName) throws PibImpl.Error;
 
   /**
-   * Erase all certificates, keys, and identities
+   * Erase all certificates, keys, and identities.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public abstract void
