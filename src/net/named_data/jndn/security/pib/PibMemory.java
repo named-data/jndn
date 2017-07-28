@@ -67,7 +67,6 @@ public class PibMemory extends PibImpl {
    * Check for the existence of an identity.
    * @param identityName The name of the identity.
    * @return True if the identity exists, otherwise false.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public boolean
   hasIdentity(Name identityName) throws PibImpl.Error
@@ -79,7 +78,6 @@ public class PibMemory extends PibImpl {
    * Add the identity. If the identity already exists, do nothing. If no default
    * identity has been set, set the added identity as the default.
    * @param identityName The name of the identity to add. This copies the name.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   addIdentity(Name identityName) throws PibImpl.Error
@@ -96,7 +94,6 @@ public class PibMemory extends PibImpl {
    * identity is being removed, no default identity will be selected.  If the
    * identity does not exist, do nothing.
    * @param identityName The name of the identity to remove.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   removeIdentity(Name identityName) throws PibImpl.Error
@@ -110,8 +107,7 @@ public class PibMemory extends PibImpl {
   }
 
   /**
-   * Erase all certificates, keys, and identities
-   * @throws PibImpl.Error for a non-semantic (database access) error.
+   * Erase all certificates, keys, and identities.
    */
   public void
   clearIdentities() throws PibImpl.Error
@@ -127,7 +123,6 @@ public class PibMemory extends PibImpl {
   /**
    * Get the names of all the identities.
    * @return The set of identity names. The Name objects are fresh copies.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public Set<Name>
   getIdentities() throws PibImpl.Error
@@ -144,7 +139,6 @@ public class PibMemory extends PibImpl {
    * Set the identity with the identityName as the default identity. If the
    * identity with identityName does not exist, then it will be created.
    * @param identityName The name for the default identity. This copies the name.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   setDefaultIdentity(Name identityName) throws PibImpl.Error
@@ -158,7 +152,6 @@ public class PibMemory extends PibImpl {
    * Get the default identity.
    * @return The name of the default identity, as a fresh copy.
    * @throws Pib.Error for no default identity.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public Name
   getDefaultIdentity() throws Pib.Error, PibImpl.Error
@@ -176,8 +169,7 @@ public class PibMemory extends PibImpl {
    * Check for the existence of a key with keyName.
    * @param keyName The name of the key.
    * @return True if the key exists, otherwise false. Return false if the
-   * identity does not exist
-   * @throws PibImpl.Error for a non-semantic (database access) error.
+   * identity does not exist.
    */
   public boolean
   hasKey(Name keyName) throws PibImpl.Error
@@ -195,7 +187,6 @@ public class PibMemory extends PibImpl {
    * copies the name.
    * @param keyName The name of the key. This copies the name.
    * @param key The public key bits. This copies the array.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   addKey(Name identityName, Name keyName, ByteBuffer key) throws PibImpl.Error
@@ -214,7 +205,6 @@ public class PibMemory extends PibImpl {
    * Remove the key with keyName and its related certificates. If the key does
    * not exist, do nothing.
    * @param keyName The name of the key.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   removeKey(Name keyName) throws PibImpl.Error
@@ -233,7 +223,6 @@ public class PibMemory extends PibImpl {
    * @param keyName The name of the key.
    * @return The key bits.
    * @throws Pib.Error if the key does not exist.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public Blob
   getKeyBits(Name keyName) throws Pib.Error, PibImpl.Error
@@ -255,7 +244,6 @@ public class PibMemory extends PibImpl {
    * @param identityName The name of the identity.
    * @return The set of key names. The Name objects are fresh copies. If the
    * identity does not exist, return an empty set.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public Set<Name>
   getKeysOfIdentity(Name identityName) throws PibImpl.Error
@@ -276,7 +264,6 @@ public class PibMemory extends PibImpl {
    * @param identityName The name of the identity. This copies the name.
    * @param keyName The name of the key. This copies the name.
    * @throws Pib.Error if the key does not exist.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   setDefaultKeyOfIdentity(Name identityName, Name keyName) 
@@ -295,7 +282,6 @@ public class PibMemory extends PibImpl {
    * @return The name of the default key, as a fresh copy.
    * @throws Pib.Error if there is no default key or if the identity does not
    * exist.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public Name
   getDefaultKeyOfIdentity(Name identityName) throws Pib.Error, PibImpl.Error
@@ -315,7 +301,6 @@ public class PibMemory extends PibImpl {
    * Check for the existence of a certificate with name certificateName.
    * @param certificateName The name of the certificate.
    * @return True if the certificate exists, otherwise false.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public boolean
   hasCertificate(Name certificateName) throws PibImpl.Error
@@ -332,7 +317,6 @@ public class PibMemory extends PibImpl {
    * default key for the identity. If no default identity was selected, the
    * certificate's identity becomes the default.
    * @param certificate The certificate to add. This copies the object.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   addCertificate(CertificateV2 certificate) throws PibImpl.Error
@@ -358,7 +342,6 @@ public class PibMemory extends PibImpl {
    * Remove the certificate with name certificateName. If the certificate does
    * not exist, do nothing.
    * @param certificateName The name of the certificate.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   removeCertificate(Name certificateName) throws Error
@@ -376,7 +359,6 @@ public class PibMemory extends PibImpl {
    * @param certificateName The name of the certificate.
    * @return A copy of the certificate.
    * @throws Pib.Error if the certificate does not exist.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public CertificateV2
   getCertificate(Name certificateName) throws Pib.Error, Error
@@ -401,7 +383,6 @@ public class PibMemory extends PibImpl {
    * @param keyName The name of the key.
    * @return The set of certificate names. The Name objects are fresh copies. If
    * the key does not exist, return an empty set.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public Set<Name>
   getCertificatesOfKey(Name keyName) throws Error
@@ -424,7 +405,6 @@ public class PibMemory extends PibImpl {
    * @param certificateName The name of the certificate. This copies the name.
    * @throws Pib.Error if the certificate with name certificateName does not
    * exist.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public void
   setDefaultCertificateOfKey(Name keyName, Name certificateName)
@@ -443,7 +423,6 @@ public class PibMemory extends PibImpl {
    * @param keyName The name of the key.
    * @return A copy of the default certificate.
    * @throws Pib.Error if the default certificate does not exist.
-   * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public CertificateV2
   getDefaultCertificateOfKey(Name keyName) throws Pib.Error, Error
