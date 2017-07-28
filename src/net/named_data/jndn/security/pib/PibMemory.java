@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
@@ -74,7 +72,7 @@ public class PibMemory extends PibImpl {
   public boolean
   hasIdentity(Name identityName) throws PibImpl.Error
   {
-    return identitieNames_.contains(identityName);
+    return identityNames_.contains(identityName);
   }
 
   /**
@@ -87,7 +85,7 @@ public class PibMemory extends PibImpl {
   addIdentity(Name identityName) throws PibImpl.Error
   {
     Name identityNameCopy = new Name(identityName);
-    identitieNames_.add(identityNameCopy);
+    identityNames_.add(identityNameCopy);
 
     if (defaultIdentityName_ == null)
       defaultIdentityName_ = identityNameCopy;
@@ -103,7 +101,7 @@ public class PibMemory extends PibImpl {
   public void
   removeIdentity(Name identityName) throws PibImpl.Error
   {
-    identitieNames_.remove(identityName);
+    identityNames_.remove(identityName);
     if (defaultIdentityName_ != null && identityName.equals(defaultIdentityName_))
       defaultIdentityName_ = null;
 
@@ -119,7 +117,7 @@ public class PibMemory extends PibImpl {
   clearIdentities() throws PibImpl.Error
   {
     defaultIdentityName_ = null;
-    identitieNames_.clear();
+    identityNames_.clear();
     defaultKeyNames_.clear();
     keys_.clear();
     defaultCertificateNames_.clear();
@@ -136,7 +134,7 @@ public class PibMemory extends PibImpl {
   {
     // Copy the Name objects.
     HashSet<Name> result = new HashSet<Name>();
-    for (Name name : identitieNames_)
+    for (Name name : identityNames_)
       result.add(new Name(name));
     
     return result;
@@ -471,7 +469,7 @@ public class PibMemory extends PibImpl {
 
   private Name defaultIdentityName_ = null;
 
-  private final HashSet<Name> identitieNames_ = new HashSet<Name>();
+  private final HashSet<Name> identityNames_ = new HashSet<Name>();
 
   // identity => default key Name.
   private final HashMap<Name, Name> defaultKeyNames_ = new HashMap<Name, Name>();
