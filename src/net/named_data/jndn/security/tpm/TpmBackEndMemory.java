@@ -132,7 +132,7 @@ public class TpmBackEndMemory extends TpmBackEnd {
    * @param pkcs8 The input byte buffer. If the password is supplied, this is a
    * PKCS #8 EncryptedPrivateKeyInfo. If the password is null, this is an
    * unencrypted PKCS #8 PrivateKeyInfo.
-   * @param password The password to for decrypting the private key. If the
+   * @param password The password for decrypting the private key. If the
    * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
    * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
    * @throw TpmBackEnd.Error if a key with name keyName already exists, or for
