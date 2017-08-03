@@ -144,6 +144,8 @@ public class TpmBackEndFile extends TpmBackEnd {
    * Create a key for identityName according to params. The created key is
    * named as: /<identityName>/[keyId]/KEY . The key name is set in the returned
    * TpmKeyHandle.
+   * @param identityName The name if the identity.
+   * @param params The KeyParams for creating the key.
    * @return The handle of the created key.
    * @throw TpmBackEnd.Error if the key cannot be created.
    */
@@ -166,6 +168,7 @@ public class TpmBackEndFile extends TpmBackEnd {
 
   /**
    * Delete the key with name keyName. If the key doesn't exist, do nothing.
+   * @param keyName The name of the key to delete.
    * @throw TpmBackEnd.Error if the deletion fails.
    */
   protected void
