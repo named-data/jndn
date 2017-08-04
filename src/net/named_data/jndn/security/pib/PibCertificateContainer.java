@@ -112,7 +112,8 @@ public class PibCertificateContainer {
          "` is invalid or does not match key name");
 
     CertificateV2 certificate = pibImpl_.getCertificate(certificateName);
-    certificates_.put(certificateName, certificate);
+    // Copy the certificate Name.
+    certificates_.put(new Name(certificateName), certificate);
     try {
       // Make a copy.
       // TODO: Copy is expensive. Can we just tell the caller not to modify it?
