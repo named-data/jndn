@@ -122,10 +122,11 @@ public class PibIdentityImpl {
 
   /**
    * Set the key with name keyName as the default key of the identity.
+   * @param keyName The name of the key. This copies the name.
+   * @return The PibKey object of the default key.
    * @throws IllegalArgumentException if the name of the key does not match the
    * identity name.
    * @throws Pib.Error if the key does not exist.
-   * @return The PibKey object of the default key.
    */
   public final PibKey
   setDefaultKey(Name keyName) throws Pib.Error, PibImpl.Error
@@ -155,7 +156,8 @@ public class PibIdentityImpl {
 
   /**
    * Get the default key of this Identity.
-   * @throws Pib::Error if the default key has not been set.
+   * @return The default PibKey.
+   * @throws Pib.Error if the default key has not been set.
    */
   public final PibKey
   getDefaultKey() throws Pib.Error, PibImpl.Error
