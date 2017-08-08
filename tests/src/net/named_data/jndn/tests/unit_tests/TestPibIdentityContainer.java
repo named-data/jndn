@@ -138,34 +138,4 @@ public class TestPibIdentityContainer {
     assertEquals(0, container2.getIdentities_().size());
     assertTrue(!container2.getIdentities_().containsKey(fixture.id2));
   }
-
-  @Test
-  public void
-  testErrors() throws PibImpl.Error
-  {
-    PibMemory pibImpl = new PibMemory();
-
-    PibKeyContainer container = new PibKeyContainer(fixture.id1, pibImpl);
-
-    try {
-      container.add(fixture.id2Key1.buf(), fixture.id2Key1Name);
-      fail("Did not throw the expected exception");
-    }
-    catch (IllegalArgumentException ex) {}
-    catch (Exception ex) { fail("Did not throw the expected exception"); }
-
-    try {
-      container.remove(fixture.id2Key1Name);
-      fail("Did not throw the expected exception");
-    }
-    catch (IllegalArgumentException ex) {}
-    catch (Exception ex) { fail("Did not throw the expected exception"); }
-
-    try {
-      container.get(fixture.id2Key1Name);
-      fail("Did not throw the expected exception");
-    }
-    catch (IllegalArgumentException ex) {}
-    catch (Exception ex) { fail("Did not throw the expected exception"); }
-  }
 }
