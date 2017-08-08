@@ -72,7 +72,8 @@ public class PibKey {
    * Get the certificate with name certificateName.
    * @param certificateName The name of the certificate.
    * @return A copy of the CertificateV2 object.
-   * @throws AssertionError if certificateName does not match the key name.
+   * @throws AssertionError if certificateName does not match the key name, or
+   *   if the backend implementation instance is invalid.
    * @throws Pib.Error if the certificate does not exist.
    */
   public final CertificateV2
@@ -83,7 +84,9 @@ public class PibKey {
 
   /**
    * Get the default certificate for this Key.
-   * @throws Pib::Error the default certificate does not exist.
+   * @return A copy of the default certificate.
+   * @throws AssertionError if the backend implementation instance is invalid.
+   * @throws Pib.Error If the default certificate does not exist.
    */
   public final CertificateV2
   getDefaultCertificate() throws Pib.Error, PibImpl.Error

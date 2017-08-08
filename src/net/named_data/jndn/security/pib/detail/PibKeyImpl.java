@@ -215,7 +215,8 @@ public class PibKeyImpl {
 
   /**
    * Get the default certificate for this Key.
-   * @throws Pib.Error the default certificate does not exist.
+   * @return A copy of the default certificate.
+   * @throws Pib.Error if the default certificate does not exist.
    */
   public final CertificateV2
   getDefaultCertificate() throws Pib.Error, PibImpl.Error
