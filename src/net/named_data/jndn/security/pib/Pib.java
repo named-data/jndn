@@ -101,7 +101,7 @@ public class Pib {
    * Get the identity with name identityName.
    * @param identityName The name of the identity.
    * @return The PibIdentity object.
-   * @throws Pib::Error if the identity does not exist.
+   * @throws Pib.Error if the identity does not exist.
    */
   public final PibIdentity
   getIdentity(Name identityName) throws PibImpl.Error, Pib.Error
@@ -114,7 +114,7 @@ public class Pib {
   /**
    * Get the default identity.
    * @return The PibIdentity object.
-   * @throws Pib::Error if there is no default identity.
+   * @throws Pib.Error if there is no default identity.
    */
   public final PibIdentity
   getDefaultIdentity() throws PibImpl.Error, Error
