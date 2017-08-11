@@ -115,7 +115,7 @@ public class TestRegex {
     assertEquals(true, res);
     assertEquals(0, cm.getMatchResult().size());
 
-    cm.match(new Name("/a/b/c"), 0, 2);
+    res = cm.match(new Name("/a/b/c"), 0, 2);
     assertEquals(true, res);
     assertEquals(2, cm.getMatchResult().size());
     assertEquals("a", cm.getMatchResult().get(0).toEscapedString());
