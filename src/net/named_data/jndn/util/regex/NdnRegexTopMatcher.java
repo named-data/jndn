@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2017 Regents of the University of California.
+ * @author: Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
