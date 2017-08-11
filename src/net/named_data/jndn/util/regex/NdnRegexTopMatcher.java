@@ -167,7 +167,7 @@ public class NdnRegexTopMatcher extends NdnRegexMatcherBase {
       (expr, primaryBackrefManager_);
   }
 
-  private String
+  static private String
   getItemFromExpand(String expand, int[] offset)
     throws NdnRegexMatcherBase.Error
   {
@@ -176,24 +176,24 @@ public class NdnRegexTopMatcher extends NdnRegexMatcherBase {
     if (expand.charAt(offset[0]) == '\\') {
       ++offset[0];
       if (offset[0] >= expand.length())
-        throw new NdnRegexMatcherBase.Error("wrong format of expand string!");
+        throw new NdnRegexMatcherBase.Error("Wrong format of expand string!");
 
       while (offset[0] < expand.length() &&
              expand.charAt(offset[0]) <= '9' && expand.charAt(offset[0]) >= '0') {
         ++offset[0];
         if (offset[0] > expand.length())
-          throw new NdnRegexMatcherBase.Error("wrong format of expand string!");
+          throw new NdnRegexMatcherBase.Error("Wrong format of expand string!");
       }
 
       if (offset[0] > begin + 1)
         return expand.substring(begin, offset[0]);
       else
-        throw new NdnRegexMatcherBase.Error("wrong format of expand string!");
+        throw new NdnRegexMatcherBase.Error("Wrong format of expand string!");
     }
     else if (expand.charAt(offset[0]) == '<') {
       ++offset[0];
       if (offset[0] >= expand.length())
-        throw new NdnRegexMatcherBase.Error("wrong format of expand string!");
+        throw new NdnRegexMatcherBase.Error("Wrong format of expand string!");
 
       int left = 1;
       int right = 0;
@@ -205,13 +205,13 @@ public class NdnRegexTopMatcher extends NdnRegexMatcherBase {
 
         ++offset[0];
         if (offset[0] >= expand.length())
-          throw new NdnRegexMatcherBase.Error("wrong format of expand string!");
+          throw new NdnRegexMatcherBase.Error("Wrong format of expand string!");
       }
 
       return expand.substring(begin, offset[0]);
     }
     else
-      throw new NdnRegexMatcherBase.Error("wrong format of expand string!");
+      throw new NdnRegexMatcherBase.Error("Wrong format of expand string!");
   }
 
   private static String
