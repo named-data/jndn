@@ -53,7 +53,7 @@ public class SigningInfo {
   public SigningInfo(SignerType signerType, Name signerName)
   {
     reset(signerType);
-    name_ = signerName;
+    name_ = new Name(signerName);
     digestAlgorithm_ = DigestAlgorithm.SHA256;
   }
 
