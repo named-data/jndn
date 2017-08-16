@@ -22,8 +22,8 @@ package net.named_data.jndn.security;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.ContentType;
@@ -189,7 +189,7 @@ public class KeyChain {
   {
     Name identityName = identity.getName();
 
-    List<Name> keyNames = identity.getKeys_().getKeyNames();
+    ArrayList<Name> keyNames = identity.getKeys_().getKeyNames();
     for (Name keyName : keyNames)
       tpm_.deleteKey_(keyName);
 

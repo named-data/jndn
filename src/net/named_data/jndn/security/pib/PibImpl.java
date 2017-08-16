@@ -21,7 +21,7 @@
 package net.named_data.jndn.security.pib;
 
 import java.nio.ByteBuffer;
-import java.util.Set;
+import java.util.HashSet;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
@@ -107,7 +107,7 @@ public abstract class PibImpl {
    * @return The set of identity names. The Name objects are fresh copies.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
-  public abstract Set<Name>
+  public abstract HashSet<Name>
   getIdentities() throws PibImpl.Error;
 
   /**
@@ -183,7 +183,7 @@ public abstract class PibImpl {
    * identity does not exist, return an empty set.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
-  public abstract Set<Name>
+  public abstract HashSet<Name>
   getKeysOfIdentity(Name identityName) throws PibImpl.Error;
 
   /**
@@ -263,7 +263,7 @@ public abstract class PibImpl {
    * the key does not exist, return an empty set.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
-  public abstract Set<Name>
+  public abstract HashSet<Name>
   getCertificatesOfKey(Name keyName) throws PibImpl.Error;
 
   /**

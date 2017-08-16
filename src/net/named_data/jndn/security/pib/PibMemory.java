@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
@@ -124,7 +123,7 @@ public class PibMemory extends PibImpl {
    * Get the names of all the identities.
    * @return The set of identity names. The Name objects are fresh copies.
    */
-  public Set<Name>
+  public HashSet<Name>
   getIdentities() throws PibImpl.Error
   {
     // Copy the Name objects.
@@ -245,7 +244,7 @@ public class PibMemory extends PibImpl {
    * @return The set of key names. The Name objects are fresh copies. If the
    * identity does not exist, return an empty set.
    */
-  public Set<Name>
+  public HashSet<Name>
   getKeysOfIdentity(Name identityName) throws PibImpl.Error
   {
     HashSet<Name> ids = new HashSet<Name>();
@@ -384,7 +383,7 @@ public class PibMemory extends PibImpl {
    * @return The set of certificate names. The Name objects are fresh copies. If
    * the key does not exist, return an empty set.
    */
-  public Set<Name>
+  public HashSet<Name>
   getCertificatesOfKey(Name keyName) throws Error
   {
     HashSet<Name> certificateNames = new HashSet<Name>();

@@ -30,7 +30,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Name;
@@ -383,7 +382,7 @@ public class PibSqlite3 extends PibImpl {
    * @return The set of identity names. The Name objects are fresh copies.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
-  public Set<Name>
+  public HashSet<Name>
   getIdentities() throws PibImpl.Error
   {
     HashSet<Name> identityNames = new HashSet<Name>();
@@ -658,7 +657,7 @@ public class PibSqlite3 extends PibImpl {
    * identity does not exist, return an empty set.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
-  public Set<Name>
+  public HashSet<Name>
   getKeysOfIdentity(Name identityName) throws PibImpl.Error
   {
     HashSet<Name> keyNames = new HashSet<Name>();
@@ -936,7 +935,7 @@ public class PibSqlite3 extends PibImpl {
    * the key does not exist, return an empty set.
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
-  public Set<Name>
+  public HashSet<Name>
   getCertificatesOfKey(Name keyName) throws PibImpl.Error
   {
     HashSet<Name> certNames = new HashSet<Name>();

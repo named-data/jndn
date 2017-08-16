@@ -21,7 +21,7 @@
 package net.named_data.jndn.security.pib;
 
 import java.util.HashMap;
-import java.util.Set;
+import java.util.HashSet;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Common;
@@ -162,7 +162,7 @@ public class PibCertificateContainer {
   getCertificates_() { return certificates_; }
 
   private final Name keyName_;
-  private Set<Name> certificateNames_;
+  private HashSet<Name> certificateNames_;
   // Cache of loaded certificates.
   private final HashMap<Name, CertificateV2> certificates_ =
     new HashMap<Name, CertificateV2>();

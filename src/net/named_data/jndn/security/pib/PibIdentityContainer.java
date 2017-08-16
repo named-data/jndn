@@ -21,7 +21,7 @@
 package net.named_data.jndn.security.pib;
 
 import java.util.HashMap;
-import java.util.Set;
+import java.util.HashSet;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.pib.detail.PibIdentityImpl;
 import net.named_data.jndn.util.Common;
@@ -136,7 +136,7 @@ public class PibIdentityContainer {
   public final HashMap<Name, PibIdentityImpl>
   getIdentities_() { return identities_; }
 
-  private Set<Name> identityNames_;
+  private HashSet<Name> identityNames_;
   // Cache of loaded PibIdentityImpl objects.
   private final HashMap<Name, PibIdentityImpl> identities_ =
     new HashMap<Name, PibIdentityImpl>();

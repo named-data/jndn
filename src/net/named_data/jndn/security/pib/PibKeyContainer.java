@@ -23,8 +23,7 @@ package net.named_data.jndn.security.pib;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.HashSet;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.pib.detail.PibKeyImpl;
 import net.named_data.jndn.util.Common;
@@ -114,7 +113,7 @@ public class PibKeyContainer {
    * Get the names of all the keys in the container.
    * @return A new list of Name.
    */
-  public final List<Name>
+  public final ArrayList<Name>
   getKeyNames()
   {
     ArrayList<Name> result = new ArrayList<Name>();
@@ -164,7 +163,7 @@ public class PibKeyContainer {
   getKeys_() { return keys_; }
 
   private final Name identityName_;
-  private final Set<Name> keyNames_;
+  private final HashSet<Name> keyNames_;
   // Cache of loaded PibKeyImpl objects.
   private final HashMap<Name, PibKeyImpl> keys_ = new HashMap<Name, PibKeyImpl>();
 
