@@ -21,6 +21,7 @@
 package net.named_data.jndn.security.pib;
 
 import net.named_data.jndn.Name;
+import net.named_data.jndn.util.Common;
 
 /**
  * In general, a PIB (Public Information Base) stores the public portion of a
@@ -220,4 +221,7 @@ public class Pib {
   private final PibIdentityContainer identities_;
 
   private final PibImpl pibImpl_;
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

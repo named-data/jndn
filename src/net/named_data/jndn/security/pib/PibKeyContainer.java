@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.pib.detail.PibKeyImpl;
+import net.named_data.jndn.util.Common;
 
 /**
  * A PibKeyContainer is used to search/enumerate the keys of an identity.
@@ -168,4 +169,7 @@ public class PibKeyContainer {
   private final HashMap<Name, PibKeyImpl> keys_ = new HashMap<Name, PibKeyImpl>();
 
   private final PibImpl pibImpl_;
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

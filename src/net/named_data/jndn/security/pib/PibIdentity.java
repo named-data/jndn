@@ -22,6 +22,7 @@ package net.named_data.jndn.security.pib;
 
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.pib.detail.PibIdentityImpl;
+import net.named_data.jndn.util.Common;
 
 /**
  * PibIdentity is at the top level in PIB's Identity-Key-Certificate hierarchy.
@@ -96,4 +97,7 @@ public class PibIdentity {
   }
 
   private final PibIdentityImpl impl_;
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

@@ -21,6 +21,7 @@
 package net.named_data.jndn.security;
 
 import net.named_data.jndn.Name;
+import net.named_data.jndn.util.Common;
 
 /**
  * KeyParams is a base class for key parameters. Its subclasses are used to
@@ -75,4 +76,7 @@ public class KeyParams {
   private final KeyType keyType_;
   private final KeyIdType keyIdType_;
   private Name.Component keyId_ = new Name.Component();
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

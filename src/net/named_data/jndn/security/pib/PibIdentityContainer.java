@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Set;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.pib.detail.PibIdentityImpl;
+import net.named_data.jndn.util.Common;
 
 /**
  * A PibIdentityContainer is used to search/enumerate the identities in a PIB.
@@ -141,4 +142,7 @@ public class PibIdentityContainer {
     new HashMap<Name, PibIdentityImpl>();
 
   private final PibImpl pibImpl_;
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

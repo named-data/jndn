@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Set;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.util.Common;
 
 /**
  * A PibCertificateContainer is used to search/enumerate the certificates of a
@@ -167,4 +168,7 @@ public class PibCertificateContainer {
     new HashMap<Name, CertificateV2>();
 
   private final PibImpl pibImpl_;
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

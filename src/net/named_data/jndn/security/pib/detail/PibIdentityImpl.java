@@ -26,6 +26,7 @@ import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.pib.PibKey;
 import net.named_data.jndn.security.pib.PibKeyContainer;
+import net.named_data.jndn.util.Common;
 
 /**
  * PibIdentityImpl provides the backend implementation for PibIdentity. A
@@ -185,4 +186,7 @@ public class PibIdentityImpl {
   private final PibKeyContainer keys_;
 
   private final PibImpl pibImpl_;
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

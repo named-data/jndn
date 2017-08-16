@@ -23,6 +23,7 @@ package net.named_data.jndn.security;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.pib.PibIdentity;
 import net.named_data.jndn.security.pib.PibKey;
+import net.named_data.jndn.util.Common;
 
 /**
  * A SigningInfo holds the signing parameters passed to the KeyChain. A
@@ -367,4 +368,7 @@ public class SigningInfo {
   private PibKey key_;
   private DigestAlgorithm digestAlgorithm_;
   // Omit signatureInfo_ until we need it.
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
