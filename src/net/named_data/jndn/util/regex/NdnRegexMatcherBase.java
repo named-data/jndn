@@ -21,7 +21,6 @@
 package net.named_data.jndn.util.regex;
 
 import java.util.ArrayList;
-import java.util.List;
 import net.named_data.jndn.Name;
 
 public abstract class NdnRegexMatcherBase {
@@ -85,7 +84,7 @@ public abstract class NdnRegexMatcherBase {
    * Get the list of matched name components.
    * @return The matched name components. You must not modify this list.
    */
-  public final List<Name.Component>
+  public final ArrayList<Name.Component>
   getMatchResult() { return matchResult_; }
 
   public final String
