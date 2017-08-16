@@ -315,6 +315,7 @@ public class GroupManager {
    */
   private void
   generateKeyPair(Blob[] privateKeyBlob, Blob[] publicKeyBlob)
+    throws SecurityException
   {
     RsaKeyParams params = new RsaKeyParams(keySize_);
 

@@ -34,6 +34,7 @@ import net.named_data.jndn.encrypt.algo.AesAlgorithm;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
 import net.named_data.jndn.security.AesKeyParams;
 import net.named_data.jndn.security.RsaKeyParams;
+import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Blob;
 import org.junit.After;
 import org.junit.Before;
@@ -64,7 +65,8 @@ public class TestGroupConsumerDb {
 
   static void
   generateRsaKeys(Blob[] encryptionKeyBlob, Blob[] decryptionKeyBlob)
-    throws NoSuchAlgorithmException, InvalidKeySpecException, DerDecodingException
+    throws NoSuchAlgorithmException, InvalidKeySpecException, 
+      DerDecodingException, SecurityException
   {
     RsaKeyParams params = new RsaKeyParams();
     DecryptKey decryptKey = RsaAlgorithm.generateKey(params);
@@ -113,7 +115,7 @@ public class TestGroupConsumerDb {
   public void
   testOperateRsaDecryptionKey()
     throws ConsumerDb.Error, NoSuchAlgorithmException, InvalidKeySpecException,
-      DerDecodingException
+      DerDecodingException, SecurityException
   {
     // Test construction.
     ConsumerDb database = new Sqlite3ConsumerDb(databaseFilePath.getAbsolutePath());

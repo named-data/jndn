@@ -34,6 +34,7 @@ import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
+import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertTrue;
@@ -115,7 +116,7 @@ public class TestRsaAlgorithm {
   testEncryptionDecryption()
     throws InvalidKeySpecException, NoSuchAlgorithmException,
            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
-           BadPaddingException, DerDecodingException
+           BadPaddingException, DerDecodingException, SecurityException
   {
     EncryptParams encryptParams = new EncryptParams
       (EncryptAlgorithmType.RsaOaep, 0);

@@ -210,7 +210,7 @@ public class TestGroupConsumer implements Consumer.Friend {
   public void
   setUp()
     throws ConsumerDb.Error, NoSuchAlgorithmException,
-      InvalidKeySpecException, DerDecodingException
+      InvalidKeySpecException, DerDecodingException, SecurityException
   {
     // Don't show INFO log messages.
     Logger.getLogger("").setLevel(Level.WARNING);

@@ -39,6 +39,7 @@ import net.named_data.jndn.encrypt.EncryptKey;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.tpm.TpmPrivateKey;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.security.SecurityException;
 
 /**
  * The RsaAlgorithm class provides static methods to manipulate keys, encrypt
