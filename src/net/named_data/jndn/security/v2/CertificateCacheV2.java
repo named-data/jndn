@@ -117,12 +117,13 @@ public class CertificateCacheV2 {
 
     // TODO: const_cast<CertificateCacheV2*>(this)->refresh();
 
-    Name firstKey = certificatesByName_.ceilingKey(interest.getName());
+    Name firstKey = (Name)certificatesByName_.ceilingKey(interest.getName());
     if (firstKey == null)
       return null;
 
-    for (Name key : certificatesByName_.navigableKeySet().tailSet(firstKey)) {
-      CertificateV2 certificate = certificatesByName_.get(key);
+    for (Object key : certificatesByName_.navigableKeySet().tailSet(firstKey)) {
+      CertificateV2 certificate = (CertificateV2)certificatesByName_.get
+        ((Name)key);
       if (!interest.getName().isPrefixOf(certificate.getName()))
         break;
 
@@ -162,8 +163,8 @@ public class CertificateCacheV2 {
   public static double
   getDefaultLifetime() { return 3600.0 * 1000; }
 
-  private final TreeMap<Name, CertificateV2> certificatesByName_ =
-    new TreeMap<Name, CertificateV2>();
+  // Name => CertificateV2.
+  private final TreeMap certificatesByName_ = new TreeMap();
   double maxLifetimeMilliseconds_;
   private static final Logger logger_ = Logger.getLogger(CertificateCacheV2.class.getName());
 }
