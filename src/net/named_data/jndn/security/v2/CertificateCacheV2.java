@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.util.Common;
 
 /**
  * A CertificateCacheV2 holds other user's verified certificates in security v2
@@ -87,12 +88,14 @@ public class CertificateCacheV2 {
 
     // TODO: refresh();
 
-    Map.Entry<Name, CertificateV2> entry =
-      certificatesByName_.ceilingEntry(certificatePrefix);
-    if (entry == null ||
-        !certificatePrefix.isPrefixOf(entry.getValue().getName()))
+    Name entryKey = (Name)certificatesByName_.ceilingKey(certificatePrefix);
+    if (entryKey == null)
       return null;
-    return entry.getValue();
+
+    CertificateV2 certificate = (CertificateV2)certificatesByName_.get(entryKey);
+    if (!certificatePrefix.isPrefixOf(certificate.getName()))
+      return null;
+    return certificate;
   }
 
   /**
@@ -167,4 +170,8 @@ public class CertificateCacheV2 {
   private final TreeMap certificatesByName_ = new TreeMap();
   double maxLifetimeMilliseconds_;
   private static final Logger logger_ = Logger.getLogger(CertificateCacheV2.class.getName());
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
+
