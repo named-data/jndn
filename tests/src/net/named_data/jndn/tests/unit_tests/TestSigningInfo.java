@@ -120,16 +120,16 @@ public class TestSigningInfo {
   public void
   testToString()
   {
-    assertEquals("", new SigningInfo().toString());
+    assertEquals("", "" + new SigningInfo());
 
     assertEquals("id:/my-identity",
-      new SigningInfo(SigningInfo.SignerType.ID, new Name("/my-identity")).toString());
+      "" + new SigningInfo(SigningInfo.SignerType.ID, new Name("/my-identity")));
     assertEquals("key:/my-key",
-      new SigningInfo(SigningInfo.SignerType.KEY, new Name("/my-key")).toString());
+      "" + new SigningInfo(SigningInfo.SignerType.KEY, new Name("/my-key")));
     assertEquals("cert:/my-cert",
-      new SigningInfo(SigningInfo.SignerType.CERT, new Name("/my-cert")).toString());
+      "" + new SigningInfo(SigningInfo.SignerType.CERT, new Name("/my-cert")));
     assertEquals("id:/localhost/identity/digest-sha256",
-      new SigningInfo(SigningInfo.SignerType.SHA256).toString());
+      "" + new SigningInfo(SigningInfo.SignerType.SHA256).toString());
   }
 
   @Test
@@ -145,7 +145,7 @@ public class TestSigningInfo {
       .setSha256Signing()
       .setDigestAlgorithm(DigestAlgorithm.SHA256);
 
-    assertEquals("id:/localhost/identity/digest-sha256", info.toString());
+    assertEquals("id:/localhost/identity/digest-sha256", "" + info);
   }
 
   // This is to force an import of net.named_data.jndn.util.
