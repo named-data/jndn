@@ -27,9 +27,9 @@ import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibIdentity;
 import net.named_data.jndn.security.pib.PibIdentityContainer;
 import net.named_data.jndn.security.pib.PibImpl;
-import net.named_data.jndn.security.pib.PibKeyContainer;
 import net.named_data.jndn.security.pib.PibMemory;
 import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -138,4 +138,7 @@ public class TestPibIdentityContainer {
     assertEquals(0, container2.getIdentities_().size());
     assertTrue(!container2.getIdentities_().containsKey(fixture.id2));
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

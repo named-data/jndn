@@ -28,6 +28,7 @@ import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.pib.PibKey;
 import net.named_data.jndn.security.pib.PibMemory;
 import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -287,4 +288,7 @@ public class TestPibIdentityImpl {
     catch (IllegalArgumentException ex) {}
     catch (Exception ex) { fail("Did not throw the expected exception"); }
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

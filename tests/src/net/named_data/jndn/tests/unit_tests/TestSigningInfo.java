@@ -24,6 +24,7 @@ package net.named_data.jndn.tests.unit_tests;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.SigningInfo;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -146,4 +147,7 @@ public class TestSigningInfo {
 
     assertEquals("id:/localhost/identity/digest-sha256", info.toString());
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
