@@ -387,11 +387,11 @@ public class PibMemory extends PibImpl {
   getCertificatesOfKey(Name keyName) throws Error
   {
     HashSet<Name> certificateNames = new HashSet<Name>();
-    for (Map.Entry<Name, CertificateV2> entry : certificates_.entrySet()) {
-      if (CertificateV2.extractKeyNameFromCertName(entry.getValue().getName())
-           .equals(keyName))
+    for (Name certificateName : certificates_.keySet()) {
+      if (CertificateV2.extractKeyNameFromCertName
+          (certificates_.get(certificateName).getName()).equals(keyName))
         // Copy the Name.
-        certificateNames.add(new Name(entry.getKey()));
+        certificateNames.add(new Name(certificateName));
     }
 
     return certificateNames;
