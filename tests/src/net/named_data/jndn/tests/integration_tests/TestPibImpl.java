@@ -22,7 +22,7 @@
 package src.net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
-import java.util.Set;
+import java.util.HashSet;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.pib.Pib;
@@ -224,7 +224,7 @@ public class TestPibImpl {
       assertEquals(fixture.id2, pib.getDefaultIdentity());
 
       // Get all the identities, which should have id1 and id2.
-      Set<Name> idNames = pib.getIdentities();
+      HashSet<Name> idNames = pib.getIdentities();
       assertEquals(2, idNames.size());
       assertTrue(idNames.contains(fixture.id1));
       assertTrue(idNames.contains(fixture.id2));
@@ -332,7 +332,7 @@ public class TestPibImpl {
       assertEquals(fixture.id1Key2Name, pib.getDefaultKeyOfIdentity(fixture.id1));
 
       // Get all the keys, which should have id1Key1 and id1Key2.
-      Set<Name> keyNames = pib.getKeysOfIdentity(fixture.id1);
+      HashSet<Name> keyNames = pib.getKeysOfIdentity(fixture.id1);
       assertEquals(2, keyNames.size());
       assertTrue(keyNames.contains(fixture.id1Key1Name));
       assertTrue(keyNames.contains(fixture.id1Key2Name));
@@ -428,7 +428,7 @@ public class TestPibImpl {
                   (pib.getDefaultCertificateOfKey(fixture.id1Key1Name).wireEncode()));
 
       // Get all certificates, which should have id1Key1Cert1 and id1Key1Cert2.
-      Set<Name> certNames = pib.getCertificatesOfKey(fixture.id1Key1Name);
+      HashSet<Name> certNames = pib.getCertificatesOfKey(fixture.id1Key1Name);
       assertEquals(2, certNames.size());
       assertTrue(certNames.contains(fixture.id1Key1Cert1.getName()));
       assertTrue(certNames.contains(fixture.id1Key1Cert2.getName()));
