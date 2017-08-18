@@ -107,6 +107,20 @@ public class Tlv0_2WireFormat extends WireFormat {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
+    if (interest.getForwardingHint().size() > 0) {
+      if (interest.getSelectedDelegationIndex() >= 0)
+        throw new Error
+          ("An Interest may not have a selected delegation when encoding a forwarding hint");
+      if (interest.hasLink())
+        throw new Error
+          ("An Interest may not have a link object when encoding a forwarding hint");
+
+      int forwardingHintSaveLength = encoder.getLength();
+      encodeDelegationSet(interest.getForwardingHint(), encoder);
+      encoder.writeTypeAndLength
+        (Tlv.ForwardingHint, encoder.getLength() - forwardingHintSaveLength);
+    }
+
     encoder.writeOptionalNonNegativeIntegerTlv(
       Tlv.SelectedDelegation, interest.getSelectedDelegationIndex());
     try {
@@ -209,6 +223,14 @@ public class Tlv0_2WireFormat extends WireFormat {
     ByteBuffer nonce = decoder.readBlobTlv(Tlv.Nonce);
     interest.setInterestLifetimeMilliseconds
       (decoder.readOptionalNonNegativeIntegerTlv(Tlv.InterestLifetime, endOffset));
+
+    if (decoder.peekType(Tlv.ForwardingHint, endOffset)) {
+      int forwardingHintEndOffset = decoder.readNestedTlvsStart
+        (Tlv.ForwardingHint);
+      decodeDelegationSet
+        (interest.getForwardingHint(), forwardingHintEndOffset, decoder, copy);
+      decoder.finishNestedTlvs(forwardingHintEndOffset);
+    }
 
     if (decoder.peekType(Tlv.Data, endOffset)) {
       // Get the bytes of the Link TLV.
