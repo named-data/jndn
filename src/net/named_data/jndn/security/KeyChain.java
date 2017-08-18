@@ -48,13 +48,18 @@ import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibIdentity;
 import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.pib.PibKey;
+import net.named_data.jndn.security.pib.PibMemory;
+import net.named_data.jndn.security.pib.PibSqlite3;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.security.policy.PolicyManager;
 import net.named_data.jndn.security.tpm.Tpm;
 import net.named_data.jndn.security.tpm.TpmBackEnd;
+import net.named_data.jndn.security.tpm.TpmBackEndFile;
+import net.named_data.jndn.security.tpm.TpmBackEndMemory;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
+import net.named_data.jndn.util.ConfigFile;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
@@ -104,14 +109,48 @@ public class KeyChain {
   }
 
   public interface MakePibImpl {
-    PibImpl makePibImpl(String location);
+    PibImpl makePibImpl(String location) throws PibImpl.Error;
   }
 
   public interface MakeTpmBackEnd {
     TpmBackEnd makeTpmBackEnd(String location);
   }
 
-  // TODO: public KeyChain(String pibLocator, String tpmLocator, boolean allowReset)
+  /**
+   * Create a KeyChain to use the PIB and TPM defined by the given locators.
+   * This creates a security v2 KeyChain that uses CertificateV2, Pib, Tpm and
+   * Validator (instead of v1 Certificate, IdentityStorage, PrivateKeyStorage
+   * and PolicyManager).
+   * @param pibLocator The PIB locator, e.g., "pib-sqlite3:/example/dir".
+   * @param tpmLocator The TPM locator, e.g., "tpm-memory:".
+   * @param allowReset If true, the PIB will be reset when the supplied
+   * tpmLocator mismatches the one in the PIB.
+   * @throws KeyChain.LocatorMismatchError if the supplied TPM locator does not
+   * match the locator stored in the PIB.
+   */
+  KeyChain(String pibLocator, String tpmLocator, boolean allowReset)
+    throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
+  {
+    construct(pibLocator, tpmLocator, allowReset);
+  }
+
+  /**
+   * Create a KeyChain to use the PIB and TPM defined by the given locators.
+   * Don't allow resetting the PIB when the supplied tpmLocator mismatches the
+   * one in the PIB.
+   * This creates a security v2 KeyChain that uses CertificateV2, Pib, Tpm and
+   * Validator (instead of v1 Certificate, IdentityStorage, PrivateKeyStorage
+   * and PolicyManager).
+   * @param pibLocator The PIB locator, e.g., "pib-sqlite3:/example/dir".
+   * @param tpmLocator The TPM locator, e.g., "tpm-memory:".
+   * @throws KeyChain.LocatorMismatchError if the supplied TPM locator does not
+   * match the locator stored in the PIB.
+   */
+  KeyChain(String pibLocator, String tpmLocator)
+    throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
+  {
+    construct(pibLocator, tpmLocator, false);
+  }
 
   /**
    * This is a temporary constructor for the transition to security v2. This
@@ -1549,6 +1588,262 @@ public class KeyChain {
 
   public static final RsaKeyParams DEFAULT_KEY_PARAMS = new RsaKeyParams();
 
+  // Private security v2 methods
+
+  /**
+   * Do the work of the constructor.
+   */
+  private void
+  construct(String pibLocator, String tpmLocator, boolean allowReset)
+    throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
+  {
+    isSecurityV1_ = false;
+
+    // PIB locator.
+    String[] pibScheme = new String[1];
+    String[] pibLocation = new String[1];
+    parseAndCheckPibLocator(pibLocator, pibScheme, pibLocation);
+    String canonicalPibLocator = pibScheme[0] + ":" + pibLocation[0];
+
+    // Create the PIB.
+    pib_ = createPib(canonicalPibLocator);
+    String oldTpmLocator = "";
+    try {
+      oldTpmLocator = pib_.getTpmLocator();
+    }
+    catch (Pib.Error ex) {
+      // The TPM locator is not set in the PIB yet.
+    }
+
+    // TPM locator.
+    String[] tpmScheme = new String[1];
+    String[] tpmLocation = new String[1];
+    parseAndCheckTpmLocator(tpmLocator, tpmScheme, tpmLocation);
+    String canonicalTpmLocator = tpmScheme[0] + ":" + tpmLocation[0];
+
+    ConfigFile config = new ConfigFile();
+    if (canonicalPibLocator.equals(getDefaultPibLocator(config))) {
+      // The default PIB must use the default TPM.
+      if (!oldTpmLocator.equals("") &&
+          !oldTpmLocator.equals(getDefaultTpmLocator(config))) {
+        pib_.reset_();
+        canonicalTpmLocator = getDefaultTpmLocator(config);
+      }
+    }
+    else {
+      // Check the consistency of the non-default PIB.
+      if (oldTpmLocator.equals("") &&
+          !oldTpmLocator.equals(canonicalTpmLocator)) {
+        if (allowReset)
+          pib_.reset_();
+        else
+          throw new LocatorMismatchError
+            ("The supplied TPM locator does not match the TPM locator in the PIB: " +
+             oldTpmLocator + " != " + canonicalTpmLocator);
+      }
+    }
+
+    // Note that a key mismatch may still happen if the TPM locator is initially
+    // set to a wrong one or if the PIB was shared by more than one TPM before.
+    // This is due to the old PIB not having TPM info. The new PIB should not
+    // have this problem.
+    tpm_ = createTpm(canonicalTpmLocator);
+    pib_.setTpmLocator(canonicalTpmLocator);
+  }
+
+  /**
+   * Get the PIB factories map. On the first call, this initializes the map with
+   * factories for standard PibImpl implementations.
+   * @return A map where the key is the scheme string and the value is the
+   * object implementing makePibImpl.
+   */
+  private static HashMap<String, MakePibImpl>
+  getPibFactories()
+  {
+    if (pibFactories_ == null) {
+      pibFactories_ = new HashMap<String, MakePibImpl>();
+
+      // Add the standard factories.
+      pibFactories_.put(PibSqlite3.getScheme(), new MakePibImpl() {
+        public PibImpl makePibImpl(String location) throws PibImpl.Error {
+          return new PibSqlite3(location);
+        }
+      });
+      pibFactories_.put(PibMemory.getScheme(), new MakePibImpl() {
+        public PibImpl makePibImpl(String location) throws PibImpl.Error {
+          return new PibMemory();
+        }
+      });
+    }
+
+    return pibFactories_;
+  }
+
+  /**
+   * Get the TPM factories map. On the first call, this initializes the map with
+   * factories for standard TpmBackEnd implementations.
+   * @return A map where the key is the scheme string and the value is the
+   * object implementing makeTpmBackEnd.
+   */
+  private static HashMap<String, MakeTpmBackEnd>
+  getTpmFactories()
+  {
+    if (tpmFactories_ == null) {
+      tpmFactories_ = new HashMap<String, MakeTpmBackEnd>();
+
+      // Add the standard factories.
+      tpmFactories_.put(TpmBackEndFile.getScheme(), new MakeTpmBackEnd() {
+        public TpmBackEnd makeTpmBackEnd(String location) {
+          return new TpmBackEndFile(location);
+        }
+      });
+      tpmFactories_.put(TpmBackEndMemory.getScheme(), new MakeTpmBackEnd() {
+        public TpmBackEnd makeTpmBackEnd(String location) {
+          return new TpmBackEndMemory();
+        }
+      });
+    }
+
+    return tpmFactories_;
+  }
+
+  /**
+   * Parse the uri and set the scheme and location.
+   * @param uri The URI to parse.
+   * @param scheme Set scheme[0] to the scheme.
+   * @param location Set location[0] to the location.
+   */
+  private static void
+  parseLocatorUri(String uri, String[] scheme, String[] location)
+  {
+    int iColon = uri.indexOf(':');
+    if (iColon < 0) {
+      scheme[0] = uri.substring(0, iColon);
+      location[0] = uri.substring(iColon + 1);
+    }
+    else {
+      scheme[0] = uri;
+      location[0] = "";
+    }
+  }
+
+  /**
+   * Parse the pibLocator and set the pibScheme and pibLocation.
+   * @param pibLocator The PIB locator to parse.
+   * @param pibScheme Set pibScheme[0] to the PIB scheme.
+   * @param pibLocation Set pibLocation[0] to the PIB location.
+   */
+  private static void
+  parseAndCheckPibLocator
+    (String pibLocator, String[] pibScheme, String[] pibLocation)
+    throws KeyChain.Error
+  {
+    parseLocatorUri(pibLocator, pibScheme, pibLocation);
+
+    if (pibScheme[0].equals(""))
+      pibScheme[0] = getDefaultPibScheme();
+
+    if (!getPibFactories().containsKey(pibScheme[0]))
+      throw new KeyChain.Error("PIB scheme `" + pibScheme[0] +
+        "` is not supported");
+  }
+
+  /**
+   * Parse the tpmLocator and set the tpmScheme and tpmLocation.
+   * @param tpmLocator The TPM locator to parse.
+   * @param tpmScheme Set tpmScheme[0] to the TPM scheme.
+   * @param tpmLocation Set tpmLocation[0] to the TPM location.
+   */
+  private static void
+  parseAndCheckTpmLocator
+    (String tpmLocator, String[] tpmScheme, String[] tpmLocation)
+    throws SecurityException, Error
+  {
+    parseLocatorUri(tpmLocator, tpmScheme, tpmLocation);
+
+    if (tpmScheme[0].equals(""))
+      tpmScheme[0] = getDefaultTpmScheme();
+
+    if (!getTpmFactories().containsKey(tpmScheme[0]))
+      throw new KeyChain.Error("TPM scheme `" + tpmScheme[0] +
+        "` is not supported");
+  }
+
+  private static String
+  getDefaultPibScheme() { return PibSqlite3.getScheme(); }
+
+  private static String
+  getDefaultTpmScheme() throws SecurityException
+  {
+    if (Common.platformIsOSX())
+      throw new SecurityException
+        ("TpmBackEndOsx is not implemented yet. You must use tpm-file.");
+
+    return TpmBackEndFile.getScheme();
+  }
+
+  /**
+   * Create a Pib according to the pibLocator
+   * @param pibLocator The PIB locator, e.g., "pib-sqlite3:/example/dir".
+   * @return A new Pib object.
+   */
+  private static Pib
+  createPib(String pibLocator) throws KeyChain.Error, PibImpl.Error
+  {
+    String[] pibScheme = new String[1];
+    String[] pibLocation = new String[1];
+    parseAndCheckPibLocator(pibLocator, pibScheme, pibLocation);
+    MakePibImpl pibFactory = getPibFactories().get(pibScheme[0]);
+    return new Pib
+      (pibScheme[0], pibLocation[0], pibFactory.makePibImpl(pibLocation[0]));
+  }
+
+  /**
+   * Create a Tpm according to the tpmLocator
+   * @param tpmLocator The TPM locator, e.g., "tpm-memory:".
+   * @return A new Tpm object.
+   */
+  private static Tpm
+  createTpm(String tpmLocator) throws SecurityException, KeyChain.Error
+  {
+    String[] tpmScheme = new String[1];
+    String[] tpmLocation = new String[1];
+    parseAndCheckTpmLocator(tpmLocator, tpmScheme, tpmLocation);
+    MakeTpmBackEnd tpmFactory = getTpmFactories().get(tpmScheme[0]);
+    return new Tpm
+      (tpmScheme[0], tpmLocation[0], tpmFactory.makeTpmBackEnd(tpmLocation[0]));
+  }
+
+  private static String
+  getDefaultPibLocator(ConfigFile config)
+  {
+    if (defaultPibLocator_ != null)
+      return defaultPibLocator_;
+
+    String clientPib = System.getenv("NDN_CLIENT_PIB");
+    if (clientPib != null && clientPib != "")
+      defaultPibLocator_ = clientPib;
+    else
+      defaultPibLocator_ = config.get("pib", getDefaultPibScheme() + ":");
+
+    return defaultPibLocator_;
+  }
+
+  private static String
+  getDefaultTpmLocator(ConfigFile config) throws SecurityException
+  {
+    if (defaultTpmLocator_ != null)
+      return defaultTpmLocator_;
+
+    String clientTpm = System.getenv("NDN_CLIENT_TPM");
+    if (clientTpm != null && clientTpm != "")
+      defaultTpmLocator_ = clientTpm;
+    else
+      defaultTpmLocator_ = config.get("tpm", getDefaultTpmScheme() + ":");
+
+    return defaultTpmLocator_;
+  }
+
   /**
    * Prepare a Signature object according to signingInfo and get the signing key
    * name.
@@ -1858,7 +2153,7 @@ public class KeyChain {
     }
   }
 
-  private final boolean isSecurityV1_;
+  private boolean isSecurityV1_;
 
   private IdentityManager identityManager_; // for security v1
   private PolicyManager policyManager_;     // for security v1
@@ -1867,12 +2162,10 @@ public class KeyChain {
   private Pib pib_;
   private Tpm tpm_;
 
-  private static String defaultPibLocator_;
-  private static String defaultTpmLocator_;
-  private static final HashMap<String, MakePibImpl> pibFactories_ =
-    new HashMap<String, MakePibImpl>();
-  private static final HashMap<String, MakeTpmBackEnd> tpmFactories_ =
-    new HashMap<String, MakeTpmBackEnd>();
+  private static String defaultPibLocator_ = null;
+  private static String defaultTpmLocator_ = null;
+  private static HashMap<String, MakePibImpl> pibFactories_ = null;
+  private static HashMap<String, MakeTpmBackEnd> tpmFactories_ = null;
   private static final SigningInfo defaultSigningInfo_ = new SigningInfo();
   
   private static final Logger logger_ = Logger.getLogger(KeyChain.class.getName());
