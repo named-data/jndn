@@ -79,6 +79,7 @@ public class Interest implements ChangeCountable {
     interestLifetimeMilliseconds_ = interest.interestLifetimeMilliseconds_;
     nonce_ = interest.getNonce();
 
+    forwardingHint_.set(new DelegationSet(interest.getForwardingHint()));
     linkWireEncoding_ = interest.linkWireEncoding_;
     linkWireEncodingFormat_ = interest.linkWireEncodingFormat_;
     if (interest.link_.get() != null)
@@ -297,6 +298,14 @@ public class Interest implements ChangeCountable {
   }
 
   /**
+   * Get the forwarding hint object which you can modify to add or remove
+   * forwarding hints.
+   * @return The forwarding hint as a DelegationSet.
+   */
+  public final DelegationSet
+  getForwardingHint() { return (DelegationSet)forwardingHint_.get(); }
+
+  /**
    * Check if this interest has a link object (or a link wire encoding which
    * can be decoded to make the link object).
    * @return True if this interest has a link object, false if not.
@@ -513,6 +522,25 @@ public class Interest implements ChangeCountable {
   setExclude(Exclude exclude)
   {
     exclude_.set(exclude == null ? new Exclude() : new Exclude(exclude));
+    ++changeCount_;
+    return this;
+  }
+
+  /**
+   * Set this interest to use a copy of the given DelegationSet object as the
+   * forwarding hint.
+   * @note You can also call getForwardingHint and change the forwarding hint
+   * directly.
+   * @param forwardingHint The DelegationSet object to use as the forwarding 
+   * hint. This makes a copy of the object. If no forwarding hint is specified,
+   * set to a new default DelegationSet() with no entries.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
+  setForwardingHint(DelegationSet forwardingHint)
+  {
+    forwardingHint_.set(forwardingHint == null ?
+      new DelegationSet() : new DelegationSet(forwardingHint));
     ++changeCount_;
     return this;
   }
@@ -780,6 +808,7 @@ public class Interest implements ChangeCountable {
     boolean changed = name_.checkChanged();
     changed = keyLocator_.checkChanged() || changed;
     changed = exclude_.checkChanged() || changed;
+    changed = forwardingHint_.checkChanged() || changed;
     changed = link_.checkChanged() || changed;
     if (changed)
       // A child object has changed, so update the change count.
@@ -812,6 +841,8 @@ public class Interest implements ChangeCountable {
   private LpPacket lpPacket_ = null;
   private Blob linkWireEncoding_ = new Blob();
   private WireFormat linkWireEncodingFormat_ = null;
+  private final ChangeCounter forwardingHint_ =
+    new ChangeCounter(new DelegationSet());
   private final ChangeCounter link_ = new ChangeCounter(null);
   private int selectedDelegationIndex_ = -1;
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
