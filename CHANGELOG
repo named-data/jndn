@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.15 (2017-07-11)
+Interim changes since jNDN v0.15 (2017-08-18)
 ---------------------------------------------
 
 Bug fixes
@@ -9,7 +9,12 @@ Bug fixes
 Changes
 * https://redmine.named-data.net/issues/3812 In encrypt GroupManager, save private
   keys in memory to avoid regenerate group key pairs.
+* https://redmine.named-data.net/issues/4251 Added Interest get/setForwardingHint.
 * Added ExponentialReExpress to use as OnTimeout.
+
+Deprecated
+* In Interest, deprecated link object and selected delegation methods.
+  Use forwarding hint. Refs #4251.
 
 jNDN v0.15 (2017-03-16)
 -----------------------

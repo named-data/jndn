@@ -49,6 +49,7 @@ public class Tlv {
   public static final int SignatureType =    27;
   public static final int KeyLocator =       28;
   public static final int KeyLocatorDigest = 29;
+  public static final int ForwardingHint =   30;
   public static final int SelectedDelegation = 32;
   public static final int FaceInstance =     128;
   public static final int ForwardingEntry =  129;
