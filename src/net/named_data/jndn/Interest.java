@@ -309,6 +309,7 @@ public class Interest implements ChangeCountable {
    * Check if this interest has a link object (or a link wire encoding which
    * can be decoded to make the link object).
    * @return True if this interest has a link object, false if not.
+   * @deprecated Use getForwardingHint.
    */
   public final boolean
   hasLink()
@@ -321,6 +322,7 @@ public class Interest implements ChangeCountable {
    * @return  The link object, or null if not specified.
    * @throws EncodingException For error decoding the link wire encoding (if
    * necessary).
+   * @deprecated Use getForwardingHint.
    */
   public final Link
   getLink() throws EncodingException
@@ -350,6 +352,7 @@ public class Interest implements ChangeCountable {
    * @param wireFormat The desired wire format for the encoding.
    * @return The wire encoding, or an isNull Blob if the link is not specified.
    * @throws EncodingException for error encoding the link object.
+   * @deprecated Use getForwardingHint.
    */
   public final Blob
   getLinkWireEncoding(WireFormat wireFormat) throws EncodingException
@@ -370,6 +373,7 @@ public class Interest implements ChangeCountable {
    * available).
    * @return The wire encoding, or an isNull Blob if the link is not specified.
    * @throws EncodingException for error encoding the link object.
+   * @deprecated Use getForwardingHint.
    */
   public final Blob
   getLinkWireEncoding() throws EncodingException
@@ -380,6 +384,7 @@ public class Interest implements ChangeCountable {
   /**
    * Get the selected delegation index.
    * @return The selected delegation index. If not specified, return -1.
+   * @deprecated Use getForwardingHint.
    */
   public final int
   getSelectedDelegationIndex() { return selectedDelegationIndex_; }
@@ -554,6 +559,7 @@ public class Interest implements ChangeCountable {
    * @param wireFormat The wire format of the encoding, to be used later if
    * necessary to decode.
    * @return This Interest so that you can chain calls to update values.
+   * @deprecated Use setForwardingHint.
    */
   public final Interest
   setLinkWireEncoding(Blob encoding, WireFormat wireFormat)
@@ -575,6 +581,7 @@ public class Interest implements ChangeCountable {
    * @param encoding The buffer with the bytes of the link wire encoding.
    * If no link is specified, set to an empty Blob().
    * @return This Interest so that you can chain calls to update values.
+   * @deprecated Use setForwardingHint.
    */
   public final Interest
   setLinkWireEncoding(Blob encoding)
@@ -585,6 +592,7 @@ public class Interest implements ChangeCountable {
   /**
    * Clear the link wire encoding and link object so that getLink() returns null.
    * @return This Interest so that you can chain calls to update values.
+   * @deprecated Use setForwardingHint.
    */
   public final Interest
   unsetLink()
@@ -597,6 +605,7 @@ public class Interest implements ChangeCountable {
    * @param selectedDelegationIndex The selected delegation index. If not
    * specified, set to -1.
    * @return This Interest so that you can chain calls to update values.
+   * @deprecated Use setForwardingHint.
    */
   public final Interest
   setSelectedDelegationIndex(int selectedDelegationIndex)
