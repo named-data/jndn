@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.util.Blob;
+import net.named_data.jndn.util.ChangeCountable;
 
 /**
  * A DelegationSet holds a list of DelegationSet.Delegation entries which is
@@ -34,7 +35,7 @@ import net.named_data.jndn.util.Blob;
  * possible duplicates (in which case a DelegationSet really holds a "list" and
  * not necessarily a "set").
  */
-public class DelegationSet {
+public class DelegationSet implements ChangeCountable {
   /**
    * Create a DelegationSet with an empty list of delegations.
    */
@@ -133,6 +134,7 @@ public class DelegationSet {
     }
 
     delegations_.add(i, newDelegation);
+    ++changeCount_;
   }
 
   /**
@@ -147,6 +149,7 @@ public class DelegationSet {
   addUnsorted(int preference, Name name)
   {
     delegations_.add(new Delegation(preference, name));
+    ++changeCount_;
   }
 
   /**
@@ -166,6 +169,8 @@ public class DelegationSet {
       }
     }
 
+    if (wasRemoved)
+      ++changeCount_;
     return wasRemoved;
   }
 
@@ -173,7 +178,11 @@ public class DelegationSet {
    * Clear the list of delegations.
    */
   public final void
-  clear() { delegations_.clear(); }
+  clear()
+  {
+    delegations_.clear();
+    ++changeCount_;
+  }
 
   /**
    * Get the number of delegation entries.
@@ -285,5 +294,13 @@ public class DelegationSet {
     wireDecode(input.buf());
   }
 
+  /**
+   * Get the change count, which is incremented each time this object is changed.
+   * @return The change count.
+   */
+  public final long
+  getChangeCount() { return changeCount_; }
+
   private final ArrayList<Delegation> delegations_ = new ArrayList<Delegation>();
+  private long changeCount_ = 0;
 }

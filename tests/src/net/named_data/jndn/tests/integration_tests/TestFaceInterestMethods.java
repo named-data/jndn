@@ -137,24 +137,6 @@ public class TestFaceInterestMethods {
     face = new Face("localhost");
   }
 
-  @Test
-  public void
-  testAnyInterest()
-  {
-    String uri = "/";
-    CallbackCounter counter = runExpressNameTest(face, uri);
-    assertTrue("Timeout on expressed interest", counter.onTimeoutCallCount_ == 0);
-
-    // check that the callback was correct
-    assertEquals("Expected 1 onData callback, got " + counter.onDataCallCount_,
-                 1, counter.onDataCallCount_);
-
-    // just check that the interest was returned correctly.
-    Interest callbackInterest = counter.interest_;
-    assertTrue("Interest returned on callback had different name",
-               callbackInterest.getName().equals(new Name(uri)));
-  }
-
   /*
   TODO: Replace this with a test that connects to a Face on localhost
   def test_specific_interest(self):
