@@ -589,18 +589,7 @@ public class Tlv0_2WireFormat extends WireFormat {
   encodeDelegationSet(DelegationSet delegationSet)
   {
     TlvEncoder encoder = new TlvEncoder(256);
-
-    // Encode backwards.
-    for (int i = delegationSet.size() - 1; i >= 0; --i) {
-      int saveLength = encoder.getLength();
-
-      encodeName(delegationSet.get(i).getName(), new int[1], new int[1], encoder);
-      encoder.writeNonNegativeIntegerTlv
-        (Tlv.Link_Preference, delegationSet.get(i).getPreference());
-
-      encoder.writeTypeAndLength
-        (Tlv.Link_Delegation, encoder.getLength() - saveLength);
-    }
+    encodeDelegationSet(delegationSet, encoder);
 
     return new Blob(encoder.getOutput(), false);
   }
@@ -625,19 +614,7 @@ public class Tlv0_2WireFormat extends WireFormat {
     throws EncodingException
   {
     TlvDecoder decoder = new TlvDecoder(input);
-    int endOffset = input.limit();
-
-    delegationSet.clear();
-    while (decoder.getOffset() < endOffset) {
-      decoder.readTypeAndLength(Tlv.Link_Delegation);
-      int preference = (int)decoder.readNonNegativeIntegerTlv(Tlv.Link_Preference);
-      Name name = new Name();
-      decodeName(name, new int[1], new int[1], decoder, copy);
-
-      // Add unsorted to preserve the order so that Interest selected delegation
-      // index will work.
-      delegationSet.addUnsorted(preference, name);
-    }
+    decodeDelegationSet(delegationSet, input.limit(), decoder, copy);
   }
 
   /**
@@ -1342,6 +1319,61 @@ public class Tlv0_2WireFormat extends WireFormat {
        (Tlv.ControlParameters_ExpirationPeriod, endOffset));
 
     decoder.finishNestedTlvs(endOffset);
+  }
+
+  /**
+   * Encode delegationSet to the encoder as a sequence of NDN-TLV Delegation.
+   * Note that the sequence of Delegation does not have an outer TLV
+   * type and length because (when used in a Link object) it is intended to use
+   * the type and length of a Data packet's Content.
+   * @param delegationSet The DelegationSet object to encode.
+   * @param encoder The TlvEncoder to receive the encoding.
+   */
+  private static void
+  encodeDelegationSet(DelegationSet delegationSet, TlvEncoder encoder)
+  {
+    // Encode backwards.
+    for (int i = delegationSet.size() - 1; i >= 0; --i) {
+      int saveLength = encoder.getLength();
+
+      encodeName(delegationSet.get(i).getName(), new int[1], new int[1], encoder);
+      encoder.writeNonNegativeIntegerTlv
+        (Tlv.Link_Preference, delegationSet.get(i).getPreference());
+
+      encoder.writeTypeAndLength
+        (Tlv.Link_Delegation, encoder.getLength() - saveLength);
+    }
+  }
+
+  /**
+   * Decode input as a sequence of NDN-TLV Delegation and set the fields of the
+   * delegationSet object. Note that the sequence of Delegation does not have an
+   * outer TLV type and length because (when used in a Link object) it is
+   * intended to use the type and length of a Data packet's Content.
+   * @param delegationSet The DelegationSet object whose fields are updated.
+   * @param endOffset Decode elements up to endOffset in the input. This does
+   * not call finishNestedTlvs.
+   * @param decoder The decoder with the input to decode.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
+   * @throws EncodingException For invalid encoding.
+   */
+  private static void
+  decodeDelegationSet
+    (DelegationSet delegationSet, int endOffset, TlvDecoder decoder, boolean copy)
+    throws EncodingException
+  {
+    delegationSet.clear();
+    while (decoder.getOffset() < endOffset) {
+      decoder.readTypeAndLength(Tlv.Link_Delegation);
+      int preference = (int)decoder.readNonNegativeIntegerTlv(Tlv.Link_Preference);
+      Name name = new Name();
+      decodeName(name, new int[1], new int[1], decoder, copy);
+
+      // Add unsorted to preserve the order in the encoding.
+      delegationSet.addUnsorted(preference, name);
+    }
   }
 
   private static final Random random_ = new Random();
