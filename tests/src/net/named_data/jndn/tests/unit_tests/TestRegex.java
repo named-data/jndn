@@ -32,7 +32,7 @@ import net.named_data.jndn.util.regex.NdnRegexPatternListMatcher;
 import net.named_data.jndn.util.regex.NdnRegexRepeatMatcher;
 import net.named_data.jndn.util.regex.NdnRegexTopMatcher;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 
 public class TestRegex {
@@ -102,6 +102,14 @@ public class TestRegex {
     assertEquals(true, res);
     assertEquals(1, cm.getMatchResult().size());
     assertEquals("d", cm.getMatchResult().get(0).toEscapedString());
+
+    backRef = new NdnRegexBackrefManager();
+    try {
+      new NdnRegexComponentSetMatcher("[<a]", backRef);
+      fail("Did not throw the expected exception");
+    }
+    catch (NdnRegexMatcherBase.Error ex) {}
+    catch (Exception ex) { fail("Did not throw the expected exception"); }
   }
 
   @Test
