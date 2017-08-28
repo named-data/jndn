@@ -101,12 +101,13 @@ public class NdnRegexComponentSetMatcher extends NdnRegexMatcherBase {
     int rcount = 0;
 
     while (lcount > rcount) {
+      if (index >= expr_.length())
+        throw new NdnRegexMatcherBase.Error("Error: angle brackets mismatch");
+
       if (expr_.charAt(index) == '<')
         ++lcount;
       else if (expr_.charAt(index) == '>')
         ++rcount;
-      else if (expr_.charAt(index) == 0)
-        throw new NdnRegexMatcherBase.Error("Error: square brackets mismatch");
 
       ++index;
     }
