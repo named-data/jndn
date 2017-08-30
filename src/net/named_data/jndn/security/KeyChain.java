@@ -1717,7 +1717,7 @@ public class KeyChain {
   parseLocatorUri(String uri, String[] scheme, String[] location)
   {
     int iColon = uri.indexOf(':');
-    if (iColon < 0) {
+    if (iColon >= 0) {
       scheme[0] = uri.substring(0, iColon);
       location[0] = uri.substring(iColon + 1);
     }
