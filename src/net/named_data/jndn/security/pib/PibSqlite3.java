@@ -131,7 +131,7 @@ public class PibSqlite3 extends PibImpl {
     if (!databaseDirectoryPathIn.equals(""))
       databaseDirectoryPath = new File(databaseDirectoryPathIn);
     else
-      databaseDirectoryPath = new File(Common.getHomeDirectory(), ".ndn");
+      databaseDirectoryPath = getDefaultDatabaseDirectoryPath();
 
     databaseDirectoryPath.mkdirs();
 
@@ -1048,6 +1048,28 @@ public class PibSqlite3 extends PibImpl {
     } catch (SQLException exception) {
       throw new PibImpl.Error("PibSqlite3: SQLite error: " + exception);
     }
+  }
+
+  /**
+   * Get the default that the constructor uses if databaseDirectoryPath is
+   * omitted. This does not try to create the directory.
+   * @return The default database directory path.
+   */
+  public static File
+  getDefaultDatabaseDirectoryPath()
+  {
+    return new File(Common.getHomeDirectory(), ".ndn");
+  }
+
+  /**
+   * Get the default database file path that the constructor uses if
+   * databaseDirectoryPath and databaseFilename are omitted.
+   * @return The default database file path.
+   */
+  public static File
+  getDefaultDatabaseFilePath()
+  {
+    return new File(getDefaultDatabaseDirectoryPath(), "pib.db");
   }
 
   private boolean
