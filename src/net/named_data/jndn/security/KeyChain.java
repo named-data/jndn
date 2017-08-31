@@ -43,6 +43,7 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.security.SigningInfo.SignerType;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
+import net.named_data.jndn.security.identity.BasicIdentityStorage;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibIdentity;
@@ -131,6 +132,7 @@ public class KeyChain {
   KeyChain(String pibLocator, String tpmLocator, boolean allowReset)
     throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
   {
+    isSecurityV1_ = false;
     construct(pibLocator, tpmLocator, allowReset);
   }
 
@@ -149,6 +151,7 @@ public class KeyChain {
   KeyChain(String pibLocator, String tpmLocator)
     throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
   {
+    isSecurityV1_ = false;
     construct(pibLocator, tpmLocator, false);
   }
 
@@ -198,15 +201,30 @@ public class KeyChain {
   }
 
   /**
-   * Create a new KeyChain with the the default IdentityManager and a
-   * NoVerifyPolicyManager.
+   * Create a KeyChain with the default PIB and TPM, which are
+   * platform-dependent and can be overridden system-wide or individually by the
+   * user. This creates a security v2 KeyChain that uses CertificateV2, Pib, Tpm
+   * and Validator. However, if the default security v1 database file still
+   * exists, and the default security v2 database file does not yet exists,then
+   * assume that the system is running an older NFD and create a security v1
+   * KeyChain with the default IdentityManager and a NoVerifyPolicyManager.
    */
-  public KeyChain() throws SecurityException
+  public KeyChain() 
+    throws SecurityException, KeyChain.Error, PibImpl.Error, IOException
   {
-    isSecurityV1_ = true;
+    isSecurityV1_ = false;
 
-    identityManager_ = new IdentityManager();
-    policyManager_ = new NoVerifyPolicyManager();
+    if (BasicIdentityStorage.getDefaultDatabaseFilePath().exists() &&
+        !PibSqlite3.getDefaultDatabaseFilePath().exists()) {
+      // The security v1 SQLite file still exists and the security v2 does not yet.
+      isSecurityV1_ = true;
+      identityManager_ = new IdentityManager();
+      policyManager_ = new NoVerifyPolicyManager();
+
+      return;
+    }
+
+    construct("", "", true);
   }
 
   public final Pib
@@ -1597,8 +1615,6 @@ public class KeyChain {
   construct(String pibLocator, String tpmLocator, boolean allowReset)
     throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
   {
-    isSecurityV1_ = false;
-
     // PIB locator.
     String[] pibScheme = new String[1];
     String[] pibLocation = new String[1];
