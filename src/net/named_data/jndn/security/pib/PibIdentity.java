@@ -20,6 +20,7 @@
 
 package net.named_data.jndn.security.pib;
 
+import java.nio.ByteBuffer;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.pib.detail.PibIdentityImpl;
 import net.named_data.jndn.util.Common;
@@ -73,6 +74,62 @@ public class PibIdentity {
   public PibIdentity(PibIdentityImpl impl)
   {
     impl_ = impl;
+  }
+
+  /**
+   * Add the key. If a key with the same name already exists, overwrite the key.
+   * If no default key for the identity has been set, then set the added key as
+   * default for the identity. This should only be called by KeyChain.
+   * @param key The public key bits. This copies the array.
+   * @param keyName The name of the key. This copies the name.
+   * @return The PibKey object.
+   */
+  public final PibKey
+  addKey_(ByteBuffer key, Name keyName) throws PibImpl.Error, Pib.Error
+  {
+    return lockImpl().addKey(key, keyName);
+  }
+
+  /**
+   * Remove the key with keyName and its related certificates. If the key does
+   * not exist, do nothing. This should only be called by KeyChain.
+   * @param keyName The name of the key.
+   */
+  public final void
+  removeKey_(Name keyName) throws PibImpl.Error
+  {
+    lockImpl().removeKey(keyName);
+  }
+
+  /**
+   * Set the key with name keyName as the default key of the identity. This
+   * should only be called by KeyChain.
+   * @param keyName The name of the key. This copies the name.
+   * @return The PibKey object of the default key.
+   * @throws IllegalArgumentException if the name of the key does not match the
+   * identity name.
+   * @throws Pib::Error if the key does not exist.
+   */
+  public final PibKey
+  setDefaultKey_(Name keyName) throws Pib.Error, PibImpl.Error
+  {
+    return lockImpl().setDefaultKey(keyName);
+  }
+
+  /**
+   * Add a key with name keyName and set it as the default key of the identity.
+   * This should only be called by KeyChain.
+   * @param key The array of encoded key bytes.
+   * @param keyName The name of the key, which is copied.
+   * @return The PibKey object of the default key.
+   * @throws IllegalArgumentException if the name of the key does not match the
+   * identity name.
+   * @throws Pib::Error if a key with the same name already exists.
+   */
+  public final PibKey
+  setDefaultKey_(ByteBuffer key, Name keyName) throws PibImpl.Error, Pib.Error
+  {
+    return lockImpl().setDefaultKey(key, keyName);
   }
 
   /**
