@@ -213,6 +213,17 @@ public class PibKey {
   }
 
   /**
+   * Get the PibCertificateContainer in the PibKeyImpl. This should only be
+   * called by KeyChain.
+   * @return The PibCertificateContainer.
+   */
+  public final PibCertificateContainer
+  getCertificates_()
+  {
+    return lockImpl().getCertificates_();
+  }
+
+  /**
    * Check the validity of the impl_ instance.
    * @return The PibKeyImpl when the instance is valid.
    * @throws AssertionError if the backend implementation instance is invalid.
