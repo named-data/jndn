@@ -560,7 +560,7 @@ public class KeyChain {
 
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
+   * identity and a self-signed certificate of the KSK. Use getDefaultKeyParams()
    * to create the key if needed. If a key pair or certificate for the identity
    * already exists, use it.
    * @param identityName The name of the identity.
@@ -570,7 +570,7 @@ public class KeyChain {
   public final Name
   createIdentityAndCertificate(Name identityName) throws SecurityException
   {
-    return createIdentityAndCertificate(identityName, DEFAULT_KEY_PARAMS);
+    return createIdentityAndCertificate(identityName, getDefaultKeyParams());
   }
 
   /**
@@ -593,7 +593,7 @@ public class KeyChain {
 
   /**
    * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
+   * identity and a self-signed certificate of the KSK. Use getDefaultKeyParams()
    * to create the key if needed.
    * @deprecated Use createIdentityAndCertificate which returns the
    * certificate name instead of the key name.
@@ -1604,6 +1604,12 @@ public class KeyChain {
       (data, key, WireFormat.getDefaultWireFormat());
   }
 
+  public static KeyParams
+  getDefaultKeyParams() { return defaultKeyParams_; }
+
+  /**
+   * @deprecated Use getDefaultKeyParams().
+   */
   public static final RsaKeyParams DEFAULT_KEY_PARAMS = new RsaKeyParams();
 
   // Private security v2 methods
@@ -2183,6 +2189,7 @@ public class KeyChain {
   private static HashMap<String, MakePibImpl> pibFactories_ = null;
   private static HashMap<String, MakeTpmBackEnd> tpmFactories_ = null;
   private static final SigningInfo defaultSigningInfo_ = new SigningInfo();
+  private static final KeyParams defaultKeyParams_ = new RsaKeyParams();
   
   private static final Logger logger_ = Logger.getLogger(KeyChain.class.getName());
 }
