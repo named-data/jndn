@@ -129,7 +129,7 @@ public class KeyChain {
    * @throws KeyChain.LocatorMismatchError if the supplied TPM locator does not
    * match the locator stored in the PIB.
    */
-  KeyChain(String pibLocator, String tpmLocator, boolean allowReset)
+  public KeyChain(String pibLocator, String tpmLocator, boolean allowReset)
     throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
   {
     isSecurityV1_ = false;
@@ -148,7 +148,7 @@ public class KeyChain {
    * @throws KeyChain.LocatorMismatchError if the supplied TPM locator does not
    * match the locator stored in the PIB.
    */
-  KeyChain(String pibLocator, String tpmLocator)
+  public KeyChain(String pibLocator, String tpmLocator)
     throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
   {
     isSecurityV1_ = false;
@@ -228,14 +228,73 @@ public class KeyChain {
   }
 
   public final Pib
-  getPib() { return pib_; }
+  getPib()
+  {
+    if (isSecurityV1_)
+      throw new AssertionError("getPib is not supported for security v1");
+
+    return pib_;
+  }
 
   public final Tpm
-  getTpm() { return tpm_; }
+  getTpm()
+  {
+    if (isSecurityV1_)
+      throw new AssertionError("getTpm is not supported for security v1");
+
+    return tpm_;
+  }
 
   // Identity management
 
-  // TODO: createIdentity
+  /**
+   * Create a security V2 identity for identityName. This method will check if
+   * the identity exists in PIB and whether the identity has a default key and
+   * default certificate. If the identity does not exist, this method will
+   * create the identity in PIB. If the identity's default key does not exist,
+   * this method will create a key pair and set it as the identity's default
+   * key. If the key's default certificate is missing, this method will create a
+   * self-signed certificate for the key. If identityName did not exist and no
+   * default identity was selected before, the created identity will be set as
+   * the default identity.
+   * @param identityName The name of the identity.
+   * @param params (optional) The key parameters if a key needs to be generated
+   * for the identity. If omitted, use getDefaultKeyParams().
+   * @return The created Identity instance.
+   */
+  public final PibIdentity
+  createIdentityV2(Name identityName, KeyParams params)
+    throws PibImpl.Error, Pib.Error, Tpm.Error, TpmBackEnd.Error, Error
+  {
+    PibIdentity id = pib_.addIdentity_(identityName);
+
+    PibKey key;
+    try {
+      key = id.getDefaultKey();
+    }
+    catch (Pib.Error ex) {
+      key = createKey(id, params);
+    }
+
+    try {
+      key.getDefaultCertificate();
+    }
+    catch (Pib.Error ex) {
+      Logger.getLogger(this.getClass().getName()).log
+        (Level.INFO, "No default cert for " + key.getName() +
+         ", requesting self-signing");
+      selfSign(key);
+    }
+
+    return id;
+  }
+
+  public final PibIdentity
+  createIdentityV2(Name identityName)
+    throws PibImpl.Error, Pib.Error, Tpm.Error, TpmBackEnd.Error, Error
+  {
+    return createIdentityV2(identityName, getDefaultKeyParams());
+  }
 
   /**
    * Delete the identity. After this operation, the identity is invalid.
@@ -266,7 +325,143 @@ public class KeyChain {
 
   // Key management
 
+  /**
+   * Create a key for the identity according to params. If the identity had no
+   * default key selected, the created key will be set as the default for this
+   * identity. This method will also create a self-signed certificate for the
+   * created key.
+   * @param identity A valid PibIdentity object.
+   * @param params The key parameters if a key needs to be generated for the
+   * identity.
+   * @return The new PibKey.
+   */
+  public final PibKey
+  createKey(PibIdentity identity, KeyParams params)
+    throws Tpm.Error, TpmBackEnd.Error, PibImpl.Error, Pib.Error, KeyChain.Error
+  {
+    // Create the key in the TPM.
+    Name keyName = tpm_.createKey_(identity.getName(), params);
+
+    // Set up the key info in the PIB.
+    Blob publicKey = tpm_.getPublicKey(keyName);
+    PibKey key = identity.addKey_(publicKey.buf(), keyName);
+
+    Logger.getLogger(this.getClass().getName()).log
+      (Level.INFO,
+       "Requesting self-signing for newly created key " + key.getName());
+    selfSign(key);
+
+    return key;
+  }
+
+  /**
+   * Create a key for the identity according to getDefaultKeyParams(). If the
+   * identity had no default key selected, the created key will be set as the
+   * default for this identity. This method will also create a self-signed
+   * certificate for the created key.
+   * @param identity A valid PibIdentity object.
+   * @return The new PibKey.
+   */
+  public final PibKey
+  createKey(PibIdentity identity)
+    throws Tpm.Error, TpmBackEnd.Error, PibImpl.Error, Pib.Error, KeyChain.Error
+  {
+    return createKey(identity, getDefaultKeyParams());
+  }
+
+  /**
+   * Delete the given key of the given identity. The key becomes invalid.
+   * @param identity A valid PibIdentity object.
+   * @param key The key to delete.
+   * @throw IllegalArgumentException If the key does not belong to the identity.
+   */
+  public final void
+  deleteKey(PibIdentity identity, PibKey key)
+    throws PibImpl.Error, TpmBackEnd.Error
+  {
+    Name keyName = key.getName();
+    if (!identity.getName().equals(key.getIdentityName()))
+      throw new IllegalArgumentException("Identity `" +
+        identity.getName().toUri() + "` does not match key `" +
+        keyName.toUri() + "`");
+
+    identity.removeKey_(keyName);
+    tpm_.deleteKey_(keyName);
+  }
+
+  /**
+   * Set the key as the default key of identity.
+   * @param identity A valid PibIdentity object.
+   * @param key The key to become the default.
+   * @throw IllegalArgumentException If the key does not belong to the identity.
+   */
+  public final void
+  setDefaultKey(PibIdentity identity, PibKey key) throws Pib.Error, PibImpl.Error
+  {
+    if (!identity.getName().equals(key.getIdentityName()))
+      throw new IllegalArgumentException("Identity `" + identity.getName().toUri() +
+        "` does not match key `" + key.getName().toUri() + "`");
+
+    identity.setDefaultKey_(key.getName());
+  }
+
   // Certificate management
+
+  /**
+   * Add a certificate for the key. If the key had no default certificate
+   * selected, the added certificate will be set as the default certificate for
+   * this key.
+   * @param key A valid PibKey object.
+   * @param certificate The certificate to add.
+   * @note This method overwrites a certificate with the same name, without
+   * considering the implicit digest.
+   * @throw IllegalArgumentException If the key does not match the certificate.
+   */
+  public final void
+  addCertificate(PibKey key, CertificateV2 certificate)
+    throws CertificateV2.Error, PibImpl.Error
+  {
+    if (!key.getName().equals(certificate.getKeyName()) ||
+        !certificate.getContent().equals(key.getPublicKey()))
+      throw new IllegalArgumentException("Key `" + key.getName().toUri() +
+        "` does not match certificate `" + certificate.getKeyName().toUri() + "`");
+
+    key.addCertificate_(certificate);
+  }
+
+  /**
+   * Delete the certificate with the given name from the given key.
+   * If the certificate does not exist, this does nothing.
+   * @param key A valid PibKey object.
+   * @param certificateName The name of the certificate to delete.
+   * @throw IllegalArgumentException If certificateName does not follow
+   * certificate naming conventions.
+   */
+  public final void
+  deleteCertificate(PibKey key, Name certificateName) throws PibImpl.Error
+  {
+    if (!CertificateV2.isValidName(certificateName))
+      throw new IllegalArgumentException("Wrong certificate name `" +
+        certificateName.toUri() + "`");
+
+    key.removeCertificate_(certificateName);
+  }
+
+  /**
+   * Set the certificate as the default certificate of the key. The certificate
+   * will be added to the key, potentially overriding an existing certificate if
+   * it has the same name (without considering implicit digest).
+   * @param key A valid PibKey object.
+   * @param certificate The certificate to become the default.
+   */
+  public final void
+  setDefaultCertificate(PibKey key, CertificateV2 certificate)
+    throws PibImpl.Error, CertificateV2.Error, Pib.Error
+  {
+    // This replaces the certificate it it exists.
+    addCertificate(key, certificate);
+    key.setDefaultCertificate_(certificate.getName());
+  }
 
   // Signing
 
@@ -542,8 +737,8 @@ public class KeyChain {
    *****************************************/
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK. If a key pair or
+   * Create a security v1 identity by creating a pair of Key-Signing-Key (KSK)
+   * for this identity and a self-signed certificate of the KSK. If a key pair or
    * certificate for the identity already exists, use it.
    * @param identityName The name of the identity.
    * @param params The key parameters if a key needs to be generated for the
@@ -559,10 +754,10 @@ public class KeyChain {
   }
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK. Use getDefaultKeyParams()
-   * to create the key if needed. If a key pair or certificate for the identity
-   * already exists, use it.
+   * Create a security v1 identity by creating a pair of Key-Signing-Key (KSK)
+   * for this identity and a self-signed certificate of the KSK. Use
+   * getDefaultKeyParams() to create the key if needed. If a key pair or
+   * certificate for the identity already exists, use it.
    * @param identityName The name of the identity.
    * @return The name of the default certificate of the identity.
    * @throws SecurityException if the identity has already been created.
@@ -574,8 +769,8 @@ public class KeyChain {
   }
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK.
+   * Create a security v1 identity by creating a pair of Key-Signing-Key (KSK)
+   * for this identity and a self-signed certificate of the KSK.
    * @deprecated Use createIdentityAndCertificate which returns the
    * certificate name instead of the key name.
    * @param identityName The name of the identity.
@@ -592,9 +787,9 @@ public class KeyChain {
   }
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK. Use getDefaultKeyParams()
-   * to create the key if needed.
+   * Create a security v1 identity by creating a pair of Key-Signing-Key (KSK)
+   * for this identity and a self-signed certificate of the KSK. Use
+   * getDefaultKeyParams() to create the key if needed.
    * @deprecated Use createIdentityAndCertificate which returns the
    * certificate name instead of the key name.
    * @param identityName The name of the identity.
@@ -1654,7 +1849,7 @@ public class KeyChain {
     }
     else {
       // Check the consistency of the non-default PIB.
-      if (oldTpmLocator.equals("") &&
+      if (!oldTpmLocator.equals("") &&
           !oldTpmLocator.equals(canonicalTpmLocator)) {
         if (allowReset)
           pib_.reset_();
