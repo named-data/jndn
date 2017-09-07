@@ -62,12 +62,12 @@ public class TpmBackEndMemory extends TpmBackEnd {
 
   /**
    * Create a key for identityName according to params. The created key is
-   * named as: /<identityName>/[keyId]/KEY . The key name is set in the returned
+   * named as: /{identityName}/[keyId]/KEY . The key name is set in the returned
    * TpmKeyHandle.
    * @param identityName The name if the identity.
    * @param params The KeyParams for creating the key.
    * @return The handle of the created key.
-   * @throw TpmBackEnd.Error if the key cannot be created.
+   * @throws TpmBackEnd.Error if the key cannot be created.
    */
   protected TpmKeyHandle
   doCreateKey(Name identityName, KeyParams params) throws TpmBackEnd.Error
@@ -89,7 +89,7 @@ public class TpmBackEndMemory extends TpmBackEnd {
   /**
    * Delete the key with name keyName. If the key doesn't exist, do nothing.
    * @param keyName The name of the key to delete.
-   * @throw TpmBackEnd.Error if the deletion fails.
+   * @throws TpmBackEnd.Error if the deletion fails.
    */
   protected void
   doDeleteKey(Name keyName) throws TpmBackEnd.Error
@@ -105,7 +105,7 @@ public class TpmBackEndMemory extends TpmBackEnd {
    * password is supplied, use it to return a PKCS #8 EncryptedPrivateKeyInfo.
    * If the password is null, return an unencrypted PKCS #8 PrivateKeyInfo.
    * @return The encoded private key.
-   * @throw TpmBackEnd.Error if the key does not exist or if the key cannot be
+   * @throws TpmBackEnd.Error if the key does not exist or if the key cannot be
    * exported, e.g., insufficient privileges.
    */
   protected Blob
@@ -135,7 +135,7 @@ public class TpmBackEndMemory extends TpmBackEnd {
    * @param password The password for decrypting the private key. If the
    * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
    * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
-   * @throw TpmBackEnd.Error if a key with name keyName already exists, or for
+   * @throws TpmBackEnd.Error if a key with name keyName already exists, or for
    * an error importing the key.
    */
   protected void

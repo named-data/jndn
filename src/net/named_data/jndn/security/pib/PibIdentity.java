@@ -108,7 +108,7 @@ public class PibIdentity {
    * @return The PibKey object of the default key.
    * @throws IllegalArgumentException if the name of the key does not match the
    * identity name.
-   * @throws Pib::Error if the key does not exist.
+   * @throws Pib.Error if the key does not exist.
    */
   public final PibKey
   setDefaultKey_(Name keyName) throws Pib.Error, PibImpl.Error
@@ -124,7 +124,7 @@ public class PibIdentity {
    * @return The PibKey object of the default key.
    * @throws IllegalArgumentException if the name of the key does not match the
    * identity name.
-   * @throws Pib::Error if a key with the same name already exists.
+   * @throws Pib.Error if a key with the same name already exists.
    */
   public final PibKey
   setDefaultKey_(ByteBuffer key, Name keyName) throws PibImpl.Error, Pib.Error

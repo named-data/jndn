@@ -197,13 +197,13 @@ public class Tpm {
 
   /**
    * Create a key for the identityName according to params. The created key is
-   * named /<identityName>/[keyId]/KEY .
+   * named /{identityName}/[keyId]/KEY .
    * This should only be called by KeyChain.
    * @param identityName The name if the identity.
    * @param params The KeyParams for creating the key.
    * @return The name of the created key.
-   * @throw Tpm.Error if params is invalid or the key type is unsupported.
-   * @throw TpmBackEnd.Error if the key already exists or cannot be created.
+   * @throws Tpm.Error if params is invalid or the key type is unsupported.
+   * @throws TpmBackEnd.Error if the key already exists or cannot be created.
    */
   public final Name
   createKey_(Name identityName, KeyParams params)
@@ -225,7 +225,7 @@ public class Tpm {
    * Note: Continuing to use existing Key handles on a deleted key results in
    * undefined behavior.
    * This should only be called by KeyChain.
-   * @throw TpmBackEnd.Error if the deletion fails.
+   * @throws TpmBackEnd.Error if the deletion fails.
    */
   public final void
   deleteKey_(Name keyName) throws TpmBackEnd.Error
@@ -244,7 +244,7 @@ public class Tpm {
    * If the password is null, return an unencrypted PKCS #8 PrivateKeyInfo.
    * @return The private key encoded in PKCS #8 format, or an isNull Blob if
    * the key does not exist.
-   * @throw TpmBackEnd.Error if the key does not exist or if the key cannot be
+   * @throws TpmBackEnd.Error if the key does not exist or if the key cannot be
    * exported, e.g., insufficient privileges.
    */
   public final Blob

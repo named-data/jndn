@@ -41,7 +41,7 @@ import net.named_data.jndn.util.Common;
  * Overview of the NDN certificate format:
  *
  *     CertificateV2 ::= DATA-TLV TLV-LENGTH
- *                         Name      (= /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version])
+ *                         Name      (= /{NameSpace}/KEY/[KeyId]/[IssuerId]/[Version])
  *                         MetaInfo  (.ContentType = KEY)
  *                         Content   (= X509PublicKeyContent)
  *                         SignatureInfo (= CertificateV2SignatureInfo)
@@ -82,7 +82,7 @@ import net.named_data.jndn.util.Common;
  *    Key Name includes the certificate namespace, keyword `KEY`, and `KeyId`
  *    components.
  *
- * @see https://github.com/named-data/ndn-cxx/blob/master/docs/specs/certificate-format.rst
+ * See https://github.com/named-data/ndn-cxx/blob/master/docs/specs/certificate-format.rst
  */
 public class CertificateV2 extends Data {
   /**
@@ -290,7 +290,7 @@ public class CertificateV2 extends Data {
   public static boolean
   isValidName(Name certificateName)
   {
-    // /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version]
+    // /{NameSpace}/KEY/[KeyId]/[IssuerId]/[Version]
     return (certificateName.size() >= MIN_CERT_NAME_LENGTH &&
             certificateName.get(KEY_COMPONENT_OFFSET).equals(KEY_COMPONENT));
   }
