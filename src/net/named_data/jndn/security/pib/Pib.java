@@ -213,6 +213,12 @@ public class Pib {
     return defaultIdentity_;
   }
 
+  /**
+   * Get the PibIdentityContainer. This should only be called by KeyChain.
+   */
+  public final PibIdentityContainer
+  getIdentities_() { return identities_; }
+
   private final String scheme_;
   private final String location_;
 
