@@ -258,9 +258,9 @@ public class KeyChain {
    * default identity was selected before, the created identity will be set as
    * the default identity.
    * @param identityName The name of the identity.
-   * @param params (optional) The key parameters if a key needs to be generated
-   * for the identity. If omitted, use getDefaultKeyParams().
-   * @return The created Identity instance.
+   * @param params The key parameters if a key needs to be generated for the
+   *   identity.
+   * @return The created PibIdentity instance.
    */
   public final PibIdentity
   createIdentityV2(Name identityName, KeyParams params)
@@ -289,6 +289,19 @@ public class KeyChain {
     return id;
   }
 
+  /**
+   * Create a security V2 identity for identityName. This method will check if
+   * the identity exists in PIB and whether the identity has a default key and
+   * default certificate. If the identity does not exist, this method will
+   * create the identity in PIB. If the identity's default key does not exist,
+   * this method will create a key pair using getDefaultKeyParams() and set it
+   * as the identity's default key. If the key's default certificate is missing,
+   * this method will create a self-signed certificate for the key. If
+   * identityName did not exist and no default identity was selected before, the
+   * created identity will be set as the default identity.
+   * @param identityName The name of the identity.
+   * @return The created Identity instance.
+   */
   public final PibIdentity
   createIdentityV2(Name identityName)
     throws PibImpl.Error, Pib.Error, Tpm.Error, TpmBackEnd.Error, Error
@@ -348,7 +361,7 @@ public class KeyChain {
 
     Logger.getLogger(this.getClass().getName()).log
       (Level.INFO,
-       "Requesting self-signing for newly created key " + key.getName());
+       "Requesting self-signing for newly created key " + key.getName().toUri());
     selfSign(key);
 
     return key;
@@ -373,7 +386,7 @@ public class KeyChain {
    * Delete the given key of the given identity. The key becomes invalid.
    * @param identity A valid PibIdentity object.
    * @param key The key to delete.
-   * @throw IllegalArgumentException If the key does not belong to the identity.
+   * @throws IllegalArgumentException If the key does not belong to the identity.
    */
   public final void
   deleteKey(PibIdentity identity, PibKey key)
@@ -393,7 +406,7 @@ public class KeyChain {
    * Set the key as the default key of identity.
    * @param identity A valid PibIdentity object.
    * @param key The key to become the default.
-   * @throw IllegalArgumentException If the key does not belong to the identity.
+   * @throws IllegalArgumentException If the key does not belong to the identity.
    */
   public final void
   setDefaultKey(PibIdentity identity, PibKey key) throws Pib.Error, PibImpl.Error
@@ -412,10 +425,10 @@ public class KeyChain {
    * selected, the added certificate will be set as the default certificate for
    * this key.
    * @param key A valid PibKey object.
-   * @param certificate The certificate to add.
+   * @param certificate The certificate to add. This copies the object.
    * @note This method overwrites a certificate with the same name, without
    * considering the implicit digest.
-   * @throw IllegalArgumentException If the key does not match the certificate.
+   * @throws IllegalArgumentException If the key does not match the certificate.
    */
   public final void
   addCertificate(PibKey key, CertificateV2 certificate)
@@ -434,7 +447,7 @@ public class KeyChain {
    * If the certificate does not exist, this does nothing.
    * @param key A valid PibKey object.
    * @param certificateName The name of the certificate to delete.
-   * @throw IllegalArgumentException If certificateName does not follow
+   * @throws IllegalArgumentException If certificateName does not follow
    * certificate naming conventions.
    */
   public final void
@@ -452,7 +465,8 @@ public class KeyChain {
    * will be added to the key, potentially overriding an existing certificate if
    * it has the same name (without considering implicit digest).
    * @param key A valid PibKey object.
-   * @param certificate The certificate to become the default.
+   * @param certificate The certificate to become the default. This copies the
+   * object.
    */
   public final void
   setDefaultCertificate(PibKey key, CertificateV2 certificate)
@@ -472,8 +486,8 @@ public class KeyChain {
    * key locator field and wireEncoding.
    * @param params The signing parameters.
    * @param wireFormat A WireFormat object used to encode the input.
-   * @throw KeyChain.Error if signing fails.
-   * @throw KeyChain.InvalidSigningInfoError if params is invalid, or if the
+   * @throws KeyChain.Error if signing fails.
+   * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
    * identity, key or certificate specified in params does not exist.
    */
   public final void
@@ -503,8 +517,8 @@ public class KeyChain {
    * @param data The Data object to be signed.  This updates its signature and
    * key locator field and wireEncoding.
    * @param params The signing parameters.
-   * @throw KeyChain.Error if signing fails.
-   * @throw KeyChain.InvalidSigningInfoError if params is invalid, or if the
+   * @throws KeyChain.Error if signing fails.
+   * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
    * identity, key or certificate specified in params does not exist.
    */
   public final void
@@ -561,8 +575,8 @@ public class KeyChain {
    * @param params The signing parameters.
    * @param wireFormat A WireFormat object used to encode the input and encode
    * the appended components.
-   * @throw KeyChain.Error if signing fails.
-   * @throw KeyChain.InvalidSigningInfoError if params is invalid, or if the
+   * @throws KeyChain.Error if signing fails.
+   * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
    * identity, key or certificate specified in params does not exist.
    */
   public final void
@@ -596,8 +610,8 @@ public class KeyChain {
    * @param interest The Interest object to be signed. This appends name
    * components of SignatureInfo and the signature bits.
    * @param params The signing parameters.
-   * @throw KeyChain.Error if signing fails.
-   * @throw KeyChain.InvalidSigningInfoError if params is invalid, or if the
+   * @throws KeyChain.Error if signing fails.
+   * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
    * identity, key or certificate specified in params does not exist.
    */
   public final void
@@ -2067,7 +2081,7 @@ public class KeyChain {
    * @param params The signing parameters.
    * @param keyName Set keyName[0] to the signing key name.
    * @return A new Signature object with the SignatureInfo.
-   * @throw InvalidSigningInfoError when the requested signing method cannot be
+   * @throws InvalidSigningInfoError when the requested signing method cannot be
    * satisfied.
    */
   private Signature
