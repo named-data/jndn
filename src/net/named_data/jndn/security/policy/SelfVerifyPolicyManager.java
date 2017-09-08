@@ -61,11 +61,8 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   /**
-   * Create a new SelfVerifyPolicyManager which will look up the public key in
-   * the given identityStorage.
-   * Since there is no IdentotyStorage, don't look for a public key with the
-   * name in the KeyLocator and rely on the KeyLocator having the full public
-   * key DER.
+   * Create a new SelfVerifyPolicyManager which will rely on the KeyLocator
+   * having the full public key DER.
    */
   public SelfVerifyPolicyManager()
   {
