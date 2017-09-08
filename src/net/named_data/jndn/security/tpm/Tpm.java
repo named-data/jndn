@@ -267,7 +267,7 @@ public class Tpm {
    * @return True for success, false if importing fails.
    */
   public final boolean
-  importKey_(Name keyName, ByteBuffer pkcs8, ByteBuffer password)
+  importPrivateKey_(Name keyName, ByteBuffer pkcs8, ByteBuffer password)
   {
     try {
       backEnd_.importKey(keyName, pkcs8, password);
