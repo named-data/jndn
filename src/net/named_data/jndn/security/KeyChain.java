@@ -22,6 +22,8 @@ package net.named_data.jndn.security;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.KeyFactory;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -43,6 +45,7 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.security.SigningInfo.SignerType;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
+import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.security.identity.BasicIdentityStorage;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.pib.Pib;
@@ -741,6 +744,130 @@ public class KeyChain {
   }
 
   // Import and export
+
+  /**
+   * Import a certificate and its corresponding private key encapsulated in a
+   * SafeBag. If the certificate and key are imported properly, the default
+   * setting will be updated as if a new key and certificate is added into this
+   * KeyChain.
+   * @param safeBag The SafeBag containing the certificate and private key. This
+   * copies the values from the SafeBag.
+   * @param password The password for decrypting the private key. If the
+   * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
+   * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
+   * @throws KeyChain.Error if the private key cannot be imported, or if a
+   * public key or private key of the same name already exists, or if a
+   * certificate of the same name already exists.
+   */
+  public final void
+  importSafeBag(SafeBag safeBag, ByteBuffer password)
+    throws KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error, PibImpl.Error,
+      Pib.Error
+  {
+    CertificateV2 certificate = new CertificateV2(safeBag.getCertificate());
+    Name identity = certificate.getIdentity();
+    Name keyName = certificate.getKeyName();
+    Blob publicKeyBits = certificate.getPublicKey();
+
+    if (tpm_.hasKey(keyName))
+      throw new KeyChain.Error("Private key `" + keyName.toUri() +
+        "` already exists");
+
+    try {
+      PibIdentity existingId = pib_.getIdentity(identity);
+      existingId.getKey(keyName);
+      throw new KeyChain.Error("Public key `" + keyName.toUri() +
+        "` already exists");
+    } catch (Pib.Error ex) {
+      // Either the identity or the key doesn't exist, so OK to import.
+    }
+
+    try {
+      tpm_.importPrivateKey_(keyName, safeBag.getPrivateKeyBag().buf(), password);
+    } catch (Exception ex) {
+      throw new KeyChain.Error("Failed to import private key `" +
+        keyName.toUri() + "`");
+    }
+
+    // Check the consistency of the private key and certificate.
+    Blob content = new Blob(new int[] {0x01, 0x02, 0x03, 0x04});
+    Blob signatureBits;
+    try {
+      signatureBits = tpm_.sign(content.buf(), keyName, DigestAlgorithm.SHA256);
+    } catch (Exception ex) {
+      tpm_.deleteKey_(keyName);
+      throw new KeyChain.Error("Invalid private key `" + keyName.toUri() + "`");
+    }
+
+    PublicKey publicKey;
+    try {
+      publicKey = new PublicKey(publicKeyBits);
+    } catch (UnrecognizedKeyFormatException ex) {
+      // Promote to Pib.Error.
+      throw new Pib.Error("Error decoding public key " + ex);
+    }
+    // TODO: Move verify into PublicKey?
+    boolean isVerified = false;
+    try {
+      if (publicKey.getKeyType() == KeyType.ECDSA) {
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        java.security.PublicKey publicKeyImpl = keyFactory.generatePublic
+          (new X509EncodedKeySpec(publicKey.getKeyDer().getImmutableArray()));
+        java.security.Signature signatureImpl =
+          java.security.Signature.getInstance("SHA256withECDSA");
+        signatureImpl.initVerify(publicKeyImpl);
+        signatureImpl.update(content.buf());
+        isVerified = signatureImpl.verify(signatureBits.getImmutableArray());
+      }
+      else if (publicKey.getKeyType() == KeyType.RSA) {
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        java.security.PublicKey publicKeyImpl = keyFactory.generatePublic
+          (new X509EncodedKeySpec(publicKey.getKeyDer().getImmutableArray()));
+        java.security.Signature signatureImpl =
+          java.security.Signature.getInstance("SHA256withRSA");
+        signatureImpl.initVerify(publicKeyImpl);
+        signatureImpl.update(content.buf());
+        isVerified = signatureImpl.verify(signatureBits.getImmutableArray());
+      }
+      else
+        // We don't expect this.
+        throw new AssertionError("Unrecognized key type");
+    } catch (Exception ex) {
+      // Promote to Pib.Error.
+      throw new Pib.Error("Error verifying with the public key " + ex);
+    }
+
+    if (!isVerified) {
+      tpm_.deleteKey_(keyName);
+      throw new KeyChain.Error("Certificate `" + certificate.getName().toUri() +
+        "` and private key `" + keyName.toUri() + "` do not match");
+    }
+
+    // The consistency is verified. Add to the PIB.
+    PibIdentity id = pib_.addIdentity_(identity);
+    PibKey key = id.addKey_(certificate.getPublicKey().buf(), keyName);
+    key.addCertificate_(certificate);
+  }
+
+  /**
+   * Import a certificate and its corresponding private key encapsulated in a
+   * SafeBag, with a null password which imports an unencrypted PKCS #8
+   * PrivateKeyInfo. If the certificate and key are imported properly, the
+   * default setting will be updated as if a new key and certificate is added
+   * into this KeyChain.
+   * @param safeBag The SafeBag containing the certificate and private key. This
+   * copies the values from the SafeBag.
+   * @throws KeyChain.Error if the private key cannot be imported, or if a
+   * public key or private key of the same name already exists, or if a
+   * certificate of the same name already exists.
+   */
+  public final void
+  importSafeBag(SafeBag safeBag)
+    throws KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error, PibImpl.Error,
+      Pib.Error
+  {
+    importSafeBag(safeBag, null);
+  }
 
   // PIB & TPM backend registry
 
