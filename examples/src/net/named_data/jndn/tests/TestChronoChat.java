@@ -40,12 +40,12 @@ import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.security.KeyChain;
-import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.SafeBag;
 import net.named_data.jndn.security.SecurityException;
-import net.named_data.jndn.security.identity.IdentityManager;
-import net.named_data.jndn.security.identity.MemoryIdentityStorage;
-import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
+import net.named_data.jndn.security.pib.PibImpl;
+import net.named_data.jndn.security.pib.PibMemory;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
+import net.named_data.jndn.security.tpm.TpmBackEndMemory;
 import net.named_data.jndn.sync.ChronoSync2013;
 import net.named_data.jndn.tests.ChatbufProto.ChatMessage;
 import net.named_data.jndn.util.Blob;
@@ -636,25 +636,21 @@ public class TestChronoChat {
         ", Username: " + screenName);
       System.out.println("");
 
-      // Set up the key chain.
       Face face = new Face(host);
 
-      MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
-      MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+      // Set up the KeyChain.
+      PibImpl pibImpl = new PibMemory();
       KeyChain keyChain = new KeyChain
-        (new IdentityManager(identityStorage, privateKeyStorage),
-         new NoVerifyPolicyManager());
-      keyChain.setFace(face);
-      Name keyName = new Name("/testname/DSK-123");
-      Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
-        ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
-      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
-      privateKeyStorage.setKeyPairForKeyName
-        (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
-      face.setCommandSigningInfo(keyChain, certificateName);
+        (pibImpl, new TpmBackEndMemory(), new NoVerifyPolicyManager());
+      keyChain.importSafeBag(new SafeBag
+        (new Name("/testname/KEY/123"),
+         new Blob(DEFAULT_RSA_PRIVATE_KEY_DER, false),
+         new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false)));
+      face.setCommandSigningInfo(keyChain, keyChain.getDefaultCertificateName());
 
       Chat chat = new Chat
-        (screenName, chatRoom, new Name(hubPrefix), face, keyChain, certificateName);
+        (screenName, chatRoom, new Name(hubPrefix), face, keyChain,
+         keyChain.getDefaultCertificateName());
 
       // The main loop to process Chat while checking stdin to send a message.
       System.out.println("Enter your chat message. To quit, enter \"leave\" or \"exit\".");
