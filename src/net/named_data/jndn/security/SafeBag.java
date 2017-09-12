@@ -166,17 +166,16 @@ public class SafeBag {
 
   /**
    * Get the certificate data packet.
-   * @return The certificate as a Data packet, or null if it has not been set.
-   * If you need to process it as a certificate object then you must create a
-   * new CertificateV2(data).
+   * @return The certificate as a Data packet. If you need to process it as a
+   * certificate object then you must create a new CertificateV2(data).
    */
   public final Data getCertificate() { return certificate_; }
 
   /**
    * Get the encoded private key.
-   * @return The encoded private key, or an isNull Blob if it hasn't been set.
-   * If encrypted, this is a PKCS #8 EncryptedPrivateKeyInfo. If not encrypted,
-   * this is an unencrypted PKCS #8 PrivateKeyInfo.
+   * @return The encoded private key. If encrypted, this is a PKCS #8 
+   * EncryptedPrivateKeyInfo. If not encrypted, this is an unencrypted PKCS #8
+   * PrivateKeyInfo.
    */
   public final Blob getPrivateKeyBag() { return privateKeyBag_; }
 
