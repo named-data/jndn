@@ -804,6 +804,7 @@ public class KeyChain {
       publicKey = new PublicKey(publicKeyBits);
     } catch (UnrecognizedKeyFormatException ex) {
       // Promote to Pib.Error.
+      tpm_.deleteKey_(keyName);
       throw new Pib.Error("Error decoding public key " + ex);
     }
     // TODO: Move verify into PublicKey?
@@ -834,6 +835,7 @@ public class KeyChain {
         throw new AssertionError("Unrecognized key type");
     } catch (Exception ex) {
       // Promote to Pib.Error.
+      tpm_.deleteKey_(keyName);
       throw new Pib.Error("Error verifying with the public key " + ex);
     }
 
