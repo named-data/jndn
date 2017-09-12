@@ -342,7 +342,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
       try {
         return pibImpl_.getKeyBits(keyLocator.getKeyName());
       } catch (Pib.Error ex) {
-        failureReason[0] = "The identityStorage doesn't have the key named " +
+        failureReason[0] = "The pibImpl doesn't have the key named " +
           keyLocator.getKeyName().toUri();
         return new Blob();
       } catch (PibImpl.Error ex) {
