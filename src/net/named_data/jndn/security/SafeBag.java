@@ -46,7 +46,7 @@ import net.named_data.jndn.util.SignedBlob;
  */
 public class SafeBag {
   /**
-   * Create a new Safe object with the given certificate and private key.
+   * Create a SafeBag with the given certificate and private key.
    * @param certificate The certificate data packet. This copies the object.
    * @param privateKeyBag The encoded private key. If encrypted, this is a
    * PKCS #8 EncryptedPrivateKeyInfo. If not encrypted, this is an unencrypted
@@ -58,6 +58,24 @@ public class SafeBag {
     privateKeyBag_ = privateKeyBag;
   }
 
+  /**
+   * Create a SafeBag with given private key and a new self-signed certificate
+   * for the given public key.
+   * @param keyName The name of the public key. The certificate name will be
+   * {keyName}/self/{version} where the version is based on the current time.
+   * This copies the Name.
+   * @param privateKeyBag The encoded private key. If encrypted, this is a
+   * PKCS #8 EncryptedPrivateKeyInfo. If not encrypted, this is an unencrypted
+   * PKCS #8 PrivateKeyInfo.
+   * @param publicKeyEncoding The encoded public key for the certificate.
+   * @param password The password for decrypting the private key in order to
+   * sign the self-signed certificate. If the password is used to decrypt the
+   * PKCS #8 EncryptedPrivateKeyInfo.
+   * @param digestAlgorithm The digest algorithm for signing the self-signed
+   * certificate.
+   * @param wireFormat A WireFormat object used to encode the self-signed
+   * certificate in order to sign it.
+   */
   public SafeBag
     (Name keyName, Blob privateKeyBag, Blob publicKeyEncoding,
      ByteBuffer password, DigestAlgorithm digestAlgorithm, WireFormat wireFormat)
@@ -69,6 +87,24 @@ public class SafeBag {
     privateKeyBag_ = privateKeyBag;
   }
 
+  /**
+   * Create a SafeBag with given private key and a new self-signed certificate
+   * for the given public key.
+   * Use getDefaultWireFormat() to encode the self-signed certificate in order
+   * to sign it.
+   * @param keyName The name of the public key. The certificate name will be
+   * {keyName}/self/{version} where the version is based on the current time.
+   * This copies the Name.
+   * @param privateKeyBag The encoded private key. If encrypted, this is a
+   * PKCS #8 EncryptedPrivateKeyInfo. If not encrypted, this is an unencrypted
+   * PKCS #8 PrivateKeyInfo.
+   * @param publicKeyEncoding The encoded public key for the certificate.
+   * @param password The password for decrypting the private key in order to
+   * sign the self-signed certificate. If the password is used to decrypt the
+   * PKCS #8 EncryptedPrivateKeyInfo.
+   * @param digestAlgorithm The digest algorithm for signing the self-signed
+   * certificate.
+   */
   public SafeBag
     (Name keyName, Blob privateKeyBag, Blob publicKeyEncoding,
      ByteBuffer password, DigestAlgorithm digestAlgorithm)
@@ -80,6 +116,22 @@ public class SafeBag {
     privateKeyBag_ = privateKeyBag;
   }
 
+  /**
+   * Create a SafeBag with given private key and a new self-signed certificate
+   * for the given public key, using DigestAlgorithm.SHA256 to sign it.
+   * Use getDefaultWireFormat() to encode the self-signed certificate in order
+   * to sign it.
+   * @param keyName The name of the public key. The certificate name will be
+   * {keyName}/self/{version} where the version is based on the current time.
+   * This copies the Name.
+   * @param privateKeyBag The encoded private key. If encrypted, this is a
+   * PKCS #8 EncryptedPrivateKeyInfo. If not encrypted, this is an unencrypted
+   * PKCS #8 PrivateKeyInfo.
+   * @param publicKeyEncoding The encoded public key for the certificate.
+   * @param password The password for decrypting the private key in order to
+   * sign the self-signed certificate. If the password is used to decrypt the
+   * PKCS #8 EncryptedPrivateKeyInfo.
+   */
   public SafeBag
     (Name keyName, Blob privateKeyBag, Blob publicKeyEncoding,
      ByteBuffer password)
@@ -91,6 +143,18 @@ public class SafeBag {
     privateKeyBag_ = privateKeyBag;
   }
 
+  /**
+   * Create a SafeBag with given private key and a new self-signed certificate
+   * for the given public key, using DigestAlgorithm.SHA256 to sign it.
+   * Use getDefaultWireFormat() to encode the self-signed certificate in order
+   * to sign it.
+   * @param keyName The name of the public key. The certificate name will be
+   * {keyName}/self/{version} where the version is based on the current time.
+   * This copies the Name.
+   * @param privateKeyBag The encoded private key, as an unencrypted PKCS #8
+   * PrivateKeyInfo.
+   * @param publicKeyEncoding The encoded public key for the certificate.
+   */
   public SafeBag(Name keyName, Blob privateKeyBag, Blob publicKeyEncoding)
     throws TpmBackEnd.Error, Pib.Error
   {
