@@ -59,10 +59,10 @@ public class AesKeyParams extends KeyParams {
     return size_;
   }
 
-  private static int
+  public static int
   getDefaultSize() { return 64; }
 
-  private static KeyType
+  public static KeyType
   getType() { return KeyType.AES; }
 
   private final int size_;

@@ -59,10 +59,10 @@ public class RsaKeyParams extends KeyParams {
     return size_;
   }
 
-  private static int
+  public static int
   getDefaultSize() { return 2048; }
 
-  private static KeyType
+  public static KeyType
   getType() { return KeyType.RSA; }
 
   private final int size_;

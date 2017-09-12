@@ -59,10 +59,10 @@ public class EcdsaKeyParams extends KeyParams {
     return size_;
   }
 
-  private static int
+  public static int
   getDefaultSize() { return 256; }
 
-  private static KeyType
+  public static KeyType
   getType() { return KeyType.ECDSA; }
 
   private final int size_;
