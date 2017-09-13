@@ -51,8 +51,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
    */
   public BasicIdentityStorage() throws SecurityException
   {
-    // NOTE: Use File because java.nio.file.Path is not available before Java 7.
-    File identityDir = new File(Common.getHomeDirectory(), ".ndn");
+    File identityDir = getDefaultDatabaseDirectoryPath();
     identityDir.mkdirs();
     File databasePath = new File(identityDir, "ndnsec-public-info.db");
     construct(databasePath.getAbsolutePath());
@@ -893,6 +892,29 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
     } catch (SQLException exception) {
       throw new SecurityException("BasicIdentityStorage: SQLite error: " + exception);
     }
+  }
+
+  /**
+   * Get the default directory that the constructor uses if databaseFilePath is
+   * omitted. This does not try to create the directory.
+   * @return The default database directory path.
+   */
+  public static File
+  getDefaultDatabaseDirectoryPath()
+  {
+    // NOTE: Use File because java.nio.file.Path is not available before Java 7.
+    return new File(Common.getHomeDirectory(), ".ndn");
+  }
+
+  /**
+   * Get the default database file path that the constructor uses if
+   * databaseDirectoryPath and databaseFilename are omitted.
+   * @return The default database file path.
+   */
+  public static File
+  getDefaultDatabaseFilePath()
+  {
+    return new File(getDefaultDatabaseDirectoryPath(), "ndnsec-public-info.db");
   }
 
   Connection database_ = null;

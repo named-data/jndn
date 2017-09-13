@@ -42,6 +42,7 @@ import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.encrypt.algo.EncryptParams;
 import net.named_data.jndn.encrypt.algo.RsaAlgorithm;
 import net.named_data.jndn.security.RsaKeyParams;
+import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -205,7 +206,7 @@ public class TestEncryptor {
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException,
-      DerDecodingException, EncodingException
+      DerDecodingException, EncodingException, SecurityException
   {
     for (AsymmetricEncryptInput input : encryptorRsaTestInputs) {
       Blob rawContent = new Blob(toBuffer(new int[] {
@@ -250,7 +251,7 @@ public class TestEncryptor {
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
       InvalidAlgorithmParameterException, InvalidKeySpecException,
-      DerDecodingException, EncodingException
+      DerDecodingException, EncodingException, SecurityException
   {
     for (AsymmetricEncryptInput input : encryptorRsaTestInputs) {
       Blob largeContent = new Blob(toBuffer(new int[] {

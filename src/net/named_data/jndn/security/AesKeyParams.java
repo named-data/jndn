@@ -20,16 +20,36 @@
 
 package net.named_data.jndn.security;
 
+import net.named_data.jndn.Name;
+
 public class AesKeyParams extends KeyParams {
+  public AesKeyParams(Name.Component keyId, int size)
+  {
+    super(getType(), keyId);
+    size_ = size;
+  }
+
+  public AesKeyParams(Name.Component keyId)
+  {
+    super(getType(), keyId);
+    size_ = getDefaultSize();
+  }
+
+  public AesKeyParams(int size, KeyIdType keyIdType)
+  {
+    super(getType(), keyIdType);
+    size_ = size;
+  }
+
   public AesKeyParams(int size)
   {
-    super(getType());
+    super(getType(), KeyIdType.RANDOM);
     size_ = size;
   }
 
   public AesKeyParams()
   {
-    super(getType());
+    super(getType(), KeyIdType.RANDOM);
     size_ = getDefaultSize();
   }
 
@@ -39,10 +59,10 @@ public class AesKeyParams extends KeyParams {
     return size_;
   }
 
-  private static int
+  public static int
   getDefaultSize() { return 64; }
 
-  private static KeyType
+  public static KeyType
   getType() { return KeyType.AES; }
 
   private final int size_;

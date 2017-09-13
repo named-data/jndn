@@ -197,6 +197,36 @@ public class Common {
   }
 
   /**
+   * Encode the input as base64 using the appropriate base64Converter_ from
+   * establishBase64Converter(), for ANDROID or Java 7+.
+   * @param input The bytes to encode.
+   * @param addNewlines If true, add newlines to the output (good for writing to
+   * a file).  If false, do not add newlines.
+   * @return The base64 string.
+   * @throws UnsupportedOperationException If can't establish a base64 converter for
+   * this platform.
+   */
+  public static String
+  base64Encode(byte[] input, boolean addNewlines)
+  {
+    String base64 = base64Encode(input);
+    if (!addNewlines)
+      return base64;
+
+    StringBuffer result = new StringBuffer();
+    for (int i = 0; i < base64.length(); i += 64) {
+      int lineLength = 64;
+      if (i + lineLength > base64.length())
+        lineLength = base64.length() - i;
+
+      result.append(base64, i, i + lineLength);
+      result.append('\n');
+    }
+
+    return result.toString();
+  }
+
+  /**
    * Decode the input as base64 using the appropriate base64Converter_ from
    * establishBase64Converter(), for ANDROID or Java 7+.
    * @param encoding The base64 string.

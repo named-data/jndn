@@ -37,6 +37,8 @@ import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
+import net.named_data.jndn.security.pib.PibImpl;
+import net.named_data.jndn.security.tpm.TpmBackEnd;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -89,7 +91,8 @@ public class GroupManager {
    */
   public final List
   getGroupKey(double timeSlot, boolean needRegenerate)
-    throws GroupManagerDb.Error, SecurityException
+    throws GroupManagerDb.Error, SecurityException, TpmBackEnd.Error,
+      PibImpl.Error, KeyChain.Error
   {
     Map memberKeys = new TreeMap();
     List result = new ArrayList();
@@ -145,7 +148,9 @@ public class GroupManager {
    * Call the main getGroupKey where needRegenerate is default true.
    */
   public final List
-  getGroupKey(double timeSlot) throws GroupManagerDb.Error, SecurityException
+  getGroupKey(double timeSlot) 
+    throws GroupManagerDb.Error, SecurityException, TpmBackEnd.Error,
+      PibImpl.Error, KeyChain.Error
   {
     return getGroupKey(timeSlot, true);
   }
@@ -310,30 +315,15 @@ public class GroupManager {
    */
   private void
   generateKeyPair(Blob[] privateKeyBlob, Blob[] publicKeyBlob)
+    throws SecurityException
   {
     RsaKeyParams params = new RsaKeyParams(keySize_);
 
-    DecryptKey privateKey;
-    try {
-      privateKey = RsaAlgorithm.generateKey(params);
-    } catch (NoSuchAlgorithmException ex) {
-      // We don't expect this error.
-      throw new Error("Error in RsaAlgorithm.generateKey: " + ex.getMessage());
-    }
+    DecryptKey privateKey = RsaAlgorithm.generateKey(params);
 
     privateKeyBlob[0] = privateKey.getKeyBits();
 
-    EncryptKey publicKey;
-    try {
-      publicKey = RsaAlgorithm.deriveEncryptKey(privateKeyBlob[0]);
-    } catch (InvalidKeySpecException ex) {
-      // We don't expect this error.
-      throw new Error("Error in RsaAlgorithm.deriveEncryptKey: " + ex.getMessage());
-    } catch (DerDecodingException ex) {
-      // We don't expect this error.
-      throw new Error("Error in RsaAlgorithm.deriveEncryptKey: " + ex.getMessage());
-    }
-
+    EncryptKey publicKey = RsaAlgorithm.deriveEncryptKey(privateKeyBlob[0]);
     publicKeyBlob[0] = publicKey.getKeyBits();
   }
 
@@ -347,7 +337,7 @@ public class GroupManager {
    */
   private Data
   createEKeyData(String startTimeStamp, String endTimeStamp, Blob publicKeyBlob)
-    throws SecurityException
+    throws SecurityException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
     Name name = new Name(namespace_);
     name.append(Encryptor.NAME_COMPONENT_E_KEY).append(startTimeStamp)
@@ -377,7 +367,7 @@ public class GroupManager {
   createDKeyData
     (String startTimeStamp, String endTimeStamp, Name keyName,
      Blob privateKeyBlob, Blob certificateKey)
-    throws SecurityException
+    throws SecurityException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
     Name name = new Name(namespace_);
     name.append(Encryptor.NAME_COMPONENT_D_KEY);
@@ -478,13 +468,13 @@ public class GroupManager {
     createDKeyData
       (GroupManager groupManager, String startTimeStamp, String endTimeStamp,
        Name keyName, Blob privateKeyBlob, Blob certificateKey)
-      throws SecurityException;
+      throws SecurityException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error;
 
     public abstract Data
       createEKeyData
         (GroupManager groupManager, String startTimeStamp, String endTimeStamp,
          Blob publicKeyBlob)
-        throws SecurityException;
+        throws SecurityException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error;
   }
 
   /**
@@ -504,7 +494,7 @@ public class GroupManager {
     createDKeyData
       (GroupManager groupManager, String startTimeStamp, String endTimeStamp,
        Name keyName, Blob privateKeyBlob, Blob certificateKey)
-      throws SecurityException
+      throws SecurityException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
     {
       return groupManager.createDKeyData
         (startTimeStamp, endTimeStamp, keyName, privateKeyBlob, certificateKey);
@@ -514,7 +504,7 @@ public class GroupManager {
       createEKeyData
         (GroupManager groupManager, String startTimeStamp, String endTimeStamp,
          Blob publicKeyBlob)
-        throws SecurityException
+        throws SecurityException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
     {
       return groupManager.createEKeyData
         (startTimeStamp, endTimeStamp, publicKeyBlob);

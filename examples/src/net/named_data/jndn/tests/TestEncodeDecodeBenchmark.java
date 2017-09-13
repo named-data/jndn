@@ -32,11 +32,15 @@ import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnDataValidationFailed;
+import net.named_data.jndn.security.SafeBag;
 import net.named_data.jndn.security.SecurityException;
-import net.named_data.jndn.security.identity.IdentityManager;
-import net.named_data.jndn.security.identity.MemoryIdentityStorage;
-import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
+import net.named_data.jndn.security.pib.Pib;
+import net.named_data.jndn.security.pib.PibImpl;
+import net.named_data.jndn.security.pib.PibMemory;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
+import net.named_data.jndn.security.tpm.TpmBackEnd;
+import net.named_data.jndn.security.tpm.TpmBackEndMemory;
+import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 
 public class TestEncodeDecodeBenchmark {
@@ -197,6 +201,8 @@ public class TestEncodeDecodeBenchmark {
   benchmarkEncodeDataSeconds
     (int nIterations, boolean useComplex, boolean useCrypto, KeyType keyType,
      Blob[] encoding)
+    throws PibImpl.Error, KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error,
+      Pib.Error, SecurityException
   {
     Name name;
     Blob content;
@@ -221,24 +227,17 @@ public class TestEncodeDecodeBenchmark {
       new Name.Component(new Blob(new byte[] { (byte)0 }, false));
 
     // Initialize the KeyChain storage in case useCrypto is true.
-    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
-    MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+    PibImpl pibImpl = new PibMemory();
     KeyChain keyChain = new KeyChain
-      (new IdentityManager(identityStorage, privateKeyStorage),
-       new SelfVerifyPolicyManager(identityStorage));
-    Name keyName = new Name("/testname/DSK-123");
-    Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
-      ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
-    try {
-      privateKeyStorage.setKeyPairForKeyName
-        (keyName, keyType,
-         keyType == KeyType.ECDSA ? DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER,
-         keyType == KeyType.ECDSA ? DEFAULT_EC_PRIVATE_KEY_DER : DEFAULT_RSA_PRIVATE_KEY_DER);
-    }
-    catch (SecurityException exception) {
-      throw new Error
-        ("SecurityException in setKeyPairForKeyName: " + exception.getMessage());
-    }
+      (pibImpl, new TpmBackEndMemory(), new SelfVerifyPolicyManager(pibImpl));
+    // This puts the public key in the pibImpl used by the SelfVerifyPolicyManager.
+    keyChain.importSafeBag(new SafeBag
+      (new Name("/testname/KEY/123"),
+       new Blob(keyType == KeyType.ECDSA ?
+         DEFAULT_EC_PRIVATE_KEY_DER : DEFAULT_RSA_PRIVATE_KEY_DER, false),
+       new Blob(keyType == KeyType.ECDSA ?
+         DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER, false)));
+    Name certificateName = keyChain.getDefaultCertificateName();
 
     Blob signatureBits = new Blob(new byte[256], false);
 
@@ -251,17 +250,9 @@ public class TestEncodeDecodeBenchmark {
         data.getMetaInfo().setFinalBlockId(finalBlockId);
       }
 
-      if (useCrypto) {
-        try {
-          // This sets the signature fields.
-          keyChain.sign(data, certificateName);
-        }
-        catch (SecurityException exception) {
-          // Don't expect this to happen.
-          throw new Error
-            ("SecurityException in sign: " + exception.getMessage());
-        }
-      }
+      if (useCrypto)
+        // This sets the signature fields.
+        keyChain.sign(data);
       else {
         // Imitate IdentityManager.signByCertificate to set up the signature
         //   fields, but don't sign.
@@ -304,21 +295,21 @@ public class TestEncodeDecodeBenchmark {
    */
   private static double
   benchmarkDecodeDataSeconds
-    (int nIterations, boolean useCrypto, KeyType keyType, Blob encoding) throws EncodingException
+    (int nIterations, boolean useCrypto, KeyType keyType, Blob encoding) 
+    throws EncodingException, PibImpl.Error, KeyChain.Error, CertificateV2.Error,
+      TpmBackEnd.Error, Pib.Error
   {
     // Initialize the KeyChain storage in case useCrypto is true.
-    MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
+    PibImpl pibImpl = new PibMemory();
     KeyChain keyChain = new KeyChain
-      (new IdentityManager(identityStorage, new MemoryPrivateKeyStorage()),
-       new SelfVerifyPolicyManager(identityStorage));
-    Name keyName = new Name("/testname/DSK-123");
-    try {
-      identityStorage.addKey(keyName, keyType, new Blob
-        (keyType == KeyType.ECDSA ? DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER, false));
-    }
-    catch (SecurityException exception) {
-      throw new Error("SecurityException: " + exception.getMessage());
-    }
+      (pibImpl, new TpmBackEndMemory(), new SelfVerifyPolicyManager(pibImpl));
+    // This puts the public key in the pibImpl used by the SelfVerifyPolicyManager.
+    keyChain.importSafeBag(new SafeBag
+      (new Name("/testname/KEY/123"),
+       new Blob(keyType == KeyType.ECDSA ?
+         DEFAULT_EC_PRIVATE_KEY_DER : DEFAULT_RSA_PRIVATE_KEY_DER, false),
+       new Blob(keyType == KeyType.ECDSA ?
+         DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER, false)));
     VerifyCallbacks callbacks = new VerifyCallbacks();
 
     double start = getNowSeconds();
@@ -351,7 +342,9 @@ public class TestEncodeDecodeBenchmark {
    */
   private static void
   benchmarkEncodeDecodeData
-    (boolean useComplex, boolean useCrypto, KeyType keyType) throws EncodingException
+    (boolean useComplex, boolean useCrypto, KeyType keyType)
+    throws PibImpl.Error, KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error,
+      Pib.Error, SecurityException, EncodingException
   {
     String format = "TLV";
     Blob[] encoding = new Blob[1];
@@ -377,6 +370,8 @@ public class TestEncodeDecodeBenchmark {
 
   public static void
   main(String[] args)
+    throws PibImpl.Error, KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error,
+      Pib.Error, SecurityException, EncodingException
   {
     Logger.getLogger("").setLevel(Level.OFF);
     try {

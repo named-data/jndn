@@ -55,6 +55,8 @@ import net.named_data.jndn.encrypt.algo.Encryptor;
 import net.named_data.jndn.security.AesKeyParams;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.pib.PibImpl;
+import net.named_data.jndn.security.tpm.TpmBackEnd;
 import net.named_data.jndn.util.Blob;
 
 /**
@@ -216,7 +218,8 @@ public class Producer {
   createContentKey
     (double timeSlot, OnEncryptedKeys onEncryptedKeys,
      OnError onError)
-    throws ProducerDb.Error, IOException, SecurityException
+    throws ProducerDb.Error, IOException, SecurityException, TpmBackEnd.Error,
+      PibImpl.Error, KeyChain.Error
   {
     double hourSlot = getRoundedTimeSlot(timeSlot);
 
@@ -275,7 +278,8 @@ public class Producer {
    */
   public final Name
   createContentKey(double timeSlot, OnEncryptedKeys onEncryptedKeys)
-    throws ProducerDb.Error, IOException, SecurityException
+    throws ProducerDb.Error, IOException, SecurityException, TpmBackEnd.Error,
+      PibImpl.Error, KeyChain.Error
   {
     return createContentKey(timeSlot, onEncryptedKeys, defaultOnError);
   }
@@ -297,7 +301,8 @@ public class Producer {
     throws ProducerDb.Error, IOException, SecurityException,
       NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
-      InvalidAlgorithmParameterException, InvalidKeySpecException
+      InvalidAlgorithmParameterException, InvalidKeySpecException,
+      TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
     // Get a content key.
     Name contentKeyName = createContentKey(timeSlot, null, onError);
@@ -321,7 +326,8 @@ public class Producer {
     throws ProducerDb.Error, IOException, SecurityException,
       NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
-      InvalidAlgorithmParameterException, InvalidKeySpecException
+      InvalidAlgorithmParameterException, InvalidKeySpecException,
+      TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
     produce(data, timeSlot, content, defaultOnError);
   }
@@ -520,7 +526,8 @@ public class Producer {
   handleCoveringKey
     (Interest interest, Data data, double timeSlot,
      OnEncryptedKeys onEncryptedKeys, OnError onError)
-    throws EncodingException, ProducerDb.Error, SecurityException, IOException
+    throws EncodingException, ProducerDb.Error, SecurityException, IOException,
+      TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
     double timeCount = Math.round(timeSlot);
     KeyRequest keyRequest = (KeyRequest)keyRequests_.get(timeCount);
@@ -574,7 +581,8 @@ public class Producer {
   encryptContentKey
     (Blob encryptionKey, Name eKeyName, double timeSlot,
      OnEncryptedKeys onEncryptedKeys, OnError onError)
-    throws ProducerDb.Error, SecurityException
+    throws ProducerDb.Error, SecurityException, TpmBackEnd.Error, PibImpl.Error,
+      KeyChain.Error
   {
     double timeCount = Math.round(timeSlot);
     KeyRequest keyRequest = (KeyRequest)keyRequests_.get(timeCount);

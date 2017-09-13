@@ -25,13 +25,13 @@ import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.KeyChain;
-import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnInterestValidationFailed;
-import net.named_data.jndn.security.identity.IdentityManager;
-import net.named_data.jndn.security.identity.MemoryIdentityStorage;
-import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
+import net.named_data.jndn.security.SafeBag;
+import net.named_data.jndn.security.pib.PibImpl;
+import net.named_data.jndn.security.pib.PibMemory;
 import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
+import net.named_data.jndn.security.tpm.TpmBackEndMemory;
 import net.named_data.jndn.util.Blob;
 
 public class TestEncodeDecodeInterest {
@@ -268,23 +268,19 @@ public class TestEncodeDecodeInterest {
       freshInterest.getExclude().appendComponent(new Name("abc").get(0)).appendAny();
       freshInterest.getForwardingHint().add(1, new Name("/A"));
 
-      MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
-      MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
+      // Set up the KeyChain.
+      PibImpl pibImpl = new PibMemory();
       KeyChain keyChain = new KeyChain
-        (new IdentityManager(identityStorage, privateKeyStorage),
-         new SelfVerifyPolicyManager(identityStorage));
-
-      // Initialize the storage.
-      Name keyName = new Name("/testname/DSK-123");
-      Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
-        ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
-      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
-      privateKeyStorage.setKeyPairForKeyName
-        (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
+        (pibImpl, new TpmBackEndMemory(), new SelfVerifyPolicyManager(pibImpl));
+      // This puts the public key in the pibImpl used by the SelfVerifyPolicyManager.
+      keyChain.importSafeBag(new SafeBag
+        (new Name("/testname/KEY/123"),
+         new Blob(DEFAULT_RSA_PRIVATE_KEY_DER, false),
+         new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false)));
 
       // Make a Face just so that we can sign the interest.
       Face face = new Face();
-      face.setCommandSigningInfo(keyChain, certificateName);
+      face.setCommandSigningInfo(keyChain, keyChain.getDefaultCertificateName());
       face.makeCommandInterest(freshInterest);
 
       Interest reDecodedFreshInterest = new Interest();

@@ -38,12 +38,14 @@ import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
 import net.named_data.jndn.security.identity.IdentityStorage;
+import net.named_data.jndn.security.pib.Pib;
+import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
  * A SelfVerifyPolicyManager implements a PolicyManager to look in the
- * IdentityStorage for the public key with the name in the KeyLocator (if
+ * storage for the public key with the name in the KeyLocator (if
  * available) and use it to verify the data packet, without searching a
  * certificate chain.  If the public key can't be found, the verification fails.
  */
@@ -58,18 +60,30 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   public SelfVerifyPolicyManager(IdentityStorage identityStorage)
   {
     identityStorage_ = identityStorage;
+    pibImpl_ = null;
   }
 
   /**
    * Create a new SelfVerifyPolicyManager which will look up the public key in
-   * the given identityStorage.
-   * Since there is no IdentotyStorage, don't look for a public key with the
-   * name in the KeyLocator and rely on the KeyLocator having the full public
-   * key DER.
+   * the given pibImpl.
+   * @param pibImpl The PibImpl for looking up the public key. This points to an
+   * object which must remain valid during the life of this
+   * SelfVerifyPolicyManager.
+   */
+  public SelfVerifyPolicyManager(PibImpl pibImpl)
+  {
+    identityStorage_ = null;
+    pibImpl_ = pibImpl;
+  }
+
+  /**
+   * Create a new SelfVerifyPolicyManager which will rely on the KeyLocator
+   * having the full public key DER.
    */
   public SelfVerifyPolicyManager()
   {
     identityStorage_ = null;
+    pibImpl_ = null;
   }
 
   /**
@@ -113,7 +127,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   /**
-   * Look in the IdentityStorage for the public key with the name in the
+   * Look in the IdentityStorage or PibImpl for the public key with the name in the
    * KeyLocator (if available) and use it to verify the data packet.  If the
    * public key can't be found, call onValidationFailed.onDataValidationFailed.
    * @param data The Data object with the signature to check.
@@ -157,7 +171,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
 
   /**
    * Use wireFormat.decodeSignatureInfoAndValue to decode the last two name
-   * components of the signed interest. Look in the IdentityStorage for the
+   * components of the signed interest. Look in the IdentityStorage or PibImpl for the
    * public key with the name in the KeyLocator (if available) and use it to
    * verify the interest. If the public key can't be found, call
    * onValidationFailed.onInterestValidationFailed.
@@ -259,7 +273,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
 
   /**
    * Check the type of signatureInfo to get the KeyLocator. Look in the
-   * IdentityStorage for the public key with the name in the KeyLocator (if
+   * IdentityStorage or PibImpl for the public key with the name in the KeyLocator (if
    * available) and use it to verify the signedBlob. If the public key can't be
    * found, return false. (This is a generalized method which can verify both a
    * Data packet and an interest.)
@@ -291,7 +305,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   /**
-   * Look in the IdentityStorage for the public key with the name in the
+   * Look in the IdentityStorage or pibImpl for the public key with the name in the
    * KeyLocator (if available). If the public key can't be found, return an
    * empty Blob.
    * @param keyLocator The KeyLocator.
@@ -324,6 +338,19 @@ public class SelfVerifyPolicyManager extends PolicyManager {
         return new Blob();
       }
     }
+    else if (keyLocator.getType() == KeyLocatorType.KEYNAME && pibImpl_ != null) {
+      try {
+        return pibImpl_.getKeyBits(keyLocator.getKeyName());
+      } catch (Pib.Error ex) {
+        failureReason[0] = "The pibImpl doesn't have the key named " +
+          keyLocator.getKeyName().toUri();
+        return new Blob();
+      } catch (PibImpl.Error ex) {
+        failureReason[0] = "Error getting the key named " +
+          keyLocator.getKeyName().toUri();
+        return new Blob();
+      }
+    }
     else {
       // Can't find a key to verify.
       failureReason[0] = "The signature KeyLocator doesn't have a key name";
@@ -332,6 +359,7 @@ public class SelfVerifyPolicyManager extends PolicyManager {
   }
 
   private final IdentityStorage identityStorage_;
+  private final PibImpl pibImpl_;
   private static final Logger logger_ = Logger.getLogger
     (SelfVerifyPolicyManager.class.getName());
 }

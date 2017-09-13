@@ -22,23 +22,48 @@ package net.named_data.jndn.security;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.KeyFactory;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.named_data.jndn.ContentType;
 import net.named_data.jndn.Data;
+import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Face;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.KeyLocator;
+import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.OnData;
 import net.named_data.jndn.OnTimeout;
+import net.named_data.jndn.Sha256WithEcdsaSignature;
+import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
+import net.named_data.jndn.security.SigningInfo.SignerType;
 import net.named_data.jndn.security.certificate.IdentityCertificate;
+import net.named_data.jndn.security.certificate.PublicKey;
+import net.named_data.jndn.security.identity.BasicIdentityStorage;
 import net.named_data.jndn.security.identity.IdentityManager;
+import net.named_data.jndn.security.pib.Pib;
+import net.named_data.jndn.security.pib.PibIdentity;
+import net.named_data.jndn.security.pib.PibImpl;
+import net.named_data.jndn.security.pib.PibKey;
+import net.named_data.jndn.security.pib.PibMemory;
+import net.named_data.jndn.security.pib.PibSqlite3;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
 import net.named_data.jndn.security.policy.PolicyManager;
+import net.named_data.jndn.security.tpm.Tpm;
+import net.named_data.jndn.security.tpm.TpmBackEnd;
+import net.named_data.jndn.security.tpm.TpmBackEndFile;
+import net.named_data.jndn.security.tpm.TpmBackEndMemory;
+import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
+import net.named_data.jndn.util.ConfigFile;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
@@ -53,45 +78,838 @@ import net.named_data.jndn.util.SignedBlob;
  */
 public class KeyChain {
   /**
-   * Create a new KeyChain with the given IdentityManager and PolicyManager.
+   * A KeyChain.Error extends Exception and represents an error in KeyChain
+   * processing.
+   * Note that even though this is called "Error" to be consistent with the
+   * other libraries, it extends the Java Exception class, not Error.
+   */
+  public static class Error extends Exception {
+    public Error(String message)
+    {
+      super(message);
+    }
+  }
+
+  /**
+   * A KeyChain.InvalidSigningInfoError extends KeyChain.Error to indicate
+   * that the supplied SigningInfo is invalid.
+   */
+  public static class InvalidSigningInfoError extends KeyChain.Error {
+    public InvalidSigningInfoError(String message)
+    {
+      super(message);
+    }
+  }
+
+  /**
+   * A KeyChain.LocatorMismatchError extends KeyChain.Error to indicate that
+   * the supplied TPM locator does not match the locator stored in the PIB.
+   */
+  public static class LocatorMismatchError extends KeyChain.Error {
+    public LocatorMismatchError(String message)
+    {
+      super(message);
+    }
+  }
+
+  public interface MakePibImpl {
+    PibImpl makePibImpl(String location) throws PibImpl.Error;
+  }
+
+  public interface MakeTpmBackEnd {
+    TpmBackEnd makeTpmBackEnd(String location);
+  }
+
+  /**
+   * Create a KeyChain to use the PIB and TPM defined by the given locators.
+   * This creates a security v2 KeyChain that uses CertificateV2, Pib, Tpm and
+   * Validator (instead of v1 Certificate, IdentityStorage, PrivateKeyStorage
+   * and PolicyManager).
+   * @param pibLocator The PIB locator, e.g., "pib-sqlite3:/example/dir".
+   * @param tpmLocator The TPM locator, e.g., "tpm-memory:".
+   * @param allowReset If true, the PIB will be reset when the supplied
+   * tpmLocator mismatches the one in the PIB.
+   * @throws KeyChain.LocatorMismatchError if the supplied TPM locator does not
+   * match the locator stored in the PIB.
+   */
+  public KeyChain(String pibLocator, String tpmLocator, boolean allowReset)
+    throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
+  {
+    isSecurityV1_ = false;
+    construct(pibLocator, tpmLocator, allowReset);
+  }
+
+  /**
+   * Create a KeyChain to use the PIB and TPM defined by the given locators.
+   * Don't allow resetting the PIB when the supplied tpmLocator mismatches the
+   * one in the PIB.
+   * This creates a security v2 KeyChain that uses CertificateV2, Pib, Tpm and
+   * Validator (instead of v1 Certificate, IdentityStorage, PrivateKeyStorage
+   * and PolicyManager).
+   * @param pibLocator The PIB locator, e.g., "pib-sqlite3:/example/dir".
+   * @param tpmLocator The TPM locator, e.g., "tpm-memory:".
+   * @throws KeyChain.LocatorMismatchError if the supplied TPM locator does not
+   * match the locator stored in the PIB.
+   */
+  public KeyChain(String pibLocator, String tpmLocator)
+    throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
+  {
+    isSecurityV1_ = false;
+    construct(pibLocator, tpmLocator, false);
+  }
+
+  /**
+   * This is a temporary constructor for the transition to security v2. This
+   * creates a security v2 KeyChain but still uses the v1 PolicyManager.
+   */
+  public KeyChain
+    (PibImpl pibImpl, TpmBackEnd tpmBackEnd, PolicyManager policyManager)
+    throws PibImpl.Error
+  {
+    isSecurityV1_ = false;
+    policyManager_ = policyManager;
+
+    pib_ = new Pib("", "", pibImpl);
+    tpm_ = new Tpm("", "", tpmBackEnd);
+  }
+
+  /**
+   * Create a new security v1 KeyChain with the given IdentityManager and
+   * PolicyManager. For security v2, use KeyChain(pibLocator, tpmLocator) or the
+   * default constructor if your .ndn folder is already initialized for v2.
    * @param identityManager An object of a subclass of IdentityManager.
    * @param policyManager An object of a subclass of PolicyManager.
    */
   public KeyChain
     (IdentityManager identityManager, PolicyManager policyManager)
   {
+    isSecurityV1_ = true;
+
     identityManager_ = identityManager;
     policyManager_ = policyManager;
   }
 
   /**
-   * Create a new KeyChain with the given IdentityManager and a
-   * NoVerifyPolicyManager.
+   * Create a new security v1 KeyChain with the given IdentityManager and a
+   * NoVerifyPolicyManager. For security v2, use KeyChain(pibLocator, tpmLocator)
+   * or the default constructor if your .ndn folder is already initialized for v2.
    * @param identityManager An object of a subclass of IdentityManager.
    */
   public KeyChain(IdentityManager identityManager)
   {
+    isSecurityV1_ = true;
+
     identityManager_ = identityManager;
     policyManager_ = new NoVerifyPolicyManager();
   }
 
   /**
-   * Create a new KeyChain with the the default IdentityManager and a
-   * NoVerifyPolicyManager.
+   * Create a KeyChain with the default PIB and TPM, which are
+   * platform-dependent and can be overridden system-wide or individually by the
+   * user. This creates a security v2 KeyChain that uses CertificateV2, Pib, Tpm
+   * and Validator. However, if the default security v1 database file still
+   * exists, and the default security v2 database file does not yet exists,then
+   * assume that the system is running an older NFD and create a security v1
+   * KeyChain with the default IdentityManager and a NoVerifyPolicyManager.
    */
-  public KeyChain() throws SecurityException
+  public KeyChain() 
+    throws SecurityException, KeyChain.Error, PibImpl.Error, IOException
   {
-    identityManager_ = new IdentityManager();
-    policyManager_ = new NoVerifyPolicyManager();
+    isSecurityV1_ = false;
+
+    if (BasicIdentityStorage.getDefaultDatabaseFilePath().exists() &&
+        !PibSqlite3.getDefaultDatabaseFilePath().exists()) {
+      // The security v1 SQLite file still exists and the security v2 does not yet.
+      isSecurityV1_ = true;
+      identityManager_ = new IdentityManager();
+      policyManager_ = new NoVerifyPolicyManager();
+
+      return;
+    }
+
+    construct("", "", true);
   }
+
+  public final Pib
+  getPib()
+  {
+    if (isSecurityV1_)
+      throw new AssertionError("getPib is not supported for security v1");
+
+    return pib_;
+  }
+
+  public final Tpm
+  getTpm()
+  {
+    if (isSecurityV1_)
+      throw new AssertionError("getTpm is not supported for security v1");
+
+    return tpm_;
+  }
+
+  // Identity management
+
+  /**
+   * Create a security V2 identity for identityName. This method will check if
+   * the identity exists in PIB and whether the identity has a default key and
+   * default certificate. If the identity does not exist, this method will
+   * create the identity in PIB. If the identity's default key does not exist,
+   * this method will create a key pair and set it as the identity's default
+   * key. If the key's default certificate is missing, this method will create a
+   * self-signed certificate for the key. If identityName did not exist and no
+   * default identity was selected before, the created identity will be set as
+   * the default identity.
+   * @param identityName The name of the identity.
+   * @param params The key parameters if a key needs to be generated for the
+   *   identity.
+   * @return The created PibIdentity instance.
+   */
+  public final PibIdentity
+  createIdentityV2(Name identityName, KeyParams params)
+    throws PibImpl.Error, Pib.Error, Tpm.Error, TpmBackEnd.Error, Error
+  {
+    PibIdentity id = pib_.addIdentity_(identityName);
+
+    PibKey key;
+    try {
+      key = id.getDefaultKey();
+    }
+    catch (Pib.Error ex) {
+      key = createKey(id, params);
+    }
+
+    try {
+      key.getDefaultCertificate();
+    }
+    catch (Pib.Error ex) {
+      Logger.getLogger(this.getClass().getName()).log
+        (Level.INFO, "No default cert for " + key.getName() +
+         ", requesting self-signing");
+      selfSign(key);
+    }
+
+    return id;
+  }
+
+  /**
+   * Create a security V2 identity for identityName. This method will check if
+   * the identity exists in PIB and whether the identity has a default key and
+   * default certificate. If the identity does not exist, this method will
+   * create the identity in PIB. If the identity's default key does not exist,
+   * this method will create a key pair using getDefaultKeyParams() and set it
+   * as the identity's default key. If the key's default certificate is missing,
+   * this method will create a self-signed certificate for the key. If
+   * identityName did not exist and no default identity was selected before, the
+   * created identity will be set as the default identity.
+   * @param identityName The name of the identity.
+   * @return The created Identity instance.
+   */
+  public final PibIdentity
+  createIdentityV2(Name identityName)
+    throws PibImpl.Error, Pib.Error, Tpm.Error, TpmBackEnd.Error, Error
+  {
+    return createIdentityV2(identityName, getDefaultKeyParams());
+  }
+
+  /**
+   * Delete the identity. After this operation, the identity is invalid.
+   * @param identity The identity to delete.
+   */
+  public final void
+  deleteIdentity(PibIdentity identity) throws PibImpl.Error, TpmBackEnd.Error
+  {
+    Name identityName = identity.getName();
+
+    ArrayList<Name> keyNames = identity.getKeys_().getKeyNames();
+    for (Name keyName : keyNames)
+      tpm_.deleteKey_(keyName);
+
+    pib_.removeIdentity_(identityName);
+    // TODO: Mark identity as invalid.
+  }
+
+  /**
+   * Set the identity as the default identity.
+   * @param identity The identity to make the default.
+   */
+  public final void
+  setDefaultIdentity(PibIdentity identity) throws PibImpl.Error, Pib.Error
+  {
+    pib_.setDefaultIdentity_(identity.getName());
+  }
+
+  // Key management
+
+  /**
+   * Create a key for the identity according to params. If the identity had no
+   * default key selected, the created key will be set as the default for this
+   * identity. This method will also create a self-signed certificate for the
+   * created key.
+   * @param identity A valid PibIdentity object.
+   * @param params The key parameters if a key needs to be generated for the
+   * identity.
+   * @return The new PibKey.
+   */
+  public final PibKey
+  createKey(PibIdentity identity, KeyParams params)
+    throws Tpm.Error, TpmBackEnd.Error, PibImpl.Error, Pib.Error, KeyChain.Error
+  {
+    // Create the key in the TPM.
+    Name keyName = tpm_.createKey_(identity.getName(), params);
+
+    // Set up the key info in the PIB.
+    Blob publicKey = tpm_.getPublicKey(keyName);
+    PibKey key = identity.addKey_(publicKey.buf(), keyName);
+
+    Logger.getLogger(this.getClass().getName()).log
+      (Level.INFO,
+       "Requesting self-signing for newly created key " + key.getName().toUri());
+    selfSign(key);
+
+    return key;
+  }
+
+  /**
+   * Create a key for the identity according to getDefaultKeyParams(). If the
+   * identity had no default key selected, the created key will be set as the
+   * default for this identity. This method will also create a self-signed
+   * certificate for the created key.
+   * @param identity A valid PibIdentity object.
+   * @return The new PibKey.
+   */
+  public final PibKey
+  createKey(PibIdentity identity)
+    throws Tpm.Error, TpmBackEnd.Error, PibImpl.Error, Pib.Error, KeyChain.Error
+  {
+    return createKey(identity, getDefaultKeyParams());
+  }
+
+  /**
+   * Delete the given key of the given identity. The key becomes invalid.
+   * @param identity A valid PibIdentity object.
+   * @param key The key to delete.
+   * @throws IllegalArgumentException If the key does not belong to the identity.
+   */
+  public final void
+  deleteKey(PibIdentity identity, PibKey key)
+    throws PibImpl.Error, TpmBackEnd.Error
+  {
+    Name keyName = key.getName();
+    if (!identity.getName().equals(key.getIdentityName()))
+      throw new IllegalArgumentException("Identity `" +
+        identity.getName().toUri() + "` does not match key `" +
+        keyName.toUri() + "`");
+
+    identity.removeKey_(keyName);
+    tpm_.deleteKey_(keyName);
+  }
+
+  /**
+   * Set the key as the default key of identity.
+   * @param identity A valid PibIdentity object.
+   * @param key The key to become the default.
+   * @throws IllegalArgumentException If the key does not belong to the identity.
+   */
+  public final void
+  setDefaultKey(PibIdentity identity, PibKey key) throws Pib.Error, PibImpl.Error
+  {
+    if (!identity.getName().equals(key.getIdentityName()))
+      throw new IllegalArgumentException("Identity `" + identity.getName().toUri() +
+        "` does not match key `" + key.getName().toUri() + "`");
+
+    identity.setDefaultKey_(key.getName());
+  }
+
+  // Certificate management
+
+  /**
+   * Add a certificate for the key. If the key had no default certificate
+   * selected, the added certificate will be set as the default certificate for
+   * this key.
+   * @param key A valid PibKey object.
+   * @param certificate The certificate to add. This copies the object.
+   * @note This method overwrites a certificate with the same name, without
+   * considering the implicit digest.
+   * @throws IllegalArgumentException If the key does not match the certificate.
+   */
+  public final void
+  addCertificate(PibKey key, CertificateV2 certificate)
+    throws CertificateV2.Error, PibImpl.Error
+  {
+    if (!key.getName().equals(certificate.getKeyName()) ||
+        !certificate.getContent().equals(key.getPublicKey()))
+      throw new IllegalArgumentException("Key `" + key.getName().toUri() +
+        "` does not match certificate `" + certificate.getKeyName().toUri() + "`");
+
+    key.addCertificate_(certificate);
+  }
+
+  /**
+   * Delete the certificate with the given name from the given key.
+   * If the certificate does not exist, this does nothing.
+   * @param key A valid PibKey object.
+   * @param certificateName The name of the certificate to delete.
+   * @throws IllegalArgumentException If certificateName does not follow
+   * certificate naming conventions.
+   */
+  public final void
+  deleteCertificate(PibKey key, Name certificateName) throws PibImpl.Error
+  {
+    if (!CertificateV2.isValidName(certificateName))
+      throw new IllegalArgumentException("Wrong certificate name `" +
+        certificateName.toUri() + "`");
+
+    key.removeCertificate_(certificateName);
+  }
+
+  /**
+   * Set the certificate as the default certificate of the key. The certificate
+   * will be added to the key, potentially overriding an existing certificate if
+   * it has the same name (without considering implicit digest).
+   * @param key A valid PibKey object.
+   * @param certificate The certificate to become the default. This copies the
+   * object.
+   */
+  public final void
+  setDefaultCertificate(PibKey key, CertificateV2 certificate)
+    throws PibImpl.Error, CertificateV2.Error, Pib.Error
+  {
+    // This replaces the certificate it it exists.
+    addCertificate(key, certificate);
+    key.setDefaultCertificate_(certificate.getName());
+  }
+
+  // Signing
+
+  /**
+   * Wire encode the Data object, sign it according to the supplied signing
+   * parameters, and set its signature.
+   * @param data The Data object to be signed.  This updates its signature and
+   * key locator field and wireEncoding.
+   * @param params The signing parameters.
+   * @param wireFormat A WireFormat object used to encode the input.
+   * @throws KeyChain.Error if signing fails.
+   * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
+   * identity, key or certificate specified in params does not exist.
+   */
+  public final void
+  sign(Data data, SigningInfo params, WireFormat wireFormat)
+    throws TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
+  {
+    Name[] keyName = new Name[1];
+    Signature signatureInfo = prepareSignatureInfo(params, keyName);
+
+    data.setSignature(signatureInfo);
+
+    // Encode once to get the signed portion.
+    SignedBlob encoding = data.wireEncode(wireFormat);
+
+    Blob signatureBytes = sign
+      (encoding.signedBuf(), keyName[0], params.getDigestAlgorithm());
+    data.getSignature().setSignature(signatureBytes);
+
+    // Encode again to include the signature.
+    data.wireEncode(wireFormat);
+  }
+
+  /**
+   * Wire encode the Data object, sign it according to the supplied signing
+   * parameters, and set its signature.
+   * Use the default WireFormat.getDefaultWireFormat()
+   * @param data The Data object to be signed.  This updates its signature and
+   * key locator field and wireEncoding.
+   * @param params The signing parameters.
+   * @throws KeyChain.Error if signing fails.
+   * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
+   * identity, key or certificate specified in params does not exist.
+   */
+  public final void
+  sign(Data data, SigningInfo params)
+    throws TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
+  {
+    sign(data, params, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Wire encode the Data object, sign it with the default key of the default
+   * identity, and set its signature.
+   * If this is a security v1 KeyChain then use the IdentityManager to get the
+   * default identity. Otherwise use the PIB.
+   * @param data The Data object to be signed.  This updates its signature and
+   * key locator field and wireEncoding.
+   * @param wireFormat A WireFormat object used to encode the input.
+   */
+  public final void
+  sign(Data data, WireFormat wireFormat)
+    throws SecurityException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
+  {
+    if (isSecurityV1_) {
+      identityManager_.signByCertificate
+        (data, prepareDefaultCertificateName(), wireFormat);
+      return;
+    }
+
+    sign(data, defaultSigningInfo_, wireFormat);
+  }
+
+  /**
+   * Wire encode the Data object, sign it with the default key of the default
+   * identity, and set its signature.
+   * If this is a security v1 KeyChain then use the IdentityManager to get the
+   * default identity. Otherwise use the PIB.
+   * Use the default WireFormat.getDefaultWireFormat()
+   * @param data The Data object to be signed.  This updates its signature and
+   * key locator field and wireEncoding.
+   */
+  public final void
+  sign(Data data)
+    throws SecurityException, TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
+  {
+    sign(data, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Sign the Interest according to the supplied signing parameters. Append a
+   * SignatureInfo to the Interest name, sign the encoded name components and
+   * append a final name component with the signature bits.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param params The signing parameters.
+   * @param wireFormat A WireFormat object used to encode the input and encode
+   * the appended components.
+   * @throws KeyChain.Error if signing fails.
+   * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
+   * identity, key or certificate specified in params does not exist.
+   */
+  public final void
+  sign(Interest interest, SigningInfo params, WireFormat wireFormat)
+    throws PibImpl.Error, KeyChain.Error, TpmBackEnd.Error
+  {
+    Name[] keyName = new Name[1];
+    Signature signatureInfo = prepareSignatureInfo(params, keyName);
+
+    // Append the encoded SignatureInfo.
+    interest.getName().append(wireFormat.encodeSignatureInfo(signatureInfo));
+
+    // Append an empty signature so that the "signedPortion" is correct.
+    interest.getName().append(new Name.Component());
+    // Encode once to get the signed portion, and sign.
+    SignedBlob encoding = interest.wireEncode(wireFormat);
+    Blob signatureBytes = sign
+      (encoding.signedBuf(), keyName[0], params.getDigestAlgorithm());
+    signatureInfo.setSignature(signatureBytes);
+
+    // Remove the empty signature and append the real one.
+    interest.setName(interest.getName().getPrefix(-1).append
+      (wireFormat.encodeSignatureValue(signatureInfo)));
+  }
+
+  /**
+   * Sign the Interest according to the supplied signing parameters. Append a
+   * SignatureInfo to the Interest name, sign the encoded name components and
+   * append a final name component with the signature bits.
+   * Use the default WireFormat.getDefaultWireFormat()
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param params The signing parameters.
+   * @throws KeyChain.Error if signing fails.
+   * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
+   * identity, key or certificate specified in params does not exist.
+   */
+  public final void
+  sign(Interest interest, SigningInfo params)
+    throws PibImpl.Error, KeyChain.Error, TpmBackEnd.Error
+  {
+    sign(interest, params, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Sign the Interest with the default key of the default identity. Append a
+   * SignatureInfo to the Interest name, sign the encoded name components and
+   * append a final name component with the signature bits.
+   * If this is a security v1 KeyChain then use the IdentityManager to get the
+   * default identity. Otherwise use the PIB.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   * @param wireFormat A WireFormat object used to encode the input and encode
+   * the appended components.
+   */
+  public final void
+  sign(Interest interest, WireFormat wireFormat)
+    throws PibImpl.Error, KeyChain.Error, TpmBackEnd.Error, SecurityException
+  {
+    if (isSecurityV1_) {
+      identityManager_.signInterestByCertificate
+        (interest, prepareDefaultCertificateName(), wireFormat);
+      return;
+    }
+
+    sign(interest, defaultSigningInfo_, wireFormat);
+  }
+
+  /**
+   * Sign the Interest with the default key of the default identity. Append a
+   * SignatureInfo to the Interest name, sign the encoded name components and
+   * append a final name component with the signature bits.
+   * Use the default WireFormat.getDefaultWireFormat()
+   * If this is a security v1 KeyChain then use the IdentityManager to get the
+   * default identity. Otherwise use the PIB.
+   * @param interest The Interest object to be signed. This appends name
+   * components of SignatureInfo and the signature bits.
+   */
+  public final void
+  sign(Interest interest)
+    throws PibImpl.Error, KeyChain.Error, TpmBackEnd.Error, SecurityException
+  {
+    sign(interest, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Sign the byte buffer according to the supplied signing parameters.
+   * @param buffer The byte buffer to be signed.
+   * @param params The signing parameters. If params refers to an identity, this 
+   * selects the default key of the identity. If params refers to a key or
+   * certificate, this selects the corresponding key.
+   * @return The signature Blob, or an isNull Blob if params.getDigestAlgorithm()
+   * is unrecognized.
+   */
+  public final Blob
+  sign(ByteBuffer buffer, SigningInfo params)
+    throws PibImpl.Error, KeyChain.Error, TpmBackEnd.Error
+  {
+    Name[] keyName = new Name[1];
+    Signature signatureInfo = prepareSignatureInfo(params, keyName);
+
+    return sign(buffer, keyName[0], params.getDigestAlgorithm());
+  }
+
+  /**
+   * Sign the byte buffer using the default key of the default identity.
+   * @param buffer The byte buffer to be signed.
+   * @return The signature Blob.
+   */
+  public final Blob
+  sign(ByteBuffer buffer)
+    throws PibImpl.Error, KeyChain.Error, TpmBackEnd.Error
+  {
+    return sign(buffer, defaultSigningInfo_);
+  }
+
+  /**
+   * Generate a self-signed certificate for the public key and add it to the
+   * PIB. This creates the certificate name from the key name by appending
+   * "self" and a version based on the current time. If no default certificate
+   * for the key has been set, then set the certificate as the default for the
+   * key.
+   * @param key The PibKey with the key name and public key.
+   * @return The new certificate.
+   */
+  public final CertificateV2
+  selfSign(PibKey key) throws PibImpl.Error, KeyChain.Error, TpmBackEnd.Error
+  {
+    CertificateV2 certificate = new CertificateV2();
+
+    // Set the name.
+    double now = Common.getNowMilliseconds();
+    Name certificateName = new Name(key.getName());
+    certificateName.append("self").appendVersion((long)now);
+    certificate.setName(certificateName);
+
+    // Set the MetaInfo.
+    certificate.getMetaInfo().setType(ContentType.KEY);
+    // Set a one-hour freshness period.
+    certificate.getMetaInfo().setFreshnessPeriod(3600 * 1000.0);
+
+    // Set the content.
+    certificate.setContent(key.getPublicKey());
+
+    // Set the signature-info.
+    SigningInfo signingInfo = new SigningInfo(key);
+    Name[] dummyKeyName = new Name[1];
+    certificate.setSignature(prepareSignatureInfo(signingInfo, dummyKeyName));
+    // Set a 20-year validity period.
+    ValidityPeriod.getFromSignature(certificate.getSignature()).setPeriod
+      (now, now + 20 * 365 * 24 * 3600 * 1000.0);
+
+    sign(certificate, signingInfo);
+
+    try {
+      key.addCertificate_(certificate);
+    } catch (CertificateV2.Error ex) {
+      // We don't expect this since we just created the certificate.
+      throw new Error("Error encoding certificate: " + ex);
+    }
+    return certificate;
+  }
+
+  // Import and export
+
+  /**
+   * Import a certificate and its corresponding private key encapsulated in a
+   * SafeBag. If the certificate and key are imported properly, the default
+   * setting will be updated as if a new key and certificate is added into this
+   * KeyChain.
+   * @param safeBag The SafeBag containing the certificate and private key. This
+   * copies the values from the SafeBag.
+   * @param password The password for decrypting the private key. If the
+   * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
+   * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
+   * @throws KeyChain.Error if the private key cannot be imported, or if a
+   * public key or private key of the same name already exists, or if a
+   * certificate of the same name already exists.
+   */
+  public final void
+  importSafeBag(SafeBag safeBag, ByteBuffer password)
+    throws KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error, PibImpl.Error,
+      Pib.Error
+  {
+    CertificateV2 certificate = new CertificateV2(safeBag.getCertificate());
+    Name identity = certificate.getIdentity();
+    Name keyName = certificate.getKeyName();
+    Blob publicKeyBits = certificate.getPublicKey();
+
+    if (tpm_.hasKey(keyName))
+      throw new KeyChain.Error("Private key `" + keyName.toUri() +
+        "` already exists");
+
+    try {
+      PibIdentity existingId = pib_.getIdentity(identity);
+      existingId.getKey(keyName);
+      throw new KeyChain.Error("Public key `" + keyName.toUri() +
+        "` already exists");
+    } catch (Pib.Error ex) {
+      // Either the identity or the key doesn't exist, so OK to import.
+    }
+
+    try {
+      tpm_.importPrivateKey_(keyName, safeBag.getPrivateKeyBag().buf(), password);
+    } catch (Exception ex) {
+      throw new KeyChain.Error("Failed to import private key `" +
+        keyName.toUri() + "`");
+    }
+
+    // Check the consistency of the private key and certificate.
+    Blob content = new Blob(new int[] {0x01, 0x02, 0x03, 0x04});
+    Blob signatureBits;
+    try {
+      signatureBits = tpm_.sign(content.buf(), keyName, DigestAlgorithm.SHA256);
+    } catch (Exception ex) {
+      tpm_.deleteKey_(keyName);
+      throw new KeyChain.Error("Invalid private key `" + keyName.toUri() + "`");
+    }
+
+    PublicKey publicKey;
+    try {
+      publicKey = new PublicKey(publicKeyBits);
+    } catch (UnrecognizedKeyFormatException ex) {
+      // Promote to Pib.Error.
+      tpm_.deleteKey_(keyName);
+      throw new Pib.Error("Error decoding public key " + ex);
+    }
+    // TODO: Move verify into PublicKey?
+    boolean isVerified = false;
+    try {
+      if (publicKey.getKeyType() == KeyType.ECDSA) {
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        java.security.PublicKey publicKeyImpl = keyFactory.generatePublic
+          (new X509EncodedKeySpec(publicKey.getKeyDer().getImmutableArray()));
+        java.security.Signature signatureImpl =
+          java.security.Signature.getInstance("SHA256withECDSA");
+        signatureImpl.initVerify(publicKeyImpl);
+        signatureImpl.update(content.buf());
+        isVerified = signatureImpl.verify(signatureBits.getImmutableArray());
+      }
+      else if (publicKey.getKeyType() == KeyType.RSA) {
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        java.security.PublicKey publicKeyImpl = keyFactory.generatePublic
+          (new X509EncodedKeySpec(publicKey.getKeyDer().getImmutableArray()));
+        java.security.Signature signatureImpl =
+          java.security.Signature.getInstance("SHA256withRSA");
+        signatureImpl.initVerify(publicKeyImpl);
+        signatureImpl.update(content.buf());
+        isVerified = signatureImpl.verify(signatureBits.getImmutableArray());
+      }
+      else
+        // We don't expect this.
+        throw new AssertionError("Unrecognized key type");
+    } catch (Exception ex) {
+      // Promote to Pib.Error.
+      tpm_.deleteKey_(keyName);
+      throw new Pib.Error("Error verifying with the public key " + ex);
+    }
+
+    if (!isVerified) {
+      tpm_.deleteKey_(keyName);
+      throw new KeyChain.Error("Certificate `" + certificate.getName().toUri() +
+        "` and private key `" + keyName.toUri() + "` do not match");
+    }
+
+    // The consistency is verified. Add to the PIB.
+    PibIdentity id = pib_.addIdentity_(identity);
+    PibKey key = id.addKey_(certificate.getPublicKey().buf(), keyName);
+    key.addCertificate_(certificate);
+  }
+
+  /**
+   * Import a certificate and its corresponding private key encapsulated in a
+   * SafeBag, with a null password which imports an unencrypted PKCS #8
+   * PrivateKeyInfo. If the certificate and key are imported properly, the
+   * default setting will be updated as if a new key and certificate is added
+   * into this KeyChain.
+   * @param safeBag The SafeBag containing the certificate and private key. This
+   * copies the values from the SafeBag.
+   * @throws KeyChain.Error if the private key cannot be imported, or if a
+   * public key or private key of the same name already exists, or if a
+   * certificate of the same name already exists.
+   */
+  public final void
+  importSafeBag(SafeBag safeBag)
+    throws KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error, PibImpl.Error,
+      Pib.Error
+  {
+    importSafeBag(safeBag, null);
+  }
+
+  // PIB & TPM backend registry
+
+  /**
+   * Add to the PIB factories map where scheme is the key and makePibImpl is the
+   * value. If your application has its own PIB implementations, this must be
+   * called before creating a KeyChain instance which uses your PIB scheme.
+   * @param scheme The PIB scheme.
+   * @param makePibImpl An interface with makePibImpl which takes the PIB
+   * location and returns a new PibImpl instance.
+   */
+  public static void
+  registerPibBackend(String scheme, MakePibImpl makePibImpl)
+  {
+    getPibFactories().put(scheme, makePibImpl);
+  }
+
+  /**
+   * Add to the TPM factories map where scheme is the key and makeTpmBackEnd is
+   * the value. If your application has its own TPM implementations, this must
+   * be called before creating a KeyChain instance which uses your TPM scheme.
+   * @param scheme The TPM scheme.
+   * @param makeTpmBackEnd An interface with makeTpmBackEnd which takes the TPM
+   * location and returns a new TpmBackEnd instance.
+   */
+  public static void
+  registerTpmBackend(String scheme, MakeTpmBackEnd makeTpmBackEnd)
+  {
+    getTpmFactories().put(scheme, makeTpmBackEnd);
+  }
+
+  // Security v1 methods
 
   /*****************************************
    *          Identity Management          *
    *****************************************/
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK. If a key pair or
+   * Create a security v1 identity by creating a pair of Key-Signing-Key (KSK)
+   * for this identity and a self-signed certificate of the KSK. If a key pair or
    * certificate for the identity already exists, use it.
    * @param identityName The name of the identity.
    * @param params The key parameters if a key needs to be generated for the
@@ -107,10 +925,10 @@ public class KeyChain {
   }
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
-   * to create the key if needed. If a key pair or certificate for the identity
-   * already exists, use it.
+   * Create a security v1 identity by creating a pair of Key-Signing-Key (KSK)
+   * for this identity and a self-signed certificate of the KSK. Use
+   * getDefaultKeyParams() to create the key if needed. If a key pair or
+   * certificate for the identity already exists, use it.
    * @param identityName The name of the identity.
    * @return The name of the default certificate of the identity.
    * @throws SecurityException if the identity has already been created.
@@ -118,12 +936,12 @@ public class KeyChain {
   public final Name
   createIdentityAndCertificate(Name identityName) throws SecurityException
   {
-    return createIdentityAndCertificate(identityName, DEFAULT_KEY_PARAMS);
+    return createIdentityAndCertificate(identityName, getDefaultKeyParams());
   }
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK.
+   * Create a security v1 identity by creating a pair of Key-Signing-Key (KSK)
+   * for this identity and a self-signed certificate of the KSK.
    * @deprecated Use createIdentityAndCertificate which returns the
    * certificate name instead of the key name.
    * @param identityName The name of the identity.
@@ -140,9 +958,9 @@ public class KeyChain {
   }
 
   /**
-   * Create an identity by creating a pair of Key-Signing-Key (KSK) for this
-   * identity and a self-signed certificate of the KSK. Use DEFAULT_KEY_PARAMS
-   * to create the key if needed.
+   * Create a security v1 identity by creating a pair of Key-Signing-Key (KSK)
+   * for this identity and a self-signed certificate of the KSK. Use
+   * getDefaultKeyParams() to create the key if needed.
    * @deprecated Use createIdentityAndCertificate which returns the
    * certificate name instead of the key name.
    * @param identityName The name of the identity.
@@ -165,6 +983,16 @@ public class KeyChain {
   public final void
   deleteIdentity(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      try {
+        deleteIdentity(pib_.getIdentity(identityName));
+      } catch (Pib.Error ex) {
+      } catch (PibImpl.Error ex) {
+      } catch (TpmBackEnd.Error ex) {
+      }
+      return;
+    }
+
     identityManager_.deleteIdentity(identityName);
   }
 
@@ -176,6 +1004,16 @@ public class KeyChain {
   public final Name
   getDefaultIdentity() throws SecurityException
   {
+    if (!isSecurityV1_) {
+      try {
+        return pib_.getDefaultIdentity().getName();
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in getDefaultIdentity: " + ex);
+      } catch (Pib.Error ex) {
+        throw new SecurityException("Error in getDefaultIdentity: " + ex);
+      }
+    }
+
     return identityManager_.getDefaultIdentity();
   }
 
@@ -189,6 +1027,17 @@ public class KeyChain {
   public final Name
   getDefaultCertificateName() throws SecurityException
   {
+    if (!isSecurityV1_) {
+      try {
+        return pib_.getDefaultIdentity().getDefaultKey().getDefaultCertificate()
+                .getName();
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in getDefaultCertificate: " + ex);
+      } catch (Pib.Error ex) {
+        throw new SecurityException("Error in getDefaultCertificate: " + ex);
+      }
+    }
+
     return identityManager_.getDefaultCertificateName();
   }
 
@@ -203,6 +1052,10 @@ public class KeyChain {
   generateRSAKeyPair
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPair(identityName, isKsk, keySize);
   }
 
@@ -216,6 +1069,10 @@ public class KeyChain {
   public final Name
   generateRSAKeyPair(Name identityName, boolean isKsk) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPair(identityName, isKsk);
   }
 
@@ -228,6 +1085,10 @@ public class KeyChain {
   public final Name
   generateRSAKeyPair(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPair(identityName);
   }
 
@@ -242,6 +1103,10 @@ public class KeyChain {
   generateEcdsaKeyPair
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPair(identityName, isKsk, keySize);
   }
 
@@ -255,6 +1120,10 @@ public class KeyChain {
   public final Name
   generateEcdsaKeyPair(Name identityName, boolean isKsk) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPair(identityName, isKsk);
   }
 
@@ -267,6 +1136,10 @@ public class KeyChain {
   public final Name
   generateEcdsaKeyPair(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPair is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPair(identityName);
   }
 
@@ -280,6 +1153,10 @@ public class KeyChain {
   public final void
   setDefaultKeyForIdentity(Name keyName, Name identityNameCheck) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("setDefaultKeyForIdentity is not supported for security v2. Use getPib() methods.");
+
     identityManager_.setDefaultKeyForIdentity(keyName, identityNameCheck);
   }
 
@@ -291,11 +1168,15 @@ public class KeyChain {
   public final void
   setDefaultKeyForIdentity(Name keyName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("setDefaultKeyForIdentity is not supported for security v2. Use getPib() methods.");
+
     identityManager_.setDefaultKeyForIdentity(keyName);
   }
 
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as
+   * Generate a pair of RSA keys for the specified identity and set it as the
    * default key for the identity.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -306,11 +1187,15 @@ public class KeyChain {
   generateRSAKeyPairAsDefault
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPairAsDefault(identityName, isKsk, keySize);
   }
 
   /**
-   * Generate a pair of RSA keys for the specified identity and set it as
+   * Generate a pair of RSA keys for the specified identity and set it as the
    * default key for the identity, using the default keySize 2048.
    * @param identityName The name of the identity.
    * @param isKsk true for generating a Key-Signing-Key (KSK), false for a Data-Signing-Key (KSK).
@@ -319,6 +1204,10 @@ public class KeyChain {
   public final Name
   generateRSAKeyPairAsDefault(Name identityName, boolean isKsk) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPairAsDefault(identityName, isKsk);
   }
 
@@ -332,6 +1221,10 @@ public class KeyChain {
   public final Name
   generateRSAKeyPairAsDefault(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateRSAKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateRSAKeyPairAsDefault(identityName);
   }
 
@@ -347,6 +1240,10 @@ public class KeyChain {
   generateEcdsaKeyPairAsDefault
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPairAsDefault(identityName, isKsk, keySize);
   }
 
@@ -360,6 +1257,10 @@ public class KeyChain {
   public final Name
   generateEcdsaKeyPairAsDefault(Name identityName, boolean isKsk) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPairAsDefault(identityName, isKsk);
   }
 
@@ -373,6 +1274,10 @@ public class KeyChain {
   public final Name
   generateEcdsaKeyPairAsDefault(Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("generateEcdsaKeyPairAsDefault is not supported for security v2. Use createIdentityV2.");
+
     return identityManager_.generateEcdsaKeyPairAsDefault(identityName);
   }
 
@@ -385,6 +1290,17 @@ public class KeyChain {
   public final Blob
   createSigningRequest(Name keyName) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      try {
+        return pib_.getIdentity(PibKey.extractIdentityFromKeyName(keyName))
+                .getKey(keyName).getPublicKey();
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in getKey: " + ex);
+      } catch (Pib.Error ex) {
+        throw new SecurityException("Error in getKey: " + ex);
+      }
+    }
+
     return identityManager_.getPublicKey(keyName).getKeyDer();
   }
 
@@ -395,6 +1311,10 @@ public class KeyChain {
   public final void
   installIdentityCertificate(IdentityCertificate certificate) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("installIdentityCertificate is not supported for security v2. Use getPib() methods.");
+
     identityManager_.addCertificate(certificate);
   }
 
@@ -405,6 +1325,10 @@ public class KeyChain {
   public final void
   setDefaultCertificateForKey(IdentityCertificate certificate) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("setDefaultCertificateForKey is not supported for security v2. Use getPib() methods.");
+
     identityManager_.setDefaultCertificateForKey(certificate);
   }
 
@@ -416,6 +1340,10 @@ public class KeyChain {
   public final IdentityCertificate
   getCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("getCertificate is not supported for security v2. Use getPib() methods.");
+
     return identityManager_.getCertificate(certificateName);
   }
 
@@ -425,6 +1353,10 @@ public class KeyChain {
   public final IdentityCertificate
   getIdentityCertificate(Name certificateName) throws SecurityException, DerDecodingException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("getIdentityCertificate is not supported for security v2. Use getPib() methods.");
+
     return identityManager_.getCertificate(certificateName);
   }
 
@@ -453,7 +1385,14 @@ public class KeyChain {
    * @return The identity manager.
    */
   public final IdentityManager
-  getIdentityManager() { return identityManager_; }
+  getIdentityManager()
+  {
+    if (!isSecurityV1_)
+      throw new AssertionError
+        ("getIdentityManager is not supported for security v2");
+
+    return identityManager_;
+  }
 
 
   /*****************************************
@@ -470,6 +1409,21 @@ public class KeyChain {
   public final void
   sign(Data data, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSigningCertificateName(certificateName);
+      try {
+        sign(data, signingInfo, wireFormat);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     identityManager_.signByCertificate(data, certificateName, wireFormat);
   }
 
@@ -487,33 +1441,6 @@ public class KeyChain {
   }
 
   /**
-   * Wire encode the Data object, sign it with the default identity and set its
-   * signature.
-   * @param data The Data object to be signed.  This updates its signature and
-   * key locator field and wireEncoding.
-   * @param wireFormat A WireFormat object used to encode the input.
-   */
-  public final void
-  sign(Data data, WireFormat wireFormat) throws SecurityException
-  {
-    identityManager_.signByCertificate
-      (data, prepareDefaultCertificateName(), wireFormat);
-  }
-
-  /**
-   * Wire encode the Data object, sign it with the default identity and set its
-   * signature.
-   * Use the default WireFormat.getDefaultWireFormat()
-   * @param data The Data object to be signed.  This updates its signature and
-   * key locator field and wireEncoding.
-   */
-  public final void
-  sign(Data data) throws SecurityException
-  {
-    sign(data, WireFormat.getDefaultWireFormat());
-  }
-
-  /**
    * Append a SignatureInfo to the Interest name, sign the name components and
    * append a final name component with the signature bits.
    * @param interest The Interest object to be signed. This appends name
@@ -524,6 +1451,21 @@ public class KeyChain {
   public final void
   sign(Interest interest, Name certificateName, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSigningCertificateName(certificateName);
+      try {
+        sign(interest, signingInfo, wireFormat);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     identityManager_.signInterestByCertificate
       (interest, certificateName, wireFormat);
   }
@@ -542,34 +1484,6 @@ public class KeyChain {
   }
 
   /**
-   * Append a SignatureInfo to the Interest name, sign the name components with
-   * the default identity and append a final name component with the signature
-   * bits.
-   * @param interest The Interest object to be signed. This appends name
-   * components of SignatureInfo and the signature bits.
-   * @param wireFormat A WireFormat object used to encode the input.
-   */
-  public final void
-  sign(Interest interest, WireFormat wireFormat) throws SecurityException
-  {
-    identityManager_.signInterestByCertificate
-      (interest, prepareDefaultCertificateName(), wireFormat);
-  }
-
-  /**
-   * Append a SignatureInfo to the Interest name, sign the name components with
-   * the default identity and append a final name component with the signature
-   * bits.
-   * @param interest The Interest object to be signed. This appends name
-   * components of SignatureInfo and the signature bits.
-   */
-  public final void
-  sign(Interest interest) throws SecurityException
-  {
-    sign(interest, WireFormat.getDefaultWireFormat());
-  }
-
-  /**
    * Sign the byte buffer using a certificate name and return a Signature object.
    * @param buffer The byte array to be signed.
    * @param certificateName The certificate name used to get the signing key and which will be put into KeyLocator.
@@ -578,6 +1492,10 @@ public class KeyChain {
   public Signature
   sign(ByteBuffer buffer, Name certificateName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("sign(buffer, certificateName) is not supported for security v2. Use sign with SigningInfo.");
+
     return identityManager_.signByCertificate(buffer, certificateName);
   }
 
@@ -593,6 +1511,21 @@ public class KeyChain {
   signByIdentity
     (Data data, Name identityName, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSigningIdentity(identityName);
+      try {
+        sign(data, signingInfo, wireFormat);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     Name signingCertificateName;
 
     if (identityName.size() == 0) {
@@ -653,6 +1586,10 @@ public class KeyChain {
   public Signature
   signByIdentity(ByteBuffer buffer, Name identityName) throws SecurityException
   {
+    if (!isSecurityV1_)
+      throw new SecurityException
+        ("signByIdentity(buffer, identityName) is not supported for security v2. Use sign with SigningInfo.");
+
     Name signingCertificateName =
       identityManager_.getDefaultCertificateNameForIdentity(identityName);
 
@@ -672,6 +1609,21 @@ public class KeyChain {
   public final void
   signWithSha256(Data data, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSha256Signing();
+      try {
+        sign(data, signingInfo, wireFormat);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     identityManager_.signWithSha256(data, wireFormat);
   }
 
@@ -698,6 +1650,21 @@ public class KeyChain {
   public final void
   signWithSha256(Interest interest, WireFormat wireFormat) throws SecurityException
   {
+    if (!isSecurityV1_) {
+      SigningInfo signingInfo = new SigningInfo();
+      signingInfo.setSha256Signing();
+      try {
+        sign(interest, signingInfo, wireFormat);
+      } catch (PibImpl.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      } catch (TpmBackEnd.Error ex) {
+        throw new SecurityException("Error in sign: " + ex);
+      }
+      return;
+    }
+
     identityManager_.signInterestWithSha256(interest, wireFormat);
   }
 
@@ -1003,7 +1970,399 @@ public class KeyChain {
       (data, key, WireFormat.getDefaultWireFormat());
   }
 
+  public static KeyParams
+  getDefaultKeyParams() { return defaultKeyParams_; }
+
+  /**
+   * @deprecated Use getDefaultKeyParams().
+   */
   public static final RsaKeyParams DEFAULT_KEY_PARAMS = new RsaKeyParams();
+
+  // Private security v2 methods
+
+  /**
+   * Do the work of the constructor.
+   */
+  private void
+  construct(String pibLocator, String tpmLocator, boolean allowReset)
+    throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
+  {
+    // PIB locator.
+    String[] pibScheme = new String[1];
+    String[] pibLocation = new String[1];
+    parseAndCheckPibLocator(pibLocator, pibScheme, pibLocation);
+    String canonicalPibLocator = pibScheme[0] + ":" + pibLocation[0];
+
+    // Create the PIB.
+    pib_ = createPib(canonicalPibLocator);
+    String oldTpmLocator = "";
+    try {
+      oldTpmLocator = pib_.getTpmLocator();
+    }
+    catch (Pib.Error ex) {
+      // The TPM locator is not set in the PIB yet.
+    }
+
+    // TPM locator.
+    String[] tpmScheme = new String[1];
+    String[] tpmLocation = new String[1];
+    parseAndCheckTpmLocator(tpmLocator, tpmScheme, tpmLocation);
+    String canonicalTpmLocator = tpmScheme[0] + ":" + tpmLocation[0];
+
+    ConfigFile config = new ConfigFile();
+    if (canonicalPibLocator.equals(getDefaultPibLocator(config))) {
+      // The default PIB must use the default TPM.
+      if (!oldTpmLocator.equals("") &&
+          !oldTpmLocator.equals(getDefaultTpmLocator(config))) {
+        pib_.reset_();
+        canonicalTpmLocator = getDefaultTpmLocator(config);
+      }
+    }
+    else {
+      // Check the consistency of the non-default PIB.
+      if (!oldTpmLocator.equals("") &&
+          !oldTpmLocator.equals(canonicalTpmLocator)) {
+        if (allowReset)
+          pib_.reset_();
+        else
+          throw new LocatorMismatchError
+            ("The supplied TPM locator does not match the TPM locator in the PIB: " +
+             oldTpmLocator + " != " + canonicalTpmLocator);
+      }
+    }
+
+    // Note that a key mismatch may still happen if the TPM locator is initially
+    // set to a wrong one or if the PIB was shared by more than one TPM before.
+    // This is due to the old PIB not having TPM info. The new PIB should not
+    // have this problem.
+    tpm_ = createTpm(canonicalTpmLocator);
+    pib_.setTpmLocator(canonicalTpmLocator);
+  }
+
+  /**
+   * Get the PIB factories map. On the first call, this initializes the map with
+   * factories for standard PibImpl implementations.
+   * @return A map where the key is the scheme string and the value is the
+   * object implementing makePibImpl.
+   */
+  private static HashMap<String, MakePibImpl>
+  getPibFactories()
+  {
+    if (pibFactories_ == null) {
+      pibFactories_ = new HashMap<String, MakePibImpl>();
+
+      // Add the standard factories.
+      pibFactories_.put(PibSqlite3.getScheme(), new MakePibImpl() {
+        public PibImpl makePibImpl(String location) throws PibImpl.Error {
+          return new PibSqlite3(location);
+        }
+      });
+      pibFactories_.put(PibMemory.getScheme(), new MakePibImpl() {
+        public PibImpl makePibImpl(String location) throws PibImpl.Error {
+          return new PibMemory();
+        }
+      });
+    }
+
+    return pibFactories_;
+  }
+
+  /**
+   * Get the TPM factories map. On the first call, this initializes the map with
+   * factories for standard TpmBackEnd implementations.
+   * @return A map where the key is the scheme string and the value is the
+   * object implementing makeTpmBackEnd.
+   */
+  private static HashMap<String, MakeTpmBackEnd>
+  getTpmFactories()
+  {
+    if (tpmFactories_ == null) {
+      tpmFactories_ = new HashMap<String, MakeTpmBackEnd>();
+
+      // Add the standard factories.
+      tpmFactories_.put(TpmBackEndFile.getScheme(), new MakeTpmBackEnd() {
+        public TpmBackEnd makeTpmBackEnd(String location) {
+          return new TpmBackEndFile(location);
+        }
+      });
+      tpmFactories_.put(TpmBackEndMemory.getScheme(), new MakeTpmBackEnd() {
+        public TpmBackEnd makeTpmBackEnd(String location) {
+          return new TpmBackEndMemory();
+        }
+      });
+    }
+
+    return tpmFactories_;
+  }
+
+  /**
+   * Parse the uri and set the scheme and location.
+   * @param uri The URI to parse.
+   * @param scheme Set scheme[0] to the scheme.
+   * @param location Set location[0] to the location.
+   */
+  private static void
+  parseLocatorUri(String uri, String[] scheme, String[] location)
+  {
+    int iColon = uri.indexOf(':');
+    if (iColon >= 0) {
+      scheme[0] = uri.substring(0, iColon);
+      location[0] = uri.substring(iColon + 1);
+    }
+    else {
+      scheme[0] = uri;
+      location[0] = "";
+    }
+  }
+
+  /**
+   * Parse the pibLocator and set the pibScheme and pibLocation.
+   * @param pibLocator The PIB locator to parse.
+   * @param pibScheme Set pibScheme[0] to the PIB scheme.
+   * @param pibLocation Set pibLocation[0] to the PIB location.
+   */
+  private static void
+  parseAndCheckPibLocator
+    (String pibLocator, String[] pibScheme, String[] pibLocation)
+    throws KeyChain.Error
+  {
+    parseLocatorUri(pibLocator, pibScheme, pibLocation);
+
+    if (pibScheme[0].equals(""))
+      pibScheme[0] = getDefaultPibScheme();
+
+    if (!getPibFactories().containsKey(pibScheme[0]))
+      throw new KeyChain.Error("PIB scheme `" + pibScheme[0] +
+        "` is not supported");
+  }
+
+  /**
+   * Parse the tpmLocator and set the tpmScheme and tpmLocation.
+   * @param tpmLocator The TPM locator to parse.
+   * @param tpmScheme Set tpmScheme[0] to the TPM scheme.
+   * @param tpmLocation Set tpmLocation[0] to the TPM location.
+   */
+  private static void
+  parseAndCheckTpmLocator
+    (String tpmLocator, String[] tpmScheme, String[] tpmLocation)
+    throws SecurityException, Error
+  {
+    parseLocatorUri(tpmLocator, tpmScheme, tpmLocation);
+
+    if (tpmScheme[0].equals(""))
+      tpmScheme[0] = getDefaultTpmScheme();
+
+    if (!getTpmFactories().containsKey(tpmScheme[0]))
+      throw new KeyChain.Error("TPM scheme `" + tpmScheme[0] +
+        "` is not supported");
+  }
+
+  private static String
+  getDefaultPibScheme() { return PibSqlite3.getScheme(); }
+
+  private static String
+  getDefaultTpmScheme() throws SecurityException
+  {
+    if (Common.platformIsOSX())
+      throw new SecurityException
+        ("TpmBackEndOsx is not implemented yet. You must use tpm-file.");
+
+    return TpmBackEndFile.getScheme();
+  }
+
+  /**
+   * Create a Pib according to the pibLocator
+   * @param pibLocator The PIB locator, e.g., "pib-sqlite3:/example/dir".
+   * @return A new Pib object.
+   */
+  private static Pib
+  createPib(String pibLocator) throws KeyChain.Error, PibImpl.Error
+  {
+    String[] pibScheme = new String[1];
+    String[] pibLocation = new String[1];
+    parseAndCheckPibLocator(pibLocator, pibScheme, pibLocation);
+    MakePibImpl pibFactory = getPibFactories().get(pibScheme[0]);
+    return new Pib
+      (pibScheme[0], pibLocation[0], pibFactory.makePibImpl(pibLocation[0]));
+  }
+
+  /**
+   * Create a Tpm according to the tpmLocator
+   * @param tpmLocator The TPM locator, e.g., "tpm-memory:".
+   * @return A new Tpm object.
+   */
+  private static Tpm
+  createTpm(String tpmLocator) throws SecurityException, KeyChain.Error
+  {
+    String[] tpmScheme = new String[1];
+    String[] tpmLocation = new String[1];
+    parseAndCheckTpmLocator(tpmLocator, tpmScheme, tpmLocation);
+    MakeTpmBackEnd tpmFactory = getTpmFactories().get(tpmScheme[0]);
+    return new Tpm
+      (tpmScheme[0], tpmLocation[0], tpmFactory.makeTpmBackEnd(tpmLocation[0]));
+  }
+
+  private static String
+  getDefaultPibLocator(ConfigFile config)
+  {
+    if (defaultPibLocator_ != null)
+      return defaultPibLocator_;
+
+    String clientPib = System.getenv("NDN_CLIENT_PIB");
+    if (clientPib != null && clientPib != "")
+      defaultPibLocator_ = clientPib;
+    else
+      defaultPibLocator_ = config.get("pib", getDefaultPibScheme() + ":");
+
+    return defaultPibLocator_;
+  }
+
+  private static String
+  getDefaultTpmLocator(ConfigFile config) throws SecurityException
+  {
+    if (defaultTpmLocator_ != null)
+      return defaultTpmLocator_;
+
+    String clientTpm = System.getenv("NDN_CLIENT_TPM");
+    if (clientTpm != null && clientTpm != "")
+      defaultTpmLocator_ = clientTpm;
+    else
+      defaultTpmLocator_ = config.get("tpm", getDefaultTpmScheme() + ":");
+
+    return defaultTpmLocator_;
+  }
+
+  /**
+   * Prepare a Signature object according to signingInfo and get the signing key
+   * name.
+   * @param params The signing parameters.
+   * @param keyName Set keyName[0] to the signing key name.
+   * @return A new Signature object with the SignatureInfo.
+   * @throws InvalidSigningInfoError when the requested signing method cannot be
+   * satisfied.
+   */
+  private Signature
+  prepareSignatureInfo(SigningInfo params, Name[] keyName) 
+    throws PibImpl.Error, InvalidSigningInfoError, KeyChain.Error
+  {
+    PibIdentity identity = null;
+    PibKey key = null;
+
+    if (params.getSignerType() == SignerType.NULL) {
+      try {
+        identity = pib_.getDefaultIdentity();
+      }
+      catch (Pib.Error ex) {
+        // There is no default identity, so use sha256 for signing.
+        keyName[0] = SigningInfo.getDigestSha256Identity();
+        return new DigestSha256Signature();
+      }
+    }
+    else if (params.getSignerType() == SignerType.ID) {
+      identity = params.getPibIdentity();
+      if (identity == null) {
+        try {
+          identity = pib_.getIdentity(params.getSignerName());
+        }
+        catch (Pib.Error ex) {
+          throw new InvalidSigningInfoError
+            ("Signing identity `" + params.getSignerName().toUri() +
+             "` does not exist");
+        }
+      }
+    }
+    else if (params.getSignerType() == SignerType.KEY) {
+      key = params.getPibKey();
+      if (key == null) {
+        Name identityName = PibKey.extractIdentityFromKeyName
+          (params.getSignerName());
+
+        try {
+          identity = pib_.getIdentity(identityName);
+          key = identity.getKey(params.getSignerName());
+          // We will use the PIB key instance, so reset the identity.
+          identity = null;
+        }
+        catch (Pib.Error ex) {
+          throw new InvalidSigningInfoError
+            ("Signing key `" + params.getSignerName().toUri() +
+             "` does not exist");
+        }
+      }
+    }
+    else if (params.getSignerType() == SignerType.CERT) {
+      Name identityName = CertificateV2.extractIdentityFromCertName
+        (params.getSignerName());
+
+      try {
+        identity = pib_.getIdentity(identityName);
+        key = identity.getKey
+          (CertificateV2.extractKeyNameFromCertName(params.getSignerName()));
+      }
+      catch (Pib.Error ex) {
+        throw new InvalidSigningInfoError
+          ("Signing certificate `" + params.getSignerName().toUri() +
+           "` does not exist");
+      }
+    }
+    else if (params.getSignerType() == SignerType.SHA256) {
+      keyName[0] = SigningInfo.getDigestSha256Identity();
+      return new DigestSha256Signature();
+    }
+    else
+      // We don't expect this to happen.
+      throw new InvalidSigningInfoError("Unrecognized signer type");
+
+    if (identity == null && key == null)
+      throw new InvalidSigningInfoError("Cannot determine signing parameters");
+
+    if (identity != null && key == null) {
+      try {
+        key = identity.getDefaultKey();
+      }
+      catch (Pib.Error ex) {
+        throw new InvalidSigningInfoError
+          ("Signing identity `" + identity.getName().toUri() +
+           "` does not have default certificate");
+      }
+    }
+
+    Signature signatureInfo;
+
+    if (key.getKeyType() == KeyType.RSA)
+      signatureInfo = new Sha256WithRsaSignature();
+    else if (key.getKeyType() == KeyType.ECDSA)
+      signatureInfo = new Sha256WithEcdsaSignature();
+    else
+      throw new KeyChain.Error("Unsupported key type");
+
+    KeyLocator keyLocator = KeyLocator.getFromSignature(signatureInfo);
+    keyLocator.setType(KeyLocatorType.KEYNAME);
+    keyLocator.setKeyName(key.getName());
+
+    keyName[0] = key.getName();
+    return signatureInfo;
+  }
+
+  /**
+   * Sign the byte array using the key with name keyName.
+   * @param buffer The byte buffer to be signed.
+   * @param keyName The name of the key.
+   * @param digestAlgorithm The digest algorithm.
+   * @return The signature Blob, or an isNull Blob if the key does not exist, or
+   * for an unrecognized digestAlgorithm.
+   */
+  private Blob
+  sign(ByteBuffer buffer, Name keyName, DigestAlgorithm digestAlgorithm)
+    throws TpmBackEnd.Error
+  {
+    if (keyName.equals(SigningInfo.getDigestSha256Identity()))
+      return new Blob(Common.digestSha256(buffer));
+
+    return tpm_.sign(buffer, keyName, digestAlgorithm);
+  }
+
+  // Private security v1 methods
 
   /**
    * A VerifyCallbacks is used for callbacks from verifyData.
@@ -1182,8 +2541,21 @@ public class KeyChain {
     }
   }
 
-  private final IdentityManager identityManager_;
-  private final PolicyManager policyManager_;
-  private Face face_ = null;
+  private boolean isSecurityV1_;
+
+  private IdentityManager identityManager_; // for security v1
+  private PolicyManager policyManager_;     // for security v1
+  private Face face_ = null; // for security v1
+
+  private Pib pib_;
+  private Tpm tpm_;
+
+  private static String defaultPibLocator_ = null;
+  private static String defaultTpmLocator_ = null;
+  private static HashMap<String, MakePibImpl> pibFactories_ = null;
+  private static HashMap<String, MakeTpmBackEnd> tpmFactories_ = null;
+  private static final SigningInfo defaultSigningInfo_ = new SigningInfo();
+  private static final KeyParams defaultKeyParams_ = new RsaKeyParams();
+  
   private static final Logger logger_ = Logger.getLogger(KeyChain.class.getName());
 }

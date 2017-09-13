@@ -512,7 +512,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
 
       BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
       try{
-        String base64Data = Common.base64Encode(data);
+        String base64Data = Common.base64Encode(data, true);
         writer.write(base64Data, 0, base64Data.length());
         writer.flush();
       }

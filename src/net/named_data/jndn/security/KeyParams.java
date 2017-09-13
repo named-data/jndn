@@ -20,21 +20,63 @@
 
 package net.named_data.jndn.security;
 
+import net.named_data.jndn.Name;
+import net.named_data.jndn.util.Common;
+
 /**
  * KeyParams is a base class for key parameters. Its subclasses are used to
  * store parameters for key generation.
  */
 public class KeyParams {
-  public KeyType
-  getKeyType()
+  public final KeyType
+  getKeyType() { return keyType_; }
+
+  public final KeyIdType
+  getKeyIdType() { return keyIdType_; }
+
+  public final void
+  setKeyId(Name.Component keyId) { keyId_ = keyId; }
+
+  public final Name.Component
+  getKeyId() { return keyId_; }
+
+  /**
+   * Create a key generation parameter.
+   * @param keyType The type for the created key.
+   * @param keyIdType The method for how the key id should be generated, which
+   * must not be KeyIdType.USER_SPECIFIED.
+   * @throws AssertionError if keyIdType is KeyIdType.USER_SPECIFIED.
+   */
+  protected KeyParams(KeyType keyType, KeyIdType keyIdType)
   {
-    return keyType_;
+    if (keyIdType == KeyIdType.USER_SPECIFIED)
+      throw new AssertionError("KeyParams: KeyIdType is USER_SPECIFIED");
+
+    keyType_ = keyType;
+    keyIdType_ = keyIdType;
   }
 
-  protected KeyParams(KeyType keyType)
+  /**
+   * Create a key generation parameter.
+   * @param keyType The type for the created key.
+   * @param keyId The user-specified key ID. This sets the keyIdType to
+   * KeyIdType.USER_SPECIFIED. keyId must not be empty.
+   * @throws AssertionError if keyId is empty.
+   */
+  protected KeyParams(KeyType keyType, Name.Component keyId)
   {
+    if (keyId.getValue().size() == 0)
+      throw new AssertionError("KeyParams: keyId is empty");
+
     keyType_ = keyType;
+    keyIdType_ = KeyIdType.USER_SPECIFIED;
+    keyId_ = keyId;
   }
 
   private final KeyType keyType_;
+  private final KeyIdType keyIdType_;
+  private Name.Component keyId_ = new Name.Component();
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

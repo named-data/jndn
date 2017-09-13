@@ -20,16 +20,36 @@
 
 package net.named_data.jndn.security;
 
+import net.named_data.jndn.Name;
+
 public class RsaKeyParams extends KeyParams {
+  public RsaKeyParams(Name.Component keyId, int size)
+  {
+    super(getType(), keyId);
+    size_ = size;
+  }
+
+  public RsaKeyParams(Name.Component keyId)
+  {
+    super(getType(), keyId);
+    size_ = getDefaultSize();
+  }
+
+  public RsaKeyParams(int size, KeyIdType keyIdType)
+  {
+    super(getType(), keyIdType);
+    size_ = size;
+  }
+
   public RsaKeyParams(int size)
   {
-    super(getType());
+    super(getType(), KeyIdType.RANDOM);
     size_ = size;
   }
 
   public RsaKeyParams()
   {
-    super(getType());
+    super(getType(), KeyIdType.RANDOM);
     size_ = getDefaultSize();
   }
 
@@ -39,10 +59,10 @@ public class RsaKeyParams extends KeyParams {
     return size_;
   }
 
-  private static int
+  public static int
   getDefaultSize() { return 2048; }
 
-  private static KeyType
+  public static KeyType
   getType() { return KeyType.RSA; }
 
   private final int size_;

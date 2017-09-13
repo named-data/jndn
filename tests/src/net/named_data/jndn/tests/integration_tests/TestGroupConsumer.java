@@ -59,7 +59,9 @@ import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
 import net.named_data.jndn.security.identity.MemoryPrivateKeyStorage;
+import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
+import net.named_data.jndn.security.tpm.TpmBackEnd;
 import net.named_data.jndn.util.Blob;
 import org.junit.After;
 import org.junit.Before;
@@ -208,7 +210,7 @@ public class TestGroupConsumer implements Consumer.Friend {
   public void
   setUp()
     throws ConsumerDb.Error, NoSuchAlgorithmException,
-      InvalidKeySpecException, DerDecodingException
+      InvalidKeySpecException, DerDecodingException, SecurityException
   {
     // Don't show INFO log messages.
     Logger.getLogger("").setLevel(Level.WARNING);
@@ -462,7 +464,9 @@ public class TestGroupConsumer implements Consumer.Friend {
   testConsumerWithLink()
     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
       IllegalBlockSizeException, BadPaddingException,
-      InvalidAlgorithmParameterException, InvalidKeySpecException, SecurityException, ConsumerDb.Error
+      InvalidAlgorithmParameterException, InvalidKeySpecException, 
+      SecurityException, ConsumerDb.Error, TpmBackEnd.Error, PibImpl.Error,
+      KeyChain.Error
   {
     Data contentData = createEncryptedContent();
     Data cKeyData = createEncryptedCKey();
