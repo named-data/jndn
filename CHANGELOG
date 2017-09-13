@@ -14,7 +14,7 @@ Changes
 
 Deprecated
 * In Interest, deprecated link object and selected delegation methods.
-  Use forwarding hint. Refs #4251.
+  Use get/setForwardingHint.
 
 jNDN v0.15 (2017-03-16)
 -----------------------
