@@ -10,8 +10,9 @@ Changes
 * https://redmine.named-data.net/issues/4045 Major update to add security v2.
   Added CertificateV2, SafeBag and classes related to Pib and Tpm.
   In KeyChain, added security v2 constructors and methods.
+  The default KeyChain constructor checks for and uses security v2 storage.
   Updated ConfigPolicyManager to support CertficiateV2.
-  Updated SelfVerifyPolicyManager to support security V2 PibImpl,
+  Updated SelfVerifyPolicyManager to support security v2 PibImpl,
   Updated examples to use the security v2 KeyChain.
   Added security v2 unit and integration tests.
 * https://redmine.named-data.net/issues/3812 In encrypt GroupManager, save private
