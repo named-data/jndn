@@ -129,7 +129,7 @@ public class TestSigningInfo {
     assertEquals("cert:/my-cert",
       "" + new SigningInfo(SigningInfo.SignerType.CERT, new Name("/my-cert")));
     assertEquals("id:/localhost/identity/digest-sha256",
-      "" + new SigningInfo(SigningInfo.SignerType.SHA256).toString());
+      "" + new SigningInfo(SigningInfo.SignerType.SHA256));
   }
 
   @Test
