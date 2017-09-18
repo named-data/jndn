@@ -190,7 +190,7 @@ public class TpmBackEndFile extends TpmBackEnd {
     StringBuilder base64 = new StringBuilder();
     try {
       BufferedReader reader = new BufferedReader
-        (new FileReader(toFilePath(keyName)));
+        (new FileReader(toFilePath(keyName).getAbsolutePath()));
       // Use "try/finally instead of "try-with-resources" or "using"
       // which are not supported before Java 7.
       try {
@@ -226,7 +226,7 @@ public class TpmBackEndFile extends TpmBackEnd {
   private void
   saveKey(Name keyName, TpmPrivateKey key) throws TpmBackEnd.Error
   {
-    File filePath = toFilePath(keyName);
+    String filePath = toFilePath(keyName).getAbsolutePath();
     String base64;
     try {
       base64 = Common.base64Encode(key.toPkcs1().getImmutableArray(), true);
