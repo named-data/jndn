@@ -44,47 +44,7 @@ import net.named_data.jndn.util.Common;
  * in an SQLite3 database file. This provides more persistent storage than
  * PibMemory.
  */
-public class PibSqlite3 extends PibImpl {
-  protected static final String INITIALIZATION1 =
-"CREATE TABLE IF NOT EXISTS                         \n" +
-"  tpmInfo(                                         \n" +
-"    tpm_locator           BLOB                     \n" +
-"  );                                               \n";
-  protected static final String INITIALIZATION2 =
-"CREATE TABLE IF NOT EXISTS                         \n" +
-"  identities(                                      \n" +
-"    id                    INTEGER PRIMARY KEY,     \n" +
-"    identity              BLOB NOT NULL,           \n" +
-"    is_default            INTEGER DEFAULT 0        \n" +
-"  );                                               \n";
-  protected static final String INITIALIZATION3 =
-"CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
-"  identityIndex ON identities(identity);           \n";
-  protected static final String INITIALIZATION4 =
-"CREATE TABLE IF NOT EXISTS                         \n" +
-"  keys(                                            \n" +
-"    id                    INTEGER PRIMARY KEY,     \n" +
-"    identity_id           INTEGER NOT NULL,        \n" +
-"    key_name              BLOB NOT NULL,           \n" +
-"    key_bits              BLOB NOT NULL,           \n" +
-"    is_default            INTEGER DEFAULT 0        \n" +
-"  );                                               \n";
-  protected static final String INITIALIZATION5 =
-"CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
-"  keyIndex ON keys(key_name);                      \n";
-  protected static final String INITIALIZATION6 =
-"CREATE TABLE IF NOT EXISTS                         \n" +
-"  certificates(                                    \n" +
-"    id                    INTEGER PRIMARY KEY,     \n" +
-"    key_id                INTEGER NOT NULL,        \n" +
-"    certificate_name      BLOB NOT NULL,           \n" +
-"    certificate_data      BLOB NOT NULL,           \n" +
-"    is_default            INTEGER DEFAULT 0        \n" +
-"  );                                               \n";
-  protected static final String INITIALIZATION7 =
-"CREATE UNIQUE INDEX IF NOT EXISTS                  \n" +
-"  certIndex ON certificates(certificate_name);     \n";
-
+public class PibSqlite3 extends PibSqlite3Base {
   /**
    * Create a new PibSqlite3 to work with an SQLite3 file. This assumes that the
    * database directory does not contain a PIB database of an older version.
@@ -94,7 +54,8 @@ public class PibSqlite3 extends PibImpl {
    * databaseDirectoryPath.
    * @throws PibImpl.Error if initialization fails.
    */
-  public PibSqlite3(String databaseDirectoryPath, String databaseFilename) throws PibImpl.Error
+  public PibSqlite3(String databaseDirectoryPath, String databaseFilename)
+    throws PibImpl.Error
   {
     construct(databaseDirectoryPath, databaseFilename);
   }
@@ -125,7 +86,8 @@ public class PibSqlite3 extends PibImpl {
   }
 
   private void
-  construct(String databaseDirectoryPathIn, String databaseFilename) throws PibImpl.Error
+  construct(String databaseDirectoryPathIn, String databaseFilename)
+    throws PibImpl.Error
   {
     File databaseDirectoryPath;
     if (!databaseDirectoryPathIn.equals(""))
@@ -220,7 +182,7 @@ public class PibSqlite3 extends PibImpl {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT tpm_locator FROM tpmInfo");
+        (SELECT_getTpmLocator);
       try {
         ResultSet result = statement.executeQuery();
 
@@ -249,7 +211,7 @@ public class PibSqlite3 extends PibImpl {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT id FROM identities WHERE identity=?");
+        (SELECT_hasIdentity);
       statement.setBytes(1, identityName.wireEncode().getImmutableArray());
       try {
         ResultSet result = statement.executeQuery();
@@ -308,9 +270,7 @@ public class PibSqlite3 extends PibImpl {
       ArrayList<Integer> keyIds = new ArrayList<Integer>();
 
       PreparedStatement statement = database_.prepareStatement
-("SELECT keys.id " +
- "FROM keys JOIN identities ON keys.identity_id=identities.id " +
- "WHERE identities.identity=?");
+        (SELECT_removeIdentity);
       statement.setBytes(1, identityBytes);
 
       try {
@@ -324,7 +284,7 @@ public class PibSqlite3 extends PibImpl {
 
       for (int keyId : keyIds) {
         statement = database_.prepareStatement
-          ("DELETE FROM certificates WHERE key_id=?");
+          (DELETE_removeIdentity_certificates);
         statement.setInt(1, keyId);
         try {
           statement.executeUpdate();
@@ -334,7 +294,7 @@ public class PibSqlite3 extends PibImpl {
       }
 
       for (int keyId : keyIds) {
-        statement = database_.prepareStatement("DELETE FROM keys WHERE id=?");
+        statement = database_.prepareStatement(DELETE_removeIdentity_keys);
         statement.setInt(1, keyId);
         try {
           statement.executeUpdate();
@@ -344,8 +304,7 @@ public class PibSqlite3 extends PibImpl {
       }
 
       // Now, delete from identities.
-      statement = database_.prepareStatement
-        ("DELETE FROM identities WHERE identity=?");
+      statement = database_.prepareStatement(DELETE_removeIdentity_identity);
       statement.setBytes(1, identityBytes);
       try {
         statement.executeUpdate();
@@ -367,11 +326,11 @@ public class PibSqlite3 extends PibImpl {
     try {
       // We don't use triggers, so manually delete from keys and certificates.
       Statement statement = database_.createStatement();
-      statement.executeUpdate("DELETE FROM certificates");
-      statement.executeUpdate("DELETE FROM keys");
+      statement.executeUpdate(DELETE_clearIdentities_certificates);
+      statement.executeUpdate(DELETE_clearIdentities_keys);
 
       // Now, delete from identities.
-      statement.executeUpdate("DELETE FROM identities");
+      statement.executeUpdate(DELETE_clearIdentities_identities);
     } catch (SQLException exception) {
       throw new PibImpl.Error("PibSqlite3: SQLite error: " + exception);
     }
@@ -389,7 +348,7 @@ public class PibSqlite3 extends PibImpl {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT identity FROM identities");
+        (SELECT_getIdentities);
 
       try {
         ResultSet result = statement.executeQuery();
@@ -438,8 +397,7 @@ public class PibSqlite3 extends PibImpl {
       }
       
       // We don't use a trigger, so manually reset the previous default identity.
-      statement = database_.prepareStatement
-        ("UPDATE identities SET is_default=0 WHERE is_default=1");
+      statement = database_.prepareStatement(UPDATE_setDefaultIdentity_reset);
       try {
         statement.executeUpdate();
       } finally {
@@ -447,8 +405,7 @@ public class PibSqlite3 extends PibImpl {
       }
 
       // Now set the current default identity.
-      statement = database_.prepareStatement
-        ("UPDATE identities SET is_default=1 WHERE identity=?");
+      statement = database_.prepareStatement(UPDATE_setDefaultIdentity_set);
       statement.setBytes(1, identityBytes);
       try {
         statement.executeUpdate();
@@ -472,8 +429,7 @@ public class PibSqlite3 extends PibImpl {
     try {
       Statement statement = database_.createStatement();
       try {
-        ResultSet result = statement.executeQuery
-          ("SELECT identity FROM identities WHERE is_default=1");
+        ResultSet result = statement.executeQuery(SELECT_getDefaultIdentity);
 
         if (result.next()) {
           Name name = new Name();
@@ -507,8 +463,7 @@ public class PibSqlite3 extends PibImpl {
   hasKey(Name keyName) throws PibImpl.Error
   {
     try {
-      PreparedStatement statement = database_.prepareStatement
-        ("SELECT id FROM keys WHERE key_name=?");
+      PreparedStatement statement = database_.prepareStatement(SELECT_hasKey);
       statement.setBytes(1, keyName.wireEncode().getImmutableArray());
       try {
         ResultSet result = statement.executeQuery();
@@ -541,9 +496,7 @@ public class PibSqlite3 extends PibImpl {
 
     if (!hasKey(keyName)) {
       try {
-        PreparedStatement statement = database_.prepareStatement
-("INSERT INTO keys (identity_id, key_name, key_bits) " +
- "VALUES ((SELECT id FROM identities WHERE identity=?), ?, ?)");
+        PreparedStatement statement = database_.prepareStatement(INSERT_addKey);
         statement.setBytes(1, identityName.wireEncode().getImmutableArray());
         statement.setBytes(2, keyName.wireEncode().getImmutableArray());
         statement.setBytes(3, new Blob(key, false).getImmutableArray());
@@ -559,8 +512,7 @@ public class PibSqlite3 extends PibImpl {
     }
     else {
       try {
-        PreparedStatement statement = database_.prepareStatement
-          ("UPDATE keys SET key_bits=? WHERE key_name=?");
+        PreparedStatement statement = database_.prepareStatement(UPDATE_addKey);
         statement.setBytes(1, new Blob(key, false).getImmutableArray());
         statement.setBytes(2, keyName.wireEncode().getImmutableArray());
 
@@ -597,7 +549,7 @@ public class PibSqlite3 extends PibImpl {
     try {
       // We don't use triggers, so manually delete from certificates.
       PreparedStatement statement = database_.prepareStatement
-("DELETE FROM certificates WHERE key_id=(SELECT id FROM keys WHERE key_name=?)");
+        (DELETE_removeKey_certificates);
       statement.setBytes(1, keyNameBytes);
       try {
         statement.executeUpdate();
@@ -606,7 +558,7 @@ public class PibSqlite3 extends PibImpl {
       }
 
       // Now, delete from keys.
-      statement = database_.prepareStatement("DELETE FROM keys WHERE key_name=?");
+      statement = database_.prepareStatement(DELETE_removeKey_keys);
       statement.setBytes(1, keyNameBytes);
       try {
         statement.executeUpdate();
@@ -630,7 +582,7 @@ public class PibSqlite3 extends PibImpl {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT key_bits FROM keys WHERE key_name=?");
+        ("SELECT key_bits " + FROM_WHERE_getKeyBits);
       statement.setBytes(1, keyName.wireEncode().getImmutableArray());
 
       try {
@@ -664,9 +616,7 @@ public class PibSqlite3 extends PibImpl {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-("SELECT key_name " +
- "FROM keys JOIN identities ON keys.identity_id=identities.id " +
- "WHERE identities.identity=?");
+        (SELECT_getKeysOfIdentity);
       statement.setBytes(1, identityName.wireEncode().getImmutableArray());
 
       try {
@@ -709,7 +659,7 @@ public class PibSqlite3 extends PibImpl {
     try {
       // We don't use a trigger, so manually reset the previous default key.
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE keys SET is_default=0 WHERE is_default=1");
+        (UPDATE_setDefaultKeyOfIdentity_reset);
       try {
         statement.executeUpdate();
       } finally {
@@ -718,7 +668,7 @@ public class PibSqlite3 extends PibImpl {
 
       // Now set the current default identity.
       statement = database_.prepareStatement
-        ("UPDATE keys SET is_default=1 WHERE key_name=?");
+        (UPDATE_setDefaultKeyOfIdentity_set);
       statement.setBytes(1, keyName.wireEncode().getImmutableArray());
       try {
         statement.executeUpdate();
@@ -747,9 +697,7 @@ public class PibSqlite3 extends PibImpl {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-("SELECT key_name " +
- "FROM keys JOIN identities ON keys.identity_id=identities.id " +
- "WHERE identities.identity=? AND keys.is_default=1");
+        ("SELECT key_name " + FROM_WHERE_getDefaultKeyOfIdentity);
       statement.setBytes(1, identityName.wireEncode().getImmutableArray());
 
       try {
@@ -788,7 +736,7 @@ public class PibSqlite3 extends PibImpl {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("SELECT id FROM certificates WHERE certificate_name=?");
+        (SELECT_hasCertificate);
       statement.setBytes(1, certificateName.wireEncode().getImmutableArray());
       try {
         ResultSet result = statement.executeQuery();
@@ -822,9 +770,7 @@ public class PibSqlite3 extends PibImpl {
     if (!hasCertificate(certificate.getName())) {
       try {
         PreparedStatement statement = database_.prepareStatement
-("INSERT INTO certificates " +
-  "(key_id, certificate_name, certificate_data) " +
-  "VALUES ((SELECT id FROM keys WHERE key_name=?), ?, ?)");
+          (INSERT_addCertificate);
         statement.setBytes(1, certificate.getKeyName().wireEncode().getImmutableArray());
         statement.setBytes(2, certificate.getName().wireEncode().getImmutableArray());
         statement.setBytes(3, certificate.wireEncode().getImmutableArray());
@@ -841,7 +787,7 @@ public class PibSqlite3 extends PibImpl {
     else {
       try {
         PreparedStatement statement = database_.prepareStatement
-          ("UPDATE certificates SET certificate_data=? WHERE certificate_name=?");
+          (UPDATE_addCertificate);
         statement.setBytes(1, certificate.wireEncode().getImmutableArray());
         statement.setBytes(2, certificate.getName().wireEncode().getImmutableArray());
 
@@ -859,7 +805,8 @@ public class PibSqlite3 extends PibImpl {
       try {
         setDefaultCertificateOfKey(certificate.getKeyName(), certificate.getName());
       } catch (Pib.Error ex) {
-        throw new PibImpl.Error("PibSqlite3: Error setting the default certificate: " + ex);
+        throw new PibImpl.Error
+          ("PibSqlite3: Error setting the default certificate: " + ex);
       }
     }
   }
@@ -875,7 +822,7 @@ public class PibSqlite3 extends PibImpl {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-        ("DELETE FROM certificates WHERE certificate_name=?");
+        (DELETE_removeCertificate);
       statement.setBytes(1, certificateName.wireEncode().getImmutableArray());
       try {
         statement.executeUpdate();
@@ -942,9 +889,7 @@ public class PibSqlite3 extends PibImpl {
 
     try {
       PreparedStatement statement = database_.prepareStatement
-("SELECT certificate_name " +
- "FROM certificates JOIN keys ON certificates.key_id=keys.id " +
- "WHERE keys.key_name=?");
+        (SELECT_getCertificatesOfKey);
       statement.setBytes(1, keyName.wireEncode().getImmutableArray());
 
       try {
@@ -989,7 +934,7 @@ public class PibSqlite3 extends PibImpl {
     try {
       // We don't use a trigger, so manually reset the previous default certificate.
       PreparedStatement statement = database_.prepareStatement
-        ("UPDATE certificates SET is_default=0 WHERE is_default=1");
+        (UPDATE_setDefaultCertificateOfKey_reset);
       try {
         statement.executeUpdate();
       } finally {
@@ -998,7 +943,7 @@ public class PibSqlite3 extends PibImpl {
 
       // Now set the current default identity.
       statement = database_.prepareStatement
-        ("UPDATE certificates SET is_default=1 WHERE certificate_name=?");
+        (UPDATE_setDefaultCertificateOfKey_set);
       statement.setBytes(1, certificateName.wireEncode().getImmutableArray());
       try {
         statement.executeUpdate();
@@ -1022,9 +967,7 @@ public class PibSqlite3 extends PibImpl {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-("SELECT certificate_data " +
- "FROM certificates JOIN keys ON certificates.key_id=keys.id " +
-  "WHERE certificates.is_default=1 AND keys.key_name=?");
+        ("SELECT certificate_data " + FROM_WHERE_getDefaultCertificateOfKey);
       statement.setBytes(1, keyName.wireEncode().getImmutableArray());
 
       try {
@@ -1078,8 +1021,7 @@ public class PibSqlite3 extends PibImpl {
     try {
       Statement statement = database_.createStatement();
       try {
-        ResultSet result = statement.executeQuery
-          ("SELECT identity FROM identities WHERE is_default=1");
+        ResultSet result = statement.executeQuery(SELECT_hasDefaultIdentity);
         return result.next();
       } finally {
         statement.close();
@@ -1094,9 +1036,7 @@ public class PibSqlite3 extends PibImpl {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-("SELECT key_name " +
- "FROM keys JOIN identities ON keys.identity_id=identities.id " +
- "WHERE identities.identity=? AND keys.is_default=1");
+        (SELECT_hasDefaultKeyOfIdentity);
       statement.setBytes(1, identityName.wireEncode().getImmutableArray());
       try {
         ResultSet result = statement.executeQuery();
@@ -1114,9 +1054,7 @@ public class PibSqlite3 extends PibImpl {
   {
     try {
       PreparedStatement statement = database_.prepareStatement
-("SELECT certificate_data " +
- "FROM certificates JOIN keys ON certificates.key_id=keys.id " +
- "WHERE certificates.is_default=1 AND keys.key_name=?");
+        (SELECT_hasDefaultCertificateOfKey);
       statement.setBytes(1, keyName.wireEncode().getImmutableArray());
       try {
         ResultSet result = statement.executeQuery();
