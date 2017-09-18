@@ -211,6 +211,10 @@ public class KeyChain {
    * exists, and the default security v2 database file does not yet exists,then
    * assume that the system is running an older NFD and create a security v1
    * KeyChain with the default IdentityManager and a NoVerifyPolicyManager.
+   * Note: To create a security v2 KeyChain on android, you must use the
+   * KeyChain constructor to provide AndroidSqlite3Pib and TpmBackEndFile
+   * objects which are initialized with the explicit directory for the Android
+   * filesDir.
    */
   public KeyChain() 
     throws SecurityException, KeyChain.Error, PibImpl.Error, IOException
