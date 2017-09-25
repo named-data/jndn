@@ -153,7 +153,7 @@ public class CertificateCacheV2 {
    * Clear all certificates from the cache.
    */
   public final void
-  reset()
+  clear()
   {
     certificatesByName_.clear();
     // TODO: certificatesByTime_.clear();

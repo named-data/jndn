@@ -312,7 +312,7 @@ public class ConfigPolicyManager extends PolicyManager {
     if (isSecurityV1_)
       certificateCache_.reset();
     else
-      certificateCacheV2_.reset();
+      certificateCacheV2_.clear();
     fixedCertificateCache_.clear();
     keyTimestamps_.clear();
     requiresVerification_ = true;
