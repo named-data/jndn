@@ -34,12 +34,15 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.OnVerified;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.ValidationRequest;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.VerificationHelpers;
+import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
@@ -182,155 +185,21 @@ public abstract class PolicyManager {
     (net.named_data.jndn.Signature signature, SignedBlob signedBlob,
      Blob publicKeyDer) throws SecurityException
   {
-    if (signature instanceof Sha256WithRsaSignature) {
+    if (signature instanceof Sha256WithRsaSignature ||
+        signature instanceof Sha256WithEcdsaSignature) {
       if (publicKeyDer.isNull())
         return false;
-      return verifySha256WithRsaSignature
-          (signature.getSignature(), signedBlob, publicKeyDer);
-    }
-    else if (signature instanceof Sha256WithEcdsaSignature) {
-      if (publicKeyDer.isNull())
-        return false;
-      return verifySha256WithEcdsaSignature
-          (signature.getSignature(), signedBlob, publicKeyDer);
+      return VerificationHelpers.verifySignature
+        (signedBlob.signedBuf(), signature.getSignature(), 
+         new PublicKey(publicKeyDer), DigestAlgorithm.SHA256);
     }
     else if (signature instanceof DigestSha256Signature)
-      return verifyDigestSha256Signature(signature.getSignature(), signedBlob);
+      return VerificationHelpers.verifyDigest
+        (signedBlob.signedBuf(), signature.getSignature(),
+         DigestAlgorithm.SHA256);
     else
       // We don't expect this to happen.
       throw new SecurityException
         ("PolicyManager.verify: Signature type is unknown");
-  }
-
-  /**
-   * Verify the RSA signature on the SignedBlob using the given public key.
-   * @param signature The signature bits.
-   * @param signedBlob the SignedBlob with the signed portion to verify.
-   * @param publicKeyDer The DER-encoded public key used to verify the signature.
-   * @return true if the signature verifies, false if not.
-   */
-  public static boolean
-  verifySha256WithRsaSignature
-    (Blob signature, SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
-  {
-    KeyFactory keyFactory = null;
-    try {
-      keyFactory = KeyFactory.getInstance("RSA");
-    }
-    catch (NoSuchAlgorithmException exception) {
-      // Don't expect this to happen.
-      throw new SecurityException
-        ("RSA is not supported: " + exception.getMessage());
-    }
-
-    java.security.PublicKey publicKey = null;
-    try {
-      publicKey = keyFactory.generatePublic
-        (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
-    }
-    catch (InvalidKeySpecException exception) {
-      // Don't expect this to happen.
-      throw new SecurityException
-        ("X509EncodedKeySpec is not supported: " + exception.getMessage());
-    }
-
-    java.security.Signature rsaSignature = null;
-    try {
-      rsaSignature = java.security.Signature.getInstance("SHA256withRSA");
-    }
-    catch (NoSuchAlgorithmException e) {
-      // Don't expect this to happen.
-      throw new SecurityException("SHA256withRSA algorithm is not supported");
-    }
-
-    try {
-      rsaSignature.initVerify(publicKey);
-    }
-    catch (InvalidKeyException exception) {
-      throw new SecurityException
-        ("InvalidKeyException: " + exception.getMessage());
-    }
-    try {
-      rsaSignature.update(signedBlob.signedBuf());
-      return rsaSignature.verify(signature.getImmutableArray());
-    }
-    catch (SignatureException exception) {
-      throw new SecurityException
-        ("SignatureException: " + exception.getMessage());
-    }
-  }
-
-  /**
-   * Verify the ECDSA signature on the SignedBlob using the given public key.
-   * @param signature The signature bits.
-   * @param signedBlob the SignedBlob with the signed portion to verify.
-   * @param publicKeyDer The DER-encoded public key used to verify the signature.
-   * @return true if the signature verifies, false if not.
-   */
-  public static boolean
-  verifySha256WithEcdsaSignature
-    (Blob signature, SignedBlob signedBlob, Blob publicKeyDer) throws SecurityException
-  {
-    KeyFactory keyFactory = null;
-    try {
-      keyFactory = KeyFactory.getInstance("EC");
-    }
-    catch (NoSuchAlgorithmException exception) {
-      // Don't expect this to happen.
-      throw new SecurityException
-        ("EC is not supported: " + exception.getMessage());
-    }
-
-    java.security.PublicKey publicKey = null;
-    try {
-      publicKey = keyFactory.generatePublic
-        (new X509EncodedKeySpec(publicKeyDer.getImmutableArray()));
-    }
-    catch (InvalidKeySpecException exception) {
-      // Don't expect this to happen.
-      throw new SecurityException
-        ("X509EncodedKeySpec is not supported: " + exception.getMessage());
-    }
-
-    java.security.Signature ecSignature = null;
-    try {
-      ecSignature = java.security.Signature.getInstance("SHA256withECDSA");
-    }
-    catch (NoSuchAlgorithmException e) {
-      // Don't expect this to happen.
-      throw new SecurityException("SHA256withECDSA algorithm is not supported");
-    }
-
-    try {
-      ecSignature.initVerify(publicKey);
-    }
-    catch (InvalidKeyException exception) {
-      throw new SecurityException
-        ("InvalidKeyException: " + exception.getMessage());
-    }
-    try {
-      ecSignature.update(signedBlob.signedBuf());
-      return ecSignature.verify(signature.getImmutableArray());
-    }
-    catch (SignatureException exception) {
-      throw new SecurityException
-        ("SignatureException: " + exception.getMessage());
-    }
-  }
-
-  /**
-   * Verify the DigestSha256 signature on the SignedBlob by verifying that the
-   * digest of SignedBlob equals the signature.
-   * @param signature The signature bits.
-   * @param signedBlob the SignedBlob with the signed portion to verify.
-   * @return true if the signature verifies, false if not.
-   */
-  public static boolean
-  verifyDigestSha256Signature(Blob signature, SignedBlob signedBlob)
-  {
-    // Set signedPortionDigest to the digest of the signed portion of the signedBlob.
-    byte[] signedPortionDigest = Common.digestSha256(signedBlob.signedBuf());
-
-    return Arrays.equals(signedPortionDigest, signature.getImmutableArray());
   }
 }
