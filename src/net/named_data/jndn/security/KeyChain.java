@@ -811,39 +811,8 @@ public class KeyChain {
       tpm_.deleteKey_(keyName);
       throw new Pib.Error("Error decoding public key " + ex);
     }
-    // TODO: Move verify into PublicKey?
-    boolean isVerified = false;
-    try {
-      if (publicKey.getKeyType() == KeyType.ECDSA) {
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
-        java.security.PublicKey publicKeyImpl = keyFactory.generatePublic
-          (new X509EncodedKeySpec(publicKey.getKeyDer().getImmutableArray()));
-        java.security.Signature signatureImpl =
-          java.security.Signature.getInstance("SHA256withECDSA");
-        signatureImpl.initVerify(publicKeyImpl);
-        signatureImpl.update(content.buf());
-        isVerified = signatureImpl.verify(signatureBits.getImmutableArray());
-      }
-      else if (publicKey.getKeyType() == KeyType.RSA) {
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        java.security.PublicKey publicKeyImpl = keyFactory.generatePublic
-          (new X509EncodedKeySpec(publicKey.getKeyDer().getImmutableArray()));
-        java.security.Signature signatureImpl =
-          java.security.Signature.getInstance("SHA256withRSA");
-        signatureImpl.initVerify(publicKeyImpl);
-        signatureImpl.update(content.buf());
-        isVerified = signatureImpl.verify(signatureBits.getImmutableArray());
-      }
-      else
-        // We don't expect this.
-        throw new AssertionError("Unrecognized key type");
-    } catch (Exception ex) {
-      // Promote to Pib.Error.
-      tpm_.deleteKey_(keyName);
-      throw new Pib.Error("Error verifying with the public key " + ex);
-    }
 
-    if (!isVerified) {
+    if (!VerificationHelpers.verifySignature(content, signatureBits, publicKey)) {
       tpm_.deleteKey_(keyName);
       throw new KeyChain.Error("Certificate `" + certificate.getName().toUri() +
         "` and private key `" + keyName.toUri() + "` do not match");
