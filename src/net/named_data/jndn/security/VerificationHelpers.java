@@ -555,6 +555,234 @@ public class VerificationHelpers {
        WireFormat.getDefaultWireFormat());
   }
 
+  /**
+   * Verify the Interest packet using the public key, where the last two name
+   * components are the SignatureInfo and signature bytes. This does not check
+   * the type of public key or digest algorithm against the type of
+   * SignatureInfo such as Sha256WithRsaSignature.
+   * @param interest The Interest packet to verify.
+   * @param publicKey The object containing the public key.
+   * @param digestAlgorithm The digest algorithm.
+   * @param wireFormat A WireFormat object used to decode the Interest packet.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest.
+   * @throws IllegalArgumentException for an invalid public key type or
+   * digestAlgorithm.
+   */
+  public static boolean
+  verifyInterestSignature
+    (Interest interest, PublicKey publicKey, DigestAlgorithm digestAlgorithm,
+     WireFormat wireFormat)
+  {
+    Signature signature = extractSignature(interest, wireFormat);
+    if (signature == null)
+      return false;
+
+    SignedBlob encoding = interest.wireEncode(wireFormat);
+
+    return verifySignature
+      (encoding.signedBuf(), signature.getSignature(),
+       publicKey, digestAlgorithm);
+  }
+
+  /**
+   * Verify the Interest packet using the public key, where the last two name
+   * components are the SignatureInfo and signature bytes. This does not check
+   * the type of public key or digest algorithm against the type of
+   * SignatureInfo such as Sha256WithRsaSignature.
+   * Decode the Interest packet with the default wire format.
+   * @param interest The Interest packet to verify.
+   * @param publicKey The object containing the public key.
+   * @param digestAlgorithm The digest algorithm.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest.
+   * @throws IllegalArgumentException for an invalid public key type or
+   * digestAlgorithm.
+   */
+  public static boolean
+  verifyInterestSignature
+    (Interest interest, PublicKey publicKey, DigestAlgorithm digestAlgorithm)
+  {
+    return verifyInterestSignature
+      (interest, publicKey, digestAlgorithm, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Verify the Interest packet using the public key and digest algorithm SHA256,
+   * where the last two name components are the SignatureInfo and signature
+   * bytes. This does not check the type of public key or digest algorithm
+   * against the type of SignatureInfo such as Sha256WithRsaSignature.
+   * Decode the Interest packet with the default wire format.
+   * @param interest The Interest packet to verify.
+   * @param publicKey The object containing the public key.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest.
+   * @throws IllegalArgumentException for an invalid public key type.
+   */
+  public static boolean
+  verifyInterestSignature(Interest interest, PublicKey publicKey)
+  {
+    return verifyInterestSignature
+      (interest, publicKey, DigestAlgorithm.SHA256,
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Verify the Interest packet using the public key, where the last two name
+   * components are the SignatureInfo and signature bytes. This does not check
+   * the type of public key or digest algorithm against the type of
+   * SignatureInfo such as Sha256WithRsaSignature.
+   * If the public key can't be decoded, this returns false instead of throwing
+   * a decoding exception. If you want to get a decoding exception then use
+   * the PublicKey constructor to decode and call verifyInterestSignature with
+   * the PublicKey object.
+   * @param interest The Interest packet to verify.
+   * @param publicKeyDer The DER-encoded public key.
+   * @param digestAlgorithm The digest algorithm.
+   * @param wireFormat A WireFormat object used to decode the Interest packet.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest or public key.
+   * @throws IllegalArgumentException for an invalid public key type or
+   * digestAlgorithm.
+   */
+  public static boolean
+  verifyInterestSignature
+    (Interest interest, Blob publicKeyDer, DigestAlgorithm digestAlgorithm,
+     WireFormat wireFormat)
+  {
+    try {
+      return verifyInterestSignature
+        (interest, new PublicKey(publicKeyDer), digestAlgorithm);
+    } catch (UnrecognizedKeyFormatException ex) {
+      return false;
+    }
+  }
+
+  /**
+   * Verify the Interest packet using the public key, where the last two name
+   * components are the SignatureInfo and signature bytes. This does not check
+   * the type of public key or digest algorithm against the type of
+   * SignatureInfo such as Sha256WithRsaSignature.
+   * If the public key can't be decoded, this returns false instead of throwing
+   * a decoding exception. If you want to get a decoding exception then use
+   * the PublicKey constructor to decode and call verifyInterestSignature with
+   * the PublicKey object.
+   * Decode the Interest packet with the default wire format.
+   * @param interest The Interest packet to verify.
+   * @param publicKeyDer The DER-encoded public key.
+   * @param digestAlgorithm The digest algorithm.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest or public key.
+   * @throws IllegalArgumentException for an invalid public key type or
+   * digestAlgorithm.
+   */
+  public static boolean
+  verifyInterestSignature
+    (Interest interest, Blob publicKeyDer, DigestAlgorithm digestAlgorithm)
+  {
+    return verifyInterestSignature
+      (interest, publicKeyDer, digestAlgorithm,
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Verify the Interest packet using the public key and digest algorithm SHA256,
+   * where the last two name components are the SignatureInfo and signature
+   * bytes. This does not check the type of public key or digest algorithm
+   * against the type of SignatureInfo such as Sha256WithRsaSignature.
+   * If the public key can't be decoded, this returns false instead of throwing
+   * a decoding exception. If you want to get a decoding exception then use
+   * the PublicKey constructor to decode and call verifyInterestSignature with
+   * the PublicKey object.
+   * Decode the Interest packet with the default wire format.
+   * @param interest The Interest packet to verify.
+   * @param publicKeyDer The DER-encoded public key.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest or public key.
+   * @throws IllegalArgumentException for an invalid public key type.
+   */
+  public static boolean
+  verifyInterestSignature(Interest interest, Blob publicKeyDer)
+  {
+    return verifyInterestSignature
+      (interest, publicKeyDer, DigestAlgorithm.SHA256,
+       WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Verify the Interest packet using the public key in the certificate, where
+   * the last two name components are the SignatureInfo and signature bytes.
+   * This does not check the type of public key or digest algorithm against the
+   * type of SignatureInfo such as Sha256WithRsaSignature.
+   * @param interest The Interest packet to verify.
+   * @param certificate The certificate containing the public key.
+   * @param digestAlgorithm (optional) The digest algorithm. If omitted, use SHA256.
+   * @param wireFormat (optional) A WireFormat object used to decode the
+   * Interest packet. If omitted, use WireFormat getDefaultWireFormat().
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest or public key.
+   * @throws IllegalArgumentException for an invalid public key type or
+   * digestAlgorithm.
+   */
+  public static boolean
+  verifyInterestSignature
+    (Interest interest, CertificateV2 certificate,
+     DigestAlgorithm digestAlgorithm,
+     WireFormat wireFormat)
+  {
+    try {
+      return verifyInterestSignature
+        (interest, certificate.getPublicKey(), digestAlgorithm, wireFormat);
+    } catch (CertificateV2.Error ex) {
+      return false;
+    }
+  }
+
+  /**
+   * Verify the Interest packet using the public key in the certificate, where
+   * the last two name components are the SignatureInfo and signature bytes.
+   * This does not check the type of public key or digest algorithm against the
+   * type of SignatureInfo such as Sha256WithRsaSignature.
+   * Decode the Interest packet with the default wire format.
+   * @param interest The Interest packet to verify.
+   * @param certificate The certificate containing the public key.
+   * @param digestAlgorithm (optional) The digest algorithm. If omitted, use SHA256.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest or public key.
+   * @throws IllegalArgumentException for an invalid public key type or
+   * digestAlgorithm.
+   */
+  public static boolean
+  verifyInterestSignature
+    (Interest interest, CertificateV2 certificate,
+     DigestAlgorithm digestAlgorithm)
+  {
+    return verifyInterestSignature
+      (interest, certificate, digestAlgorithm, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Verify the Interest packet using the public key and digest algorithm SHA256
+   * in the certificate, where the last two name components are the
+   * SignatureInfo and signature bytes.
+   * This does not check the type of public key or digest algorithm against the
+   * type of SignatureInfo such as Sha256WithRsaSignature.
+   * Decode the Interest packet with the default wire format.
+   * @param interest The Interest packet to verify.
+   * @param certificate The certificate containing the public key.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest or public key.
+   * @throws IllegalArgumentException for an invalid public key type.
+   */
+  public static boolean
+  verifyInterestSignature
+    (Interest interest, CertificateV2 certificate)
+  {
+    return verifyInterestSignature
+      (interest, certificate, DigestAlgorithm.SHA256,
+       WireFormat.getDefaultWireFormat());
+  }
+
   /////////////////////////////////////////////////////////////
 
   /**
@@ -607,6 +835,88 @@ public class VerificationHelpers {
   {
     return verifyDigest
       (buffer.buf(), digest.getImmutableArray(), digestAlgorithm);
+  }
+
+  /**
+   * Verify the Data packet using the digest algorithm. This does not check the
+   * digest algorithm against the type of SignatureInfo in the Data packet such
+   * as DigestSha256Signature.
+   * @param data The Data packet to verify.
+   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param wireFormat A WireFormat object used to encode the Data packet.
+   * @return True if verification succeeds, false if verification fails.
+   * @throws IllegalArgumentException for an invalid digestAlgorithm.
+   */
+  public static boolean
+  verifyDataDigest
+    (Data data, DigestAlgorithm digestAlgorithm, WireFormat wireFormat)
+  {
+    SignedBlob encoding = data.wireEncode(wireFormat);
+    return verifyDigest
+      (encoding.signedBuf(), data.getSignature().getSignature(),
+       digestAlgorithm);
+  }
+
+  /**
+   * Verify the Data packet using the digest algorithm. This does not check the
+   * digest algorithm against the type of SignatureInfo in the Data packet such
+   * as DigestSha256Signature.
+   * Encode the Data packet with the default wire format.
+   * @param data The Data packet to verify.
+   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @return True if verification succeeds, false if verification fails.
+   * @throws IllegalArgumentException for an invalid digestAlgorithm.
+   */
+  public static boolean
+  verifyDataDigest(Data data, DigestAlgorithm digestAlgorithm)
+  {
+    return verifyDataDigest
+      (data, digestAlgorithm, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Verify the Interest packet using the digest algorithm, where the last two
+   * name components are the SignatureInfo and signature bytes. This does not
+   * check the digest algorithm against the type of SignatureInfo such as
+   * DigestSha256Signature.
+   * @param interest The Interest packet to verify.
+   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param wireFormat A WireFormat object used to decode the Interest packet.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest.
+   * @throws IllegalArgumentException for an invalid digestAlgorithm.
+   */
+  public static boolean
+  verifyInterestDigest
+    (Interest interest, DigestAlgorithm digestAlgorithm,
+     WireFormat wireFormat)
+  {
+    Signature signature = extractSignature(interest, wireFormat);
+    if (signature == null)
+      return false;
+
+    SignedBlob encoding = interest.wireEncode(wireFormat);
+    return verifyDigest
+      (encoding.signedBuf(), signature.getSignature(), digestAlgorithm);
+  }
+
+  /**
+   * Verify the Interest packet using the digest algorithm, where the last two
+   * name components are the SignatureInfo and signature bytes. This does not
+   * check the digest algorithm against the type of SignatureInfo such as
+   * DigestSha256Signature.
+   * Decode the Interest packet with the default wire format.
+   * @param interest The Interest packet to verify.
+   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @return True if verification succeeds, false if verification fails or
+   * cannot decode the Interest.
+   * @throws IllegalArgumentException for an invalid digestAlgorithm.
+   */
+  public static boolean
+  verifyInterestDigest(Interest interest, DigestAlgorithm digestAlgorithm)
+  {
+    return verifyInterestDigest
+      (interest, digestAlgorithm, WireFormat.getDefaultWireFormat());
   }
 
   /**
