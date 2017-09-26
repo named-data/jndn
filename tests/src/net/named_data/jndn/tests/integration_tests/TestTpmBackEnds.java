@@ -42,6 +42,7 @@ import net.named_data.jndn.security.tpm.TpmBackEndMemory;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.VerificationHelpers;
 import net.named_data.jndn.security.policy.PolicyManager;
 import net.named_data.jndn.security.tpm.TpmBackEndFile;
 import net.named_data.jndn.security.tpm.TpmKeyHandle;
@@ -134,9 +135,8 @@ public class TestTpmBackEnds {
 
       Blob publicKey = key.derivePublicKey();
 
-      // TODO: Move verify to PublicKey?
-      boolean result = PolicyManager.verifySha256WithRsaSignature
-        (signature, new SignedBlob(content, 0, content.size()), publicKey);
+      boolean result = VerificationHelpers.verifySignature
+        (content, signature, publicKey);
       assertEquals(true, result);
 
       tpm.deleteKey(keyName);
@@ -193,8 +193,8 @@ public class TestTpmBackEnds {
       Blob publicKey = key.derivePublicKey();
 
       // TODO: Move verify to PublicKey?
-      boolean result = PolicyManager.verifySha256WithEcdsaSignature
-        (signature, new SignedBlob(content, 0, content.size()), publicKey);
+      boolean result = VerificationHelpers.verifySignature
+        (content, signature, publicKey);
       assertEquals(true, result);
 
       tpm.deleteKey(ecKeyName);

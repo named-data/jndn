@@ -23,18 +23,16 @@ package net.named_data.jndn.tests.unit_tests;
 
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.EcdsaKeyParams;
 import net.named_data.jndn.security.KeyParams;
-import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.UnrecognizedKeyFormatException;
+import net.named_data.jndn.security.VerificationHelpers;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.security.tpm.TpmPrivateKey;
 import net.named_data.jndn.security.v2.CertificateV2;
@@ -311,39 +309,14 @@ public class TestTpmPrivateKey {
     for (KeyTestData dataSet : keyTestData) {
       TpmPrivateKey key = TpmPrivateKey.generatePrivateKey(dataSet.keyParams);
       Blob publicKeyBits = key.derivePublicKey();
-      PublicKey publicKey = new PublicKey(publicKeyBits);
 
       Blob data = new Blob(new int[] {0x01, 0x02, 0x03, 0x04});
 
       // Sign and verify.
       Blob signature = key.sign(data.buf(), DigestAlgorithm.SHA256);
 
-      // TODO: Move verify into PublicKey?
-      boolean result = false;
-      if (dataSet.keyParams.getKeyType() == KeyType.ECDSA) {
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
-        java.security.PublicKey publicKeyImpl = keyFactory.generatePublic
-          (new X509EncodedKeySpec(publicKey.getKeyDer().getImmutableArray()));
-        java.security.Signature signatureImpl =
-          java.security.Signature.getInstance("SHA256withECDSA");
-        signatureImpl.initVerify(publicKeyImpl);
-        signatureImpl.update(data.buf());
-        result = signatureImpl.verify(signature.getImmutableArray());
-      }
-      else if (dataSet.keyParams.getKeyType() == KeyType.RSA) {
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        java.security.PublicKey publicKeyImpl = keyFactory.generatePublic
-          (new X509EncodedKeySpec(publicKey.getKeyDer().getImmutableArray()));
-        java.security.Signature signatureImpl =
-          java.security.Signature.getInstance("SHA256withRSA");
-        signatureImpl.initVerify(publicKeyImpl);
-        signatureImpl.update(data.buf());
-        result = signatureImpl.verify(signature.getImmutableArray());
-      }
-      else
-        // We don't expect this.
-        fail("Unrecognized key type");
-
+      boolean result = VerificationHelpers.verifySignature
+        (data, signature, new PublicKey(publicKeyBits));
       assertTrue(result);
 
       // Check that another generated private key is different.
