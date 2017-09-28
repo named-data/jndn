@@ -137,6 +137,10 @@ public class ExponentialReExpress implements OnTimeout {
 
     Interest nextInterest = new Interest(interest);
     nextInterest.setInterestLifetimeMilliseconds(nextInterestLifetime);
+    logger_.log(Level.FINE,
+      "ExponentialReExpress: Increasing interest lifetime from {0} to {1} ms. Re-express interest {2}",
+      new Object[] { interestLifetime,  nextInterestLifetime,
+        nextInterest.getName().toUri()});
     try {
       face_.expressInterest(nextInterest, callerOnData_, this);
     } catch (IOException ex) {
