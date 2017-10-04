@@ -728,11 +728,9 @@ public class KeyChain {
 
     // Set the signature-info.
     SigningInfo signingInfo = new SigningInfo(key);
-    Name[] dummyKeyName = new Name[1];
-    certificate.setSignature(prepareSignatureInfo(signingInfo, dummyKeyName));
     // Set a 20-year validity period.
-    ValidityPeriod.getFromSignature(certificate.getSignature()).setPeriod
-      (now, now + 20 * 365 * 24 * 3600 * 1000.0);
+    signingInfo.setValidityPeriod
+      (new ValidityPeriod(now, now + 20 * 365 * 24 * 3600 * 1000.0));
 
     sign(certificate, signingInfo);
 
@@ -2308,6 +2306,13 @@ public class KeyChain {
       signatureInfo = new Sha256WithEcdsaSignature();
     else
       throw new KeyChain.Error("Unsupported key type");
+
+    if (params.getValidityPeriod().hasPeriod() &&
+        ValidityPeriod.canGetFromSignature(signatureInfo))
+      // Set the ValidityPeriod from the SigningInfo params.
+      ValidityPeriod.getFromSignature(signatureInfo).setPeriod
+        (params.getValidityPeriod().getNotBefore(),
+         params.getValidityPeriod().getNotAfter());
 
     KeyLocator keyLocator = KeyLocator.getFromSignature(signatureInfo);
     keyLocator.setType(KeyLocatorType.KEYNAME);
