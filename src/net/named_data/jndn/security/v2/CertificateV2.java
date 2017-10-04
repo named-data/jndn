@@ -204,6 +204,17 @@ public class CertificateV2 extends Data {
   public final boolean
   isValid(double time) { return getValidityPeriod().isValid(time); }
 
+  /**
+   * Check if the current time falls within the validity period.
+   * @return True if the beginning of the validity period is less than or equal
+   * to the current time and the current time is less than or equal to the end
+   * of the validity period.
+   * @throws IllegalArgumentException If the SignatureInfo doesn't have a
+   * ValidityPeriod.
+   */
+  public final boolean
+  isValid() { return getValidityPeriod().isValid(); }
+
   // TODO: getExtension
 
   /**
