@@ -309,6 +309,29 @@ public class SigningInfo {
   getDigestAlgorithm() { return digestAlgorithm_; }
 
   /**
+   * Set the validity period for the signature info.
+   * Note that the equivalent ndn-cxx method uses a semi-prepared SignatureInfo,
+   * but this method only uses the ValidityPeriod from the SignatureInfo.
+   * @param validityPeriod The validity period, which is copied.
+   * @return This SigningInfo.
+   */
+  public final SigningInfo
+  setValidityPeriod(ValidityPeriod validityPeriod)
+  {
+    validityPeriod_ = new ValidityPeriod(validityPeriod);
+    return this;
+  }
+
+  /**
+   * Get the validity period for the signature info.
+   * Note that the equivalent ndn-cxx method uses a semi-prepared SignatureInfo,
+   * but this method only uses the ValidityPeriod from the SignatureInfo.
+   * @return The validity period.
+   */
+  public final ValidityPeriod
+  getValidityPeriod() { return validityPeriod_; }
+
+  /**
    * Get the string representation of this SigningInfo.
    * @return The string representation.
    */
@@ -367,7 +390,7 @@ public class SigningInfo {
   private PibIdentity identity_;
   private PibKey key_;
   private DigestAlgorithm digestAlgorithm_;
-  // Omit signatureInfo_ until we need it.
+  private ValidityPeriod validityPeriod_ = new ValidityPeriod();
 
   // This is to force an import of net.named_data.jndn.util.
   private static Common dummyCommon_ = new Common();
