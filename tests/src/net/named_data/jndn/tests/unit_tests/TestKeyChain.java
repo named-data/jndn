@@ -32,6 +32,7 @@ import net.named_data.jndn.security.pib.PibKey;
 import net.named_data.jndn.security.tpm.Tpm;
 import net.named_data.jndn.security.tpm.TpmBackEnd;
 import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.util.Common;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -40,12 +41,14 @@ import static org.junit.Assert.fail;
 
 public class TestKeyChain {
   KeyChain keyChain_;
+  IdentityManagementFixture fixture_;
 
   @Before
   public void
   setUp() throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
   {
     keyChain_ = new KeyChain("pib-memory:", "tpm-memory:");
+    fixture_ = new IdentityManagementFixture();
   }
 
   @Test
@@ -213,5 +216,22 @@ public class TestKeyChain {
 
     assertTrue(!keyChain_.getPib().getIdentities_().getIdentities_().containsKey
                (identityName));
+  }
+
+  @Test
+  public void
+  testSelfSignedCertValidity()
+    throws PibImpl.Error, Pib.Error, Tpm.Error, TpmBackEnd.Error, KeyChain.Error
+  {
+    CertificateV2 certificate = fixture_.addIdentity
+      (new Name("/Security/V2/TestKeyChain/SelfSignedCertValidity"))
+      .getDefaultKey().getDefaultCertificate();
+    assertTrue(certificate.isValid());
+    // Check 10 years from now.
+    assertTrue(certificate.isValid
+      (Common.getNowMilliseconds() + 10 * 365 * 24 * 3600 * 1000.0));
+    // Check that notAfter is later than 10 years from now.
+    assertTrue(certificate.getValidityPeriod().getNotAfter() >
+      Common.getNowMilliseconds() + 10 * 365 * 24 * 3600 * 1000.0);
   }
 }
