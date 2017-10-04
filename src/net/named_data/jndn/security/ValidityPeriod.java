@@ -46,6 +46,20 @@ public class ValidityPeriod implements ChangeCountable {
   }
 
   /**
+   * Create a ValidityPeriod with the given period.
+   * @param notBefore The beginning of the validity period range as milliseconds
+   * since Jan 1, 1970 UTC. Note that this is rounded up to the nearest whole
+   * second.
+   * @param notAfter The end of the validity period range as milliseconds
+   * since Jan 1, 1970 UTC. Note that this is rounded down to the nearest whole
+   * second.
+   */
+  public ValidityPeriod(double notBefore, double notAfter)
+  {
+    setPeriod(notBefore, notAfter);
+  }
+
+  /**
    * Check if the period has been set.
    * @return True if the period has been set, false if the period is not
    * specified (after calling the default constructor or clear).
