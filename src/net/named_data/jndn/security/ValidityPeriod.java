@@ -155,7 +155,12 @@ public class ValidityPeriod implements ChangeCountable {
    * of the validity period.
    */
   public final boolean
-  isValid() { return isValid(Common.getNowMilliseconds()); }
+  isValid()
+  {
+    // Round up to the nearest second like in setPeriod.
+    return isValid(Math.round
+      (Math.ceil(Math.round(Common.getNowMilliseconds()) / 1000.0) * 1000.0));
+  }
 
   /**
    * If the signature is a type that has a ValidityPeriod (so that
