@@ -22,8 +22,6 @@ package net.named_data.jndn.security;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.security.KeyFactory;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -2302,9 +2300,11 @@ public class KeyChain {
 
     Signature signatureInfo;
 
-    if (key.getKeyType() == KeyType.RSA)
+    if (key.getKeyType() == KeyType.RSA &&
+        params.getDigestAlgorithm() == DigestAlgorithm.SHA256)
       signatureInfo = new Sha256WithRsaSignature();
-    else if (key.getKeyType() == KeyType.ECDSA)
+    else if (key.getKeyType() == KeyType.ECDSA &&
+             params.getDigestAlgorithm() == DigestAlgorithm.SHA256)
       signatureInfo = new Sha256WithEcdsaSignature();
     else
       throw new KeyChain.Error("Unsupported key type");
