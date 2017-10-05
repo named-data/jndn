@@ -383,6 +383,7 @@ public class SigningInfo {
     name_ = new Name();
     identity_ = null;
     key_ = null;
+    validityPeriod_ = new ValidityPeriod();
   }
 
   private SignerType type_;
