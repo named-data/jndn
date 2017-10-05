@@ -487,8 +487,9 @@ public class KeyChain {
   /**
    * Wire encode the Data object, sign it according to the supplied signing
    * parameters, and set its signature.
-   * @param data The Data object to be signed.  This updates its signature and
-   * key locator field and wireEncoding.
+   * @param data The Data object to be signed. This replaces its Signature
+   * object based on the type of key and other info in the SigningInfo params,
+   * and updates the wireEncoding.
    * @param params The signing parameters.
    * @param wireFormat A WireFormat object used to encode the input.
    * @throws KeyChain.Error if signing fails.
@@ -519,8 +520,9 @@ public class KeyChain {
    * Wire encode the Data object, sign it according to the supplied signing
    * parameters, and set its signature.
    * Use the default WireFormat.getDefaultWireFormat()
-   * @param data The Data object to be signed.  This updates its signature and
-   * key locator field and wireEncoding.
+   * @param data The Data object to be signed. This replaces its Signature
+   * object based on the type of key and other info in the SigningInfo params,
+   * and updates the wireEncoding.
    * @param params The signing parameters.
    * @throws KeyChain.Error if signing fails.
    * @throws KeyChain.InvalidSigningInfoError if params is invalid, or if the
@@ -538,8 +540,9 @@ public class KeyChain {
    * identity, and set its signature.
    * If this is a security v1 KeyChain then use the IdentityManager to get the
    * default identity. Otherwise use the PIB.
-   * @param data The Data object to be signed.  This updates its signature and
-   * key locator field and wireEncoding.
+   * @param data The Data object to be signed. This replaces its Signature
+   * object based on the type of key of the default identity, and updates the
+   * wireEncoding.
    * @param wireFormat A WireFormat object used to encode the input.
    */
   public final void
@@ -561,8 +564,9 @@ public class KeyChain {
    * If this is a security v1 KeyChain then use the IdentityManager to get the
    * default identity. Otherwise use the PIB.
    * Use the default WireFormat.getDefaultWireFormat()
-   * @param data The Data object to be signed.  This updates its signature and
-   * key locator field and wireEncoding.
+   * @param data The Data object to be signed. This replaces its Signature
+   * object based on the type of key of the default identity, and updates the
+   * wireEncoding.
    */
   public final void
   sign(Data data)
