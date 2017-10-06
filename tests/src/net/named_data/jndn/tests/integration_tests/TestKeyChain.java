@@ -150,8 +150,8 @@ public class TestKeyChain {
 
     // Delete the certificate.
     assertEquals(1, key3.getCertificates_().size());
-    CertificateV2 key3Cert1 =
-      key3.getCertificates_().getCertificates_().values().iterator().next();
+    CertificateV2 key3Cert1 = (CertificateV2)
+      key3.getCertificates_().getCertificates_().values().toArray()[0];
     Name key3CertName = key3Cert1.getName();
     fixture_.keyChain_.deleteCertificate(key3, key3CertName);
     assertEquals(0, key3.getCertificates_().size());
@@ -234,4 +234,7 @@ public class TestKeyChain {
     assertTrue(certificate.getValidityPeriod().getNotAfter() >
       Common.getNowMilliseconds() + 10 * 365 * 24 * 3600 * 1000.0);
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
