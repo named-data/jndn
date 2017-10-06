@@ -21,11 +21,7 @@
 package net.named_data.jndn.security;
 
 import java.nio.ByteBuffer;
-import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import net.named_data.jndn.Data;
@@ -72,18 +68,7 @@ public class VerificationHelpers {
           rsaSignature.update(buffer);
           return rsaSignature.verify(signature);
         }
-        catch (NoSuchAlgorithmException ex) {
-          // Don't expect this to happen.
-          return false;
-        }
-        catch (InvalidKeySpecException ex) {
-          // Don't expect this to happen.
-          return false;
-        }
-        catch (InvalidKeyException ex) {
-          return false;
-        }
-        catch (SignatureException ex) {
+        catch (Exception ex) {
           return false;
         }
       }
@@ -99,18 +84,7 @@ public class VerificationHelpers {
           ecdsaSignature.update(buffer);
           return ecdsaSignature.verify(signature);
         }
-        catch (NoSuchAlgorithmException ex) {
-          // Don't expect this to happen.
-          return false;
-        }
-        catch (InvalidKeySpecException ex) {
-          // Don't expect this to happen.
-          return false;
-        }
-        catch (InvalidKeyException ex) {
-          return false;
-        }
-        catch (SignatureException ex) {
+        catch (Exception ex) {
           return false;
         }
       }
