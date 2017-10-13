@@ -749,7 +749,7 @@ public class AndroidSqlite3Pib extends PibSqlite3Base {
 
   /**
    * Get a list of certificate names of the key with id keyName. The returned
-   * certificate names can be used to create a CertificateContainer. With a
+   * certificate names can be used to create a PibCertificateContainer. With a
    * certificate name and a backend implementation, one can obtain the
    * certificate.
    * @param keyName The name of the key.
