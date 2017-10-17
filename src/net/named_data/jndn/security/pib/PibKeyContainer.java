@@ -57,8 +57,8 @@ public class PibKeyContainer {
         ("The key name `" + keyName.toUri() +
          "` does not match the identity name `" + identityName_.toUri() + "`");
 
-    keyNames_.add(keyName);
     // Copy the Name.
+    keyNames_.add(new Name(keyName));
     keys_.put(new Name(keyName), new PibKeyImpl(keyName, key, pibImpl_));
 
     return get(keyName);
