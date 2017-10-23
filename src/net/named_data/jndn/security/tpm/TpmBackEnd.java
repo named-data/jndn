@@ -75,7 +75,7 @@ public abstract class TpmBackEnd {
    * @param params The KeyParams for creating the key.
    * @return The handle of the created key.
    * @throws Tpm.Error if params is invalid.
-   * @throws TpmBackEnd.Error if the key already exists or cannot be created.
+   * @throws TpmBackEnd.Error if the key cannot be created.
    */
   public final TpmKeyHandle
   createKey(Name identityName, KeyParams params) 
