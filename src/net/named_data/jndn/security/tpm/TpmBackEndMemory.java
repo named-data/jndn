@@ -135,8 +135,7 @@ public class TpmBackEndMemory extends TpmBackEnd {
    * @param password The password for decrypting the private key. If the
    * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
    * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
-   * @throws TpmBackEnd.Error if a key with name keyName already exists, or for
-   * an error importing the key.
+   * @throws TpmBackEnd.Error for an error importing the key.
    */
   protected void
   doImportKey
