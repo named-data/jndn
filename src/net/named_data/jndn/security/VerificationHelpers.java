@@ -777,7 +777,7 @@ public class VerificationHelpers {
     }
     else
       throw new IllegalArgumentException
-        ("verifySignature: Invalid digest algorithm");
+        ("verifyDigest: Invalid digest algorithm");
   }
 
   /**
