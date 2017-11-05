@@ -533,7 +533,7 @@ public class AndroidSqlite3Pib extends PibSqlite3Base {
     // We don't use a trigger, so manually reset the previous default key.
     database_.execSQL(UPDATE_setDefaultKeyOfIdentity_reset, new Object[0]);
 
-    // Now set the current default identity.
+    // Now set the current default key.
     // Use a statement because it allows binding a blob for the where clause.
     SQLiteStatement statement = database_.compileStatement
       (UPDATE_setDefaultKeyOfIdentity_set);
@@ -805,7 +805,7 @@ public class AndroidSqlite3Pib extends PibSqlite3Base {
     // We don't use a trigger, so manually reset the previous default certificate.
     database_.execSQL(UPDATE_setDefaultCertificateOfKey_reset, new Object[0]);
 
-    // Now set the current default identity.
+    // Now set the current default certificate.
     // Use a statement because it allows binding a blob for the where clause.
     SQLiteStatement statement = database_.compileStatement
       (UPDATE_setDefaultCertificateOfKey_set);

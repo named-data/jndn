@@ -666,7 +666,7 @@ public class PibSqlite3 extends PibSqlite3Base {
         statement.close();
       }
 
-      // Now set the current default identity.
+      // Now set the current default key.
       statement = database_.prepareStatement
         (UPDATE_setDefaultKeyOfIdentity_set);
       statement.setBytes(1, keyName.wireEncode().getImmutableArray());
@@ -941,7 +941,7 @@ public class PibSqlite3 extends PibSqlite3Base {
         statement.close();
       }
 
-      // Now set the current default identity.
+      // Now set the current default certificate.
       statement = database_.prepareStatement
         (UPDATE_setDefaultCertificateOfKey_set);
       statement.setBytes(1, certificateName.wireEncode().getImmutableArray());
