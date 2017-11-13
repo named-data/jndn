@@ -807,9 +807,9 @@ public class KeyChain {
     try {
       publicKey = new PublicKey(publicKeyBits);
     } catch (UnrecognizedKeyFormatException ex) {
-      // Promote to Pib.Error.
+      // Promote to KeyChain.Error.
       tpm_.deleteKey_(keyName);
-      throw new Pib.Error("Error decoding public key " + ex);
+      throw new KeyChain.Error("Error decoding public key " + ex);
     }
 
     if (!VerificationHelpers.verifySignature(content, signatureBits, publicKey)) {
