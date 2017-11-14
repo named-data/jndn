@@ -196,7 +196,7 @@ public class ValidityPeriod implements ChangeCountable {
       return ((Sha256WithEcdsaSignature)signature).getValidityPeriod();
     else
       throw new Error
-        ("ValidityPeriod::getFromSignature: Signature type does not have a ValidityPeriod");
+        ("ValidityPeriod.getFromSignature: Signature type does not have a ValidityPeriod");
   }
 
   /**

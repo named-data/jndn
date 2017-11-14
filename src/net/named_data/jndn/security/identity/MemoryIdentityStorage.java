@@ -117,12 +117,12 @@ public class MemoryIdentityStorage extends IdentityStorage {
   getKey(Name keyName) throws SecurityException
   {
     if (keyName.size() == 0)
-      throw new SecurityException("MemoryIdentityStorage::getKey: Empty keyName");
+      throw new SecurityException("MemoryIdentityStorage.getKey: Empty keyName");
 
     KeyRecord keyRecord = (KeyRecord)keyStore_.get(keyName.toUri());
     if (keyRecord == null)
       throw new SecurityException
-        ("MemoryIdentityStorage::getKey: The key does not exist");
+        ("MemoryIdentityStorage.getKey: The key does not exist");
 
     return keyRecord.getKeyDer();
   }
@@ -197,7 +197,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
     Blob certificateDer = (Blob)certificateStore_.get(certificateName.toUri());
     if (certificateDer == null)
       throw new SecurityException
-        ("MemoryIdentityStorage::getKey: The certificate does not exist");
+        ("MemoryIdentityStorage.getKey: The certificate does not exist");
 
     IdentityCertificate certificate = new IdentityCertificate();
     try {
@@ -205,7 +205,7 @@ public class MemoryIdentityStorage extends IdentityStorage {
     }
     catch (EncodingException ex) {
       throw new SecurityException
-        ("MemoryIdentityStorage::getKey: The certificate cannot be decoded");
+        ("MemoryIdentityStorage.getKey: The certificate cannot be decoded");
     }
     return certificate;
   }

@@ -283,7 +283,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
   getKey(Name keyName) throws SecurityException
   {
     if (keyName.size() == 0)
-      throw new SecurityException("BasicIdentityStorage::getKey: Empty keyName");
+      throw new SecurityException("BasicIdentityStorage.getKey: Empty keyName");
 
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
@@ -300,7 +300,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
           return new Blob(result.getBytes("public_key"), false);
         else
           throw new SecurityException
-            ("BasicIdentityStorage::getKey: The key does not exist");
+            ("BasicIdentityStorage.getKey: The key does not exist");
       } finally {
         statement.close();
       }
@@ -445,7 +445,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
         }
         else
           throw new SecurityException
-            ("BasicIdentityStorage::getKey: The key certificate not exist");
+            ("BasicIdentityStorage.getKey: The key certificate not exist");
       } finally {
         statement.close();
       }
@@ -473,7 +473,7 @@ public class BasicIdentityStorage extends Sqlite3IdentityStorageBase {
           return result.getString("tpm_locator");
         else
           throw new SecurityException
-            ("BasicIdentityStorage::getTpmLocator: TPM info does not exist");
+            ("BasicIdentityStorage.getTpmLocator: TPM info does not exist");
       } finally {
         statement.close();
       }
