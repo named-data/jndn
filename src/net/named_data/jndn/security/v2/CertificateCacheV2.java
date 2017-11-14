@@ -20,7 +20,6 @@
 
 package net.named_data.jndn.security.v2;
 
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -107,7 +106,7 @@ public class CertificateCacheV2 {
    * @note ChildSelector is not supported.
    */
   public final CertificateV2
-  find(Interest interest) throws EncodingException
+  find(Interest interest)
   {
     if (interest.getChildSelector() >= 0)
       logger_.log(Level.FINE,
@@ -130,8 +129,13 @@ public class CertificateCacheV2 {
       if (!interest.getName().isPrefixOf(certificate.getName()))
         break;
 
-      if (interest.matchesData(certificate))
-        return certificate;
+      try {
+        if (interest.matchesData(certificate))
+          return certificate;
+      } catch (EncodingException ex) {
+        // We don't expect this. Promote to Error.
+        throw new Error("Error in Interest.matchesData: " + ex);
+      }
     }
 
     return null;
