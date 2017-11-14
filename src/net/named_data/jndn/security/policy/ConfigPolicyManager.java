@@ -613,7 +613,7 @@ public class ConfigPolicyManager extends PolicyManager {
   inferSigningIdentity(Name dataName)
   {
     throw new UnsupportedOperationException
-      ("ConfigPolicyManager::inferSigningIdentity is not implemented");
+      ("ConfigPolicyManager.inferSigningIdentity is not implemented");
   }
 
   /**

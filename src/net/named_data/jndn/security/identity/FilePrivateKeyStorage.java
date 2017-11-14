@@ -258,7 +258,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
     }
     else
       throw new SecurityException
-        ("FilePrivateKeyStorage::sign: Unrecognized private key OID: " + oidString);
+        ("FilePrivateKeyStorage.sign: Unrecognized private key OID: " + oidString);
   }
 
   /**

@@ -255,7 +255,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
   {
     if (keyName.size() == 0)
       throw new SecurityException
-        ("AndroidSqlite3IdentityStorage::getKey: Empty keyName");
+        ("AndroidSqlite3IdentityStorage.getKey: Empty keyName");
 
     String keyId = keyName.get(-1).toEscapedString();
     Name identityName = keyName.getPrefix(-1);
@@ -267,7 +267,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
         return new Blob(cursor.getBlob(0));
       else
         throw new SecurityException
-          ("AndroidSqlite3IdentityStorage::getKey: The key does not exist");
+          ("AndroidSqlite3IdentityStorage.getKey: The key does not exist");
     } finally {
       cursor.close();
     }
@@ -380,7 +380,7 @@ public class AndroidSqlite3IdentityStorage extends Sqlite3IdentityStorageBase {
         }
         else
           throw new SecurityException
-            ("AndroidSqlite3IdentityStorage::getKey: The certificate does not exist");
+            ("AndroidSqlite3IdentityStorage.getKey: The certificate does not exist");
       } finally {
         cursor.close();
       }

@@ -108,7 +108,7 @@ public class ConfigFile {
   {
     if (path_.equals(""))
       throw new Error
-        ("ConfigFile::parse: Failed to locate the configuration file for parsing");
+        ("ConfigFile.parse: Failed to locate the configuration file for parsing");
 
     BufferedReader input;
     try {
