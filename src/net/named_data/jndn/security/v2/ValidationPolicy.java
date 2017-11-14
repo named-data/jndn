@@ -1,0 +1,156 @@
+/**
+ * Copyright (C) 2017 Regents of the University of California.
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * @author: From ndn-cxx security https://github.com/named-data/ndn-cxx/blob/master/src/security/v2/validation-policy.hpp
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
+ */
+
+package net.named_data.jndn.security.v2;
+
+import net.named_data.jndn.Data;
+import net.named_data.jndn.Interest;
+
+/**
+ * ValidationPolicy is an abstract base class that implements a validation
+ * policy for Data and Interest packets.
+ */
+public abstract class ValidationPolicy {
+  public interface ValidationContinuation {
+    void
+    continueValidation
+      (CertificateRequest certificateRequest, ValidationState state)
+      throws CertificateV2.Error;
+  }
+
+  /**
+   * Set the inner policy.
+   * Multiple assignments of the inner policy will create a "chain" of linked
+   * policies. The inner policy from the latest invocation of setInnerPolicy
+   * will be at the bottom of the policy list.
+   * For example, the sequence `this.setInnerPolicy(policy1)` and
+   * `this.setInnerPolicy(policy2)`, will result in
+   * `this.innerPolicy_ == policy1`,
+   * this.innerPolicy_.innerPolicy_ == policy2', and
+   * `this.innerPolicy_.innerPolicy_.innerPolicy_ == null`.
+   * @throw IllegalArgumentException if the innerPolicy is null.
+   */
+  public final void
+  setInnerPolicy(ValidationPolicy innerPolicy)
+  {
+    if (innerPolicy == null)
+      throw new IllegalArgumentException
+        ("The innerPolicy argument cannot be null");
+
+    if (validator_ != null)
+      innerPolicy.setValidator(validator_);
+
+    if (innerPolicy_ == null)
+      innerPolicy_ = innerPolicy;
+    else
+      innerPolicy_.setInnerPolicy(innerPolicy);
+  }
+
+  /**
+   * Check if the inner policy is set.
+   * @return True if the inner policy is set.
+   */
+  public final boolean
+  hasInnerPolicy() { return innerPolicy_ != null; }
+
+  /**
+   * Get the inner policy. If the inner policy was not set, the behavior is
+   * undefined.
+   * @return The inner policy.
+   */
+  public final ValidationPolicy
+  getInnerPolicy() { return innerPolicy_; }
+
+  /**
+   * Set the validator to which this policy is associated. This replaces any
+   * previous validator.
+   * @param validator The validator.
+   */
+  public final void
+  setValidator(Validator validator)
+  {
+    validator_ = validator;
+    if (innerPolicy_ != null)
+      innerPolicy_.setValidator(validator);
+  }
+
+  /**
+   * Check the Data packet against the policy.
+   * Your derived class must implement this.
+   * Depending on the implementation of the policy, this check can be done
+   * synchronously or asynchronously.
+   * The semantics of checkPolicy are as follows:
+   * If the packet violates the policy, then the policy should call
+   * state.fail() with an appropriate error code and error description.
+   * If the packet conforms to the policy and no further key retrievals are
+   * necessary, then the policy should call
+   * continueValidation.continueValidation(state, null).
+   * If the packet conforms to the policy and a key needs to be fetched, then
+   * the policy should call
+   * continueValidation.continueValidation(state, <appropriate-key-request-instance>).
+   * @param data The Data packet to check.
+   * @param state The ValidationState of this validation.
+   * @param continueValidation The policy should call
+   * continueValidation.continueValidation() as described above.
+   */
+  public abstract void
+  checkPolicy
+    (Data data, ValidationState state, ValidationContinuation continueValidation)
+    throws CertificateV2.Error;
+
+  /**
+   * Check the Interest against the policy.
+   * Your derived class must implement this.
+   * Depending on implementation of the policy, this check can be done
+   * synchronously or asynchronously.
+   * See the checkPolicy(Data) documentation for the semantics.
+   * @param interest The Interest packet to check.
+   * @param state The ValidationState of this validation.
+   * @param continueValidation The policy should call
+   * continueValidation.continueValidation() as described above.
+   */
+  public abstract void
+  checkPolicy
+    (Interest interest, ValidationState state,
+     ValidationContinuation continueValidation) throws CertificateV2.Error;
+
+  /**
+   * Check the certificate against the policy.
+   * This base class implementation just calls checkPolicy(Data, ...). Your
+   * derived class may override.
+   * Depending on implementation of the policy, this check can be done
+   * synchronously or asynchronously.
+   * See the checkPolicy(Data) documentation for the semantics.
+   * @param certificate The certificate to check.
+   * @param state The ValidationState of this validation.
+   * @param continueValidation The policy should call continueValidation() as
+   * described above.
+   */
+  public void
+  checkCertificatePolicy
+    (CertificateV2 certificate, ValidationState state,
+     ValidationContinuation continueValidation) throws CertificateV2.Error
+  {
+    checkPolicy(certificate, state, continueValidation);
+  }
+
+  protected Validator validator_ = null;
+  protected ValidationPolicy innerPolicy_ = null;
+}
