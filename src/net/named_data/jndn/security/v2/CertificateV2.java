@@ -164,7 +164,7 @@ public class CertificateV2 extends Data {
   getIssuerId() { return getName().get(ISSUER_ID_OFFSET); }
 
   /**
-   * Get public key DER encoding.
+   * Get the public key DER encoding.
    * @return The DER encoding Blob.
    * @throws CertificateV2.Error If the public key is not set.
    */
