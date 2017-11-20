@@ -22,6 +22,11 @@ package net.named_data.jndn.security.v2;
 
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.KeyLocator;
+import net.named_data.jndn.KeyLocatorType;
+import net.named_data.jndn.Name;
+import net.named_data.jndn.Signature;
+import net.named_data.jndn.encoding.WireFormat;
 
 /**
  * ValidationPolicy is an abstract base class that implements a validation
@@ -149,6 +154,76 @@ public abstract class ValidationPolicy {
      ValidationContinuation continueValidation) throws CertificateV2.Error
   {
     checkPolicy(certificate, state, continueValidation);
+  }
+
+  /** Extract the KeyLocator Name from a Data packet.
+   * The Data packet must contain a KeyLocator of type KEYNAME.
+   * Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR.
+   * @param data The Data packet with the KeyLocator.
+   * @param state On error, this calls state.fail and returns an empty Name.
+   * @return The KeyLocator name, or an empty Name for failure.
+   */
+  public static Name
+  getKeyLocatorName(Data data, ValidationState state)
+  {
+    return getKeyLocatorNameFromSignature(data.getSignature(), state);
+  }
+
+  /**
+   * Extract the KeyLocator Name from a signed Interest.
+   * The Interest must have SignatureInfo and contain a KeyLocator of type
+   * KEYNAME. Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR.
+   * @param interest The signed Interest with the KeyLocator.
+   * @param state On error, this calls state.fail and returns an empty Name.
+   * @return The KeyLocator name, or an empty Name for failure.
+   */
+  public static Name
+  getKeyLocatorName(Interest interest, ValidationState state)
+  {
+    Name name = interest.getName();
+    if (name.size() < 2) {
+      state.fail(new ValidationError(ValidationError.INVALID_KEY_LOCATOR,
+        "Invalid signed Interest: name too short"));
+      return new Name();
+    }
+
+    Signature signatureInfo;
+    try {
+      // TODO: Generalize the WireFormat.
+      signatureInfo =
+        WireFormat.getDefaultWireFormat().decodeSignatureInfoAndValue
+        (interest.getName().get(-2).getValue().buf(),
+         interest.getName().get(-1).getValue().buf());
+    } catch (Throwable ex) {
+      state.fail(new ValidationError(ValidationError.INVALID_KEY_LOCATOR,
+        "Invalid signed Interest: " + ex));
+      return new Name();
+    }
+
+    return getKeyLocatorNameFromSignature(signatureInfo, state);
+  }
+
+  /**
+   * A helper method for getKeyLocatorName.
+   */
+  private static Name
+  getKeyLocatorNameFromSignature
+    (Signature signatureInfo, ValidationState state)
+  {
+    if (!KeyLocator.canGetFromSignature(signatureInfo)) {
+      state.fail(new ValidationError
+        (ValidationError.INVALID_KEY_LOCATOR, "KeyLocator is missing"));
+      return new Name();
+    }
+
+    KeyLocator keyLocator = KeyLocator.getFromSignature(signatureInfo);
+    if (keyLocator.getType() != KeyLocatorType.KEYNAME) {
+      state.fail(new ValidationError
+        (ValidationError.INVALID_KEY_LOCATOR, "KeyLocator type is not Name"));
+      return new Name();
+    }
+
+    return keyLocator.getKeyName();
   }
 
   protected Validator validator_ = null;
