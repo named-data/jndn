@@ -73,7 +73,7 @@ public abstract class ValidationState {
   /**
    * Call the failure callback.
    */
-  abstract void
+  public abstract void
   fail(ValidationError error);
 
   /**
