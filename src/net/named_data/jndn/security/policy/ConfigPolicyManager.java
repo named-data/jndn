@@ -842,10 +842,10 @@ public class ConfigPolicyManager extends PolicyManager {
   private void
   loadTrustAnchorCertificates() throws SecurityException, CertificateV2.Error
   {
-    ArrayList anchors = config_.getRoot().get("validator/trust-anchor");
+    ArrayList<BoostInfoTree> anchors = config_.getRoot().get("validator/trust-anchor");
 
     for (int i = 0; i < anchors.size(); ++i) {
-      BoostInfoTree anchor = (BoostInfoTree)anchors.get(i);
+      BoostInfoTree anchor = anchors.get(i);
 
       String typeName = anchor.getFirstValue("type");
       boolean isPath = false;
@@ -862,9 +862,9 @@ public class ConfigPolicyManager extends PolicyManager {
         String dirName = anchor.getFirstValue("dir");
 
         double refreshPeriod = 0;
-        ArrayList refreshTrees = anchor.get("refresh");
+        ArrayList<BoostInfoTree> refreshTrees = anchor.get("refresh");
         if (refreshTrees.size() >= 1) {
-          String refreshPeriodStr = ((BoostInfoTree)refreshTrees.get(0)).getValue();
+          String refreshPeriodStr = refreshTrees.get(0).getValue();
 
           Pattern regex1 = Pattern.compile("(\\d+)([hms])");
           Matcher refreshMatch = regex1.matcher(refreshPeriodStr);
@@ -917,10 +917,10 @@ public class ConfigPolicyManager extends PolicyManager {
      String[] failureReason)
     throws SecurityException, NdnRegexMatcherBase.Error, CertificateV2.Error
   {
-    BoostInfoTree checker = (BoostInfoTree)rule.get("checker").get(0);
+    BoostInfoTree checker = rule.get("checker").get(0);
     String checkerType = checker.getFirstValue("type");
     if (checkerType.equals("fixed-signer")) {
-      BoostInfoTree signerInfo = (BoostInfoTree)checker.get("signer").get(0);
+      BoostInfoTree signerInfo = checker.get("signer").get(0);
       String signerType = signerInfo.getFirstValue("type");
 
       Name certificateName;
@@ -1005,7 +1005,7 @@ public class ConfigPolicyManager extends PolicyManager {
       }
     }
     else if (checkerType.equals("customized")) {
-      BoostInfoTree keyLocatorInfo = (BoostInfoTree)checker.get("key-locator").get(0);
+      BoostInfoTree keyLocatorInfo = checker.get("key-locator").get(0);
       // Not checking type - only name is supported.
 
       // Is this a simple relation?
@@ -1035,9 +1035,9 @@ public class ConfigPolicyManager extends PolicyManager {
       }
 
       // Is this a hyper-relation?
-      ArrayList hyperRelationList = keyLocatorInfo.get("hyper-relation");
+      ArrayList<BoostInfoTree> hyperRelationList = keyLocatorInfo.get("hyper-relation");
       if (hyperRelationList.size() >= 1) {
-        BoostInfoTree hyperRelation = (BoostInfoTree)hyperRelationList.get(0);
+        BoostInfoTree hyperRelation = hyperRelationList.get(0);
 
         String keyRegex = hyperRelation.getFirstValue("k-regex");
         String keyExpansion = hyperRelation.getFirstValue("k-expand");
@@ -1206,19 +1206,19 @@ public class ConfigPolicyManager extends PolicyManager {
   findMatchingRule(Name objName, String matchType)
     throws NdnRegexMatcherBase.Error
   {
-    ArrayList rules = config_.getRoot().get("validator/rule");
+    ArrayList<BoostInfoTree> rules = config_.getRoot().get("validator/rule");
     for (int iRule = 0; iRule < rules.size(); ++iRule) {
-      BoostInfoTree r = (BoostInfoTree)rules.get(iRule);
+      BoostInfoTree r = rules.get(iRule);
 
       if (r.getFirstValue("for").equals(matchType)) {
         boolean passed = true;
-        ArrayList filters = r.get("filter");
+        ArrayList<BoostInfoTree> filters = r.get("filter");
         if (filters.isEmpty())
           // no filters means we pass!
           return r;
         else {
           for (int iFilter = 0; iFilter < filters.size(); ++iFilter) {
-            BoostInfoTree f = (BoostInfoTree)filters.get(iFilter);
+            BoostInfoTree f = filters.get(iFilter);
 
             // Don't check the type - it can only be name for now.
             // We need to see if this is a regex or a relation.

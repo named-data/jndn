@@ -58,7 +58,7 @@ public class BoostInfoTree {
   public final void
   addSubtree(String treeName, BoostInfoTree newTree)
   {
-    ArrayList subtreeList = find(treeName);
+    ArrayList<BoostInfoTree> subtreeList = find(treeName);
     if (subtreeList != null)
       subtreeList.add(newTree);
     else {
@@ -102,10 +102,10 @@ public class BoostInfoTree {
    * @param key The key which may be a path separated with '/'.
    * @return A new ArrayList of BoostInfoTree which are the subtrees.
    */
-  public final ArrayList
+  public final ArrayList<BoostInfoTree>
   get(String key)
   {
-    ArrayList foundVals = new ArrayList();
+    ArrayList<BoostInfoTree> foundVals = new ArrayList<BoostInfoTree>();
 
     // Strip beginning '/'.
     key = key.replaceFirst("^/+", "");
@@ -115,11 +115,11 @@ public class BoostInfoTree {
     }
     String[] path = key.split("/");
 
-    ArrayList subtrees = find(path[0]);
+    ArrayList<BoostInfoTree> subtrees = find(path[0]);
     if (subtrees == null)
       return foundVals;
     if (path.length == 1)
-      return (ArrayList)subtrees.clone();
+      return (ArrayList<BoostInfoTree>)subtrees.clone();
 
     // newPath = path.slice(1).join('/')
     // Implement manually because older Java versions don't have join.
@@ -131,8 +131,8 @@ public class BoostInfoTree {
     }
 
     for (int i = 0; i < subtrees.size(); ++i) {
-      BoostInfoTree t = (BoostInfoTree)subtrees.get(i);
-      ArrayList partial = t.get(newPath);
+      BoostInfoTree t = subtrees.get(i);
+      ArrayList<BoostInfoTree> partial = t.get(newPath);
       foundVals.addAll(partial);
     }
 
@@ -147,9 +147,9 @@ public class BoostInfoTree {
   public final String
   getFirstValue(String key)
   {
-    ArrayList list = get(key);
+    ArrayList<BoostInfoTree> list = get(key);
     if (list.size() >= 1)
-      return ((BoostInfoTree)list.get(0)).value_;
+      return list.get(0).value_;
     else
       return null;
   }
@@ -184,7 +184,7 @@ public class BoostInfoTree {
         TreeEntry entry = subtrees_.get(i);
         for (int iSubTree = 0; iSubTree < entry.subtreeList_.size(); ++iSubTree)
           s += nextLevel + entry.treeName_ + " " +
-            ((BoostInfoTree)entry.subtreeList_.get(iSubTree)).prettyPrint(indentLevel + 2);
+            (entry.subtreeList_.get(iSubTree)).prettyPrint(indentLevel + 2);
       }
 
       if (parent_ != null)
@@ -210,7 +210,7 @@ public class BoostInfoTree {
     }
 
     public String treeName_;
-    public ArrayList subtreeList_ = new ArrayList(); // of BoostInfoTree.
+    public ArrayList<BoostInfoTree> subtreeList_ = new ArrayList<BoostInfoTree>();
   }
 
   /**
@@ -219,7 +219,7 @@ public class BoostInfoTree {
    * in subtrees_.  It does not split by '/' into a path.
    * @return A list of BoostInfoTree, or null if not found.
    */
-  private ArrayList
+  private ArrayList<BoostInfoTree>
   find(String treeName)
   {
     for (int i = 0; i < subtrees_.size(); ++i) {
