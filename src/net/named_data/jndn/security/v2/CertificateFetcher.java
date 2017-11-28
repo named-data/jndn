@@ -23,6 +23,7 @@ package net.named_data.jndn.security.v2;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.security.ValidatorConfigError;
 
 /**
  * CertificateFetcher is an abstract base class which provides an interface used
@@ -32,7 +33,7 @@ public abstract class CertificateFetcher {
   public interface ValidationContinuation {
     void
     continueValidation(CertificateV2 certificate, ValidationState state)
-      throws CertificateV2.Error;
+      throws CertificateV2.Error, ValidatorConfigError;
   }
 
   /**
@@ -70,7 +71,7 @@ public abstract class CertificateFetcher {
   fetch
     (CertificateRequest certificateRequest, ValidationState state,
      ValidationContinuation continueValidation)
-     throws CertificateV2.Error
+     throws CertificateV2.Error, ValidatorConfigError
   {
     if (certificateStorage_ == null)
       throw new Error

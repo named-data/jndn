@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.security.ValidatorConfigError;
 
 /**
  * The Validator class provides an interface for validating data and interest
@@ -110,7 +111,7 @@ public class Validator extends CertificateStorage {
   validate
     (Data data, DataValidationSuccessCallback successCallback,
      DataValidationFailureCallback failureCallback)
-    throws CertificateV2.Error
+    throws CertificateV2.Error, ValidatorConfigError
   {
     DataValidationState state =
       new DataValidationState(data, successCallback, failureCallback);
@@ -144,7 +145,7 @@ public class Validator extends CertificateStorage {
   validate
     (Interest interest, InterestValidationSuccessCallback successCallback,
      InterestValidationFailureCallback failureCallback)
-    throws CertificateV2.Error
+    throws CertificateV2.Error, ValidatorConfigError
   {
     InterestValidationState state =
       new InterestValidationState(interest, successCallback, failureCallback);
@@ -173,7 +174,7 @@ public class Validator extends CertificateStorage {
    */
   private void
   validateCertificate(final CertificateV2 certificate, ValidationState state)
-    throws CertificateV2.Error
+    throws CertificateV2.Error, ValidatorConfigError
   {
     logger_.log(Level.FINE, "Start validating certificate {0}",
       certificate.getName().toUri());
@@ -253,7 +254,7 @@ public class Validator extends CertificateStorage {
       (certificateRequest, state, new CertificateFetcher.ValidationContinuation() {
         public void
         continueValidation(CertificateV2 certificate, ValidationState state)
-            throws CertificateV2.Error {
+            throws CertificateV2.Error, ValidatorConfigError {
           validateCertificate(certificate, state);
         }
       });
