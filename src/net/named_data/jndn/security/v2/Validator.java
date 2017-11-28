@@ -122,7 +122,7 @@ public class Validator extends CertificateStorage {
         public void
         continueValidation
             (CertificateRequest certificateRequest, ValidationState state)
-            throws CertificateV2.Error {
+            throws CertificateV2.Error, ValidatorConfigError {
           if (certificateRequest == null)
             state.bypassValidation_();
           else
@@ -157,7 +157,7 @@ public class Validator extends CertificateStorage {
         public void
         continueValidation
             (CertificateRequest certificateRequest, ValidationState state)
-            throws CertificateV2.Error {
+            throws CertificateV2.Error, ValidatorConfigError {
           if (certificateRequest == null)
             state.bypassValidation_();
           else
@@ -192,7 +192,7 @@ public class Validator extends CertificateStorage {
         public void
         continueValidation
             (CertificateRequest certificateRequest, ValidationState state)
-            throws CertificateV2.Error {
+            throws CertificateV2.Error, ValidatorConfigError {
           if (certificateRequest == null)
             state.fail(new ValidationError
               (ValidationError.POLICY_ERROR,
@@ -215,7 +215,7 @@ public class Validator extends CertificateStorage {
   private void
   requestCertificate
     (CertificateRequest certificateRequest, ValidationState state)
-    throws CertificateV2.Error
+    throws CertificateV2.Error, ValidatorConfigError
   {
     if (state.getDepth() >= maxDepth_) {
       state.fail(new ValidationError

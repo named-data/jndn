@@ -28,6 +28,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.SigningInfo;
+import net.named_data.jndn.security.ValidatorConfigError;
 import net.named_data.jndn.security.ValidatorNull;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibIdentity;
@@ -59,7 +60,7 @@ public class TestValidatorNull {
   public void
   testValidateData() 
     throws TpmBackEnd.Error, PibImpl.Error, KeyChain.Error, Pib.Error, 
-      Tpm.Error, CertificateV2.Error
+      Tpm.Error, CertificateV2.Error, ValidatorConfigError
   {
     PibIdentity identity = fixture_.addIdentity(new Name("/TestValidator/Null"));
     Data data = new Data(new Name("/Some/Other/Data/Name"));
@@ -82,7 +83,7 @@ public class TestValidatorNull {
   public void
   testValidateInterest()
     throws TpmBackEnd.Error, PibImpl.Error, KeyChain.Error, Pib.Error,
-      Tpm.Error, CertificateV2.Error
+      Tpm.Error, CertificateV2.Error, ValidatorConfigError
   {
     PibIdentity identity = fixture_.addIdentity(new Name("/TestValidator/Null"));
     Interest interest = new Interest(new Name("/Some/Other/Interest/Name"));

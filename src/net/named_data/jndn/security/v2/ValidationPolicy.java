@@ -38,7 +38,7 @@ public abstract class ValidationPolicy {
     void
     continueValidation
       (CertificateRequest certificateRequest, ValidationState state)
-      throws CertificateV2.Error;
+      throws CertificateV2.Error, ValidatorConfigError;
   }
 
   /**
