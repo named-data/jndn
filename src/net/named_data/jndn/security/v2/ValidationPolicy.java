@@ -27,6 +27,7 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Signature;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.security.ValidatorConfigError;
 
 /**
  * ValidationPolicy is an abstract base class that implements a validation
@@ -50,7 +51,7 @@ public abstract class ValidationPolicy {
    * `this.innerPolicy_ == policy1`,
    * this.innerPolicy_.innerPolicy_ == policy2', and
    * `this.innerPolicy_.innerPolicy_.innerPolicy_ == null`.
-   * @throw IllegalArgumentException if the innerPolicy is null.
+   * @throws IllegalArgumentException if the innerPolicy is null.
    */
   public final void
   setInnerPolicy(ValidationPolicy innerPolicy)
@@ -106,10 +107,10 @@ public abstract class ValidationPolicy {
    * state.fail() with an appropriate error code and error description.
    * If the packet conforms to the policy and no further key retrievals are
    * necessary, then the policy should call
-   * continueValidation.continueValidation(state, null).
+   * continueValidation.continueValidation(null, state).
    * If the packet conforms to the policy and a key needs to be fetched, then
    * the policy should call
-   * continueValidation.continueValidation(state, <appropriate-key-request-instance>).
+   * continueValidation.continueValidation(<appropriate-key-request-instance>, state).
    * @param data The Data packet to check.
    * @param state The ValidationState of this validation.
    * @param continueValidation The policy should call
@@ -118,7 +119,7 @@ public abstract class ValidationPolicy {
   public abstract void
   checkPolicy
     (Data data, ValidationState state, ValidationContinuation continueValidation)
-    throws CertificateV2.Error;
+    throws CertificateV2.Error, ValidatorConfigError;
 
   /**
    * Check the Interest against the policy.
@@ -134,7 +135,8 @@ public abstract class ValidationPolicy {
   public abstract void
   checkPolicy
     (Interest interest, ValidationState state,
-     ValidationContinuation continueValidation) throws CertificateV2.Error;
+     ValidationContinuation continueValidation) 
+    throws CertificateV2.Error, ValidatorConfigError;
 
   /**
    * Check the certificate against the policy.
@@ -151,7 +153,8 @@ public abstract class ValidationPolicy {
   public void
   checkCertificatePolicy
     (CertificateV2 certificate, ValidationState state,
-     ValidationContinuation continueValidation) throws CertificateV2.Error
+     ValidationContinuation continueValidation) 
+    throws CertificateV2.Error, ValidatorConfigError
   {
     checkPolicy(certificate, state, continueValidation);
   }

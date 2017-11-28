@@ -22,6 +22,7 @@ package net.named_data.jndn.security.v2;
 
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Interest;
+import net.named_data.jndn.security.ValidatorConfigError;
 
 /**
  * ValidationPolicyAcceptAll extends ValidationPolicy to implement a validator
@@ -31,7 +32,7 @@ public class ValidationPolicyAcceptAll extends ValidationPolicy {
   public void
   checkPolicy
     (Data data, ValidationState state, ValidationContinuation continueValidation)
-    throws CertificateV2.Error
+    throws CertificateV2.Error, ValidatorConfigError
   {
     continueValidation.continueValidation(null, state);
   }
@@ -39,7 +40,8 @@ public class ValidationPolicyAcceptAll extends ValidationPolicy {
   public void
   checkPolicy
     (Interest interest, ValidationState state,
-     ValidationContinuation continueValidation) throws CertificateV2.Error
+     ValidationContinuation continueValidation) 
+    throws CertificateV2.Error, ValidatorConfigError
   {
     continueValidation.continueValidation(null, state);
   }
