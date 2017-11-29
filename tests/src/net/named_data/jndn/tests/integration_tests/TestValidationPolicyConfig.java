@@ -176,4 +176,117 @@ public class TestValidationPolicyConfig {
     assertTrue("Strict-prefix relation should  not match inner components",
       result.calledFailure_ && !result.calledContinue_);
   }
+
+  @Test
+  public void
+  testSimpleRegex() throws IOException, ValidatorConfigError, CertificateV2.Error
+  {
+    // Set up the validator.
+    CertificateFetcher fetcher = new CertificateFetcherOffline();
+    ValidatorConfig validator = new ValidatorConfig(fetcher);
+    validator.load
+      (new File(policyConfigDirectory_, "/regex_ruleset.conf").getAbsolutePath());
+
+    // Set up a Data packet and result object.
+    Data data = new Data();
+    KeyLocator.getFromSignature(data.getSignature()).setType(KeyLocatorType.KEYNAME);
+    KeyLocator.getFromSignature(data.getSignature()).setKeyName
+      (new Name("/SecurityTestSecRule/KEY/123"));
+    TestValidationResult result = new TestValidationResult(data);
+
+    data.setName(new Name("/SecurityTestSecRule/Basic"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledContinue_ && !result.calledFailure_);
+
+    data.setName(new Name("/SecurityTestSecRule/Basic/More"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledFailure_ && !result.calledContinue_);
+
+    data.setName(new Name("/SecurityTestSecRule/"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledContinue_ && !result.calledFailure_);
+
+    data.setName(new Name("/SecurityTestSecRule/Other/TestData"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledContinue_ && !result.calledFailure_);
+
+    data.setName(new Name("/Basic/Data"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledFailure_ && !result.calledContinue_);
+  }
+
+  @Test
+  public void
+  testHierarchical() throws IOException, ValidatorConfigError, CertificateV2.Error
+  {
+    // Set up the validator.
+    CertificateFetcher fetcher = new CertificateFetcherOffline();
+    ValidatorConfig validator = new ValidatorConfig(fetcher);
+    validator.load
+      (new File(policyConfigDirectory_, "/hierarchical_ruleset.conf").getAbsolutePath());
+
+    // Set up a Data packet and result object.
+    Data data = new Data();
+    KeyLocator.getFromSignature(data.getSignature()).setType(KeyLocatorType.KEYNAME);
+    KeyLocator.getFromSignature(data.getSignature()).setKeyName
+      (new Name("/SecurityTestSecRule/Basic/Longer/KEY/123"));
+    TestValidationResult result = new TestValidationResult(data);
+
+    data.setName(new Name("/SecurityTestSecRule/Basic/Data1"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledFailure_ && !result.calledContinue_);
+
+    data.setName(new Name("/SecurityTestSecRule/Basic/Longer/Data2"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledContinue_ && !result.calledFailure_);
+
+    KeyLocator.getFromSignature(data.getSignature()).setKeyName
+      (new Name("/SecurityTestSecRule/Basic/KEY/123"));
+
+    data.setName(new Name("/SecurityTestSecRule/Basic/Data1"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledContinue_ && !result.calledFailure_);
+
+    data.setName(new Name("/SecurityTestSecRule/Basic/Longer/Data2"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledContinue_ && !result.calledFailure_);
+  }
+
+  @Test
+  public void
+  testHyperRelation() throws IOException, ValidatorConfigError, CertificateV2.Error
+  {
+    // Set up the validator.
+    CertificateFetcher fetcher = new CertificateFetcherOffline();
+    ValidatorConfig validator = new ValidatorConfig(fetcher);
+    validator.load
+      (new File(policyConfigDirectory_, "/hyperrelation_ruleset.conf").getAbsolutePath());
+
+    // Set up a Data packet and result object.
+    Data data = new Data();
+    KeyLocator.getFromSignature(data.getSignature()).setType(KeyLocatorType.KEYNAME);
+    TestValidationResult result = new TestValidationResult(data);
+
+    data.setName(new Name("/SecurityTestSecRule/Basic/Longer/Data2"));
+
+    KeyLocator.getFromSignature(data.getSignature()).setKeyName
+      (new Name("/SecurityTestSecRule/Basic/Longer/KEY/123"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledFailure_ && !result.calledContinue_);
+    KeyLocator.getFromSignature(data.getSignature()).setKeyName
+      (new Name("/SecurityTestSecRule/Basic/KEY/123"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledFailure_ && !result.calledContinue_);
+
+    data.setName(new Name("/SecurityTestSecRule/Basic/Other/Data1"));
+
+    KeyLocator.getFromSignature(data.getSignature()).setKeyName
+      (new Name("/SecurityTestSecRule/Basic/Longer/KEY/123"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledFailure_ && !result.calledContinue_);
+    KeyLocator.getFromSignature(data.getSignature()).setKeyName
+      (new Name("/SecurityTestSecRule/Basic/KEY/123"));
+    result.checkPolicy(validator);
+    assertTrue(result.calledFailure_ && !result.calledContinue_);
+  }
 }
