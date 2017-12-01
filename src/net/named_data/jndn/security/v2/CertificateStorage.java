@@ -168,6 +168,18 @@ public class CertificateStorage {
   public final void
   resetVerifiedCertificates() { verifiedCertificateCache_.clear(); }
 
+  /**
+   * Set the offset when the cache insert() and refresh() get the current time,
+   * which should only be used for testing.
+   * @param nowOffsetMilliseconds The offset in milliseconds.
+   */
+  public final void
+  setCacheNowOffsetMilliseconds_(double nowOffsetMilliseconds)
+  {
+    verifiedCertificateCache_.setNowOffsetMilliseconds_(nowOffsetMilliseconds);
+    unverifiedCertificateCache_.setNowOffsetMilliseconds_(nowOffsetMilliseconds);
+  }
+
   protected TrustAnchorContainer trustAnchors_ = new TrustAnchorContainer();
   protected CertificateCacheV2 verifiedCertificateCache_ =
     new CertificateCacheV2(3600 * 1000.0);
