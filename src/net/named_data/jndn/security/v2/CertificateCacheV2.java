@@ -20,12 +20,14 @@
 
 package net.named_data.jndn.security.v2;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encrypt.Schedule;
 import net.named_data.jndn.util.Common;
 
 /**
@@ -62,12 +64,28 @@ public class CertificateCacheV2 {
   public final void
   insert(CertificateV2 certificate) throws CertificateV2.Error
   {
-    // TODO: Implement certificatesByTime_ to support refresh(). There can be
-    // multiple certificate for the same removalTime, and adding the same
-    // certificate again should update the removalTime.
+    double notAfterTime = certificate.getValidityPeriod().getNotAfter();
+    // nowOffsetMilliseconds_ is only used for testing.
+    double now = Common.getNowMilliseconds() + nowOffsetMilliseconds_;
+    if (notAfterTime < now) {
+      logger_.log(Level.FINE, "Not adding {0}: already expired at {1}",
+        new Object[] {certificate.getName().toUri(),
+                      Schedule.toIsoString(notAfterTime)});
+      return;
+    }
 
+    double removalTime =
+      Math.min(notAfterTime, now + maxLifetimeMilliseconds_);
+    if (removalTime < nextRefreshTime_)
+      // We need to run refresh() sooner.)
+      nextRefreshTime_ = removalTime;
+
+    double removalHours = (removalTime - now) / (3600 * 1000.0);
+    logger_.log(Level.FINE, "Adding {0}, will remove in {1} hours",
+      new Object[] {certificate.getName().toUri(), removalHours});
     CertificateV2 certificateCopy = new CertificateV2(certificate);
-    certificatesByName_.put(certificateCopy.getName(), certificateCopy);
+    certificatesByName_.put
+      (certificateCopy.getName(), new Entry(certificateCopy, removalTime));
   }
 
   /**
@@ -85,13 +103,14 @@ public class CertificateCacheV2 {
       logger_.log(Level.FINE,
         "Certificate search using a name with an implicit digest is not yet supported");
 
-    // TODO: refresh();
+    refresh();
 
     Name entryKey = (Name)certificatesByName_.ceilingKey(certificatePrefix);
     if (entryKey == null)
       return null;
 
-    CertificateV2 certificate = (CertificateV2)certificatesByName_.get(entryKey);
+    CertificateV2 certificate = 
+      ((Entry)certificatesByName_.get(entryKey)).certificate_;
     if (!certificatePrefix.isPrefixOf(certificate.getName()))
       return null;
     return certificate;
@@ -117,15 +136,15 @@ public class CertificateCacheV2 {
       logger_.log(Level.FINE,
         "Certificate search using a name with an implicit digest is not yet supported");
 
-    // TODO: const_cast<CertificateCacheV2*>(this)->refresh();
+    refresh();
 
     Name firstKey = (Name)certificatesByName_.ceilingKey(interest.getName());
     if (firstKey == null)
       return null;
 
     for (Object key : certificatesByName_.navigableKeySet().tailSet(firstKey)) {
-      CertificateV2 certificate = (CertificateV2)certificatesByName_.get
-        ((Name)key);
+      CertificateV2 certificate = ((Entry)certificatesByName_.get
+        ((Name)key)).certificate_;
       if (!interest.getName().isPrefixOf(certificate.getName()))
         break;
 
@@ -150,7 +169,8 @@ public class CertificateCacheV2 {
   deleteCertificate(Name certificateName)
   {
     certificatesByName_.remove(certificateName);
-    // TODO: Delete from certificatesByTime_.
+    // This may be the certificate to be removed at nextRefreshTime_ by refresh(),
+    // but just allow refresh() to run instead of update nextRefreshTime_ now.
   }
 
   /**
@@ -160,7 +180,7 @@ public class CertificateCacheV2 {
   clear()
   {
     certificatesByName_.clear();
-    // TODO: certificatesByTime_.clear();
+    nextRefreshTime_ = Double.MAX_VALUE;
   }
 
   /**
@@ -170,10 +190,75 @@ public class CertificateCacheV2 {
   public static double
   getDefaultLifetime() { return 3600.0 * 1000; }
 
-  // Name => CertificateV2.
+  /**
+   * Set the offset when insert() and refresh() get the current time, which
+   * should only be used for testing.
+   * @param nowOffsetMilliseconds The offset in milliseconds.
+   */
+  public final void
+  setNowOffsetMilliseconds_(double nowOffsetMilliseconds)
+  {
+    nowOffsetMilliseconds_ = nowOffsetMilliseconds;
+  }
+
+  /**
+   * CertificateCacheV2.Entry is the value of the certificatesByName_ map.
+   */
+  private static class Entry {
+    /**
+     * Create a new CertificateCacheV2.Entry with the given values.
+     * @param certificate The certificate.
+     * @param removalTime The removal time for this entry  as milliseconds since
+     * Jan 1, 1970 UTC.
+     */
+    public Entry(CertificateV2 certificate, double removalTime)
+    {
+      certificate_ = certificate;
+      removalTime_ = removalTime;
+    }
+
+    public final CertificateV2 certificate_;
+    public final double removalTime_;
+  };
+
+  /**
+   * Remove all outdated certificate entries.
+   */
+  private void
+  refresh()
+  {
+    // nowOffsetMilliseconds_ is only used for testing.
+    double now = Common.getNowMilliseconds() + nowOffsetMilliseconds_;
+    if (now < nextRefreshTime_)
+      return;
+
+    // We recompute nextRefreshTime_.
+    double nextRefreshTime = Double.MAX_VALUE;
+    // Keep a separate list of entries to erase since we can't erase while iterating.
+    ArrayList<Name> namesToErase = new ArrayList<Name>();
+    for (Object key : certificatesByName_.keySet()) {
+      Name name = (Name)key;
+      Entry entry = (Entry)certificatesByName_.get(name);
+
+      if (entry.removalTime_ <= now)
+        namesToErase.add(name);
+      else
+        nextRefreshTime = Math.min(nextRefreshTime, entry.removalTime_);
+    }
+
+    nextRefreshTime_ = nextRefreshTime;
+    // Now actually erase.
+    for (int i = 0; i < namesToErase.size(); ++i)
+      certificatesByName_.remove(namesToErase.get(i));
+  }
+
+  // Name => CertificateCacheV2.Entry..
   private final TreeMap certificatesByName_ = new TreeMap();
-  double maxLifetimeMilliseconds_;
-  private static final Logger logger_ = Logger.getLogger(CertificateCacheV2.class.getName());
+  private double nextRefreshTime_ = Double.MAX_VALUE;
+  private final double maxLifetimeMilliseconds_;
+  private static final Logger logger_ =
+    Logger.getLogger(CertificateCacheV2.class.getName());
+  private double nowOffsetMilliseconds_ = 0;
 
   // This is to force an import of net.named_data.jndn.util.
   private static Common dummyCommon_ = new Common();
