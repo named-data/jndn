@@ -89,7 +89,7 @@ public class CertificateStorage {
    * @return The unverified certificate cache.
    */
   public final CertificateCacheV2
-  getUnverifiedCertificateCache() { return verifiedCertificateCache_; }
+  getUnverifiedCertificateCache() { return unverifiedCertificateCache_; }
 
   /**
    * Load a static trust anchor. Static trust anchors are permanently associated
