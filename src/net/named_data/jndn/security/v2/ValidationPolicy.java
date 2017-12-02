@@ -229,6 +229,11 @@ public abstract class ValidationPolicy {
     return keyLocator.getKeyName();
   }
 
+  /**
+   * Get the validator_ field, used only for testing.
+   */
+  public final Validator getValidator_() { return validator_; }
+
   protected Validator validator_ = null;
   protected ValidationPolicy innerPolicy_ = null;
 }
