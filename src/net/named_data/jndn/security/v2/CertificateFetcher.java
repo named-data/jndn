@@ -87,14 +87,16 @@ public abstract class CertificateFetcher {
       return;
     }
 
+    // Rename continueValidation to avoid a loop.
+    final ValidationContinuation outerContinueValidation = continueValidation;
     // Fetch asynchronously.
     doFetch
       (certificateRequest, state, new ValidationContinuation() {
         public void
         continueValidation(CertificateV2 certificate, ValidationState state)
-          throws CertificateV2.Error {
+          throws CertificateV2.Error, ValidatorConfigError {
           certificateStorage_.cacheUnverifiedCertificate(certificate);
-          continueValidation(certificate, state);
+          outerContinueValidation.continueValidation(certificate, state);
         }
       });
   }
