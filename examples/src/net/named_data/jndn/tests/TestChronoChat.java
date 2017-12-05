@@ -42,10 +42,6 @@ import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SafeBag;
 import net.named_data.jndn.security.SecurityException;
-import net.named_data.jndn.security.pib.PibImpl;
-import net.named_data.jndn.security.pib.PibMemory;
-import net.named_data.jndn.security.policy.NoVerifyPolicyManager;
-import net.named_data.jndn.security.tpm.TpmBackEndMemory;
 import net.named_data.jndn.sync.ChronoSync2013;
 import net.named_data.jndn.tests.ChatbufProto.ChatMessage;
 import net.named_data.jndn.util.Blob;
@@ -639,9 +635,7 @@ public class TestChronoChat {
       Face face = new Face(host);
 
       // Set up the KeyChain.
-      PibImpl pibImpl = new PibMemory();
-      KeyChain keyChain = new KeyChain
-        (pibImpl, new TpmBackEndMemory(), new NoVerifyPolicyManager());
+      KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:");
       keyChain.importSafeBag(new SafeBag
         (new Name("/testname/KEY/123"),
          new Blob(DEFAULT_RSA_PRIVATE_KEY_DER, false),
