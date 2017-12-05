@@ -19,6 +19,7 @@
 
 package net.named_data.jndn.tests;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,17 +31,18 @@ import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
-import net.named_data.jndn.security.OnVerified;
-import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.SafeBag;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.ValidatorConfigError;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibImpl;
-import net.named_data.jndn.security.pib.PibMemory;
-import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
 import net.named_data.jndn.security.tpm.TpmBackEnd;
-import net.named_data.jndn.security.tpm.TpmBackEndMemory;
 import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.security.v2.DataValidationFailureCallback;
+import net.named_data.jndn.security.v2.DataValidationSuccessCallback;
+import net.named_data.jndn.security.v2.ValidationError;
+import net.named_data.jndn.security.v2.ValidationPolicyFromPib;
+import net.named_data.jndn.security.v2.Validator;
 import net.named_data.jndn.util.Blob;
 
 public class TestEncodeDecodeBenchmark {
@@ -202,7 +204,7 @@ public class TestEncodeDecodeBenchmark {
     (int nIterations, boolean useComplex, boolean useCrypto, KeyType keyType,
      Blob[] encoding)
     throws PibImpl.Error, KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error,
-      Pib.Error, SecurityException
+      Pib.Error, SecurityException, IOException
   {
     Name name;
     Blob content;
@@ -227,10 +229,7 @@ public class TestEncodeDecodeBenchmark {
       new Name.Component(new Blob(new byte[] { (byte)0 }, false));
 
     // Initialize the KeyChain storage in case useCrypto is true.
-    PibImpl pibImpl = new PibMemory();
-    KeyChain keyChain = new KeyChain
-      (pibImpl, new TpmBackEndMemory(), new SelfVerifyPolicyManager(pibImpl));
-    // This puts the public key in the pibImpl used by the SelfVerifyPolicyManager.
+    KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:");
     keyChain.importSafeBag(new SafeBag
       (new Name("/testname/KEY/123"),
        new Blob(keyType == KeyType.ECDSA ?
@@ -272,15 +271,19 @@ public class TestEncodeDecodeBenchmark {
     return finish - start;
   }
 
-  private static class VerifyCallbacks implements OnVerified, OnDataValidationFailed {
-    public void onVerified(Data data)
+  private static class ValidationCallbacks
+      implements DataValidationSuccessCallback, DataValidationFailureCallback {
+    public void
+    successCallback(Data data)
     {
+      // Do nothing since we expect it to verify.
     }
 
-    public void onDataValidationFailed(Data data, String reason)
+    public void
+    failureCallback(Data data, ValidationError error)
     {
       // Don't expect this to happen.
-      System.out.println("signature verification FAILED. Reason: " + reason);
+      System.out.println("signature verification FAILED. Reason: " + error.getInfo());
     }
   }
 
@@ -297,35 +300,28 @@ public class TestEncodeDecodeBenchmark {
   benchmarkDecodeDataSeconds
     (int nIterations, boolean useCrypto, KeyType keyType, Blob encoding) 
     throws EncodingException, PibImpl.Error, KeyChain.Error, CertificateV2.Error,
-      TpmBackEnd.Error, Pib.Error
+      TpmBackEnd.Error, Pib.Error, SecurityException, IOException,
+      ValidatorConfigError
   {
     // Initialize the KeyChain storage in case useCrypto is true.
-    PibImpl pibImpl = new PibMemory();
-    KeyChain keyChain = new KeyChain
-      (pibImpl, new TpmBackEndMemory(), new SelfVerifyPolicyManager(pibImpl));
-    // This puts the public key in the pibImpl used by the SelfVerifyPolicyManager.
+    KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:");
     keyChain.importSafeBag(new SafeBag
       (new Name("/testname/KEY/123"),
        new Blob(keyType == KeyType.ECDSA ?
          DEFAULT_EC_PRIVATE_KEY_DER : DEFAULT_RSA_PRIVATE_KEY_DER, false),
        new Blob(keyType == KeyType.ECDSA ?
          DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER, false)));
-    VerifyCallbacks callbacks = new VerifyCallbacks();
+    Validator validator = new Validator
+      (new ValidationPolicyFromPib(keyChain.getPib()));
+    ValidationCallbacks callbacks = new ValidationCallbacks();
 
     double start = getNowSeconds();
     for (int i = 0; i < nIterations; ++i) {
       Data data = new Data();
       data.wireDecode(encoding.buf());
 
-      try {
-        if (useCrypto)
-          keyChain.verifyData(data, callbacks, callbacks);
-      }
-      catch (SecurityException exception) {
-        // Don't expect this to happen.
-        throw new Error
-          ("SecurityException in verify: " + exception.getMessage());
-      }
+      if (useCrypto)
+        validator.validate(data, callbacks, callbacks);
     }
     double finish = getNowSeconds();
 
@@ -344,7 +340,8 @@ public class TestEncodeDecodeBenchmark {
   benchmarkEncodeDecodeData
     (boolean useComplex, boolean useCrypto, KeyType keyType)
     throws PibImpl.Error, KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error,
-      Pib.Error, SecurityException, EncodingException
+      Pib.Error, SecurityException, EncodingException, IOException,
+      ValidatorConfigError
   {
     String format = "TLV";
     Blob[] encoding = new Blob[1];
@@ -371,7 +368,8 @@ public class TestEncodeDecodeBenchmark {
   public static void
   main(String[] args)
     throws PibImpl.Error, KeyChain.Error, CertificateV2.Error, TpmBackEnd.Error,
-      Pib.Error, SecurityException, EncodingException
+      Pib.Error, SecurityException, EncodingException, IOException,
+      ValidatorConfigError
   {
     Logger.getLogger("").setLevel(Level.OFF);
     try {

@@ -126,7 +126,61 @@ public class IdentityManagementFixture {
     }
   }
 
-  // TODO: addSubCertificate
+  /**
+   * Issue a certificate for subIdentityName signed by issuer. If the identity
+   * does not exist, it is created. A new key is generated as the default key
+   * for the identity. A default certificate for the key is signed by the
+   * issuer using its default certificate.
+   * @param subIdentityName The name to issue the certificate for.
+   * @param issuer The identity of the signer.
+   * @param params The key parameters if a key needs to be generated for the
+   * identity.
+   * @return The sub identity.
+   */
+  PibIdentity
+  addSubCertificate
+    (Name subIdentityName, PibIdentity issuer, KeyParams params)
+    throws TpmBackEnd.Error, PibImpl.Error, KeyChain.Error, Pib.Error,
+      CertificateV2.Error, Tpm.Error
+  {
+    PibIdentity subIdentity = addIdentity(subIdentityName, params);
+
+    CertificateV2 request = subIdentity.getDefaultKey().getDefaultCertificate();
+
+    request.setName(request.getKeyName().append("parent").appendVersion(1));
+
+    SigningInfo certificateParams = new SigningInfo(issuer);
+    // Validity period of 20 years.
+    double now = Common.getNowMilliseconds();
+    certificateParams.setValidityPeriod
+      (new ValidityPeriod(now, now + 20 * 365 * 24 * 3600 * 1000.0));
+
+    // Skip the AdditionalDescription.
+
+    keyChain_.sign(request, certificateParams);
+    keyChain_.setDefaultCertificate(subIdentity.getDefaultKey(), request);
+
+    return subIdentity;
+  }
+
+  /**
+   * Issue a certificate for subIdentityName signed by issuer. If the identity
+   * does not exist, it is created. A new key is generated as the default key
+   * for the identity. A default certificate for the key is signed by the
+   * issuer using its default certificate.
+   * Use KeyChain.getDefaultKeyParams().
+   * @param subIdentityName The name to issue the certificate for.
+   * @param issuer The identity of the signer.
+   * @return The sub identity.
+   */
+  PibIdentity
+  addSubCertificate(Name subIdentityName, PibIdentity issuer)
+    throws TpmBackEnd.Error, PibImpl.Error, KeyChain.Error, Pib.Error,
+      CertificateV2.Error, Tpm.Error
+  {
+    return addSubCertificate
+      (subIdentityName, issuer, KeyChain.getDefaultKeyParams());
+  }
 
   /**
    * Add a self-signed certificate made from the key and issuer ID.

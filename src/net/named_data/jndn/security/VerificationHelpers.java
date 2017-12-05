@@ -763,7 +763,7 @@ public class VerificationHelpers {
    * Verify the buffer against the digest using the digest algorithm.
    * @param buffer The input buffer to verify.
    * @param digest The digest bytes.
-   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param digestAlgorithm The digest algorithm, such as DigestAlgorithm.SHA256.
    * @return True if verification succeeds, false if verification fails.
    * @throws IllegalArgumentException for an invalid digestAlgorithm.
    */
@@ -777,14 +777,14 @@ public class VerificationHelpers {
     }
     else
       throw new IllegalArgumentException
-        ("verifySignature: Invalid digest algorithm");
+        ("verifyDigest: Invalid digest algorithm");
   }
 
   /**
    * Verify the buffer against the digest using the digest algorithm.
    * @param buffer The input buffer to verify.
    * @param digest The digest bytes.
-   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param digestAlgorithm The digest algorithm, such as DigestAlgorithm.SHA256.
    * @return True if verification succeeds, false if verification fails.
    * @throws IllegalArgumentException for an invalid digestAlgorithm.
    */
@@ -799,7 +799,7 @@ public class VerificationHelpers {
    * Verify the buffer against the digest using the digest algorithm.
    * @param buffer The input buffer to verify.
    * @param digest The digest bytes.
-   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param digestAlgorithm The digest algorithm, such as DigestAlgorithm.SHA256.
    * @return True if verification succeeds, false if verification fails.
    * @throws IllegalArgumentException for an invalid digestAlgorithm.
    */
@@ -816,7 +816,7 @@ public class VerificationHelpers {
    * digest algorithm against the type of SignatureInfo in the Data packet such
    * as DigestSha256Signature.
    * @param data The Data packet to verify.
-   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param digestAlgorithm The digest algorithm, such as DigestAlgorithm.SHA256.
    * @param wireFormat A WireFormat object used to encode the Data packet.
    * @return True if verification succeeds, false if verification fails.
    * @throws IllegalArgumentException for an invalid digestAlgorithm.
@@ -837,7 +837,7 @@ public class VerificationHelpers {
    * as DigestSha256Signature.
    * Encode the Data packet with the default wire format.
    * @param data The Data packet to verify.
-   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param digestAlgorithm The digest algorithm, such as DigestAlgorithm.SHA256.
    * @return True if verification succeeds, false if verification fails.
    * @throws IllegalArgumentException for an invalid digestAlgorithm.
    */
@@ -854,7 +854,7 @@ public class VerificationHelpers {
    * check the digest algorithm against the type of SignatureInfo such as
    * DigestSha256Signature.
    * @param interest The Interest packet to verify.
-   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param digestAlgorithm The digest algorithm, such as DigestAlgorithm.SHA256.
    * @param wireFormat A WireFormat object used to decode the Interest packet.
    * @return True if verification succeeds, false if verification fails or
    * cannot decode the Interest.
@@ -881,7 +881,7 @@ public class VerificationHelpers {
    * DigestSha256Signature.
    * Decode the Interest packet with the default wire format.
    * @param interest The Interest packet to verify.
-   * @param digestAlgorithm The digest algorithm, such as DIGEST_ALGORITHM_SHA256.
+   * @param digestAlgorithm The digest algorithm, such as DigestAlgorithm.SHA256.
    * @return True if verification succeeds, false if verification fails or
    * cannot decode the Interest.
    * @throws IllegalArgumentException for an invalid digestAlgorithm.

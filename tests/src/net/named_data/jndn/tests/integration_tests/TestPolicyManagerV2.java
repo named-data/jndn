@@ -39,6 +39,7 @@ import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.SigningInfo;
 import net.named_data.jndn.security.ValidationRequest;
+import net.named_data.jndn.security.ValidityPeriod;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.pib.PibKey;
@@ -350,6 +351,11 @@ public class TestPolicyManagerV2 {
     cert.wireDecode(new Blob(certData, false));
     SigningInfo signingInfo = new SigningInfo();
     signingInfo.setSigningIdentity(identityName_);
+    // Make sure the validity period is current for two years.
+    double now = Common.getNowMilliseconds();
+    signingInfo.setValidityPeriod(new ValidityPeriod
+      (now, now + 2 * 365 * 24 * 3600 * 1000.0));
+
     keyChain_.sign(cert, signingInfo);
     Blob signedCertBlob = cert.wireEncode();
     String encodedCert = Common.base64Encode(signedCertBlob.getImmutableArray());
