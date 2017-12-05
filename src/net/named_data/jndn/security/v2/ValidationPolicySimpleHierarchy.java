@@ -26,8 +26,8 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.security.ValidatorConfigError;
 
 /**
- * ValidationPolicyAcceptAll extends ValidationPolicy to implement a Validation
- * policy for a simple hierarchical trust model.
+ * ValidationPolicySimpleHierarchy extends ValidationPolicy to implement a
+ * Validation policy for a simple hierarchical trust model.
  */
 public class ValidationPolicySimpleHierarchy extends ValidationPolicy {
   public void
