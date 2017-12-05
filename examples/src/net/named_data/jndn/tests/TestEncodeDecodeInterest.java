@@ -25,13 +25,12 @@ import net.named_data.jndn.Interest;
 import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.KeyChain;
-import net.named_data.jndn.security.OnVerifiedInterest;
-import net.named_data.jndn.security.OnInterestValidationFailed;
 import net.named_data.jndn.security.SafeBag;
-import net.named_data.jndn.security.pib.PibImpl;
-import net.named_data.jndn.security.pib.PibMemory;
-import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
-import net.named_data.jndn.security.tpm.TpmBackEndMemory;
+import net.named_data.jndn.security.v2.InterestValidationFailureCallback;
+import net.named_data.jndn.security.v2.InterestValidationSuccessCallback;
+import net.named_data.jndn.security.v2.ValidationError;
+import net.named_data.jndn.security.v2.ValidationPolicyFromPib;
+import net.named_data.jndn.security.v2.Validator;
 import net.named_data.jndn.util.Blob;
 
 public class TestEncodeDecodeInterest {
@@ -217,20 +216,23 @@ public class TestEncodeDecodeInterest {
       System.out.println("forwardingHint: <none>");
   }
 
-  private static class VerifyCallbacks implements OnVerifiedInterest, OnInterestValidationFailed {
-    public VerifyCallbacks(String prefix) { prefix_ = prefix; }
+  private static class ValidationCallbacks
+      implements InterestValidationSuccessCallback, InterestValidationFailureCallback {
+    public ValidationCallbacks(String prefix) { prefix_ = prefix; }
 
     private final String prefix_;
 
-    public void onVerifiedInterest(Interest interest)
+    public void
+    successCallback(Interest interest)
     {
       System.out.println(prefix_ + " signature verification: VERIFIED");
     }
 
-    public void onInterestValidationFailed(Interest interest, String reason)
+    public void
+    failureCallback(Interest interest, ValidationError error)
     {
       System.out.println
-        (prefix_ + " signature verification: FAILED. Reason: " + reason);
+        (prefix_ + " signature verification: FAILED. Reason: " + error.getInfo());
     }
   }
 
@@ -269,14 +271,13 @@ public class TestEncodeDecodeInterest {
       freshInterest.getForwardingHint().add(1, new Name("/A"));
 
       // Set up the KeyChain.
-      PibImpl pibImpl = new PibMemory();
-      KeyChain keyChain = new KeyChain
-        (pibImpl, new TpmBackEndMemory(), new SelfVerifyPolicyManager(pibImpl));
-      // This puts the public key in the pibImpl used by the SelfVerifyPolicyManager.
+      KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:");
       keyChain.importSafeBag(new SafeBag
         (new Name("/testname/KEY/123"),
          new Blob(DEFAULT_RSA_PRIVATE_KEY_DER, false),
          new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false)));
+      Validator validator = new Validator
+        (new ValidationPolicyFromPib(keyChain.getPib()));
 
       // Make a Face just so that we can sign the interest.
       Face face = new Face();
@@ -289,8 +290,8 @@ public class TestEncodeDecodeInterest {
       System.out.println("Re-decoded fresh Interest:");
       dumpInterest(reDecodedFreshInterest);
 
-      VerifyCallbacks callbacks = new VerifyCallbacks("Freshly-signed Interest");
-      keyChain.verifyInterest(reDecodedFreshInterest, callbacks, callbacks);
+      ValidationCallbacks callbacks = new ValidationCallbacks("Freshly-signed Interest");
+      validator.validate(reDecodedFreshInterest, callbacks, callbacks);
     }
     catch (Exception e) {
       System.out.println(e.getMessage());

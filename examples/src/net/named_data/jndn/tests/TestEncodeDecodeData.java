@@ -33,13 +33,12 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.security.KeyChain;
-import net.named_data.jndn.security.OnVerified;
-import net.named_data.jndn.security.OnDataValidationFailed;
 import net.named_data.jndn.security.SafeBag;
-import net.named_data.jndn.security.pib.PibImpl;
-import net.named_data.jndn.security.pib.PibMemory;
-import net.named_data.jndn.security.policy.SelfVerifyPolicyManager;
-import net.named_data.jndn.security.tpm.TpmBackEndMemory;
+import net.named_data.jndn.security.v2.DataValidationFailureCallback;
+import net.named_data.jndn.security.v2.DataValidationSuccessCallback;
+import net.named_data.jndn.security.v2.ValidationError;
+import net.named_data.jndn.security.v2.ValidationPolicyFromPib;
+import net.named_data.jndn.security.v2.Validator;
 import net.named_data.jndn.util.Blob;
 
 public class TestEncodeDecodeData {
@@ -280,20 +279,23 @@ public class TestEncodeDecodeData {
     }
   }
 
-  private static class VerifyCallbacks implements OnVerified, OnDataValidationFailed {
-    public VerifyCallbacks(String prefix) { prefix_ = prefix; }
+  private static class ValidationCallbacks
+      implements DataValidationSuccessCallback, DataValidationFailureCallback {
+    public ValidationCallbacks(String prefix) { prefix_ = prefix; }
 
     private final String prefix_;
 
-    public void onVerified(Data data)
+    public void 
+    successCallback(Data data)
     {
       System.out.println(prefix_ + " signature verification: VERIFIED");
     }
 
-    public void onDataValidationFailed(Data data, String reason)
+    public void 
+    failureCallback(Data data, ValidationError error)
     {
       System.out.println
-        (prefix_ + " signature verification: FAILED. Reason: " + reason);
+        (prefix_ + " signature verification: FAILED. Reason: " + error.getInfo());
     }
   }
 
@@ -320,17 +322,16 @@ public class TestEncodeDecodeData {
       dumpData(reDecodedData);
 
       // Set up the KeyChain.
-      PibImpl pibImpl = new PibMemory();
-      KeyChain keyChain = new KeyChain
-        (pibImpl, new TpmBackEndMemory(), new SelfVerifyPolicyManager(pibImpl));
-      // This puts the public key in the pibImpl used by the SelfVerifyPolicyManager.
+      KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:");
       keyChain.importSafeBag(new SafeBag
         (new Name("/testname/KEY/123"),
          new Blob(DEFAULT_RSA_PRIVATE_KEY_DER, false),
          new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false)));
+      Validator validator = new Validator
+        (new ValidationPolicyFromPib(keyChain.getPib()));
 
-      VerifyCallbacks callbacks = new VerifyCallbacks("Re-decoded Data");
-      keyChain.verifyData(reDecodedData, callbacks, callbacks);
+      ValidationCallbacks callbacks = new ValidationCallbacks("Re-decoded Data");
+      validator.validate(reDecodedData, callbacks, callbacks);
 
       Data freshData = new Data(new Name("/ndn/abc"));
       freshData.setContent(new Blob("SUCCESS!"));
@@ -341,8 +342,8 @@ public class TestEncodeDecodeData {
       System.out.println("Freshly-signed Data:");
       dumpData(freshData);
 
-      callbacks = new VerifyCallbacks("Freshly-signed Data");
-      keyChain.verifyData(freshData, callbacks, callbacks);
+      callbacks = new ValidationCallbacks("Freshly-signed Data");
+      validator.validate(freshData, callbacks, callbacks);
     }
     catch (Exception e) {
       System.out.println(e.getMessage());
