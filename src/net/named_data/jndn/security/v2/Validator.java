@@ -72,6 +72,24 @@ public class Validator extends CertificateStorage {
   }
 
   /**
+   * Create a Validator with the policy. Use a CertificateFetcherOffline
+   * (assuming that the validation policy doesn't need to fetch certificates).
+   * @param policy The validation policy to be associated with this validator.
+   */
+  public Validator(ValidationPolicy policy)
+  {
+    policy_ = policy;
+    certificateFetcher_ = new CertificateFetcherOffline();
+    maxDepth_ = 25;
+
+    if (policy_ == null)
+      throw new IllegalArgumentException("The policy is null");
+
+    policy_.setValidator(this);
+    certificateFetcher_.setCertificateStorage(this);
+  }
+
+  /**
    * Get the ValidationPolicy given to the constructor.
    * @return The ValidationPolicy.
    */
