@@ -59,7 +59,7 @@ public abstract class ConfigFilter {
   /**
    * Create a filter from the configuration section.
    * @param configSection The section containing the definition of the filter,
-   * e.g. one of <validator.rule.filter>.
+   * e.g. one of "validator.rule.filter".
    * @return A new filter created from the configuration section.
    */
   public static ConfigFilter

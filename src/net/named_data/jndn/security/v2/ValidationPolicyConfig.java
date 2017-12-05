@@ -41,7 +41,7 @@ import net.named_data.jndn.util.Common;
  * replay attacks.
  * @note This policy does not support inner policies (a sole policy or a
  * terminal inner policy).
- * @see https://named-data.net/doc/ndn-cxx/current/tutorials/security-validator-config.html
+ * See https://named-data.net/doc/ndn-cxx/current/tutorials/security-validator-config.html
  */
 public class ValidationPolicyConfig extends ValidationPolicy {
   /**
@@ -87,7 +87,7 @@ public class ValidationPolicyConfig extends ValidationPolicy {
    * Load the configuration from the given configSection. This replaces any
    * existing configuration.
    * @param configSection The configuration section loaded from the config file.
-   * It should have one <validator> section.
+   * It should have one "validator" section.
    * @param inputName Used for log messages, etc.
    */
   public final void
@@ -210,7 +210,7 @@ public class ValidationPolicyConfig extends ValidationPolicy {
    * Process the trust-anchor configuration section and call
    * validator_.loadAnchor as needed.
    * @param configSection The section containing the definition of the trust
-   * anchor, e.g. one of <validator.trust-anchor>.
+   * anchor, e.g. one of "validator.trust-anchor".
    * @param inputName Used for log messages, etc.
    */
   private void
@@ -282,7 +282,7 @@ public class ValidationPolicyConfig extends ValidationPolicy {
   /**
    * Get the "refresh" value. If the value is 9, return a period of one hour.
    * @param configSection The section containing the definition of the trust
-   * anchor, e.g. one of <validator.trust-anchor>.
+   * anchor, e.g. one of "validator.trust-anchor".
    * @return The refresh period in milliseconds. However if there is no
    * "refresh" value, return a large number (effectively no refresh).
    */

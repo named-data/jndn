@@ -110,7 +110,7 @@ public abstract class ValidationPolicy {
    * continueValidation.continueValidation(null, state).
    * If the packet conforms to the policy and a key needs to be fetched, then
    * the policy should call
-   * continueValidation.continueValidation(<appropriate-key-request-instance>, state).
+   * continueValidation.continueValidation({appropriate-key-request-instance}, state).
    * @param data The Data packet to check.
    * @param state The ValidationState of this validation.
    * @param continueValidation The policy should call

@@ -86,7 +86,7 @@ public class ValidatorConfig extends Validator {
    * Load the configuration from the given configSection. This replaces any
    * existing configuration.
    * @param configSection The configuration section loaded from the config file.
-   * It should have one <validator> section.
+   * It should have one "validator" section.
    * @param inputName Used for log messages, etc.
    */
   public final void

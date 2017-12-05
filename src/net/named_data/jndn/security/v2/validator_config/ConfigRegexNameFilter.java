@@ -19,8 +19,6 @@
 
 package net.named_data.jndn.security.v2.validator_config;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.ValidatorConfigError;
 import net.named_data.jndn.util.regex.NdnRegexMatcherBase;
@@ -30,12 +28,14 @@ import net.named_data.jndn.util.regex.NdnRegexTopMatcher;
  * ConfigRegexNameFilter extends ConfigFilter to check that the packet name
  * matches the specified regular expression.
  * The configuration
+ * {@code
  * "filter
  * {
  *   type name
  *   regex ^[^<KEY>]*<KEY><>*<ksk-.*>$
- * }"
- * creates ConfigRegexNameFilter("^[^<KEY>]*<KEY><>*<ksk-.*>$") .
+ * }"}
+ * creates 
+ * {@code ConfigRegexNameFilter("^[^<KEY>]*<KEY><>*<ksk-.*>$") }.
  */
 public class ConfigRegexNameFilter extends ConfigFilter {
   /**

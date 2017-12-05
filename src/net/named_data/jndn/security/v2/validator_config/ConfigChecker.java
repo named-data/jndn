@@ -67,7 +67,7 @@ public abstract class ConfigChecker {
   /**
    * Create a checker from the configuration section.
    * @param configSection The section containing the definition of the checker,
-   * e.g. one of <validation.rule.checker>.
+   * e.g. one of "validation.rule.checker".
    * @return A new checker created from the configuration section.
    */
   public static ConfigChecker

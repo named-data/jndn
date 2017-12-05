@@ -80,7 +80,7 @@ public class ConfigRule {
    * Data packet.
    * @param packetName The packet name. For a signed interest, the last two
    * components are skipped but not removed.
-   * @retur True if at least one filter matches the packet name, false if none
+   * @return True if at least one filter matches the packet name, false if none
    * of the filters match the packet name.
    * @throws ValidatorConfigError if the supplied isForInterest doesn't match the
    * one for which the rule is designed.
@@ -154,7 +154,7 @@ public class ConfigRule {
   /**
    * Create a rule from configuration section.
    * @param configSection The section containing the definition of the checker,
-   * e.g. one of <validator.rule>.
+   * e.g. one of "validator.rule".
    * @return A new ConfigRule created from the configuration
    */
   public static ConfigRule
