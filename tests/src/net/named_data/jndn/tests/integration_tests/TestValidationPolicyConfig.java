@@ -186,7 +186,7 @@ public class TestValidationPolicyConfig {
     CertificateFetcher fetcher = new CertificateFetcherOffline();
     ValidatorConfig validator = new ValidatorConfig(fetcher);
     validator.load
-      (new File(policyConfigDirectory_, "/regex_ruleset.conf").getAbsolutePath());
+      (new File(policyConfigDirectory_, "regex_ruleset.conf").getAbsolutePath());
 
     // Set up a Data packet and result object.
     Data data = new Data();
@@ -224,7 +224,7 @@ public class TestValidationPolicyConfig {
     CertificateFetcher fetcher = new CertificateFetcherOffline();
     ValidatorConfig validator = new ValidatorConfig(fetcher);
     validator.load
-      (new File(policyConfigDirectory_, "/hierarchical_ruleset.conf").getAbsolutePath());
+      (new File(policyConfigDirectory_, "hierarchical_ruleset.conf").getAbsolutePath());
 
     // Set up a Data packet and result object.
     Data data = new Data();
@@ -261,7 +261,7 @@ public class TestValidationPolicyConfig {
     CertificateFetcher fetcher = new CertificateFetcherOffline();
     ValidatorConfig validator = new ValidatorConfig(fetcher);
     validator.load
-      (new File(policyConfigDirectory_, "/hyperrelation_ruleset.conf").getAbsolutePath());
+      (new File(policyConfigDirectory_, "hyperrelation_ruleset.conf").getAbsolutePath());
 
     // Set up a Data packet and result object.
     Data data = new Data();
