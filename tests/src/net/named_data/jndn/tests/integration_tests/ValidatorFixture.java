@@ -37,6 +37,7 @@ import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.security.v2.ValidationPolicy;
 import net.named_data.jndn.security.v2.Validator;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.util.Common;
 
 /**
  * ValidatorFixture extends IdentityManagementFixture to use the given policy
@@ -119,4 +120,6 @@ public class ValidatorFixture extends IdentityManagementFixture {
   // Set maxLifetime to 100 days.
   public final CertificateCacheV2 cache_ =
     new CertificateCacheV2(100 * 24 * 3600 * 1000.0);
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

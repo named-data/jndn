@@ -39,6 +39,7 @@ import net.named_data.jndn.security.v2.DataValidationSuccessCallback;
 import net.named_data.jndn.security.v2.ValidationError;
 import net.named_data.jndn.security.v2.ValidationPolicy;
 import net.named_data.jndn.security.v2.ValidationState;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
@@ -289,4 +290,7 @@ public class TestValidationPolicyConfig {
     result.checkPolicy(validator);
     assertTrue(result.calledFailure_ && !result.calledContinue_);
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
