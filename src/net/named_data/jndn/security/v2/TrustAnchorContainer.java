@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.util.Common;
 
 /**
  * A TrustAnchorContainer represents a container for trust anchors.
@@ -248,7 +249,7 @@ public class TrustAnchorContainer {
     int
     size() { return anchorsByName_.size(); }
 
-    private final TreeMap anchorsByName_ = new TreeMap();
+    public final TreeMap anchorsByName_ = new TreeMap();
   };
 
   private void
@@ -261,4 +262,6 @@ public class TrustAnchorContainer {
   private final HashMap<String, TrustAnchorGroup> groups_ =
     new HashMap<String, TrustAnchorGroup>();
   private final AnchorContainer anchors_ = new AnchorContainer();
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }

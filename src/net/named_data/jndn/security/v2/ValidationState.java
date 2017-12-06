@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.VerificationHelpers;
+import net.named_data.jndn.util.Common;
 
 /**
  * Validation state is an abstract base class for DataValidationState and
@@ -173,7 +174,9 @@ public abstract class ValidationState {
              "Invalid signature of certificate `" +
              certificateToValidate.getName().toUri() + "`"));
         // Remove this and remaining certificates in the chain.
-        certificateChain_.subList(i, certificateChain_.size()).clear();
+        while (certificateChain_.size() > i)
+          certificateChain_.remove(i);
+
         return null;
       }
       else {
@@ -205,4 +208,6 @@ public abstract class ValidationState {
   private boolean outcome_;
   private static final Logger logger_ =
     Logger.getLogger(ValidationState.class.getName());
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
