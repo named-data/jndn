@@ -84,29 +84,29 @@ public class ValidationError {
   {
     String result;
 
-    if (code_ == ValidationError.NO_ERROR)
+    if (code_ == NO_ERROR)
       result = "No error";
-    else if (code_ == ValidationError.INVALID_SIGNATURE)
+    else if (code_ == INVALID_SIGNATURE)
       result = "Invalid signature";
-    else if (code_ == ValidationError.NO_SIGNATURE)
+    else if (code_ == NO_SIGNATURE)
       result = "Missing signature";
-    else if (code_ == ValidationError.CANNOT_RETRIEVE_CERTIFICATE)
+    else if (code_ == CANNOT_RETRIEVE_CERTIFICATE)
       result = "Cannot retrieve certificate";
-    else if (code_ == ValidationError.EXPIRED_CERTIFICATE)
+    else if (code_ == EXPIRED_CERTIFICATE)
       result = "Certificate expired";
-    else if (code_ == ValidationError.LOOP_DETECTED)
+    else if (code_ == LOOP_DETECTED)
       result = "Loop detected in certification chain";
-    else if (code_ == ValidationError.MALFORMED_CERTIFICATE)
+    else if (code_ == MALFORMED_CERTIFICATE)
       result = "Malformed certificate";
-    else if (code_ == ValidationError.EXCEEDED_DEPTH_LIMIT)
+    else if (code_ == EXCEEDED_DEPTH_LIMIT)
       result = "Exceeded validation depth limit";
-    else if (code_ == ValidationError.INVALID_KEY_LOCATOR)
+    else if (code_ == INVALID_KEY_LOCATOR)
       result = "Key locator violates validation policy";
-    else if (code_ == ValidationError.POLICY_ERROR)
+    else if (code_ == POLICY_ERROR)
       result = "Validation policy error";
-    else if (code_ == ValidationError.IMPLEMENTATION_ERROR)
+    else if (code_ == IMPLEMENTATION_ERROR)
       result = "Internal implementation error";
-    else if (code_ >= ValidationError.USER_MIN)
+    else if (code_ >= USER_MIN)
       result = "Custom error code " + code_;
     else
       result = "Unrecognized error code " + code_;
