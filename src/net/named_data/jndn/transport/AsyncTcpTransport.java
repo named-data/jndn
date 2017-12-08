@@ -41,7 +41,7 @@ import net.named_data.jndn.util.Common;
 /**
  * AsyncTcpTransport extends Transport for async communication over TCP by
  * dispatching reads from an AsynchronousSocketChannel to a
- * ScheduledExecutorService.
+ * ScheduledExecutorService. On Android, this requires Android API level 26.
  *
  * If enabled in the connection information, this transport implements reconnection
  * logic if the:
