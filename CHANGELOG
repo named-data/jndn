@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.15 (2017-12-05)
----------------------------------------------
+jNDN v0.16 (2017-12-08)
+-----------------------
 
 Bug fixes
 * https://redmine.named-data.net/issues/4023 Ported the latest NDN regex code
@@ -20,6 +20,8 @@ Changes
   keys in memory to avoid regenerate group key pairs.
 * https://redmine.named-data.net/issues/4251 Added Interest get/setForwardingHint.
 * Added ExponentialReExpress to use as OnTimeout.
+* Added pom-android-with-async-io.xml to include AsyncTcpTransport which is now
+  supported in Android API level 26. (Thanks to Teng Liang!)
 
 Deprecated
 * In Interest, deprecated link object and selected delegation methods.
