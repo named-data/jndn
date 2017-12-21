@@ -11,6 +11,9 @@ http://named-data.net/doc/ndn-ccl-api/ .
 
 See the file [INSTALL.md](https://github.com/named-data/jndn/blob/master/INSTALL.md) for build and install instructions.
 
+If you are new to the NDN community of software generally, read the
+[Contributor's Guide](https://github.com/named-data/NFD/blob/master/CONTRIBUTING.md).
+
 Please submit any bugs or issues to the jNDN issue tracker:
 http://redmine.named-data.net/projects/jndn/issues
 
