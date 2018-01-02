@@ -13,6 +13,8 @@ See the file [INSTALL.md](https://github.com/named-data/jndn/blob/master/INSTALL
 
 If you are new to the NDN community of software generally, read the
 [Contributor's Guide](https://github.com/named-data/NFD/blob/master/CONTRIBUTING.md).
+Proposed code contributions should use a
+[GitHub pull request](https://github.com/named-data/jndn/pulls).
 
 Please submit any bugs or issues to the jNDN issue tracker:
 http://redmine.named-data.net/projects/jndn/issues
