@@ -798,7 +798,7 @@ public class KeyChain {
       tpm_.importPrivateKey_(keyName, safeBag.getPrivateKeyBag().buf(), password);
     } catch (Exception ex) {
       throw new KeyChain.Error("Failed to import private key `" +
-        keyName.toUri() + "`");
+        keyName.toUri() + "`: " + ex);
     }
 
     // Check the consistency of the private key and certificate.
