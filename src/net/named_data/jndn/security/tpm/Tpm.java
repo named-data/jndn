@@ -264,18 +264,13 @@ public class Tpm {
    * @param password The password for decrypting the private key. If the
    * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
    * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
-   * @return True for success, false if importing fails.
+   * @throw TpmBackEnd::Error if the key cannot be imported.
    */
-  public final boolean
+  public final void
   importPrivateKey_(Name keyName, ByteBuffer pkcs8, ByteBuffer password)
+    throws TpmBackEnd.Error
   {
-    try {
-      backEnd_.importKey(keyName, pkcs8, password);
-    } catch (TpmBackEnd.Error ex) {
-      return false;
-    }
-
-    return true;
+    backEnd_.importKey(keyName, pkcs8, password);
   }
 
   /**
