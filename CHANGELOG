@@ -1,3 +1,10 @@
+Interim changes since jNDN v0.16 (2018-01-16)
+---------------------------------------------
+
+Bug fixes
+* https://redmine.named-data.net/issues/4466 In KeyChain.importSafeBag, handle
+  exceptions from Tpm.importPrivateKey.
+
 jNDN v0.16 (2017-12-08)
 -----------------------
 
