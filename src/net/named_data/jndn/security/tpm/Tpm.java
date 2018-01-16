@@ -235,7 +235,7 @@ public class Tpm {
   }
 
   /**
-   * Get the encoded private key with name keyName in PKCS #8 format, possiby
+   * Get the encoded private key with name keyName in PKCS #8 format, possibly
    * encrypted.
    * This should only be called by KeyChain.
    * @param keyName The name of the key in the TPM.
@@ -255,7 +255,7 @@ public class Tpm {
 
   /**
    * Import an encoded private key with name keyName in PKCS #8 format, possibly
-   * passwprd-encrypted.
+   * password-encrypted.
    * This should only be called by KeyChain.
    * @param keyName The name of the key to use in the TPM.
    * @param pkcs8 The input byte buffer. If the password is supplied, this is a

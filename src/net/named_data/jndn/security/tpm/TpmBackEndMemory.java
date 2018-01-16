@@ -127,7 +127,7 @@ public class TpmBackEndMemory extends TpmBackEnd {
 
   /**
    * Import an encoded private key with name keyName in PKCS #8 format, possibly
-   * passwprd-encrypted.
+   * password-encrypted.
    * @param keyName The name of the key to use in the TPM.
    * @param pkcs8 The input byte buffer. If the password is supplied, this is a
    * PKCS #8 EncryptedPrivateKeyInfo. If the password is null, this is an
