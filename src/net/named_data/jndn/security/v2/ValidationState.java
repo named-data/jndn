@@ -29,7 +29,7 @@ import net.named_data.jndn.security.VerificationHelpers;
 import net.named_data.jndn.util.Common;
 
 /**
- * Validation state is an abstract base class for DataValidationState and
+ * ValidationState is an abstract base class for DataValidationState and
  * InterestValidationState.
  *
  * One instance of the validation state is kept for the validation of the whole
