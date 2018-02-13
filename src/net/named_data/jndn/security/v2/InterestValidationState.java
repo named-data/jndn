@@ -31,7 +31,7 @@ import net.named_data.jndn.security.VerificationHelpers;
 public class InterestValidationState extends ValidationState {
   /**
    * Create an InterestValidationState for the Data packet.
-   * The caller must ensure that state instance is valid until validation
+   * The caller must ensure that the state instance is valid until the validation
    * finishes (i.e., until validateCertificateChain() and
    * validateOriginalPacket() have been called).
    * @param interest The Interest packet being validated, which is copied.
@@ -45,7 +45,8 @@ public class InterestValidationState extends ValidationState {
     (Interest interest, InterestValidationSuccessCallback successCallback,
      InterestValidationFailureCallback failureCallback)
   {
-    interest_ = interest;
+    // Make a copy.
+    interest_ = new Interest(interest);
     successCallback_ = successCallback;
     failureCallback_ = failureCallback;
 

@@ -32,10 +32,10 @@ import net.named_data.jndn.security.VerificationHelpers;
 public class DataValidationState extends ValidationState {
   /**
    * Create a DataValidationState for the Data packet.
-   * The caller must ensure that state instance is valid until validation
+   * The caller must ensure that the state instance is valid until the validation
    * finishes (i.e., until validateCertificateChain() and
    * validateOriginalPacket() have been called).
-   * @param data The Date packet being validated, which is copied.
+   * @param data The Data packet being validated, which is copied.
    * @param successCallback This calls successCallback.successCallback(data) to
    * report a successful Data validation.
    * @param failureCallback This calls failureCallback.failureCallback(data, error)
@@ -45,7 +45,8 @@ public class DataValidationState extends ValidationState {
     (Data data, DataValidationSuccessCallback successCallback,
      DataValidationFailureCallback failureCallback)
   {
-    data_ = data;
+    // Make a copy.
+    data_ = new Data(data);
     successCallback_ = successCallback;
     failureCallback_ = failureCallback;
 
