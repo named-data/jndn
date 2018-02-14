@@ -188,7 +188,7 @@ public class TrustAnchorContainer {
    * @return The trust anchor group.
    * @throws TrustAnchorContainer.Error if the groupId does not exist.
    */
-  TrustAnchorGroup
+  public final TrustAnchorGroup
   getGroup(String groupId) throws TrustAnchorContainer.Error
   {
     TrustAnchorGroup group = groups_.get(groupId);
