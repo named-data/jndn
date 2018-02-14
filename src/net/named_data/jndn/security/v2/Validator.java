@@ -97,7 +97,7 @@ public class Validator extends CertificateStorage {
   getPolicy() { return policy_; }
 
   /**
-   * Get the CertificateFetcher given to the constructor.
+   * Get the CertificateFetcher given to (or created in) the constructor.
    * @return The CertificateFetcher.
    */
   public final CertificateFetcher
@@ -111,7 +111,8 @@ public class Validator extends CertificateStorage {
   setMaxDepth(int maxDepth) { maxDepth_ = maxDepth; }
 
   /**
-   * @return The maximum depth of the certificate chain
+   * Get the maximum depth of the certificate chain.
+   * @return The maximum depth.
    */
   public final int
   getMaxDepth() { return maxDepth_; }
@@ -255,7 +256,7 @@ public class Validator extends CertificateStorage {
     CertificateV2 certificate = findTrustedCertificate
       (certificateRequest.interest_);
     if (certificate != null) {
-      logger_.log(Level.FINE, "Found trusted certificate " +
+      logger_.log(Level.FINE, "Found trusted certificate {0}",
         certificate.getName().toUri());
 
       certificate = state.verifyCertificateChain_(certificate);
