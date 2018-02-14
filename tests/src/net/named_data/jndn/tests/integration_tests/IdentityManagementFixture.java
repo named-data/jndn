@@ -192,7 +192,7 @@ public class IdentityManagementFixture {
   addCertificate(PibKey key, String issuerId)
     throws TpmBackEnd.Error, PibImpl.Error, KeyChain.Error
   {
-    Name certificateName = key.getName();
+    Name certificateName = new Name(key.getName());
     certificateName.append(issuerId).appendVersion(3);
     CertificateV2 certificate = new CertificateV2();
     certificate.setName(certificateName);
