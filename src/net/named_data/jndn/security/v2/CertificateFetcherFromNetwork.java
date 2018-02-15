@@ -137,7 +137,7 @@ public class CertificateFetcherFromNetwork extends CertificateFetcher {
         });
     } catch (IOException ex) {
       state.fail(new ValidationError(ValidationError.CANNOT_RETRIEVE_CERTIFICATE,
-        "Error in expressInterest: ex"));
+        "Error in expressInterest: " + ex));
     }
   }
 
