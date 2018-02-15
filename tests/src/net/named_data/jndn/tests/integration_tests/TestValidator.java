@@ -281,7 +281,7 @@ public class TestValidator {
     Data data = new Data(new Name("/Security/V2/ValidatorFixture/Sub1/Sub2/Data"));
     fixture_.keyChain_.sign(data, new SigningInfo(fixture_.subIdentity_));
 
-    validateExpectFailure(data, "Signed by a malformed certificate");
+    validateExpectFailure(data, "Signed by an expired certificate");
     assertEquals(1, fixture_.face_.sentInterests_.size());
   }
 
