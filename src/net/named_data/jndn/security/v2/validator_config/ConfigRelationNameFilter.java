@@ -1,6 +1,7 @@
 /**
  * Copyright (C) 2017-2018 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * @author: From ndn-cxx security https://github.com/named-data/ndn-cxx/blob/master/src/security/v2/validator-config/filter.hpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,18 +34,19 @@ import net.named_data.jndn.security.ValidatorConfigError;
  *   relation is-prefix-of
  * }"
  * creates ConfigRelationNameFilter("/example",
- *   ConfigNameRelation::Relation::IS_PREFIX_OF) .
+ *   ConfigNameRelation.Relation.IS_PREFIX_OF) .
  */
 public class ConfigRelationNameFilter extends ConfigFilter {
   /**
    * Create a ConfigRelationNameFilter for the given values.
    * @param name The relation name, which is copied.
-   * @param relation The relation type as a ConfigNameRelation::Relation enum.
+   * @param relation The relation type as a ConfigNameRelation.Relation enum.
    */
   public ConfigRelationNameFilter
     (Name name, ConfigNameRelation.Relation relation)
   {
-    name_ = name;
+    // Copy the Name.
+    name_ = new Name(name);
     relation_ = relation;
   }
 
