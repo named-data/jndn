@@ -121,9 +121,9 @@ public abstract class ConfigChecker {
     try {
       // Ignore sig-type.
       return new ConfigHyperRelationChecker
-              ("^(<>*)$",        "\\1",
-                      "^(<>*)<KEY><>$", "\\1",
-                      ConfigNameRelation.Relation.IS_PREFIX_OF);
+        ("^(<>*)$",        "\\1",
+         "^(<>*)<KEY><>$", "\\1",
+         ConfigNameRelation.Relation.IS_PREFIX_OF);
     } catch (NdnRegexMatcherBase.Error ex) {
       throw new ValidatorConfigError("Error creating ConfigHyperRelationChecker: " + ex);
     }
