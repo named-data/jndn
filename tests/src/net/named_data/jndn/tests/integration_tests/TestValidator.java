@@ -102,7 +102,7 @@ public class TestValidator {
    * Call fixture_.validator_.validate and if it calls the successCallback then
    * fail the test with the given message.
    * @param data The Data to validate.
-   * @param message The message to show if the test fails.
+   * @param message The message to show if the test succeeds.
    */
   void
   validateExpectFailure(Data data, final String message)
