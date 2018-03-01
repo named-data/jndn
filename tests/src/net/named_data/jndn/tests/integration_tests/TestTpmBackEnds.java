@@ -184,7 +184,7 @@ public class TestTpmBackEnds {
       // Create an EC key.
       Name identityName = new Name("/Test/Ec/KeyName");
 
-      TpmKeyHandle key = tpm.createKey(identityName, new EcdsaKeyParams());
+      TpmKeyHandle key = tpm.createKey(identityName, new EcKeyParams());
       Name ecKeyName = key.getKeyName();
 
       Blob content = new Blob(new int[] { 0x01, 0x02, 0x03, 0x04});

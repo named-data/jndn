@@ -22,48 +22,31 @@ package net.named_data.jndn.security;
 
 import net.named_data.jndn.Name;
 
-public class EcdsaKeyParams extends KeyParams {
+/**
+ * @deprecated Use EcKeyParams .
+ */
+public class EcdsaKeyParams extends EcKeyParams {
   public EcdsaKeyParams(Name.Component keyId, int size)
   {
-    super(getType(), keyId);
-    size_ = size;
+    super(keyId, size);
   }
 
   public EcdsaKeyParams(Name.Component keyId)
   {
-    super(getType(), keyId);
-    size_ = getDefaultSize();
+    super(keyId);
   }
 
   public EcdsaKeyParams(int size, KeyIdType keyIdType)
   {
-    super(getType(), keyIdType);
-    size_ = size;
+    super(size, keyIdType);
   }
 
   public EcdsaKeyParams(int size)
   {
-    super(getType(), KeyIdType.RANDOM);
-    size_ = size;
+    super(size);
   }
 
   public EcdsaKeyParams()
   {
-    super(getType(), KeyIdType.RANDOM);
-    size_ = getDefaultSize();
   }
-
-  public int
-  getKeySize()
-  {
-    return size_;
-  }
-
-  public static int
-  getDefaultSize() { return 256; }
-
-  public static KeyType
-  getType() { return KeyType.ECDSA; }
-
-  private final int size_;
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2018 Regents of the University of California.
+ * Copyright (C) 2018 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -20,24 +20,50 @@
 
 package net.named_data.jndn.security;
 
-// The KeyType integer is used by the Sqlite key storage, so don't change them.
-// Make these the same as ndn-cxx in case the storage file is shared.
-public enum KeyType {
-  RSA(0),
-  EC(1),
-  /**
-   * @deprecated  Use KeyType.EC .
-   */
-  ECDSA(1),
-  AES(128);
+import net.named_data.jndn.Name;
 
-  KeyType (int type)
+public class EcKeyParams extends KeyParams {
+  public EcKeyParams(Name.Component keyId, int size)
   {
-    type_ = type;
+    super(getType(), keyId);
+    size_ = size;
   }
 
-  public final int
-  getNumericType() { return type_; }
+  public EcKeyParams(Name.Component keyId)
+  {
+    super(getType(), keyId);
+    size_ = getDefaultSize();
+  }
 
-  private final int type_;
+  public EcKeyParams(int size, KeyIdType keyIdType)
+  {
+    super(getType(), keyIdType);
+    size_ = size;
+  }
+
+  public EcKeyParams(int size)
+  {
+    super(getType(), KeyIdType.RANDOM);
+    size_ = size;
+  }
+
+  public EcKeyParams()
+  {
+    super(getType(), KeyIdType.RANDOM);
+    size_ = getDefaultSize();
+  }
+
+  public int
+  getKeySize()
+  {
+    return size_;
+  }
+
+  public static int
+  getDefaultSize() { return 256; }
+
+  public static KeyType
+  getType() { return KeyType.EC; }
+
+  private final int size_;
 }
