@@ -210,7 +210,7 @@ public class Tpm {
     throws Tpm.Error, TpmBackEnd.Error
   {
     if (params.getKeyType() == KeyType.RSA ||
-        params.getKeyType() == KeyType.ECDSA) {
+        params.getKeyType() == KeyType.EC) {
       TpmKeyHandle keyHandle = backEnd_.createKey(identityName, params);
       Name keyName = keyHandle.getKeyName();
       keys_.put(keyName, keyHandle);

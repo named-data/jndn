@@ -40,7 +40,7 @@ import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.encoding.der.DerNode.DerSequence;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.security.DigestAlgorithm;
-import net.named_data.jndn.security.EcdsaKeyParams;
+import net.named_data.jndn.security.EcKeyParams;
 import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.RsaKeyParams;
@@ -102,17 +102,17 @@ public class TpmPrivateKey {
           keyType = KeyType.RSA;
         else
           // Assume it is an EC key. Try decoding it below.
-          keyType = KeyType.ECDSA;
+          keyType = KeyType.EC;
       } catch (DerDecodingException ex) {
         // Assume it is an EC key. Try decoding it below.
-        keyType = KeyType.ECDSA;
+        keyType = KeyType.EC;
       }
     }
 
     // Java can't decode a PKCS #1 private key, so make a PKCS #8 private key
     // and decode that.
     Blob pkcs8;
-    if (keyType == KeyType.ECDSA) {
+    if (keyType == KeyType.EC) {
       throw new Error("TODO: loadPkcs1 for EC is not implemented");
     }
     else if (keyType == KeyType.RSA)
@@ -163,7 +163,7 @@ public class TpmPrivateKey {
       }
 
       if (oidString.equals(EC_ENCRYPTION_OID))
-        keyType = KeyType.ECDSA;
+        keyType = KeyType.EC;
       else if (oidString.equals(RSA_ENCRYPTION_OID))
         keyType = KeyType.RSA;
       else
@@ -173,11 +173,11 @@ public class TpmPrivateKey {
     // Use a Blob to get the byte array.
     PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec
       (new Blob(encoding, false).getImmutableArray());
-    if (keyType == KeyType.ECDSA) {
+    if (keyType == KeyType.EC) {
       try {
         KeyFactory kf = KeyFactory.getInstance("EC");
         privateKey_ = kf.generatePrivate(spec);
-        keyType_ = KeyType.ECDSA;
+        keyType_ = KeyType.EC;
       }
       catch (InvalidKeySpecException ex) {
         // Don't expect this to happen.
@@ -229,7 +229,7 @@ public class TpmPrivateKey {
   public final Blob
   derivePublicKey() throws TpmPrivateKey.Error
   {
-    if (keyType_ == KeyType.ECDSA) {
+    if (keyType_ == KeyType.EC) {
       throw new Error("TODO: derivePublicKey for EC is not implemented");
     }
     else if (keyType_ == KeyType.RSA) {
@@ -322,7 +322,7 @@ public class TpmPrivateKey {
         ("TpmPrivateKey.sign: Unsupported digest algorithm");
 
     java.security.Signature signature = null;
-    if (keyType_ == KeyType.ECDSA) {
+    if (keyType_ == KeyType.EC) {
       try {
         signature = java.security.Signature.getInstance("SHA256withECDSA");
       }
@@ -412,9 +412,9 @@ public class TpmPrivateKey {
       keyAlgorithm = "RSA";
       keySize = ((RsaKeyParams)keyParams).getKeySize();
     }
-    else if (keyParams.getKeyType() == KeyType.ECDSA) {
+    else if (keyParams.getKeyType() == KeyType.EC) {
       keyAlgorithm = "EC";
-      keySize = ((EcdsaKeyParams)keyParams).getKeySize();
+      keySize = ((EcKeyParams)keyParams).getKeySize();
     }
     else
       throw new IllegalArgumentException

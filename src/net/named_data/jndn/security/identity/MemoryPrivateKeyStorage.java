@@ -31,7 +31,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.security.DigestAlgorithm;
-import net.named_data.jndn.security.EcdsaKeyParams;
+import net.named_data.jndn.security.EcKeyParams;
 import net.named_data.jndn.security.KeyClass;
 import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.security.KeyType;
@@ -122,9 +122,9 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
       keyAlgorithm = "RSA";
       keySize = ((RsaKeyParams)params).getKeySize();
     }
-    else if (params.getKeyType() == KeyType.ECDSA) {
+    else if (params.getKeyType() == KeyType.EC) {
       keyAlgorithm = "EC";
-      keySize = ((EcdsaKeyParams)params).getKeySize();
+      keySize = ((EcKeyParams)params).getKeySize();
     }
     else
       throw new SecurityException
@@ -209,7 +209,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
         throw new SecurityException("SHA256withRSA algorithm is not supported");
       }
     }
-    else if (privateKey.getKeyType() == KeyType.ECDSA) {
+    else if (privateKey.getKeyType() == KeyType.EC) {
       try {
         signature = java.security.Signature.getInstance("SHA256withECDSA");
       }
@@ -338,7 +338,7 @@ public class MemoryPrivateKeyStorage extends PrivateKeyStorage {
              exception.getMessage());
         }
       }
-      else if (keyType == KeyType.ECDSA) {
+      else if (keyType == KeyType.EC) {
         KeyFactory keyFactory = null;
         try {
           keyFactory = KeyFactory.getInstance("EC");

@@ -44,7 +44,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerNode;
 import net.named_data.jndn.security.DigestAlgorithm;
-import net.named_data.jndn.security.EcdsaKeyParams;
+import net.named_data.jndn.security.EcKeyParams;
 import net.named_data.jndn.security.KeyClass;
 import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.security.KeyType;
@@ -129,9 +129,9 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       keyAlgorithm = "RSA";
       keySize = ((RsaKeyParams)params).getKeySize();
     }
-    else if (params.getKeyType() == KeyType.ECDSA) {
+    else if (params.getKeyType() == KeyType.EC) {
       keyAlgorithm = "EC";
-      keySize = ((EcdsaKeyParams)params).getKeySize();
+      keySize = ((EcKeyParams)params).getKeySize();
     }
     else
       throw new SecurityException("Cannot generate a key pair of type " + params.getKeyType());
@@ -238,7 +238,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
       }
     }
     else if (oidString.equals(EC_ENCRYPTION_OID)) {
-      keyType[0] = KeyType.ECDSA;
+      keyType[0] = KeyType.EC;
 
       try {
         KeyFactory kf = KeyFactory.getInstance("EC");
@@ -318,7 +318,7 @@ public class FilePrivateKeyStorage extends PrivateKeyStorage {
           ("FilePrivateKeyStorage: The SHA256withRSA algorithm is not supported");
       }
     }
-    else if (keyType[0] == KeyType.ECDSA) {
+    else if (keyType[0] == KeyType.EC) {
       try {
         signature = java.security.Signature.getInstance("SHA256withECDSA");
       }

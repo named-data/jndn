@@ -72,7 +72,7 @@ public class VerificationHelpers {
           return false;
         }
       }
-      else if (publicKey.getKeyType() == KeyType.ECDSA) {
+      else if (publicKey.getKeyType() == KeyType.EC) {
         try {
           KeyFactory keyFactory = KeyFactory.getInstance("EC");
           java.security.PublicKey securityPublicKey = keyFactory.generatePublic

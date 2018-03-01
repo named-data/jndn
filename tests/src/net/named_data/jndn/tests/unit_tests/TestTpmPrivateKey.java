@@ -28,7 +28,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.security.DigestAlgorithm;
-import net.named_data.jndn.security.EcdsaKeyParams;
+import net.named_data.jndn.security.EcKeyParams;
 import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.UnrecognizedKeyFormatException;
@@ -155,7 +155,7 @@ public class TestTpmPrivateKey {
   class EcKeyTestData extends KeyTestData {
     public EcKeyTestData()
     {
-      keyParams = new EcdsaKeyParams();
+      keyParams = new EcKeyParams();
 
       privateKeyPkcs1 =
 "MIIBaAIBAQQgRxwcbzK9RV6AHYFsDcykI86o3M/a1KlJn0z8PcLMBZOggfowgfcC\n" +

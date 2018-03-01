@@ -232,9 +232,9 @@ public class TestEncodeDecodeBenchmark {
     KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:");
     keyChain.importSafeBag(new SafeBag
       (new Name("/testname/KEY/123"),
-       new Blob(keyType == KeyType.ECDSA ?
+       new Blob(keyType == KeyType.EC ?
          DEFAULT_EC_PRIVATE_KEY_DER : DEFAULT_RSA_PRIVATE_KEY_DER, false),
-       new Blob(keyType == KeyType.ECDSA ?
+       new Blob(keyType == KeyType.EC ?
          DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER, false)));
     Name certificateName = keyChain.getDefaultCertificateName();
 
@@ -307,9 +307,9 @@ public class TestEncodeDecodeBenchmark {
     KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:");
     keyChain.importSafeBag(new SafeBag
       (new Name("/testname/KEY/123"),
-       new Blob(keyType == KeyType.ECDSA ?
+       new Blob(keyType == KeyType.EC ?
          DEFAULT_EC_PRIVATE_KEY_DER : DEFAULT_RSA_PRIVATE_KEY_DER, false),
-       new Blob(keyType == KeyType.ECDSA ?
+       new Blob(keyType == KeyType.EC ?
          DEFAULT_EC_PUBLIC_KEY_DER : DEFAULT_RSA_PUBLIC_KEY_DER, false)));
     Validator validator = new Validator
       (new ValidationPolicyFromPib(keyChain.getPib()));
@@ -346,21 +346,21 @@ public class TestEncodeDecodeBenchmark {
     String format = "TLV";
     Blob[] encoding = new Blob[1];
     {
-      int nIterations = useCrypto ? (keyType == KeyType.ECDSA ? 5000 : 400) : 5000000;
+      int nIterations = useCrypto ? (keyType == KeyType.EC ? 5000 : 400) : 5000000;
       double duration = benchmarkEncodeDataSeconds
         (nIterations, useComplex, useCrypto, keyType, encoding);
       System.out.println("Encode " + (useComplex ? "complex " : "simple  ") +
         format + " data: Crypto " +
-        (useCrypto ? (keyType == KeyType.ECDSA ? "EC " : "RSA") : "-  ") +
+        (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "-  ") +
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));
     }
     {
-      int nIterations = useCrypto ? (keyType == KeyType.ECDSA ? 2000 : 50000) : 10000000;
+      int nIterations = useCrypto ? (keyType == KeyType.EC ? 2000 : 50000) : 10000000;
       double duration = benchmarkDecodeDataSeconds
         (nIterations, useCrypto, keyType, encoding[0]);
       System.out.println("Decode " + (useComplex ? "complex " : "simple  ") +
         format + " data: Crypto " +
-        (useCrypto ? (keyType == KeyType.ECDSA ? "EC " : "RSA") : "-  ") +
+        (useCrypto ? (keyType == KeyType.EC ? "EC " : "RSA") : "-  ") +
         ", Duration sec, Hz: " + duration + ", " + (nIterations / duration));
     }
   }
@@ -375,8 +375,8 @@ public class TestEncodeDecodeBenchmark {
     try {
       benchmarkEncodeDecodeData(false, false, KeyType.RSA);
       benchmarkEncodeDecodeData(true, false, KeyType.RSA);
-      benchmarkEncodeDecodeData(false, true, KeyType.ECDSA);
-      benchmarkEncodeDecodeData(true, true, KeyType.ECDSA);
+      benchmarkEncodeDecodeData(false, true, KeyType.EC);
+      benchmarkEncodeDecodeData(true, true, KeyType.EC);
       benchmarkEncodeDecodeData(false, true, KeyType.RSA);
       benchmarkEncodeDecodeData(true, true, KeyType.RSA);
     } catch (EncodingException e) {}

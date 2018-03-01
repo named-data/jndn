@@ -88,9 +88,9 @@ class CredentialStorage {
          DEFAULT_RSA_PRIVATE_KEY_DER);
 
       identityStorage_.addKey
-        (ecdsaKeyName, KeyType.ECDSA, new Blob(DEFAULT_EC_PUBLIC_KEY_DER, false));
+        (ecdsaKeyName, KeyType.EC, new Blob(DEFAULT_EC_PUBLIC_KEY_DER, false));
       privateKeyStorage_.setKeyPairForKeyName
-        (ecdsaKeyName, KeyType.ECDSA, DEFAULT_EC_PUBLIC_KEY_DER,
+        (ecdsaKeyName, KeyType.EC, DEFAULT_EC_PUBLIC_KEY_DER,
          DEFAULT_EC_PRIVATE_KEY_DER);
     } catch (SecurityException ex) {
       // Don't expect this to happen;

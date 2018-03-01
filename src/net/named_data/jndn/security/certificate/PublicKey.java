@@ -91,7 +91,7 @@ public class PublicKey {
       }
     }
     else if (oidString.equals(EC_ENCRYPTION_OID)) {
-      keyType_ = KeyType.ECDSA;
+      keyType_ = KeyType.EC;
 
       KeyFactory keyFactory = null;
       try {

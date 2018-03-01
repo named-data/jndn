@@ -40,7 +40,7 @@ import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerEncodingException;
 import net.named_data.jndn.security.DigestAlgorithm;
-import net.named_data.jndn.security.EcdsaKeyParams;
+import net.named_data.jndn.security.EcKeyParams;
 import net.named_data.jndn.security.KeyParams;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.RsaKeyParams;
@@ -294,7 +294,7 @@ public class IdentityManager {
   generateEcdsaKeyPair
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
-    Name keyName = generateKeyPair(identityName, isKsk, new EcdsaKeyParams(keySize));
+    Name keyName = generateKeyPair(identityName, isKsk, new EcKeyParams(keySize));
 
     return keyName;
   }
@@ -429,7 +429,7 @@ public class IdentityManager {
   generateEcdsaKeyPairAsDefault
     (Name identityName, boolean isKsk, int keySize) throws SecurityException
   {
-    Name keyName = generateKeyPair(identityName, isKsk, new EcdsaKeyParams(keySize));
+    Name keyName = generateKeyPair(identityName, isKsk, new EcKeyParams(keySize));
 
     identityStorage_.setDefaultKeyNameForIdentity(keyName);
 
@@ -1156,7 +1156,7 @@ public class IdentityManager {
 
       return signature;
     }
-    else if (keyType == KeyType.ECDSA) {
+    else if (keyType == KeyType.EC) {
       Sha256WithEcdsaSignature signature = new Sha256WithEcdsaSignature();
       digestAlgorithm[0] = DigestAlgorithm.SHA256;
 
