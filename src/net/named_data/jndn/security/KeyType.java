@@ -24,6 +24,10 @@ package net.named_data.jndn.security;
 // Make these the same as ndn-cxx in case the storage file is shared.
 public enum KeyType {
   RSA(0),
+  EC(1),
+  /**
+   * @deprecated  Use KeyType.EC .
+   */
   ECDSA(1),
   AES(128);
 
