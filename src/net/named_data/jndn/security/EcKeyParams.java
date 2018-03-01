@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2018 Regents of the University of California.
+ * Copyright (C) 2018 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: From code in ndn-cxx by Yingdi Yu <yingdi@cs.ucla.edu>
  *
@@ -22,31 +22,48 @@ package net.named_data.jndn.security;
 
 import net.named_data.jndn.Name;
 
-/**
- * @deprecated Use EcKeyParams .
- */
-public class EcdsaKeyParams extends EcKeyParams {
-  public EcdsaKeyParams(Name.Component keyId, int size)
+public class EcKeyParams extends KeyParams {
+  public EcKeyParams(Name.Component keyId, int size)
   {
-    super(keyId, size);
+    super(getType(), keyId);
+    size_ = size;
   }
 
-  public EcdsaKeyParams(Name.Component keyId)
+  public EcKeyParams(Name.Component keyId)
   {
-    super(keyId);
+    super(getType(), keyId);
+    size_ = getDefaultSize();
   }
 
-  public EcdsaKeyParams(int size, KeyIdType keyIdType)
+  public EcKeyParams(int size, KeyIdType keyIdType)
   {
-    super(size, keyIdType);
+    super(getType(), keyIdType);
+    size_ = size;
   }
 
-  public EcdsaKeyParams(int size)
+  public EcKeyParams(int size)
   {
-    super(size);
+    super(getType(), KeyIdType.RANDOM);
+    size_ = size;
   }
 
-  public EcdsaKeyParams()
+  public EcKeyParams()
   {
+    super(getType(), KeyIdType.RANDOM);
+    size_ = getDefaultSize();
   }
+
+  public int
+  getKeySize()
+  {
+    return size_;
+  }
+
+  public static int
+  getDefaultSize() { return 256; }
+
+  public static KeyType
+  getType() { return KeyType.EC; }
+
+  private final int size_;
 }
