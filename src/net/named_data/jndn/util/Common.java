@@ -187,6 +187,12 @@ public class Common {
         // Base64.NO_WRAP  is 2.
         return (String)base64Converter_.getDeclaredMethod
           ("encodeToString", byte[].class, int.class).invoke(null, input, 2);
+      else if (base64ConverterType_ == Base64ConverterType.JAVA_UTIL) {
+        Object encoder = base64Converter_.getDeclaredMethod
+          ("getEncoder").invoke(null);
+        return (String)encoder.getClass().getDeclaredMethod
+          ("encodeToString", byte[].class).invoke(encoder, input);
+      }
       else
         // Default to Base64ConverterType.JAVAX.
         return (String)base64Converter_.getDeclaredMethod
@@ -244,6 +250,15 @@ public class Common {
         // Base64.DEFAULT is 0.
         return (byte[])base64Converter_.getDeclaredMethod
           ("decode", String.class, int.class).invoke(null, encoding, 0);
+      else if (base64ConverterType_ == Base64ConverterType.JAVA_UTIL) {
+        // java.util.Base64 doesn't like whitespace, so remove it.
+        encoding = encoding.replaceAll("\\s", "");
+
+        Object decoder = base64Converter_.getDeclaredMethod
+          ("getDecoder").invoke(null);
+        return (byte[])decoder.getClass().getDeclaredMethod
+          ("decode", String.class).invoke(decoder, encoding);
+      }
       else
         // Default to Base64ConverterType.JAVAX.
         return (byte[])base64Converter_.getDeclaredMethod
@@ -317,7 +332,7 @@ public class Common {
   public static final int MAX_NDN_PACKET_SIZE = 8800;
 
   private enum Base64ConverterType {
-    UNINITIALIZED, JAVAX, ANDROID, UNSUPPORTED
+    UNINITIALIZED, JAVAX, JAVA_UTIL, ANDROID, UNSUPPORTED
   }
 
   /**
@@ -335,8 +350,16 @@ public class Common {
   {
     if (base64ConverterType_ == Base64ConverterType.UNINITIALIZED) {
       try {
+        // This is for Java 7, 8.
         base64Converter_ = Class.forName("javax.xml.bind.DatatypeConverter");
         base64ConverterType_ = Base64ConverterType.JAVAX;
+        return;
+      } catch (ClassNotFoundException ex) {}
+
+      try {
+        // This is for Java 9+.
+        base64Converter_ = Class.forName("java.util.Base64");
+        base64ConverterType_ = Base64ConverterType.JAVA_UTIL;
         return;
       } catch (ClassNotFoundException ex) {}
 
