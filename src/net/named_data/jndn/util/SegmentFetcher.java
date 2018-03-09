@@ -190,9 +190,9 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param ToFileOnComplete When all segments are received, call
-   * onComplete.onComplete(isCompleted) where isCompleted is the boolean value
-   * specifying whether all all data was written to the file.
+   * @param onComplete When all segments are received, call
+   * ToFileOnComplete.onComplete(isCompleted) where isCompleted is the boolean
+   * value specifying whether all all data was written to the file.
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
@@ -265,9 +265,9 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
    * fetching and call onError with SEGMENT_VERIFICATION_FAILED. This does not
    * make a copy of the KeyChain; the object must remain valid while fetching.
    * If validatorKeyChain is null, this does not validate the data packet.
-   * @param ToFileOnComplete When all segments are received, call
-   * onComplete.onComplete(isCompleted) where isCompleted is the boolean value
-   * specifying whether all all data was written to the file.
+   * @param onComplete When all segments are received, call
+   * ToFileOnComplete.onComplete(isCompleted) where isCompleted is the boolean
+   * value specifying whether all all data was written to the file.
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
@@ -328,8 +328,8 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
    * verifySegment.verifySegment(data). If it returns false then abort fetching
    * and call onError.onError with ErrorCode.SEGMENT_VERIFICATION_FAILED.
    * @param onComplete When all segments are received, call
-   * onComplete.onComplete(content) where content is the concatenation of the
-   * content of all the segments.
+   * ToFileOnComplete.onComplete(isCompleted) where isCompleted is the boolean
+   * value specifying whether all all data was written to the file.
    * @param onError Call onError.onError(errorCode, message) for timeout or an
    * error processing segments.
    * @param fileName The full path of the file to write to.
