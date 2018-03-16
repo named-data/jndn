@@ -19,6 +19,7 @@
 
 package net.named_data.jndn.security.v2;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Interest;
@@ -47,10 +48,10 @@ public class InterestValidationState extends ValidationState {
   {
     // Make a copy.
     interest_ = new Interest(interest);
-    successCallback_ = successCallback;
+    successCallbacks_.add(successCallback);
     failureCallback_ = failureCallback;
 
-    if (successCallback_ == null)
+    if (successCallback == null)
       throw new IllegalArgumentException("The successCallback is null");
     if (failureCallback_ == null)
       throw new IllegalArgumentException("The failureCallback is null");
@@ -76,16 +77,24 @@ public class InterestValidationState extends ValidationState {
   public final Interest
   getOriginalInterest() { return interest_; }
 
+  public final void
+  addSuccessCallback(InterestValidationSuccessCallback successCallback)
+  {
+    successCallbacks_.add(successCallback);
+  }
+
   public void
   verifyOriginalPacket_(CertificateV2 trustedCertificate)
   {
     if (VerificationHelpers.verifyInterestSignature(interest_, trustedCertificate)) {
       logger_.log(Level.FINE, 
         "OK signature for interest `{0}`", interest_.getName().toUri());
-      try {
-        successCallback_.successCallback(interest_);
-      } catch (Throwable exception) {
-        logger_.log(Level.SEVERE, "Error in successCallback", exception);
+      for (int i = 0; i < successCallbacks_.size(); ++i) {
+        try {
+          successCallbacks_.get(i).successCallback(interest_);
+        } catch (Throwable exception) {
+          logger_.log(Level.SEVERE, "Error in successCallback", exception);
+        }
       }
       setOutcome(true);
     }
@@ -99,16 +108,19 @@ public class InterestValidationState extends ValidationState {
   {
     logger_.log(Level.FINE, "Signature verification bypassed for interest `{0}`",
                 interest_.getName().toUri());
-    try {
-      successCallback_.successCallback(interest_);
-    } catch (Throwable exception) {
-      logger_.log(Level.SEVERE, "Error in successCallback", exception);
+    for (int i = 0; i < successCallbacks_.size(); ++i) {
+      try {
+        successCallbacks_.get(i).successCallback(interest_);
+      } catch (Throwable exception) {
+        logger_.log(Level.SEVERE, "Error in successCallback", exception);
+      }
     }
     setOutcome(true);
   }
 
   private final Interest interest_;
-  private final InterestValidationSuccessCallback successCallback_;
+  private final ArrayList<InterestValidationSuccessCallback> successCallbacks_ =
+    new ArrayList<InterestValidationSuccessCallback>();
   private final InterestValidationFailureCallback failureCallback_;
   private static final Logger logger_ =
     Logger.getLogger(InterestValidationState.class.getName());
