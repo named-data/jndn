@@ -48,12 +48,12 @@ public class CommandInterestSigner {
     lastUsedTimestamp_ = Math.round(Common.getNowMilliseconds());
   }
 
-  static final int POS_SIGNATURE_VALUE = -1;
-  static final int POS_SIGNATURE_INFO =  -2;
-  static final int POS_NONCE =           -3;
-  static final int POS_TIMESTAMP =       -4;
+  public static final int POS_SIGNATURE_VALUE = -1;
+  public static final int POS_SIGNATURE_INFO =  -2;
+  public static final int POS_NONCE =           -3;
+  public static final int POS_TIMESTAMP =       -4;
 
-  static final int MINIMUM_SIZE = 4;
+  public static final int MINIMUM_SIZE = 4;
 
   /**
    * Append the timestamp and nonce name components to the supplied name, create
