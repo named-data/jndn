@@ -42,7 +42,7 @@ public class CommandInterestSigner {
    * Create a CommandInterestSigner to use the keyChain to sign.
    * @param keyChain The KeyChain used to sign.
    */
-  CommandInterestSigner(KeyChain keyChain)
+  public CommandInterestSigner(KeyChain keyChain)
   {
     keyChain_ = keyChain;
     lastUsedTimestamp_ = Math.round(Common.getNowMilliseconds());
