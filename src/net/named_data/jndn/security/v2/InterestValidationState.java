@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.security.VerificationHelpers;
+import net.named_data.jndn.util.Common;
 
 /**
  * The InterestValidationState class extends ValidationState to hold the
@@ -124,4 +125,6 @@ public class InterestValidationState extends ValidationState {
   private final InterestValidationFailureCallback failureCallback_;
   private static final Logger logger_ =
     Logger.getLogger(InterestValidationState.class.getName());
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
