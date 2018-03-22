@@ -107,6 +107,12 @@ public class TestInterestMethods {
 1
   });
 
+  private static final ByteBuffer codedInterestNoSelectors = toBuffer(new int[] {
+0x05, 0x12, // Interest
+  0x07, 0x0A, 0x08, 0x03, 0x6E, 0x64, 0x6E, 0x08, 0x03, 0x61, 0x62, 0x63, // Name
+  0x0A, 0x04, 0x61, 0x62, 0x61, 0x62   // Nonce
+  });
+
   static String dump(Object s1) { return "" + s1; }
   static String dump(Object s1, Object s2) { return s1 + " " + s2; }
 
@@ -297,6 +303,16 @@ public class TestInterestMethods {
 
     assertTrue("Redecoded fresh interest does not match original",
                interestDumpsEqual(freshDump, reDecodedFreshDump));
+  }
+
+  @Test
+  public void
+  testNoSelectorsMustBeFresh() throws EncodingException
+  {
+    Interest interest = new Interest();
+    interest.wireDecode(new Blob(codedInterestNoSelectors, false));
+    assertEquals("MustBeFresh should be false if no selectors",
+      false, interest.getMustBeFresh());
   }
 
   @Test
