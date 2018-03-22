@@ -219,6 +219,14 @@ public class Tlv0_2WireFormat extends WireFormat {
        decoder, copy);
     if (decoder.peekType(Tlv.Selectors, endOffset))
       decodeSelectors(interest, decoder, copy);
+    else {
+      // Set selectors to none.
+      interest.setMinSuffixComponents(-1);
+      interest.setMaxSuffixComponents(-1);
+      interest.getExclude().clear();
+      interest.setChildSelector(-1);
+      interest.setMustBeFresh(false);
+    }
     // Require a Nonce, but don't force it to be 4 bytes.
     ByteBuffer nonce = decoder.readBlobTlv(Tlv.Nonce);
     interest.setInterestLifetimeMilliseconds
