@@ -211,8 +211,8 @@ public class ValidationPolicyCommandInterest extends ValidationPolicy {
   }
 
   /**
-   * Set the offset for when makeCommandInterest() gets the current time, which
-   * should only be used for testing.
+   * Set the offset when insertNewRecord() and cleanUp() get the current time,
+   * which should only be used for testing.
    * @param nowOffsetMilliseconds The offset in milliseconds.
    */
   public final void
