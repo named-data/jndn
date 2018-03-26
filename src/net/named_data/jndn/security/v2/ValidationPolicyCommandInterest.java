@@ -210,7 +210,6 @@ public class ValidationPolicyCommandInterest extends ValidationPolicy {
     getInnerPolicy().checkPolicy(interest, state, continueValidation);
   }
 
-
   /**
    * Set the offset for when makeCommandInterest() gets the current time, which
    * should only be used for testing.
@@ -227,7 +226,8 @@ public class ValidationPolicyCommandInterest extends ValidationPolicy {
     public LastTimestampRecord
       (Name keyName, double timestamp, double lastRefreshed)
     {
-      keyName_ = keyName;
+      // Copy the Name.
+      keyName_ = new Name(keyName);
       timestamp_ = timestamp;
       lastRefreshed_ = lastRefreshed;
     }
