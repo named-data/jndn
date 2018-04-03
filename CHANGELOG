@@ -12,6 +12,7 @@ Changes
   to KeyType.EC and EcKeyParams. Deprecated KeyType.ECDSA and EcdsaKeyParams.
 * Added security CommandInterestSigner.
 * Added security ValidationPolicyCommandInterest.
+* Updated the INSTALL instructions on macOS to use Homebrew (not Macports).
 
 Deprecated
 * Deprecated KeyType.ECDSA. Use KeyType.EC.

@@ -13,14 +13,16 @@ Prerequisites
 
 Following are the detailed steps for each platform to install the prerequisites.
 
-## OS X 10.9.5, OS X 10.10.2, OS X 10.11, macOS 10.12
-Install Xcode.  (Xcode seems to already have the Command Line Tools.)
+## OS X 10.9.5, OS X 10.10.2, OS X 10.11, macOS 10.12 and macOS 10.13
+To install Apache Maven, first install Xcode. To install the command line tools, in a terminal enter:
 
-To install Apache Maven, install MacPorts from http://www.macports.org/install.php .
-In a new terminal, enter:
+    xcode-select --install
 
-    sudo port install maven3
-    sudo port select --set maven maven3
+Install Brew from https://brew.sh
+
+In a terminal, enter:
+
+    brew install maven
 
 Optional: To install Android SDK, install from https://developer.android.com/sdk/index.html .
 
