@@ -535,11 +535,12 @@ public class MemoryContentCache implements OnInterestCallback {
   public final void
   add(Data data)
   {
-    doCleanup();
+    double nowMilliseconds = Common.getNowMilliseconds();
+    doCleanup(nowMilliseconds);
 
     if (data.getMetaInfo().getFreshnessPeriod() >= 0.0) {
       // The content will go stale, so use staleTimeCache_.
-      StaleTimeContent content = new StaleTimeContent(data);
+      StaleTimeContent content = new StaleTimeContent(data, nowMilliseconds);
       // Insert into staleTimeCache, sorted on content.staleTimeMilliseconds.
       // Search from the back since we expect it to go there.
       int i = staleTimeCache_.size() - 1;
@@ -560,7 +561,6 @@ public class MemoryContentCache implements OnInterestCallback {
     // Remove timed-out interests and check if the data packet matches any
     // pending interest.
     // Go backwards through the list so we can erase entries.
-    double nowMilliseconds = Common.getNowMilliseconds();
     for (int i = pendingInterestTable_.size() - 1; i >= 0; --i) {
       PendingInterest pendingInterest = pendingInterestTable_.get(i);
       if (pendingInterest.isTimedOut(nowMilliseconds)) {
@@ -619,7 +619,8 @@ public class MemoryContentCache implements OnInterestCallback {
     (Name prefix, Interest interest, Face face, long interestFilterId,
      InterestFilter filter)
   {
-    doCleanup();
+    double nowMilliseconds = Common.getNowMilliseconds();
+    doCleanup(nowMilliseconds);
 
     Name.Component selectedComponent = null;
     Blob selectedEncoding = null;
@@ -735,14 +736,16 @@ public class MemoryContentCache implements OnInterestCallback {
      * as well as the staleTimeMilliseconds which is now plus
      * data.getMetaInfo().getFreshnessPeriod().
      * @param data The Data packet whose name and wire encoding are copied.
+     * @param nowMilliseconds The current time in milliseconds from
+     * Common.getNowMilliseconds().
      */
-    public StaleTimeContent(Data data)
+    public StaleTimeContent(Data data, double nowMilliseconds)
     {
       // wireEncode returns the cached encoding if available.
       super(data);
 
       // Set up staleTimeMilliseconds_.
-      staleTimeMilliseconds_ = Common.getNowMilliseconds() +
+      staleTimeMilliseconds_ = nowMilliseconds +
         data.getMetaInfo().getFreshnessPeriod();
     }
 
@@ -830,18 +833,19 @@ public class MemoryContentCache implements OnInterestCallback {
    * cleanupIntervalMilliseconds_. Since add(Data) does a sorted insert into
    * staleTimeCache_, the check for stale data is quick and does not require
    * searching the entire staleTimeCache_.
+   * @param nowMilliseconds The current time in milliseconds from
+   * Common.getNowMilliseconds().
    */
   private void
-  doCleanup()
+  doCleanup(double nowMilliseconds)
   {
-    double now = Common.getNowMilliseconds();
-    if (now >= nextCleanupTime_) {
+    if (nowMilliseconds >= nextCleanupTime_) {
       // staleTimeCache_ is sorted on staleTimeMilliseconds_, so we only need to
       // erase the stale entries at the front, then quit.
-      while (staleTimeCache_.size() > 0 && staleTimeCache_.get(0).isStale(now))
+      while (staleTimeCache_.size() > 0 && staleTimeCache_.get(0).isStale(nowMilliseconds))
         staleTimeCache_.remove(0);
 
-      nextCleanupTime_ = now + cleanupIntervalMilliseconds_;
+      nextCleanupTime_ = nowMilliseconds + cleanupIntervalMilliseconds_;
     }
   }
 
