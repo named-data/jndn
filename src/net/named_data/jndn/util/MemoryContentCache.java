@@ -545,8 +545,8 @@ public class MemoryContentCache implements OnInterestCallback {
       // Search from the back since we expect it to go there.
       int i = staleTimeCache_.size() - 1;
       while (i >= 0) {
-        if (staleTimeCache_.get(i).getStaleTimeMilliseconds() <=
-            content.getStaleTimeMilliseconds())
+        if (staleTimeCache_.get(i).getCacheRemovalTimeMilliseconds() <=
+            content.getCacheRemovalTimeMilliseconds())
           break;
         --i;
       }
@@ -628,13 +628,18 @@ public class MemoryContentCache implements OnInterestCallback {
     int totalSize = staleTimeCache_.size() + noStaleTimeCache_.size();
     for (int i = 0; i < totalSize; ++i) {
       Content content;
-      if (i < staleTimeCache_.size())
-        content = staleTimeCache_.get(i);
+      boolean isFresh = true;
+      if (i < staleTimeCache_.size()) {
+        StaleTimeContent staleTimeContent = staleTimeCache_.get(i);
+        content = staleTimeContent;
+        isFresh = staleTimeContent.isFresh(nowMilliseconds);
+      }
       else
         // We have iterated over the first array. Get from the second.
         content = noStaleTimeCache_.get(i - staleTimeCache_.size());
 
-      if (interest.matchesName(content.getName())) {
+      if (interest.matchesName(content.getName()) &&
+          !(interest.getMustBeFresh() && !isFresh)) {
         if (interest.getChildSelector() < 0) {
           // No child selector, so send the first match that we have found.
           try {
@@ -744,28 +749,46 @@ public class MemoryContentCache implements OnInterestCallback {
       // wireEncode returns the cached encoding if available.
       super(data);
 
-      // Set up staleTimeMilliseconds_.
-      staleTimeMilliseconds_ = nowMilliseconds +
+      // Set up cacheRemovalTimeMilliseconds_.
+      cacheRemovalTimeMilliseconds_ = nowMilliseconds +
         data.getMetaInfo().getFreshnessPeriod();
+      freshnessExpiryTimeMilliseconds_ = cacheRemovalTimeMilliseconds_;
     }
 
     /**
-     * Check if this content is stale.
+     * Check if this content is stale and should be removed from the cache,
      * @param nowMilliseconds The current time in milliseconds from
      * Common.getNowMilliseconds().
-     * @return True if this content is stale, otherwise false.
+     * @return True if this content should be removed, otherwise false.
      */
     public final boolean
-    isStale(double nowMilliseconds)
+    isPastRemovalTime(double nowMilliseconds)
     {
-      return staleTimeMilliseconds_ <= nowMilliseconds;
+      return cacheRemovalTimeMilliseconds_ <= nowMilliseconds;
+    }
+
+    /**
+     * Check if the content is still fresh according to its freshness period
+     * (independent of when to remove from the cache).
+     * @param nowMilliseconds The current time in milliseconds from
+     * Common.getNowMilliseconds().
+     * @return True if the content is still fresh, otherwise false.
+     */
+    public final boolean
+    isFresh(double nowMilliseconds)
+    {
+      return freshnessExpiryTimeMilliseconds_ > nowMilliseconds;
     }
 
     public final double
-    getStaleTimeMilliseconds() { return staleTimeMilliseconds_; }
+    getCacheRemovalTimeMilliseconds() { return cacheRemovalTimeMilliseconds_; }
 
-    private final double staleTimeMilliseconds_; /**< The time when the content
-      becomse stale in milliseconds according to Common.getNowMilliseconds() */
+    private final double cacheRemovalTimeMilliseconds_; /**< The time when the content
+      becomes stale and should be removed from the cache in milliseconds
+      according to Common.getNowMilliseconds(). */
+    private final double freshnessExpiryTimeMilliseconds_; /**< The time when
+      the freshness period of the content expires (independent of when to
+      remove from the cache) in milliseconds according to Common.getNowMilliseconds(). */
   }
 
   /**
@@ -840,9 +863,10 @@ public class MemoryContentCache implements OnInterestCallback {
   doCleanup(double nowMilliseconds)
   {
     if (nowMilliseconds >= nextCleanupTime_) {
-      // staleTimeCache_ is sorted on staleTimeMilliseconds_, so we only need to
+      // staleTimeCache_ is sorted on cacheRemovalTimeMilliseconds_, so we only need to
       // erase the stale entries at the front, then quit.
-      while (staleTimeCache_.size() > 0 && staleTimeCache_.get(0).isStale(nowMilliseconds))
+      while (staleTimeCache_.size() > 0 && 
+             staleTimeCache_.get(0).isPastRemovalTime(nowMilliseconds))
         staleTimeCache_.remove(0);
 
       nextCleanupTime_ = nowMilliseconds + cleanupIntervalMilliseconds_;
