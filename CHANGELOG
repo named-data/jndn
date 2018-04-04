@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.16 (2018-03-22)
+Interim changes since jNDN v0.16 (2018-04-04)
 ---------------------------------------------
 
 Bug fixes
@@ -12,6 +12,8 @@ Changes
   to KeyType.EC and EcKeyParams. Deprecated KeyType.ECDSA and EcdsaKeyParams.
 * Added security CommandInterestSigner.
 * Added security ValidationPolicyCommandInterest.
+* In MemoryContentCache, added setMinimumCacheLifetime which can extend the
+  cache lifetime of content to match an Interest where MustBeFresh is false.
 * Updated the INSTALL instructions on macOS to use Homebrew (not Macports).
 
 Deprecated
