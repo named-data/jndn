@@ -521,9 +521,10 @@ public class MemoryContentCache implements OnInterestCallback {
   /**
    * Add the Data packet to the cache so that it is available to use to
    * answer interests. If data.getMetaInfo().getFreshnessPeriod() is not
-   * negative, set the staleness time to now plus
-   * data.getMetaInfo().getFreshnessPeriod(), which is checked during cleanup to
-   * remove stale content. This also checks if cleanupIntervalMilliseconds
+   * negative, set the staleness time to now plus the maximum of
+   * data.getMetaInfo().getFreshnessPeriod() and minimumCacheLifetime, which is
+   * checked during cleanup to remove stale content.
+   * This also checks if cleanupIntervalMilliseconds
    * milliseconds have passed and removes stale content from the cache. After
    * removing stale content, remove timed-out pending interests from
    * storePendingInterest(), then if the added Data packet satisfies any
@@ -540,7 +541,8 @@ public class MemoryContentCache implements OnInterestCallback {
 
     if (data.getMetaInfo().getFreshnessPeriod() >= 0.0) {
       // The content will go stale, so use staleTimeCache_.
-      StaleTimeContent content = new StaleTimeContent(data, nowMilliseconds);
+      StaleTimeContent content = new StaleTimeContent
+        (data, nowMilliseconds, minimumCacheLifetime_);
       // Insert into staleTimeCache, sorted on content.staleTimeMilliseconds.
       // Search from the back since we expect it to go there.
       int i = staleTimeCache_.size() - 1;
@@ -612,6 +614,27 @@ public class MemoryContentCache implements OnInterestCallback {
   getStorePendingInterest()
   {
     return storePendingInterestCallback_;
+  }
+
+  /**
+   * Get the minimum lifetime before removing stale content from the cache.
+   * @return The minimum cache lifetime in milliseconds.
+   */
+  public final double
+  getMinimumCacheLifetime() { return minimumCacheLifetime_; }
+
+  /**
+   * Set the minimum lifetime before removing stale content from the cache which
+   * can keep content in the cache longer than the lifetime defined in the meta
+   * info. This can be useful for matching interests where MustBeFresh is false.
+   * The default minimum cache lifetime is zero, meaning that content is removed
+   * when its lifetime expires.
+   * @param minimumCacheLifetime The minimum cache lifetime in milliseconds.
+   */
+  public final void
+  setMinimumCacheLifetime(double minimumCacheLifetime)
+  {
+    minimumCacheLifetime_ = minimumCacheLifetime;
   }
 
   public final void
@@ -738,25 +761,28 @@ public class MemoryContentCache implements OnInterestCallback {
   private class StaleTimeContent extends Content {
     /**
      * Create a new StaleTimeContent to hold data's name and wire encoding
-     * as well as the staleTimeMilliseconds which is now plus
-     * data.getMetaInfo().getFreshnessPeriod().
+     * as well as the staleTimeMilliseconds which is now plus the maximum of
+     * data.getMetaInfo().getFreshnessPeriod() and the minimumCacheLifetime.
      * @param data The Data packet whose name and wire encoding are copied.
      * @param nowMilliseconds The current time in milliseconds from
      * Common.getNowMilliseconds().
+     * @param minimumCacheLifetime The minimum cache lifetime in milliseconds.
      */
-    public StaleTimeContent(Data data, double nowMilliseconds)
+    public StaleTimeContent
+      (Data data, double nowMilliseconds, double minimumCacheLifetime)
     {
       // wireEncode returns the cached encoding if available.
       super(data);
 
-      // Set up cacheRemovalTimeMilliseconds_.
       cacheRemovalTimeMilliseconds_ = nowMilliseconds +
+        Math.max(data.getMetaInfo().getFreshnessPeriod(), minimumCacheLifetime);
+      freshnessExpiryTimeMilliseconds_ = nowMilliseconds +
         data.getMetaInfo().getFreshnessPeriod();
-      freshnessExpiryTimeMilliseconds_ = cacheRemovalTimeMilliseconds_;
     }
 
     /**
      * Check if this content is stale and should be removed from the cache,
+     * according to the content freshness period and the minimumCacheLifetime.
      * @param nowMilliseconds The current time in milliseconds from
      * Common.getNowMilliseconds().
      * @return True if this content should be removed, otherwise false.
@@ -890,5 +916,6 @@ public class MemoryContentCache implements OnInterestCallback {
   private final ArrayList<PendingInterest> pendingInterestTable_ =
     new ArrayList<PendingInterest>();
   private OnInterestCallback storePendingInterestCallback_;
+  private double minimumCacheLifetime_ = 0;
   private static final Logger logger_ = Logger.getLogger(MemoryContentCache.class.getName());
 }
