@@ -543,7 +543,7 @@ public class MemoryContentCache implements OnInterestCallback {
       // The content will go stale, so use staleTimeCache_.
       StaleTimeContent content = new StaleTimeContent
         (data, nowMilliseconds, minimumCacheLifetime_);
-      // Insert into staleTimeCache, sorted on content.staleTimeMilliseconds.
+      // Insert into staleTimeCache, sorted on content.cacheRemovalTimeMilliseconds_.
       // Search from the back since we expect it to go there.
       int i = staleTimeCache_.size() - 1;
       while (i >= 0) {
@@ -553,7 +553,7 @@ public class MemoryContentCache implements OnInterestCallback {
         --i;
       }
       // Element i is the greatest less than or equal to
-      // content.staleTimeMilliseconds, so insert after it.
+      // content.cacheRemovalTimeMilliseconds_, so insert after it.
       staleTimeCache_.add(i + 1, content);
     }
     else
@@ -755,13 +755,13 @@ public class MemoryContentCache implements OnInterestCallback {
   }
 
   /**
-   * StaleTimeContent extends Content to include the staleTimeMilliseconds
+   * StaleTimeContent extends Content to include the cacheRemovalTimeMilliseconds_
    * for when this entry should be cleaned up from the cache.
    */
   private class StaleTimeContent extends Content {
     /**
      * Create a new StaleTimeContent to hold data's name and wire encoding
-     * as well as the staleTimeMilliseconds which is now plus the maximum of
+     * as well as the cacheRemovalTimeMilliseconds_ which is now plus the maximum of
      * data.getMetaInfo().getFreshnessPeriod() and the minimumCacheLifetime.
      * @param data The Data packet whose name and wire encoding are copied.
      * @param nowMilliseconds The current time in milliseconds from
