@@ -41,8 +41,7 @@ public class ThreadPoolFace extends Face {
    * is also used to schedule the interest timeouts.
    * @param transport A Transport object used for communication. If you do not
    * want to call processEvents, then the transport should be an async transport
-   * like AsyncTcpTransport, in which case the transport should use the same
-   * ioService.
+   * like AsyncTcpTransport.
    * @param connectionInfo A Transport.ConnectionInfo to be used to connect to
    * the transport.
    */
