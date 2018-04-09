@@ -30,6 +30,7 @@ import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
+import net.named_data.jndn.security.SafeBag;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.identity.IdentityManager;
 import net.named_data.jndn.security.identity.MemoryIdentityStorage;
@@ -72,7 +73,7 @@ public class TestPublishAsyncNfd {
     0x41, 0x02, 0x03, 0x01, 0x00, 0x01
   });
 
-  // Java uses an unencrypted PKCS #8 PrivateKeyInfo, not a PKCS #1 RSAPrivateKey.
+  // PKCS #8 PrivateKeyInfo.
   private static final ByteBuffer DEFAULT_RSA_PRIVATE_KEY_DER = toBuffer(new int[] {
     0x30, 0x82, 0x04, 0xbf, 0x02, 0x01, 0x00, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7,
     0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x04, 0x82, 0x04, 0xa9, 0x30, 0x82, 0x04, 0xa5, 0x02, 0x01,
@@ -154,10 +155,9 @@ public class TestPublishAsyncNfd {
   });
 
   private static class Echo implements OnInterestCallback, OnRegisterFailed {
-    public Echo(KeyChain keyChain, Name certificateName)
+    public Echo(KeyChain keyChain)
     {
       keyChain_ = keyChain;
-      certificateName_ = certificateName;
     }
 
     public void
@@ -173,11 +173,12 @@ public class TestPublishAsyncNfd {
       data.setContent(new Blob(content));
 
       try {
-        keyChain_.sign(data, certificateName_);      }
-      catch (SecurityException exception) {
+        keyChain_.sign(data);
+      }
+      catch (Exception exception) {
         // Don't expect this to happen.
         throw new Error
-          ("SecurityException in sign: " + exception.getMessage());
+          ("Security exception in sign: " + exception.getMessage());
       }
 
       System.out.println("Sent content " + content);
@@ -200,7 +201,6 @@ public class TestPublishAsyncNfd {
     int responseCount_ = 0;
   }
 
-
   public static void
   main(String[] args)
   {
@@ -211,24 +211,15 @@ public class TestPublishAsyncNfd {
       //   a default private key instead of the system default key chain. This
       //   is OK for now because NFD is configured to skip verification, so it
       //   ignores the system default key chain.
-      MemoryIdentityStorage identityStorage = new MemoryIdentityStorage();
-      MemoryPrivateKeyStorage privateKeyStorage = new MemoryPrivateKeyStorage();
-      KeyChain keyChain = new KeyChain
-        (new IdentityManager(identityStorage, privateKeyStorage),
-         new SelfVerifyPolicyManager(identityStorage));
-      keyChain.setFace(face);
+      KeyChain keyChain = new KeyChain("pib-memory:", "tpm-memory:");
+      keyChain.importSafeBag(new SafeBag
+        (new Name("/testname/KEY/123"),
+         new Blob(DEFAULT_RSA_PRIVATE_KEY_DER, false),
+         new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false)));
 
-      // Initialize the storage.
-      Name keyName = new Name("/testname/DSK-123");
-      Name certificateName = keyName.getSubName(0, keyName.size() - 1).append
-        ("KEY").append(keyName.get(-1)).append("ID-CERT").append("0");
-      identityStorage.addKey(keyName, KeyType.RSA, new Blob(DEFAULT_RSA_PUBLIC_KEY_DER, false));
-      privateKeyStorage.setKeyPairForKeyName
-        (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER, DEFAULT_RSA_PRIVATE_KEY_DER);
+      face.setCommandSigningInfo(keyChain, keyChain.getDefaultCertificateName());
 
-      face.setCommandSigningInfo(keyChain, certificateName);
-
-      Echo echo = new Echo(keyChain, certificateName);
+      Echo echo = new Echo(keyChain);
       Name prefix = new Name("/testecho");
       System.out.println("Register prefix  " + prefix.toUri());
       face.registerPrefix(prefix, echo, echo);
