@@ -479,7 +479,7 @@ public class TestDataMethods {
     // make sure nothing is set in the signature of newly created data
     Data data = new Data();
     Sha256WithRsaSignature signature = (Sha256WithRsaSignature)data.getSignature();
-    assertTrue("Key locator type on unsigned data should not be set",
+    assertFalse("Key locator type on unsigned data should not be set",
                signature.getKeyLocator().getType() == KeyLocatorType.NONE);
     assertTrue("Non-empty signature on unsigned data",
                signature.getSignature().isNull());
