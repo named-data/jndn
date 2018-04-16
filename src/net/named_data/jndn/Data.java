@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.SignatureHolder;
+import net.named_data.jndn.lp.CongestionMark;
 import net.named_data.jndn.lp.IncomingFaceId;
 import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
@@ -206,6 +207,18 @@ public class Data implements ChangeCountable, SignatureHolder {
     IncomingFaceId field = 
       lpPacket_ == null ? null : IncomingFaceId.getFirstHeader(lpPacket_);
     return field == null ? -1 : field.getFaceId();
+  }
+
+  /**
+   * Get the congestion mark according to the incoming packet header.
+   * @return The congestion mark. If not specified, return 0.
+   */
+  public final long
+  getCongestionMark()
+  {
+    CongestionMark field =
+      lpPacket_ == null ? null : CongestionMark.getFirstHeader(lpPacket_);
+    return field == null ? 0 : field.getCongestionMark();
   }
 
   /**
