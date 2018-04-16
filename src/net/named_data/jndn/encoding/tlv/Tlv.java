@@ -99,6 +99,7 @@ public class Tlv {
   public static final int LpPacket_IncomingFaceId = 817;
   public static final int LpPacket_CachePolicy = 820;
   public static final int LpPacket_CachePolicyType = 821;
+  public static final int LpPacket_CongestionMark =  832;
   public static final int LpPacket_IGNORE_MIN = 800;
   public static final int LpPacket_IGNORE_MAX = 959;
 
