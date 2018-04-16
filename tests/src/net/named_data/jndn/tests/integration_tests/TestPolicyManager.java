@@ -357,7 +357,7 @@ public class TestPolicyManager implements ConfigPolicyManager.Friend {
 
     VerificationResult vr = doVerify(policyManager, data);
 
-    assertFalse
+    assertTrue
       ("SelfVerifyPolicyManager returned a ValidationRequest", vr.hasFurtherSteps_);
     assertEquals
       ("Verification of identity-signed data failed", 0, vr.failureCount_);
