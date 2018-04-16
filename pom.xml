@@ -25,6 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+        <exclude.integration.tests>**/integration_tests/*.java</exclude.integration.tests>
     </properties>
     <scm>
         <connection>scm:git:https://github.com/named-data/jndn.git</connection>
@@ -61,7 +62,7 @@
                 <version>2.18.1</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/integration_tests/*.java</exclude>
+                        <exclude>${exclude.integration.tests}</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -192,7 +193,7 @@
             </build>
         </profile>
 
-        <!-- Use this profile to run integration tests on systems with NFD installed; e.g. mvn verify -P with-integration-tests -->
+        <!-- Use this profile to run (only) integration tests on systems with NFD installed; e.g. mvn verify -P with-integration-tests -->
         <profile>
             <id>with-integration-tests</id>
             <dependencies>
@@ -202,6 +203,11 @@
                     <version>2.6.1</version>
                 </dependency>
             </dependencies>
+            <properties>
+                <!-- A dummy value for the maven-surefire-plugin exclude which actually makes in not exclude -->
+                <!-- To run both unit and integration tests, use: mvn test -P with-integration-tests -->
+                <exclude.integration.tests>NoExclude</exclude.integration.tests>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
