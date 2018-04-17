@@ -355,7 +355,7 @@ public class Data implements ChangeCountable, SignatureHolder {
    * @return This Data so that you can chain calls to update values.
    * @note This is an experimental feature. This API may change in the future.
    */
-  final Data
+  public final Data
   setLpPacket(LpPacket lpPacket)
   {
     lpPacket_ = lpPacket;
