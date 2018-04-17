@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.SignatureHolder;
+import net.named_data.jndn.lp.CongestionMark;
 import net.named_data.jndn.lp.IncomingFaceId;
 import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
@@ -209,6 +210,18 @@ public class Data implements ChangeCountable, SignatureHolder {
   }
 
   /**
+   * Get the congestion mark according to the incoming packet header.
+   * @return The congestion mark. If not specified, return 0.
+   */
+  public final long
+  getCongestionMark()
+  {
+    CongestionMark field =
+      lpPacket_ == null ? null : CongestionMark.getFirstHeader(lpPacket_);
+    return field == null ? 0 : field.getCongestionMark();
+  }
+
+  /**
    * Get the Data packet's full name, which includes the final
    * ImplicitSha256Digest component based on the wire encoding for a particular
    * wire format.
@@ -342,7 +355,7 @@ public class Data implements ChangeCountable, SignatureHolder {
    * @return This Data so that you can chain calls to update values.
    * @note This is an experimental feature. This API may change in the future.
    */
-  final Data
+  public final Data
   setLpPacket(LpPacket lpPacket)
   {
     lpPacket_ = lpPacket;

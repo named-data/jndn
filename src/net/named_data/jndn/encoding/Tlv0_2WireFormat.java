@@ -49,6 +49,7 @@ import net.named_data.jndn.lp.IncomingFaceId;
 import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.NetworkNack;
 import net.named_data.jndn.encrypt.Schedule;
+import net.named_data.jndn.lp.CongestionMark;
 import net.named_data.jndn.security.ValidityPeriod;
 import net.named_data.jndn.util.Blob;
 
@@ -586,6 +587,12 @@ public class Tlv0_2WireFormat extends WireFormat {
         IncomingFaceId incomingFaceId = new IncomingFaceId();
         incomingFaceId.setFaceId(decoder.readNonNegativeInteger(fieldLength));
         lpPacket.addHeaderField(incomingFaceId);
+      }
+      else if (fieldType == Tlv.LpPacket_CongestionMark) {
+        CongestionMark congestionMark = new CongestionMark();
+        congestionMark.setCongestionMark(decoder.readNonNegativeInteger
+          (fieldLength));
+        lpPacket.addHeaderField(congestionMark);
       }
       else {
         // Unrecognized field type. The conditions for ignoring are here:
