@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.16 (2018-04-17)
----------------------------------------------
+jNDN v0.17 (2018-04-17)
+-----------------------
 
 Bug fixes
 * https://redmine.named-data.net/issues/4466 In KeyChain.importSafeBag, handle
