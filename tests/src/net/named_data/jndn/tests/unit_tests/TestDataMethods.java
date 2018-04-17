@@ -718,6 +718,6 @@ public class TestDataMethods {
     data.wireDecode(element, TlvWireFormat.get());
     data.setLpPacket(lpPacket);
 
-    assertEquals(1, data.getCongestionMark());
+    assertEquals((long)1, data.getCongestionMark());
   }
 }
