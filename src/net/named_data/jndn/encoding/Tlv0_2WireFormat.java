@@ -1066,7 +1066,8 @@ public class Tlv0_2WireFormat extends WireFormat {
         TlvDecoder decoder = new TlvDecoder(encoding.buf());
         int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
         decoder.readNonNegativeIntegerTlv(Tlv.SignatureType);
-        decoder.finishNestedTlvs(endOffset);
+        // Skip unrecognized TLVs, even if they have a critical type code.
+        decoder.finishNestedTlvs(endOffset, true);
       } catch (EncodingException ex) {
         throw new Error
           ("The GenericSignature encoding is not a valid NDN-TLV SignatureInfo: " +
@@ -1163,6 +1164,8 @@ public class Tlv0_2WireFormat extends WireFormat {
       // Get the bytes of the SignatureInfo TLV.
       signatureInfo.setSignatureInfoEncoding
         (new Blob(decoder.getSlice(beginOffset, endOffset), copy), signatureType);
+      // Skip the remaining TLVs now, allowing unrecognized critical type codes.
+      decoder.finishNestedTlvs(endOffset, true);
     }
 
     decoder.finishNestedTlvs(endOffset);
