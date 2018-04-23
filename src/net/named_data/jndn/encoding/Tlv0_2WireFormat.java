@@ -212,6 +212,32 @@ public class Tlv0_2WireFormat extends WireFormat {
     (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
      int[] signedPortionEndOffset, boolean copy) throws EncodingException
   {
+    try {
+      decodeInterestV02
+        (interest, input, signedPortionBeginOffset, signedPortionEndOffset,
+         copy);
+    } catch (Exception exceptionV02) {
+      try {
+        // Failed to decode as format v0.2. Try to decode as v0.3.
+        decodeInterestV03
+          (interest, input, signedPortionBeginOffset, signedPortionEndOffset,
+           copy);
+      } catch (Exception ex) {
+        // Ignore the exception decoding as format v0.3 and throw the exception
+        // from trying to decode as format as format v0.2.
+        throw exceptionV02;
+      }
+    }
+  }
+
+  /**
+   * Do the work of decodeInterest to decode strictly as format v0.2.
+   */
+  private void
+  decodeInterestV02
+    (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
+     int[] signedPortionEndOffset, boolean copy) throws EncodingException
+  {
     TlvDecoder decoder = new TlvDecoder(input);
 
     int endOffset = decoder.readNestedTlvsStart(Tlv.Interest);
@@ -1066,7 +1092,8 @@ public class Tlv0_2WireFormat extends WireFormat {
         TlvDecoder decoder = new TlvDecoder(encoding.buf());
         int endOffset = decoder.readNestedTlvsStart(Tlv.SignatureInfo);
         decoder.readNonNegativeIntegerTlv(Tlv.SignatureType);
-        decoder.finishNestedTlvs(endOffset);
+        // Skip unrecognized TLVs, even if they have a critical type code.
+        decoder.finishNestedTlvs(endOffset, true);
       } catch (EncodingException ex) {
         throw new Error
           ("The GenericSignature encoding is not a valid NDN-TLV SignatureInfo: " +
@@ -1163,6 +1190,8 @@ public class Tlv0_2WireFormat extends WireFormat {
       // Get the bytes of the SignatureInfo TLV.
       signatureInfo.setSignatureInfoEncoding
         (new Blob(decoder.getSlice(beginOffset, endOffset), copy), signatureType);
+      // Skip the remaining TLVs now, allowing unrecognized critical type codes.
+      decoder.finishNestedTlvs(endOffset, true);
     }
 
     decoder.finishNestedTlvs(endOffset);
@@ -1412,6 +1441,80 @@ public class Tlv0_2WireFormat extends WireFormat {
       // Add unsorted to preserve the order in the encoding.
       delegationSet.addUnsorted(preference, name);
     }
+  }
+
+  /**
+   * Decode input as an Interest in NDN-TLV format v0.3 and set the fields of
+   * the Interest object. This private method is called if the main
+   * decodeInterest fails to decode as v0.2. This ignores HopLimit and
+   * Parameters, and interprets CanBePrefix using MaxSuffixComponents.
+   * @param interest The Interest object whose fields are updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @param signedPortionBeginOffset Return the offset in the encoding of the
+   * beginning of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param signedPortionEndOffset Return the offset in the encoding of the end
+   * of the signed portion. The signed portion starts from the first
+   * name component and ends just before the final name component (which is
+   * assumed to be a signature for a signed interest).
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
+   * @throws EncodingException For invalid encoding.
+   */
+  private static void
+  decodeInterestV03
+    (Interest interest, ByteBuffer input, int[] signedPortionBeginOffset,
+     int[] signedPortionEndOffset, boolean copy) throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+
+    int endOffset = decoder.readNestedTlvsStart(Tlv.Interest);
+    decodeName
+      (interest.getName(), signedPortionBeginOffset,signedPortionEndOffset,
+       decoder, copy);
+
+    if (decoder.readBooleanTlv(Tlv.CanBePrefix, endOffset))
+      // No limit on MaxSuffixComponents.
+      interest.setMaxSuffixComponents(-1);
+    else
+      // The one suffix components is for the implicit digest.
+      interest.setMaxSuffixComponents(1);
+
+    interest.setMustBeFresh(decoder.readBooleanTlv(Tlv.MustBeFresh, endOffset));
+
+    if (decoder.peekType(Tlv.ForwardingHint, endOffset)) {
+      int forwardingHintEndOffset = decoder.readNestedTlvsStart
+        (Tlv.ForwardingHint);
+      decodeDelegationSet
+        (interest.getForwardingHint(), forwardingHintEndOffset, decoder, copy);
+      decoder.finishNestedTlvs(forwardingHintEndOffset);
+    }
+    else
+      interest.getForwardingHint().clear();
+
+    ByteBuffer nonce = decoder.readOptionalBlobTlv(Tlv.Nonce, endOffset);
+    interest.setInterestLifetimeMilliseconds
+      (decoder.readOptionalNonNegativeIntegerTlv(Tlv.InterestLifetime, endOffset));
+
+    // Clear the unused fields.
+    interest.setMinSuffixComponents(-1);
+    interest.getKeyLocator().clear();
+    interest.getExclude().clear();
+    interest.setChildSelector(-1);
+    interest.unsetLink();
+    interest.setSelectedDelegationIndex(-1);
+
+    // Ignore the HopLimit and Parameters.
+    decoder.readOptionalBlobTlv(Tlv.HopLimit, endOffset);
+    decoder.readOptionalBlobTlv(Tlv.Parameters, endOffset);
+
+    // Set the nonce last because setting other interest fields clears it.
+    interest.setNonce(new Blob(nonce, copy));
+
+    decoder.finishNestedTlvs(endOffset);
   }
 
   private static final Random random_ = new Random();
