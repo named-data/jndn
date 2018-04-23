@@ -224,6 +224,7 @@ public class Tlv0_2WireFormat extends WireFormat {
       // Set selectors to none.
       interest.setMinSuffixComponents(-1);
       interest.setMaxSuffixComponents(-1);
+      interest.getKeyLocator().clear();
       interest.getExclude().clear();
       interest.setChildSelector(-1);
       interest.setMustBeFresh(false);
