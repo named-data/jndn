@@ -1053,7 +1053,7 @@ public class Tlv0_2WireFormat extends WireFormat {
    * @param signature An object of a subclass of Signature to encode.
    * @param encoder The TlvEncoder to receive the encoding.
    */
-  private void
+  private static void
   encodeSignatureInfo(Signature signature, TlvEncoder encoder)
   {
     if (signature instanceof GenericSignature) {
