@@ -143,11 +143,14 @@ public class TlvDecoder {
    * buffer position as needed if skipping TLVs.
    * @param endOffset The offset of the end of the parent TLV, returned
    * by readNestedTlvsStart.
+   * @param skipCritical If false and the unrecognized type code to skip is
+   * critical, throw an exception. If true, then skip the unrecognized type code
+   * without error.
    * @throws EncodingException if the TLV length does not equal the total length
    * of the nested TLVs.
    */
   public final void
-  finishNestedTlvs(int endOffset) throws EncodingException
+  finishNestedTlvs(int endOffset, boolean skipCritical) throws EncodingException
   {
     // We expect the position to be endOffset, so check this first.
     if (input_.position() == endOffset)
@@ -156,7 +159,11 @@ public class TlvDecoder {
     // Skip remaining TLVs.
     while (input_.position() < endOffset) {
       // Skip the type VAR-NUMBER.
-      readVarNumber();
+      int type = readVarNumber();
+      boolean critical = (type <= 31 || (type & 1) == 1);
+      if (critical && !skipCritical)
+        throw new EncodingException("Unrecognized critical type code " + type);
+      
       // Read the length and update the position.
       int length = readVarNumber();
       int newPosition = input_.position() + length;
@@ -170,6 +177,24 @@ public class TlvDecoder {
     if (input_.position() != endOffset)
       throw new EncodingException
         ("TLV length does not equal the total length of the nested TLVs");
+  }
+
+
+  /**
+   * Call this after reading all nested TLVs to skip any remaining unrecognized
+   * TLVs and to check if the input buffer position after the final nested TLV
+   * matches the endOffset returned by readNestedTlvsStart. Update the input
+   * buffer position as needed if skipping TLVs. If the unrecognized type code
+   * to skip is critical, throw an exception.
+   * @param endOffset The offset of the end of the parent TLV, returned
+   * by readNestedTlvsStart.
+   * @throws EncodingException if the TLV length does not equal the total length
+   * of the nested TLVs.
+   */
+  public final void
+  finishNestedTlvs(int endOffset) throws EncodingException
+  {
+    finishNestedTlvs(endOffset, false);
   }
 
   /**
