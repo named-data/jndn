@@ -1,3 +1,10 @@
+Interim changes since jNDN v0.17 (2018-04-24)
+---------------------------------------------
+
+Changes
+* https://redmine.named-data.net/issues/4591 Accept Interests encoded with
+  packet format v0.3
+
 jNDN v0.17 (2018-04-17)
 -----------------------
 
