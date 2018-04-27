@@ -998,11 +998,27 @@ public class ConfigPolicyManager extends PolicyManager {
           return false;
         }
       }
-      else {
-        failureReason[0] = "The hierarchical identityRegex \"" + identityRegex +
-          "\" does not match signatureName \"" + signatureName.toUri() + "\"";
-        return false;
+
+      if (!isSecurityV1_) {
+        // Check for a security v2 key name.
+        String identityRegex2 = "^(<>*)<KEY><>$";
+        NdnRegexTopMatcher identityMatch2 = new NdnRegexTopMatcher
+          (identityRegex2);
+        if (identityMatch2.match(signatureName)) {
+          Name identityPrefix = identityMatch2.expand("\\1");
+          if (matchesRelation(objectName, identityPrefix, "is-prefix-of"))
+            return true;
+          else {
+            failureReason[0] = "The hierarchical objectName \"" + objectName.toUri() +
+              "\" is not a prefix of \"" + identityPrefix + "\"";
+            return false;
+          }
+        }
       }
+
+      failureReason[0] = "The hierarchical identityRegex \"" + identityRegex +
+        "\" does not match signatureName \"" + signatureName.toUri() + "\"";
+      return false;
     }
     else if (checkerType.equals("customized")) {
       BoostInfoTree keyLocatorInfo = checker.get("key-locator").get(0);
