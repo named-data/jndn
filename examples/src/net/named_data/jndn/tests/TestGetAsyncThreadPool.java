@@ -88,9 +88,10 @@ public class TestGetAsyncThreadPool {
   {
     try {
       final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(2);
+      // Connect to the demo host at memoria.ndn.ucla.edu .
       Face face = new ThreadPoolFace
         (threadPool, new AsyncTcpTransport(threadPool),
-         new AsyncTcpTransport.ConnectionInfo("memoria.ndn.ucla.edu"));
+         new AsyncTcpTransport.ConnectionInfo("128.97.98.8"));
 
       // Counter will stop the threadPool after callbacks for all expressInterest.
       Counter counter = new Counter(threadPool, 3);

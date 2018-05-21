@@ -54,7 +54,8 @@ public class TestGetAsync {
   main(String[] args)
   {
     try {
-      Face face = new Face("memoria.ndn.ucla.edu");
+      // Connect to the demo host at memoria.ndn.ucla.edu .
+      Face face = new Face("128.97.98.8");
 
       Counter counter = new Counter();
 
