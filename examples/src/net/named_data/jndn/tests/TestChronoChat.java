@@ -611,6 +611,10 @@ public class TestChronoChat {
   main(String[] args)
   {
     try {
+      // Uncomment these lines to print ChronoSync debug messages.
+      //Logger.getLogger("").setLevel(Level.FINE);
+      // Logger.getLogger("").getHandlers()[0].setLevel(Level.FINE);
+
       System.out.println("Enter your chat username:");
       BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
       String screenName = reader.readLine();
