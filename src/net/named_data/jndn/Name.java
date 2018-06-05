@@ -941,8 +941,14 @@ public class Name implements ChangeCountable, Comparable {
             otherTypeCode = Integer.parseInt(typeString);
           } catch (NumberFormatException ex) {
             throw new Error
-              ("Can't parse decimal Name Component type: " + typeString);
+              ("Can't parse decimal Name Component type: " + typeString +
+               " in URI " + uri);
           }
+
+          if (otherTypeCode == ComponentType.GENERIC.getNumericType() ||
+              otherTypeCode == ComponentType.IMPLICIT_SHA256_DIGEST.getNumericType())
+            throw new Error("Unexpected Name Component type: " + typeString +
+               " in URI " + uri);
 
           type = ComponentType.OTHER_CODE;
           iComponentStart = iTypeCodeEnd + 1;
