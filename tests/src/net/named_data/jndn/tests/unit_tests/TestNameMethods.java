@@ -25,6 +25,7 @@ package net.named_data.jndn.tests.unit_tests;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import net.named_data.jndn.ComponentType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.TlvWireFormat;
@@ -375,13 +376,6 @@ public class TestNameMethods {
       ("/hello/sha256digest=" +
        "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548");
     assertEquals(name.get(0), name2.get(1));
-
-    // This is not valid sha256digest component. It should be treated as generic.
-    name2 = new Name
-      ("/hello/SHA256DIGEST=" +
-       "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548");
-    assertFalse(name.get(0).equals(name2.get(1)));
-    assertTrue(name2.get(1).isGeneric());
   }
   
   @Test
@@ -410,5 +404,25 @@ public class TestNameMethods {
     assertEquals
       ("Hash codes for same Name value after changes are not equal",
        bar1.hashCode(), bar2.hashCode());
+  }
+
+  @Test
+  public void
+  testTypedNameComponent() throws EncodingException
+  {
+    int otherTypeCode = 99;
+    String uri = "/ndn/" + otherTypeCode + "=value";
+    Name name = new Name();
+    name.append("ndn").append("value", ComponentType.OTHER_CODE, otherTypeCode);
+    assertEquals(uri, name.toUri());
+
+    Name nameFromUri = new Name(uri);
+    assertEquals("value", nameFromUri.get(1).getValue().toString());
+    assertEquals(otherTypeCode, nameFromUri.get(1).getOtherTypeCode());
+
+    Name decodedName = new Name();
+    decodedName.wireDecode(name.wireEncode());
+    assertEquals("value", decodedName.get(1).getValue().toString());
+    assertEquals(otherTypeCode, decodedName.get(1).getOtherTypeCode());
   }
 }
