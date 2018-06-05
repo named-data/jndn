@@ -984,6 +984,43 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   /**
+   * Append a new component of the given type, copying from value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * @param value The component value.
+   * @param type The component type enum value. If the name component type is
+   * not a recognized ComponentType enum value, call
+   * Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode).
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(byte[] value, ComponentType type)
+  {
+    if (type == ComponentType.OTHER_CODE)
+      throw new AssertionError
+        ("To use an other code, call append(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+    return append(new Component(value, type));
+  }
+
+  /**
+   * Append a new component of the given type, copying from value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * @param value The component value.
+   * @param type The component type enum value. If name component type is not
+   * a recognized ComponentType enum value, then set this to
+   * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+   * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+   * then this is the packet's unrecognized content type code, which must be
+   * non-negative.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(byte[] value, ComponentType type, int otherTypeCode)
+  {
+    return append(new Component(value, type, otherTypeCode));
+  }
+
+  /**
    * Append a new GENERIC component, using the existing Blob value.
    * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
    * @param value The component value.
@@ -993,6 +1030,43 @@ public class Name implements ChangeCountable, Comparable {
   append(Blob value)
   {
     return append(new Component(value));
+  }
+
+  /**
+   * Append a new component of the given type, using the existing Blob value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * @param value The component value.
+   * @param type The component type enum value. If the name component type is
+   * not a recognized ComponentType enum value, call
+   * append(value, ComponentType.OTHER_CODE, otherTypeCode).
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(Blob value, ComponentType type)
+  {
+    if (type == ComponentType.OTHER_CODE)
+      throw new AssertionError
+        ("To use an other code, call append(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+    return append(new Component(value, type));
+  }
+
+  /**
+   * Append a new component of the given type, using the existing Blob value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * @param value The component value.
+   * @param type The component type enum value. If name component type is not
+   * a recognized ComponentType enum value, then set this to
+   * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+   * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+   * then this is the packet's unrecognized content type code, which must be
+   * non-negative.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(Blob value, ComponentType type, int otherTypeCode)
+  {
+    return append(new Component(value, type, otherTypeCode));
   }
 
   /**
@@ -1022,7 +1096,7 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   /**
-   * Convert the value to UTF8 bytes and append a Name.Component.
+   * Convert the value to UTF8 bytes and append a GENERIC Name.Component.
    * Note, this does not escape %XX values.  If you need to escape, use
    * Name.fromEscapedString.  Also, if the string has "/", this does not split
    * into separate components.  If you need that then use
@@ -1034,6 +1108,51 @@ public class Name implements ChangeCountable, Comparable {
   append(String value)
   {
     return append(new Component(value));
+  }
+
+  /**
+   * Convert the value to UTF8 bytes and append a Name.Component of the given
+   * type.
+   * Note, this does not escape %XX values.  If you need to escape, use
+   * Name.fromEscapedString.  Also, if the string has "/", this does not split
+   * into separate components.  If you need that then use
+   * append(new Name(value)).
+   * @param value The string to convert to UTF8.
+   * @param type The component type enum value. If the name component type is
+   * not a recognized ComponentType enum value, call
+   * append(value, ComponentType.OTHER_CODE, otherTypeCode).
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(String value, ComponentType type)
+  {
+    if (type == ComponentType.OTHER_CODE)
+      throw new AssertionError
+        ("To use an other code, call append(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+    return append(new Component(value, type));
+  }
+
+  /**
+   * Convert the value to UTF8 bytes and append a Name.Component of the given
+   * type.
+   * Note, this does not escape %XX values.  If you need to escape, use
+   * Name.fromEscapedString.  Also, if the string has "/", this does not split
+   * into separate components.  If you need that then use
+   * append(new Name(value)).
+   * @param value The string to convert to UTF8.
+   * @param type The component type enum value. If name component type is not
+   * a recognized ComponentType enum value, then set this to
+   * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+   * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+   * then this is the packet's unrecognized content type code, which must be
+   * non-negative.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(String value, ComponentType type, int otherTypeCode)
+  {
+    return append(new Component(value, type, otherTypeCode));
   }
 
   /**
