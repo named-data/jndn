@@ -695,7 +695,7 @@ public class Name implements ChangeCountable, Comparable {
         // We didn't need the extra byte.
         result.limit(value_.size());
 
-      return new Component(new Blob(result, false));
+      return new Component(new Blob(result, false), type_, otherTypeCode_);
     }
 
     /**
