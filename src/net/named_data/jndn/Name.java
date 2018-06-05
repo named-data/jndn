@@ -706,7 +706,12 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     equals(Component other)
     {
-      return value_.equals(other.value_) && type_ == other.type_;
+      if (type_ == ComponentType.OTHER_CODE)
+        return value_.equals(other.value_) &&
+          other.type_ == ComponentType.OTHER_CODE &&
+          otherTypeCode_ == other.otherTypeCode_;
+      else
+        return value_.equals(other.value_) && type_ == other.type_;
     }
 
     public boolean
@@ -720,7 +725,9 @@ public class Name implements ChangeCountable, Comparable {
 
     public int hashCode()
     {
-      return 37 * type_.getNumericType() + value_.hashCode();
+      return 37 * 
+        (type_ == ComponentType.OTHER_CODE ? otherTypeCode_ : type_.getNumericType()) +
+        value_.hashCode();
     }
 
     /**
@@ -733,9 +740,14 @@ public class Name implements ChangeCountable, Comparable {
     public final int
     compare(Component other)
     {
-      if (type_.getNumericType() < other.type_.getNumericType())
+      int myTypeCode = (type_ == ComponentType.OTHER_CODE ?
+                        otherTypeCode_ : type_.getNumericType());
+      int otherTypeCode = (other.type_ == ComponentType.OTHER_CODE ?
+                           other.otherTypeCode_ : other.type_.getNumericType());
+
+      if (myTypeCode < otherTypeCode)
         return -1;
-      if (type_.getNumericType() > other.type_.getNumericType())
+      if (myTypeCode > otherTypeCode)
         return 1;
 
       if (value_.size() < other.value_.size())
