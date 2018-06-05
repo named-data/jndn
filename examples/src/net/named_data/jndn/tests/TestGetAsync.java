@@ -65,7 +65,7 @@ public class TestGetAsync {
       face.expressInterest(name1, counter, counter);
 
       // Try to fetch using a known name.
-      Name name2 = new Name("/ndn/edu/ucla/remap/demo/ndn-js-test/hello.txt/%FDX%DC5%1F");
+      Name name2 = new Name("/ndn/edu/ucla/remap/demo/ndn-js-test/hello.txt/%FDU%8D%9DM");
       System.out.println("Express name " + name2.toUri());
       face.expressInterest(name2, counter, counter);
 
