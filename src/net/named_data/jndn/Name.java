@@ -269,9 +269,16 @@ public class Name implements ChangeCountable, Comparable {
       if (type_ == ComponentType.IMPLICIT_SHA256_DIGEST) {
         result.append("sha256digest=");
         Blob.toHex(value_.buf(), result);
+        return;
       }
-      else
-        Name.toEscapedString(value_.buf(), result);
+
+      if (type_ != ComponentType.GENERIC) {
+        result.append(type_ == ComponentType.OTHER_CODE ?
+                      otherTypeCode_ : type_.getNumericType());
+        result.append('=');
+      }
+
+      Name.toEscapedString(value_.buf(), result);
     }
 
     /**
@@ -922,9 +929,29 @@ public class Name implements ChangeCountable, Comparable {
           throw new Error(ex.getMessage());
         }
       }
-      else
+      else {
+        ComponentType type = ComponentType.GENERIC;
+        int otherTypeCode = -1;
+
+        // Check for a component type.
+        int iTypeCodeEnd = uri.indexOf("=", iComponentStart);
+        if (iTypeCodeEnd >= 0 && iTypeCodeEnd < iComponentEnd) {
+          String typeString = uri.substring(iComponentStart, iTypeCodeEnd);
+          try {
+            otherTypeCode = Integer.parseInt(typeString);
+          } catch (NumberFormatException ex) {
+            throw new Error
+              ("Can't parse decimal Name Component type: " + typeString);
+          }
+
+          type = ComponentType.OTHER_CODE;
+          iComponentStart = iTypeCodeEnd + 1;
+        }
+
         component = new Component
-          (fromEscapedString(uri, iComponentStart, iComponentEnd));
+          (fromEscapedString(uri, iComponentStart, iComponentEnd), type,
+           otherTypeCode);
+      }
 
       // Ignore illegal components.  This also gets rid of a trailing '/'.
       if (!component.getValue().isNull())
