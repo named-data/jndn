@@ -61,6 +61,56 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Create a Name.Component of the given type, using the existing the Blob
+     * value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * @param value The component value. value may not be null, but value.buf()
+     * may be null.
+     * @param type The component type enum value. If the name component type is
+     * not a recognized ComponentType enum value, call
+     * Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode).
+     */
+    public
+    Component(Blob value, ComponentType type)
+    {
+      if (value == null)
+        throw new NullPointerException("Component: Blob value may not be null");
+      if (type == ComponentType.OTHER_CODE)
+        throw new AssertionError
+          ("To use an other code, call Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+      value_ = value;
+      type_ = type;
+    }
+
+    /**
+     * Create a Name.Component of the given type, using the existing the Blob
+     * value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * @param value The component value. value may not be null, but value.buf()
+     * may be null.
+     * @param type The component type enum value. If name component type is not
+     * a recognized ComponentType enum value, then set this to
+     * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+     * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+     * then this is the packet's unrecognized content type code, which must be
+     * non-negative.
+     */
+    public
+    Component(Blob value, ComponentType type, int otherTypeCode)
+    {
+      if (value == null)
+        throw new NullPointerException("Component: Blob value may not be null");
+      if (otherTypeCode < 0)
+        throw new AssertionError
+          ("Name.Component other type code must be non-negative");
+
+      value_ = value;
+      type_ = type;
+      otherTypeCode_ = (type == ComponentType.OTHER_CODE ? otherTypeCode : -1);
+    }
+
+    /**
      * Create a new Name.Component, taking another pointer to the component's
      * read-only value.
      * @param component The component to copy.
@@ -70,6 +120,7 @@ public class Name implements ChangeCountable, Comparable {
     {
       value_ = component.value_;
       type_ = component.type_;
+      otherTypeCode_ = component.otherTypeCode_;
     }
 
     /**
@@ -82,6 +133,48 @@ public class Name implements ChangeCountable, Comparable {
     {
       value_ = new Blob(value, true);
       type_ = ComponentType.GENERIC;
+    }
+
+    /**
+     * Create a Name.Component of the given type, copying the given value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * @param value The value byte array.
+     * @param type The component type enum value. If the name component type is
+     * not a recognized ComponentType enum value, call
+     * Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode).
+     */
+    public
+    Component(byte[] value, ComponentType type)
+    {
+      if (type == ComponentType.OTHER_CODE)
+        throw new AssertionError
+          ("To use an other code, call Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+      value_ = new Blob(value, true);
+      type_ = type;
+    }
+
+    /**
+     * Create a Name.Component of the given type, copying the given value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * @param value The value byte array.
+     * @param type The component type enum value. If name component type is not
+     * a recognized ComponentType enum value, then set this to
+     * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+     * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+     * then this is the packet's unrecognized content type code, which must be
+     * non-negative.
+     */
+    public
+    Component(byte[] value, ComponentType type, int otherTypeCode)
+    {
+      if (otherTypeCode < 0)
+        throw new AssertionError
+          ("Name.Component other type code must be non-negative");
+
+      value_ = new Blob(value, true);
+      type_ = type;
+      otherTypeCode_ = (type == ComponentType.OTHER_CODE ? otherTypeCode : -1);
     }
 
     /**
@@ -98,11 +191,71 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Create a Name.Component of the given type, converting the value to UTF8
+     * bytes.
+     * @param value The string to convert to UTF8.
+     * @param type The component type enum value. If the name component type is
+     * not a recognized ComponentType enum value, call
+     * Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode).
+     */
+    public
+    Component(String value, ComponentType type)
+    {
+      if (type == ComponentType.OTHER_CODE)
+        throw new AssertionError
+          ("To use an other code, call Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+      value_ = new Blob(value);
+      type_ = type;
+    }
+
+    /**
+     * Create a Name.Component of the given type, converting the value to UTF8
+     * bytes.
+     * @param value The string to convert to UTF8.
+     * @param type The component type enum value. If name component type is not
+     * a recognized ComponentType enum value, then set this to
+     * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+     * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+     * then this is the packet's unrecognized content type code, which must be
+     * non-negative.
+     */
+    public
+    Component(String value, ComponentType type, int otherTypeCode)
+    {
+      if (otherTypeCode < 0)
+        throw new AssertionError
+          ("Name.Component other type code must be non-negative");
+
+      value_ = new Blob(value);
+      type_ = type;
+      otherTypeCode_ = (type == ComponentType.OTHER_CODE ? otherTypeCode : -1);
+    }
+
+    /**
      * Get the component value.
      * @return The component value.
      */
     public final Blob
     getValue() { return value_; }
+
+    /**
+     * Get the name component type.
+     * @return The name component type enum value. If this is
+     * ComponentType.OTHER_CODE, then call getOtherTypeCode() to get the
+     * unrecognized component type code.
+     */
+    public final ComponentType
+    getType() { return type_; }
+
+    /**
+     * Get the component type code from the packet which is other than a
+     * recognized ComponentType enum value. This is only meaningful if getType()
+     * is ComponentType.OTHER_CODE.
+     * @return The type code.
+     */
+    public final int
+    getOtherTypeCode() { return otherTypeCode_; }
 
     /**
      * Write this component value to result, escaping characters according to
@@ -582,28 +735,8 @@ public class Name implements ChangeCountable, Comparable {
       }
     }
 
-    /**
-     * A ComponentType specifies the recognized types of a name component.
-     */
-    private enum ComponentType {
-      IMPLICIT_SHA256_DIGEST(1),
-      GENERIC(8);
-
-      ComponentType(int type)
-      {
-        type_ = type;
-      }
-
-      public final int
-      getNumericType() { return type_; }
-
-      private final int type_;
-    }
-
-    // Note: We keep the type_ internal because it is only used to distinguish
-    // from ImplicitSha256Digest. If we support general typed components then
-    // we can provide public access.
     private ComponentType type_;
+    private int otherTypeCode_ = -1;
     private final Blob value_;
   }
 
