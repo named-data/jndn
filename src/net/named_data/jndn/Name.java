@@ -101,7 +101,7 @@ public class Name implements ChangeCountable, Comparable {
     {
       if (value == null)
         throw new NullPointerException("Component: Blob value may not be null");
-      if (otherTypeCode < 0)
+      if (type == ComponentType.OTHER_CODE && otherTypeCode < 0)
         throw new AssertionError
           ("Name.Component other type code must be non-negative");
 
@@ -168,7 +168,7 @@ public class Name implements ChangeCountable, Comparable {
     public
     Component(byte[] value, ComponentType type, int otherTypeCode)
     {
-      if (otherTypeCode < 0)
+      if (type == ComponentType.OTHER_CODE && otherTypeCode < 0)
         throw new AssertionError
           ("Name.Component other type code must be non-negative");
 
@@ -223,7 +223,7 @@ public class Name implements ChangeCountable, Comparable {
     public
     Component(String value, ComponentType type, int otherTypeCode)
     {
-      if (otherTypeCode < 0)
+      if (type == ComponentType.OTHER_CODE && otherTypeCode < 0)
         throw new AssertionError
           ("Name.Component other type code must be non-negative");
 
@@ -494,12 +494,53 @@ public class Name implements ChangeCountable, Comparable {
     public static Component
     fromNumber(long number)
     {
+      return fromNumber(number, ComponentType.GENERIC, -1);
+    }
+
+    /**
+     * Create a component of the given type whose value is the
+     * nonNegativeInteger encoding of the number.
+     * @param number The number to be encoded.
+     * @param type The component type enum value. If the name component type is
+     * not a recognized ComponentType enum value, call
+     * fromNumber(number, ComponentType.OTHER_CODE, otherTypeCode).
+     * @return The component value.
+     */
+    public static Component
+    fromNumber(long number, ComponentType type)
+    {
+      if (type == ComponentType.OTHER_CODE)
+        throw new AssertionError
+          ("To use an other code, call fromNumber(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+      return fromNumber(number, type, -1);
+    }
+
+    /**
+     * Create a component of the given type whose value is the
+     * nonNegativeInteger encoding of the number.
+     * @param number The number to be encoded.
+     * @param type The component type enum value. If name component type is not
+     * a recognized ComponentType enum value, then set this to
+     * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+     * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+     * then this is the packet's unrecognized content type code, which must be
+     * non-negative.
+     * @return The component value.
+     */
+    public static Component
+    fromNumber(long number, ComponentType type, int otherTypeCode)
+    {
       if (number < 0)
         number = 0;
+      if (type == ComponentType.OTHER_CODE && otherTypeCode < 0)
+        throw new AssertionError
+          ("Name.Component other type code must be non-negative");
 
       TlvEncoder encoder = new TlvEncoder(8);
       encoder.writeNonNegativeInteger(number);
-      return new Component(new Blob(encoder.getOutput(), false));
+      return new Component
+        (new Blob(encoder.getOutput(), false), type, otherTypeCode);
     }
 
     /**
