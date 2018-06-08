@@ -21,6 +21,7 @@ package net.named_data.jndn.encoding;
 
 import java.nio.ByteBuffer;
 import java.util.Random;
+import net.named_data.jndn.ComponentType;
 
 import net.named_data.jndn.ContentType;
 import net.named_data.jndn.ControlParameters;
@@ -777,8 +778,13 @@ public class Tlv0_2WireFormat extends WireFormat {
   private static void
   encodeNameComponent(Name.Component component, TlvEncoder encoder)
   {
-    int type = component.isImplicitSha256Digest() ?
-      Tlv.ImplicitSha256DigestComponent : Tlv.NameComponent;
+    int type;
+    if (component.getType() == ComponentType.OTHER_CODE)
+      type = component.getOtherTypeCode();
+    else
+      // The enum values are the same as the TLV type codes.
+      type = component.getType().getNumericType();
+
     encoder.writeBlobTlv(type, component.getValue().buf());
   }
 
@@ -803,8 +809,11 @@ public class Tlv0_2WireFormat extends WireFormat {
     Blob value = new Blob(decoder.readBlobTlv(type), copy);
     if (type == Tlv.ImplicitSha256DigestComponent)
       return Name.Component.fromImplicitSha256Digest(value);
-    else
+    else if (type == Tlv.NameComponent)
       return new Name.Component(value);
+    else
+      // Unrecognized type code.
+      return new Name.Component(value, ComponentType.OTHER_CODE, type);
   }
 
   /**

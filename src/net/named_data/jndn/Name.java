@@ -61,6 +61,56 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Create a Name.Component of the given type, using the existing the Blob
+     * value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * @param value The component value. value may not be null, but value.buf()
+     * may be null.
+     * @param type The component type enum value. If the name component type is
+     * not a recognized ComponentType enum value, call
+     * Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode).
+     */
+    public
+    Component(Blob value, ComponentType type)
+    {
+      if (value == null)
+        throw new NullPointerException("Component: Blob value may not be null");
+      if (type == ComponentType.OTHER_CODE)
+        throw new AssertionError
+          ("To use an other code, call Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+      value_ = value;
+      type_ = type;
+    }
+
+    /**
+     * Create a Name.Component of the given type, using the existing the Blob
+     * value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * @param value The component value. value may not be null, but value.buf()
+     * may be null.
+     * @param type The component type enum value. If name component type is not
+     * a recognized ComponentType enum value, then set this to
+     * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+     * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+     * then this is the packet's unrecognized content type code, which must be
+     * non-negative.
+     */
+    public
+    Component(Blob value, ComponentType type, int otherTypeCode)
+    {
+      if (value == null)
+        throw new NullPointerException("Component: Blob value may not be null");
+      if (type == ComponentType.OTHER_CODE && otherTypeCode < 0)
+        throw new AssertionError
+          ("Name.Component other type code must be non-negative");
+
+      value_ = value;
+      type_ = type;
+      otherTypeCode_ = (type == ComponentType.OTHER_CODE ? otherTypeCode : -1);
+    }
+
+    /**
      * Create a new Name.Component, taking another pointer to the component's
      * read-only value.
      * @param component The component to copy.
@@ -70,6 +120,7 @@ public class Name implements ChangeCountable, Comparable {
     {
       value_ = component.value_;
       type_ = component.type_;
+      otherTypeCode_ = component.otherTypeCode_;
     }
 
     /**
@@ -82,6 +133,48 @@ public class Name implements ChangeCountable, Comparable {
     {
       value_ = new Blob(value, true);
       type_ = ComponentType.GENERIC;
+    }
+
+    /**
+     * Create a Name.Component of the given type, copying the given value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * @param value The value byte array.
+     * @param type The component type enum value. If the name component type is
+     * not a recognized ComponentType enum value, call
+     * Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode).
+     */
+    public
+    Component(byte[] value, ComponentType type)
+    {
+      if (type == ComponentType.OTHER_CODE)
+        throw new AssertionError
+          ("To use an other code, call Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+      value_ = new Blob(value, true);
+      type_ = type;
+    }
+
+    /**
+     * Create a Name.Component of the given type, copying the given value.
+     * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * @param value The value byte array.
+     * @param type The component type enum value. If name component type is not
+     * a recognized ComponentType enum value, then set this to
+     * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+     * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+     * then this is the packet's unrecognized content type code, which must be
+     * non-negative.
+     */
+    public
+    Component(byte[] value, ComponentType type, int otherTypeCode)
+    {
+      if (type == ComponentType.OTHER_CODE && otherTypeCode < 0)
+        throw new AssertionError
+          ("Name.Component other type code must be non-negative");
+
+      value_ = new Blob(value, true);
+      type_ = type;
+      otherTypeCode_ = (type == ComponentType.OTHER_CODE ? otherTypeCode : -1);
     }
 
     /**
@@ -98,11 +191,71 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Create a Name.Component of the given type, converting the value to UTF8
+     * bytes.
+     * @param value The string to convert to UTF8.
+     * @param type The component type enum value. If the name component type is
+     * not a recognized ComponentType enum value, call
+     * Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode).
+     */
+    public
+    Component(String value, ComponentType type)
+    {
+      if (type == ComponentType.OTHER_CODE)
+        throw new AssertionError
+          ("To use an other code, call Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+      value_ = new Blob(value);
+      type_ = type;
+    }
+
+    /**
+     * Create a Name.Component of the given type, converting the value to UTF8
+     * bytes.
+     * @param value The string to convert to UTF8.
+     * @param type The component type enum value. If name component type is not
+     * a recognized ComponentType enum value, then set this to
+     * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+     * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+     * then this is the packet's unrecognized content type code, which must be
+     * non-negative.
+     */
+    public
+    Component(String value, ComponentType type, int otherTypeCode)
+    {
+      if (type == ComponentType.OTHER_CODE && otherTypeCode < 0)
+        throw new AssertionError
+          ("Name.Component other type code must be non-negative");
+
+      value_ = new Blob(value);
+      type_ = type;
+      otherTypeCode_ = (type == ComponentType.OTHER_CODE ? otherTypeCode : -1);
+    }
+
+    /**
      * Get the component value.
      * @return The component value.
      */
     public final Blob
     getValue() { return value_; }
+
+    /**
+     * Get the name component type.
+     * @return The name component type enum value. If this is
+     * ComponentType.OTHER_CODE, then call getOtherTypeCode() to get the
+     * unrecognized component type code.
+     */
+    public final ComponentType
+    getType() { return type_; }
+
+    /**
+     * Get the component type code from the packet which is other than a
+     * recognized ComponentType enum value. This is only meaningful if getType()
+     * is ComponentType.OTHER_CODE.
+     * @return The type code.
+     */
+    public final int
+    getOtherTypeCode() { return otherTypeCode_; }
 
     /**
      * Write this component value to result, escaping characters according to
@@ -116,9 +269,16 @@ public class Name implements ChangeCountable, Comparable {
       if (type_ == ComponentType.IMPLICIT_SHA256_DIGEST) {
         result.append("sha256digest=");
         Blob.toHex(value_.buf(), result);
+        return;
       }
-      else
-        Name.toEscapedString(value_.buf(), result);
+
+      if (type_ != ComponentType.GENERIC) {
+        result.append(type_ == ComponentType.OTHER_CODE ?
+                      otherTypeCode_ : type_.getNumericType());
+        result.append('=');
+      }
+
+      Name.toEscapedString(value_.buf(), result);
     }
 
     /**
@@ -341,12 +501,53 @@ public class Name implements ChangeCountable, Comparable {
     public static Component
     fromNumber(long number)
     {
+      return fromNumber(number, ComponentType.GENERIC, -1);
+    }
+
+    /**
+     * Create a component of the given type whose value is the
+     * nonNegativeInteger encoding of the number.
+     * @param number The number to be encoded.
+     * @param type The component type enum value. If the name component type is
+     * not a recognized ComponentType enum value, call
+     * fromNumber(number, ComponentType.OTHER_CODE, otherTypeCode).
+     * @return The component value.
+     */
+    public static Component
+    fromNumber(long number, ComponentType type)
+    {
+      if (type == ComponentType.OTHER_CODE)
+        throw new AssertionError
+          ("To use an other code, call fromNumber(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+      return fromNumber(number, type, -1);
+    }
+
+    /**
+     * Create a component of the given type whose value is the
+     * nonNegativeInteger encoding of the number.
+     * @param number The number to be encoded.
+     * @param type The component type enum value. If name component type is not
+     * a recognized ComponentType enum value, then set this to
+     * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+     * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+     * then this is the packet's unrecognized content type code, which must be
+     * non-negative.
+     * @return The component value.
+     */
+    public static Component
+    fromNumber(long number, ComponentType type, int otherTypeCode)
+    {
       if (number < 0)
         number = 0;
+      if (type == ComponentType.OTHER_CODE && otherTypeCode < 0)
+        throw new AssertionError
+          ("Name.Component other type code must be non-negative");
 
       TlvEncoder encoder = new TlvEncoder(8);
       encoder.writeNonNegativeInteger(number);
-      return new Component(new Blob(encoder.getOutput(), false));
+      return new Component
+        (new Blob(encoder.getOutput(), false), type, otherTypeCode);
     }
 
     /**
@@ -501,7 +702,7 @@ public class Name implements ChangeCountable, Comparable {
         // We didn't need the extra byte.
         result.limit(value_.size());
 
-      return new Component(new Blob(result, false));
+      return new Component(new Blob(result, false), type_, otherTypeCode_);
     }
 
     /**
@@ -512,7 +713,12 @@ public class Name implements ChangeCountable, Comparable {
     public final boolean
     equals(Component other)
     {
-      return value_.equals(other.value_) && type_ == other.type_;
+      if (type_ == ComponentType.OTHER_CODE)
+        return value_.equals(other.value_) &&
+          other.type_ == ComponentType.OTHER_CODE &&
+          otherTypeCode_ == other.otherTypeCode_;
+      else
+        return value_.equals(other.value_) && type_ == other.type_;
     }
 
     public boolean
@@ -526,7 +732,9 @@ public class Name implements ChangeCountable, Comparable {
 
     public int hashCode()
     {
-      return 37 * type_.getNumericType() + value_.hashCode();
+      return 37 * 
+        (type_ == ComponentType.OTHER_CODE ? otherTypeCode_ : type_.getNumericType()) +
+        value_.hashCode();
     }
 
     /**
@@ -539,9 +747,14 @@ public class Name implements ChangeCountable, Comparable {
     public final int
     compare(Component other)
     {
-      if (type_.getNumericType() < other.type_.getNumericType())
+      int myTypeCode = (type_ == ComponentType.OTHER_CODE ?
+                        otherTypeCode_ : type_.getNumericType());
+      int otherTypeCode = (other.type_ == ComponentType.OTHER_CODE ?
+                           other.otherTypeCode_ : other.type_.getNumericType());
+
+      if (myTypeCode < otherTypeCode)
         return -1;
-      if (type_.getNumericType() > other.type_.getNumericType())
+      if (myTypeCode > otherTypeCode)
         return 1;
 
       if (value_.size() < other.value_.size())
@@ -582,28 +795,8 @@ public class Name implements ChangeCountable, Comparable {
       }
     }
 
-    /**
-     * A ComponentType specifies the recognized types of a name component.
-     */
-    private enum ComponentType {
-      IMPLICIT_SHA256_DIGEST(1),
-      GENERIC(8);
-
-      ComponentType(int type)
-      {
-        type_ = type;
-      }
-
-      public final int
-      getNumericType() { return type_; }
-
-      private final int type_;
-    }
-
-    // Note: We keep the type_ internal because it is only used to distinguish
-    // from ImplicitSha256Digest. If we support general typed components then
-    // we can provide public access.
     private ComponentType type_;
+    private int otherTypeCode_ = -1;
     private final Blob value_;
   }
 
@@ -736,9 +929,35 @@ public class Name implements ChangeCountable, Comparable {
           throw new Error(ex.getMessage());
         }
       }
-      else
+      else {
+        ComponentType type = ComponentType.GENERIC;
+        int otherTypeCode = -1;
+
+        // Check for a component type.
+        int iTypeCodeEnd = uri.indexOf("=", iComponentStart);
+        if (iTypeCodeEnd >= 0 && iTypeCodeEnd < iComponentEnd) {
+          String typeString = uri.substring(iComponentStart, iTypeCodeEnd);
+          try {
+            otherTypeCode = Integer.parseInt(typeString);
+          } catch (NumberFormatException ex) {
+            throw new Error
+              ("Can't parse decimal Name Component type: " + typeString +
+               " in URI " + uri);
+          }
+
+          if (otherTypeCode == ComponentType.GENERIC.getNumericType() ||
+              otherTypeCode == ComponentType.IMPLICIT_SHA256_DIGEST.getNumericType())
+            throw new Error("Unexpected Name Component type: " + typeString +
+               " in URI " + uri);
+
+          type = ComponentType.OTHER_CODE;
+          iComponentStart = iTypeCodeEnd + 1;
+        }
+
         component = new Component
-          (fromEscapedString(uri, iComponentStart, iComponentEnd));
+          (fromEscapedString(uri, iComponentStart, iComponentEnd), type,
+           otherTypeCode);
+      }
 
       // Ignore illegal components.  This also gets rid of a trailing '/'.
       if (!component.getValue().isNull())
@@ -771,6 +990,43 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   /**
+   * Append a new component of the given type, copying from value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * @param value The component value.
+   * @param type The component type enum value. If the name component type is
+   * not a recognized ComponentType enum value, call
+   * Name.Component(value, ComponentType.OTHER_CODE, otherTypeCode).
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(byte[] value, ComponentType type)
+  {
+    if (type == ComponentType.OTHER_CODE)
+      throw new AssertionError
+        ("To use an other code, call append(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+    return append(new Component(value, type));
+  }
+
+  /**
+   * Append a new component of the given type, copying from value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * @param value The component value.
+   * @param type The component type enum value. If name component type is not
+   * a recognized ComponentType enum value, then set this to
+   * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+   * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+   * then this is the packet's unrecognized content type code, which must be
+   * non-negative.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(byte[] value, ComponentType type, int otherTypeCode)
+  {
+    return append(new Component(value, type, otherTypeCode));
+  }
+
+  /**
    * Append a new GENERIC component, using the existing Blob value.
    * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
    * @param value The component value.
@@ -780,6 +1036,43 @@ public class Name implements ChangeCountable, Comparable {
   append(Blob value)
   {
     return append(new Component(value));
+  }
+
+  /**
+   * Append a new component of the given type, using the existing Blob value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * @param value The component value.
+   * @param type The component type enum value. If the name component type is
+   * not a recognized ComponentType enum value, call
+   * append(value, ComponentType.OTHER_CODE, otherTypeCode).
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(Blob value, ComponentType type)
+  {
+    if (type == ComponentType.OTHER_CODE)
+      throw new AssertionError
+        ("To use an other code, call append(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+    return append(new Component(value, type));
+  }
+
+  /**
+   * Append a new component of the given type, using the existing Blob value.
+   * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * @param value The component value.
+   * @param type The component type enum value. If name component type is not
+   * a recognized ComponentType enum value, then set this to
+   * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+   * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+   * then this is the packet's unrecognized content type code, which must be
+   * non-negative.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(Blob value, ComponentType type, int otherTypeCode)
+  {
+    return append(new Component(value, type, otherTypeCode));
   }
 
   /**
@@ -809,7 +1102,7 @@ public class Name implements ChangeCountable, Comparable {
   }
 
   /**
-   * Convert the value to UTF8 bytes and append a Name.Component.
+   * Convert the value to UTF8 bytes and append a GENERIC Name.Component.
    * Note, this does not escape %XX values.  If you need to escape, use
    * Name.fromEscapedString.  Also, if the string has "/", this does not split
    * into separate components.  If you need that then use
@@ -821,6 +1114,51 @@ public class Name implements ChangeCountable, Comparable {
   append(String value)
   {
     return append(new Component(value));
+  }
+
+  /**
+   * Convert the value to UTF8 bytes and append a Name.Component of the given
+   * type.
+   * Note, this does not escape %XX values.  If you need to escape, use
+   * Name.fromEscapedString.  Also, if the string has "/", this does not split
+   * into separate components.  If you need that then use
+   * append(new Name(value)).
+   * @param value The string to convert to UTF8.
+   * @param type The component type enum value. If the name component type is
+   * not a recognized ComponentType enum value, call
+   * append(value, ComponentType.OTHER_CODE, otherTypeCode).
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(String value, ComponentType type)
+  {
+    if (type == ComponentType.OTHER_CODE)
+      throw new AssertionError
+        ("To use an other code, call append(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+    return append(new Component(value, type));
+  }
+
+  /**
+   * Convert the value to UTF8 bytes and append a Name.Component of the given
+   * type.
+   * Note, this does not escape %XX values.  If you need to escape, use
+   * Name.fromEscapedString.  Also, if the string has "/", this does not split
+   * into separate components.  If you need that then use
+   * append(new Name(value)).
+   * @param value The string to convert to UTF8.
+   * @param type The component type enum value. If name component type is not
+   * a recognized ComponentType enum value, then set this to
+   * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+   * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+   * then this is the packet's unrecognized content type code, which must be
+   * non-negative.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  append(String value, ComponentType type, int otherTypeCode)
+  {
+    return append(new Component(value, type, otherTypeCode));
   }
 
   /**
