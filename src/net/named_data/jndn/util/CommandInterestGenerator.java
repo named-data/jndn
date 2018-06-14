@@ -19,26 +19,24 @@
 
 package net.named_data.jndn.util;
 
-import java.nio.ByteBuffer;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.WireFormat;
-import net.named_data.jndn.encoding.tlv.TlvEncoder;
+import net.named_data.jndn.security.CommandInterestPreparer;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 
 /**
  * A CommandInterestGenerator keeps track of a timestamp and generates
  * command interests according to the NFD Signed Command Interests protocol:
- * http://redmine.named-data.net/projects/nfd/wiki/Command_Interests
+ * https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
  */
-public class CommandInterestGenerator {
+public class CommandInterestGenerator extends CommandInterestPreparer {
   /**
    * Create a new CommandInterestGenerator and initialize the timestamp to now.
    */
   public CommandInterestGenerator()
   {
-    lastTimestamp_ = Math.round(Common.getNowMilliseconds());
   }
 
   /**
@@ -58,28 +56,7 @@ public class CommandInterestGenerator {
     (Interest interest, KeyChain keyChain, Name certificateName,
      WireFormat wireFormat) throws SecurityException
   {
-    double timestamp;
-    synchronized(lastTimestampLock_) {
-      timestamp = Math.round(Common.getNowMilliseconds());
-      while (timestamp <= lastTimestamp_)
-        timestamp += 1.0;
-      // Update the timestamp now while it is locked. In the small chance that
-      //   signing fails, it just means that we have bumped the timestamp.
-      lastTimestamp_ = timestamp;
-    }
-
-    // The timestamp is encoded as a TLV nonNegativeInteger.
-    TlvEncoder encoder = new TlvEncoder(8);
-    encoder.writeNonNegativeInteger((long)timestamp);
-    interest.getName().append(new Blob(encoder.getOutput(), false));
-
-    // The random value is a TLV nonNegativeInteger too, but we know it is 8 bytes,
-    //   so we don't need to call the nonNegativeInteger encoder.
-    ByteBuffer randomBuffer = ByteBuffer.allocate(8);
-    // Note: SecureRandom is thread safe.
-    Common.getRandom().nextBytes(randomBuffer.array());
-    interest.getName().append(new Blob(randomBuffer, false));
-
+    prepareCommandInterestName(interest, wireFormat);
     keyChain.sign(interest, certificateName, wireFormat);
 
     if (interest.getInterestLifetimeMilliseconds() < 0)
@@ -105,7 +82,4 @@ public class CommandInterestGenerator {
     generate
       (interest, keyChain, certificateName, WireFormat.getDefaultWireFormat());
   }
-
-  private double lastTimestamp_;
-  private final Object lastTimestampLock_ = new Object();
 }
