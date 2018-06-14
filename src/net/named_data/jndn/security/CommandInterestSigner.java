@@ -20,15 +20,11 @@
 
 package net.named_data.jndn.security;
 
-import java.nio.ByteBuffer;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.WireFormat;
-import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.tpm.TpmBackEnd;
-import net.named_data.jndn.util.Blob;
-import net.named_data.jndn.util.Common;
 
 /**
  * CommandInterestSigner is a helper class to create command interests. This
@@ -37,7 +33,7 @@ import net.named_data.jndn.util.Common;
  * See makeCommandInterest() for details.
  * https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
  */
-public class CommandInterestSigner {
+public class CommandInterestSigner extends CommandInterestPreparer {
   /**
    * Create a CommandInterestSigner to use the keyChain to sign.
    * @param keyChain The KeyChain used to sign.
@@ -45,7 +41,6 @@ public class CommandInterestSigner {
   public CommandInterestSigner(KeyChain keyChain)
   {
     keyChain_ = keyChain;
-    lastUsedTimestamp_ = Math.round(Common.getNowMilliseconds());
   }
 
   public static final int POS_SIGNATURE_VALUE = -1;
@@ -73,30 +68,7 @@ public class CommandInterestSigner {
     // This copies the Name.
     Interest commandInterest = new Interest(name);
 
-    double timestamp;
-    synchronized(lastUsedTimestampLock_) {
-      // nowOffsetMilliseconds_ is only used for testing.
-      double now = Common.getNowMilliseconds() + nowOffsetMilliseconds_;
-      timestamp = Math.round(now);
-      while (timestamp <= lastUsedTimestamp_)
-        timestamp += 1.0;
-      // Update the timestamp now while it is locked. In the small chance that
-      //   signing fails, it just means that we have bumped the timestamp.
-      lastUsedTimestamp_ = timestamp;
-    }
-
-    // The timestamp is encoded as a TLV nonNegativeInteger.
-    TlvEncoder encoder = new TlvEncoder(8);
-    encoder.writeNonNegativeInteger((long)timestamp);
-    commandInterest.getName().append(new Blob(encoder.getOutput(), false));
-
-    // The random value is a TLV nonNegativeInteger too, but we know it is 8 bytes,
-    //   so we don't need to call the nonNegativeInteger encoder.
-    ByteBuffer randomBuffer = ByteBuffer.allocate(8);
-    // Note: SecureRandom is thread safe.
-    Common.getRandom().nextBytes(randomBuffer.array());
-    commandInterest.getName().append(new Blob(randomBuffer, false));
-
+    prepareCommandInterestName(commandInterest, wireFormat);
     keyChain_.sign(commandInterest, params, wireFormat);
 
     return commandInterest;
@@ -125,19 +97,5 @@ public class CommandInterestSigner {
       (name, new SigningInfo(), WireFormat.getDefaultWireFormat());
   }
 
-  /**
-   * Set the offset for when makeCommandInterest() gets the current time, which
-   * should only be used for testing.
-   * @param nowOffsetMilliseconds The offset in milliseconds.
-   */
-  public final void
-  setNowOffsetMilliseconds_(double nowOffsetMilliseconds)
-  {
-    nowOffsetMilliseconds_ = nowOffsetMilliseconds;
-  }
-
   private final KeyChain keyChain_;
-  private double lastUsedTimestamp_;
-  private final Object lastUsedTimestampLock_ = new Object();
-  private double nowOffsetMilliseconds_ = 0;
 }
