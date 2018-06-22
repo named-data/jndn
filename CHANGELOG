@@ -1,10 +1,14 @@
-Interim changes since jNDN v0.17 (2018-06-08)
+Interim changes since jNDN v0.17 (2018-06-22)
 ---------------------------------------------
 
 Changes
 * https://redmine.named-data.net/issues/4591 Accept Interests encoded with
   packet format v0.3
 * https://redmine.named-data.net/issues/4397 In Name, API for typed name components.
+
+Bug fixes
+* In ChronoSync2013 timeout, get the digest component based on the broadcast
+  prefix size instead of a hard-coded value. (Thanks John D.!)
 
 jNDN v0.17 (2018-04-17)
 -----------------------
