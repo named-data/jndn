@@ -824,7 +824,8 @@ public class ChronoSync2013 implements OnInterestCallback, OnData, OnTimeout {
 
     logger_.log(Level.FINE, "Sync Interest time out.");
     logger_.log(Level.FINE, "Sync Interest name: {0}", interest.getName().toUri());
-    String component = interest.getName().get(4).toEscapedString();
+    String component = interest.getName().get
+      (applicationBroadcastPrefix_.size()).toEscapedString();
     if (component.equals(digestTree_.getRoot())) {
       Name name = new Name(interest.getName());
       Interest retryInterest = new Interest(interest.getName());
