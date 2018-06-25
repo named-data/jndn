@@ -29,7 +29,7 @@ import net.named_data.jndn.util.Common;
  * PibIdentity is at the top level in PIB's Identity-Key-Certificate hierarchy.
  * An identity has a Name, and contains zero or more keys, at most one of which
  * is set as the default key of this identity.  Properties of a key can be
- * accessed after obtaining a Key object.
+ * accessed after obtaining a PibKey object.
  */
 public class PibIdentity {
   /*
