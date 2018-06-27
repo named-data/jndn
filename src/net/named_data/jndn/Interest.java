@@ -261,6 +261,18 @@ public class Interest implements ChangeCountable {
   public final int
   getMaxSuffixComponents() { return maxSuffixComponents_; }
 
+  /**
+   * Get the CanBePrefix flag. If not specified, the default is true.
+   * @return The CanBePrefix flag.
+   */
+  public final boolean
+  getCanBePrefix()
+  {
+    // Use the closest v0.2 semantics. CanBePrefix is the opposite of exact
+    // match where MaxSuffixComponents is 1 (for the implicit digest).
+    return maxSuffixComponents_ != 1;
+  }
+
   public final KeyLocator
   getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
 
@@ -439,6 +451,22 @@ public class Interest implements ChangeCountable {
   setMaxSuffixComponents(int maxSuffixComponents)
   {
     maxSuffixComponents_ = maxSuffixComponents;
+    ++changeCount_;
+    return this;
+  }
+
+  /**
+   * Set the CanBePrefix flag.
+   * @param canBePrefix True if the Interest name can be a prefix. If you do not
+   * set this flag, the default value is true.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
+  setCanBePrefix(boolean canBePrefix)
+  {
+    // Use the closest v0.2 semantics. CanBePrefix is the opposite of exact
+    // match where MaxSuffixComponents is 1 (for the implicit digest).
+    maxSuffixComponents_ = (canBePrefix ? -1 : 1);
     ++changeCount_;
     return this;
   }
