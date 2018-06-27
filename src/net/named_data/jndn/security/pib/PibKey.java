@@ -36,7 +36,7 @@ import net.named_data.jndn.util.Blob;
 public class PibKey {
   /*
    * Get the key name.
-   * @return The key name. You must not modify the Key object. If you need to
+   * @return The key name. You must not modify the Name object. If you need to
    * modify it, make a copy.
    * @throws AssertionError if the backend implementation instance is invalid.
    */
