@@ -42,7 +42,7 @@ import net.named_data.jndn.util.Common;
  * PibSqlite3 extends PibImpl and is used by the Pib class as an implementation
  * of a PIB based on an SQLite3 database. All the contents in the PIB are stored
  * in an SQLite3 database file. This provides more persistent storage than
- * PibMemory.
+ * PibMemory. (On Android, use AndroidSqlite3Pib instead.)
  */
 public class PibSqlite3 extends PibSqlite3Base {
   /**
