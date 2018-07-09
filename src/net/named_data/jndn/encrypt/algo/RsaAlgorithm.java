@@ -27,11 +27,9 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import net.named_data.jndn.encrypt.DecryptKey;
@@ -40,6 +38,8 @@ import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.tpm.TpmPrivateKey;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.security.UnrecognizedKeyFormatException;
+import net.named_data.jndn.security.certificate.PublicKey;
 
 /**
  * The RsaAlgorithm class provides static methods to manipulate keys, encrypt
@@ -47,14 +47,6 @@ import net.named_data.jndn.security.SecurityException;
  * @note This class is an experimental feature. The API may change.
  */
 public class RsaAlgorithm {
-  static {
-    try {
-      keyFactory_ = KeyFactory.getInstance("RSA");
-    } catch (NoSuchAlgorithmException ex) {
-      Logger.getLogger(RsaAlgorithm.class.getName()).log(Level.SEVERE, null, ex);
-    }
-  }
-
   /**
    * Generate a new random decrypt key for RSA based on the given params.
    * @param params The key params with the key size (in bits).
@@ -140,21 +132,11 @@ public class RsaAlgorithm {
            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
            BadPaddingException
   {
-    java.security.PublicKey publicKey = keyFactory_.generatePublic
-      (new X509EncodedKeySpec(keyBits.getImmutableArray()));
-
-    String transformation;
-    if (params.getAlgorithmType() == EncryptAlgorithmType.RsaPkcs)
-      transformation = "RSA/ECB/PKCS1Padding";
-    else if (params.getAlgorithmType() == EncryptAlgorithmType.RsaOaep)
-      transformation = "RSA/ECB/OAEPWithSHA-1AndMGF1Padding";
-    else
-      throw new Error("unsupported padding scheme");
-
-    Cipher cipher = Cipher.getInstance(transformation);
-    cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-    return new Blob(cipher.doFinal(plainData.getImmutableArray()), false);
+    try {
+      return new PublicKey(keyBits).encrypt
+        (plainData, params.getAlgorithmType());
+    } catch (UnrecognizedKeyFormatException ex) {
+      throw new InvalidKeyException(ex.getMessage());
+    }
   }
-
-  private static KeyFactory keyFactory_;
 }
