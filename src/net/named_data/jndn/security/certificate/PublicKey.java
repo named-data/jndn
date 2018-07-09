@@ -20,13 +20,21 @@
 
 package net.named_data.jndn.security.certificate;
 
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerNode;
+import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
 import net.named_data.jndn.security.DigestAlgorithm;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.UnrecognizedDigestAlgorithmException;
@@ -35,6 +43,14 @@ import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
 
 public class PublicKey {
+  static {
+    try {
+      keyFactory_ = KeyFactory.getInstance("RSA");
+    } catch (NoSuchAlgorithmException ex) {
+      Logger.getLogger(PublicKey.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
   public PublicKey()
   {
     keyType_ = null;
@@ -166,9 +182,63 @@ public class PublicKey {
   public final Blob
   getKeyDer() { return keyDer_; }
 
+  /**
+   * Encrypt the plainData using the keyBits according the encrypt algorithm type.
+   * @param plainData The data to encrypt.
+   * @param algorithmType This encrypts according to the algorithm type, e.g.,
+   * RsaOaep.
+   * @return The encrypted data.
+   */
+  public Blob
+  encrypt(byte[] plainData, EncryptAlgorithmType algorithmType)
+    throws InvalidKeySpecException, NoSuchAlgorithmException,
+           NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
+           BadPaddingException
+  {
+    java.security.PublicKey publicKey = keyFactory_.generatePublic
+      (new X509EncodedKeySpec(keyDer_.getImmutableArray()));
+
+    String transformation;
+    if (algorithmType == EncryptAlgorithmType.RsaPkcs) {
+      if (keyType_ != KeyType.RSA)
+        throw new Error("The key type must be RSA");
+
+      transformation = "RSA/ECB/PKCS1Padding";
+    }
+    else if (algorithmType == EncryptAlgorithmType.RsaOaep) {
+      if (keyType_ != KeyType.RSA)
+        throw new Error("The key type must be RSA");
+
+      transformation = "RSA/ECB/OAEPWithSHA-1AndMGF1Padding";
+    }
+    else
+      throw new Error("unsupported padding scheme");
+
+    Cipher cipher = Cipher.getInstance(transformation);
+    cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+    return new Blob(cipher.doFinal(plainData), false);
+  }
+
+  /**
+   * Encrypt the plainData using the keyBits according the encrypt algorithm type.
+   * @param plainData The data to encrypt.
+   * @param algorithmType This encrypts according to the algorithm type, for
+   * example RsaOaep.
+   * @return The encrypted data.
+   */
+  public Blob
+  encrypt(Blob plainData, EncryptAlgorithmType algorithmType)
+    throws InvalidKeySpecException, NoSuchAlgorithmException,
+           NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
+           BadPaddingException
+  {
+    return encrypt(plainData.getImmutableArray(), algorithmType);
+  }
+
   private static String RSA_ENCRYPTION_OID = "1.2.840.113549.1.1.1";
   private static String EC_ENCRYPTION_OID = "1.2.840.10045.2.1";
 
   private final KeyType keyType_;
   private final Blob keyDer_;   /**< PublicKeyInfo in DER */
+  private static KeyFactory keyFactory_;
 }
