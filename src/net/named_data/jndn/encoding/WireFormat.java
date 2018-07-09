@@ -722,15 +722,15 @@ public class WireFormat {
   public static WireFormat
   getDefaultWireFormat()
   {
-  	WireFormat r;
-  	if ((r = defaultWireFormat_) == null) {
+  	WireFormat result = defaultWireFormat_;
+  	if (result == null) {
   		synchronized (WireFormat.class) {
-  			if ((r = defaultWireFormat_) == null) {
-  				r = defaultWireFormat_ = TlvWireFormat.get();
-		    }
+  			if ((result = defaultWireFormat_) == null)
+  				result = defaultWireFormat_ = TlvWireFormat.get();
 	    }
     }
-    return r;
+
+    return result;
   }
 
   private static volatile WireFormat defaultWireFormat_;
