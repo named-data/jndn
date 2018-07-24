@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.17 (2018-07-24)
----------------------------------------------
+jNDN v0.18 (2018-07-24)
+-----------------------
 
 Changes
 * https://redmine.named-data.net/issues/4591 Accept Interests encoded with
