@@ -112,7 +112,7 @@ public class Blob implements Comparable {
     buffer_.put(value);
     buffer_.flip();
   }
-  
+
   /**
    * Create a new Blob with a copy of the bytes in the array.
    * @param value The array of integer to copy where each integer is in

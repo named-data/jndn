@@ -88,7 +88,7 @@ public class InterestValidationState extends ValidationState {
   verifyOriginalPacket_(CertificateV2 trustedCertificate)
   {
     if (VerificationHelpers.verifyInterestSignature(interest_, trustedCertificate)) {
-      logger_.log(Level.FINE, 
+      logger_.log(Level.FINE,
         "OK signature for interest `{0}`", interest_.getName().toUri());
       for (int i = 0; i < successCallbacks_.size(); ++i) {
         try {

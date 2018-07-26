@@ -79,7 +79,7 @@ public class DynamicTrustAnchorGroup extends TrustAnchorGroup {
       throw new IllegalArgumentException
         ("Refresh period for the dynamic group must be positive");
 
-    logger_.log(Level.INFO, 
+    logger_.log(Level.INFO,
       "Create a dynamic trust anchor group " + id + " for file/dir " +
       path + " with refresh time " + refreshPeriod);
     refresh();

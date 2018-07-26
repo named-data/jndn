@@ -891,7 +891,7 @@ public class MemoryContentCache implements OnInterestCallback {
     if (nowMilliseconds >= nextCleanupTime_) {
       // staleTimeCache_ is sorted on cacheRemovalTimeMilliseconds_, so we only need to
       // erase the stale entries at the front, then quit.
-      while (staleTimeCache_.size() > 0 && 
+      while (staleTimeCache_.size() > 0 &&
              staleTimeCache_.get(0).isPastRemovalTime(nowMilliseconds))
         staleTimeCache_.remove(0);
 

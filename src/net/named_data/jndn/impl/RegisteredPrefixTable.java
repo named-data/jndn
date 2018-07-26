@@ -56,7 +56,7 @@ public class RegisteredPrefixTable {
   {
     int removeRequestIndex = removeRequests_.indexOf(registeredPrefixId);
     if (removeRequestIndex >= 0) {
-      // removeRegisteredPrefix was called with the registeredPrefixId returned 
+      // removeRegisteredPrefix was called with the registeredPrefixId returned
       //   by registerPrefix before we got here, so don't add a registered
       //   prefix table entry.
       removeRequests_.remove(removeRequestIndex);

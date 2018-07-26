@@ -35,7 +35,7 @@ import net.named_data.jndn.util.regex.NdnRegexTopMatcher;
  *   type name
  *   regex ^[^<KEY>]*<KEY><>*<ksk-.*>$
  * }"}
- * creates 
+ * creates
  * {@code ConfigRegexNameFilter("^[^<KEY>]*<KEY><>*<ksk-.*>$") }.
  */
 public class ConfigRegexNameFilter extends ConfigFilter {

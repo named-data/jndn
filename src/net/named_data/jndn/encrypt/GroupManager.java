@@ -148,7 +148,7 @@ public class GroupManager {
    * Call the main getGroupKey where needRegenerate is default true.
    */
   public final List
-  getGroupKey(double timeSlot) 
+  getGroupKey(double timeSlot)
     throws GroupManagerDb.Error, SecurityException, TpmBackEnd.Error,
       PibImpl.Error, KeyChain.Error
   {

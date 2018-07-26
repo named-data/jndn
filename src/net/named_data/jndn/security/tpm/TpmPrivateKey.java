@@ -314,7 +314,7 @@ public class TpmPrivateKey {
    * in signing.
    */
   public final Blob
-  sign(ByteBuffer data, DigestAlgorithm digestAlgorithm) 
+  sign(ByteBuffer data, DigestAlgorithm digestAlgorithm)
     throws TpmPrivateKey.Error
   {
     if (digestAlgorithm != DigestAlgorithm.SHA256)

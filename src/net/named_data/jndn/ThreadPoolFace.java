@@ -336,7 +336,7 @@ public class ThreadPoolFace extends Face {
         try {
           node_.registerPrefix
             (registeredPrefixId, prefix, onInterestSubmit, onRegisterFailedSubmit,
-             onRegisterSuccessSubmit, flags, wireFormat, 
+             onRegisterSuccessSubmit, flags, wireFormat,
              commandKeyChain_, commandCertificateName_, ThreadPoolFace.this);
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);

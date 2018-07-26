@@ -564,7 +564,7 @@ public class Interest implements ChangeCountable {
    * forwarding hint.
    * @note You can also call getForwardingHint and change the forwarding hint
    * directly.
-   * @param forwardingHint The DelegationSet object to use as the forwarding 
+   * @param forwardingHint The DelegationSet object to use as the forwarding
    * hint. This makes a copy of the object. If no forwarding hint is specified,
    * set to a new default DelegationSet() with no entries.
    * @return This Interest so that you can chain calls to update values.
@@ -732,7 +732,7 @@ public class Interest implements ChangeCountable {
 
     // Check MinSuffixComponents.
     boolean hasMinSuffixComponents = getMinSuffixComponents() >= 0;
-    int minSuffixComponents = 
+    int minSuffixComponents =
       hasMinSuffixComponents ? getMinSuffixComponents() : 0;
     if (!(interestNameLength + minSuffixComponents <= fullNameLength))
       return false;

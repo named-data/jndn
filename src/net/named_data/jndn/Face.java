@@ -472,7 +472,7 @@ public class Face {
       throws IOException
   {
     return expressInterest
-      (name, null, onData, onTimeout, onNetworkNack, 
+      (name, null, onData, onTimeout, onNetworkNack,
        WireFormat.getDefaultWireFormat());
   }
 

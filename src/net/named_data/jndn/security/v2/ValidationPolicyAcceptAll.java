@@ -40,7 +40,7 @@ public class ValidationPolicyAcceptAll extends ValidationPolicy {
   public void
   checkPolicy
     (Interest interest, ValidationState state,
-     ValidationContinuation continueValidation) 
+     ValidationContinuation continueValidation)
     throws CertificateV2.Error, ValidatorConfigError
   {
     continueValidation.continueValidation(null, state);

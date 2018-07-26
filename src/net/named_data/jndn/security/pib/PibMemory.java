@@ -130,7 +130,7 @@ public class PibMemory extends PibImpl {
     HashSet<Name> result = new HashSet<Name>();
     for (Name name : identityNames_)
       result.add(new Name(name));
-    
+
     return result;
   }
 
@@ -265,7 +265,7 @@ public class PibMemory extends PibImpl {
    * @throws Pib.Error if the key does not exist.
    */
   public void
-  setDefaultKeyOfIdentity(Name identityName, Name keyName) 
+  setDefaultKeyOfIdentity(Name identityName, Name keyName)
     throws Pib.Error, PibImpl.Error
   {
     if (!hasKey(keyName))

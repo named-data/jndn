@@ -109,7 +109,7 @@ public class CertificateCacheV2 {
     if (entryKey == null)
       return null;
 
-    CertificateV2 certificate = 
+    CertificateV2 certificate =
       ((Entry)certificatesByName_.get(entryKey)).certificate_;
     if (!certificatePrefix.isPrefixOf(certificate.getName()))
       return null;

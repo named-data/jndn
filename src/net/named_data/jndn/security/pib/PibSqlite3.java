@@ -395,7 +395,7 @@ public class PibSqlite3 extends PibSqlite3Base {
           statement.close();
         }
       }
-      
+
       // We don't use a trigger, so manually reset the previous default identity.
       statement = database_.prepareStatement(UPDATE_setDefaultIdentity_reset);
       try {
