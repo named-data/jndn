@@ -1,15 +1,18 @@
-Interim changes since jNDN v0.17 (2018-07-05)
----------------------------------------------
+jNDN v0.18 (2018-07-26)
+-----------------------
 
 Changes
 * https://redmine.named-data.net/issues/4591 Accept Interests encoded with
   packet format v0.3
 * https://redmine.named-data.net/issues/4397 In Name, API for typed name components.
 * https://github.com/named-data/jndn/pull/21 Synchronize WireFormat.getDefaultWireFormat().
+* In pom.xml, change the sqlite-jdbc dependency to version 3.23.1 for better Android support.
 
 Bug fixes
 * In ChronoSync2013 timeout, get the digest component based on the broadcast
   prefix size instead of a hard-coded value. (Thanks John D.!)
+* https://github.com/named-data/jndn/pull/22 In decodeLpPacket, fix the check for
+  ignoring an unrecognized field type.
 
 jNDN v0.17 (2018-04-17)
 -----------------------
