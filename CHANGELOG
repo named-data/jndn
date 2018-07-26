@@ -1,4 +1,4 @@
-jNDN v0.18 (2018-07-24)
+jNDN v0.18 (2018-07-26)
 -----------------------
 
 Changes
@@ -11,6 +11,8 @@ Changes
 Bug fixes
 * In ChronoSync2013 timeout, get the digest component based on the broadcast
   prefix size instead of a hard-coded value. (Thanks John D.!)
+* https://github.com/named-data/jndn/pull/22 In decodeLpPacket, fix the check for
+  ignoring an unrecognized field type.
 
 jNDN v0.17 (2018-04-17)
 -----------------------
