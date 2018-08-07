@@ -28,7 +28,11 @@ import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 
-public class PibDataFixture {
+/**
+ * PibDataFixture2 is identical to PibDataFixture in the unit_tests folder, but
+ * we can't access it there, so use a copy here.
+ */
+public class PibDataFixture2 {
   // Convert the int array to a ByteBuffer.
   public static ByteBuffer
   toBuffer(int[] array)
@@ -425,7 +429,7 @@ public class PibDataFixture {
     return result;
   }
 
-  public PibDataFixture() throws EncodingException, CertificateV2.Error
+  public PibDataFixture2() throws EncodingException, CertificateV2.Error
   {
     id1Key1Cert1 = encodeCertificate(ID1_KEY1_CERT1);
     id1Key1Cert2 = encodeCertificate(ID1_KEY1_CERT2);
