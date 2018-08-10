@@ -39,6 +39,7 @@ import net.named_data.jndn.impl.RegisteredPrefixTable;
 import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
+import net.named_data.jndn.transport.TcpTransport;
 import net.named_data.jndn.transport.Transport;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.CommandInterestGenerator;
@@ -61,7 +62,14 @@ public class Node implements ElementListener {
     connectionInfo_ = connectionInfo;
   }
 
-  /**
+  public Node(TcpTransport transport, TcpTransport.ConnectionInfo connectionInfo, boolean isLocal)
+  {
+    transport_ = transport;
+    connectionInfo_ = connectionInfo;
+    isLocalOverride_ = isLocal;
+  }
+
+	/**
    * Send the Interest through the transport, read the entire response and call
    * onData, onTimeout or onNetworkNack as described below.
    * @param pendingInterestId The getNextEntryId() for the pending interest ID
@@ -472,12 +480,18 @@ public class Node implements ElementListener {
 
   /**
    * Check if the face is local based on the current connection through the
-   * Transport; some Transport may cause network IO (e.g. an IP host name lookup).
+   * Transport or the override; some Transport may cause network IO (e.g.
+   * an IP host name lookup).
    * @return True if the face is local, false if not.
    * @throws IOException
    */
   public final boolean isLocal() throws IOException{
-    return transport_.isLocal(connectionInfo_);
+    if (isLocalOverride_ == null) {
+      return transport_.isLocal(connectionInfo_);
+    }
+    else {
+      return isLocalOverride_.booleanValue();
+    }
   }
 
   /**
@@ -844,4 +858,5 @@ public class Node implements ElementListener {
   private ConnectStatus connectStatus_ = ConnectStatus.UNCONNECTED;
   private static Blob nonceTemplate_ = new Blob(new byte[] { 0, 0, 0, 0 });
   private static final Logger logger_ = Logger.getLogger(Node.class.getName());
+  private Boolean isLocalOverride_ = null;
 }

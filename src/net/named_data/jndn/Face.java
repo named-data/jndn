@@ -59,6 +59,31 @@ public class Face {
   }
 
   /**
+   * Create a new Face for communication with an NDN hub at host:port using the
+   * default TcpTransport.
+   * @param host The host of the NDN hub.
+   * @param port The port of the NDN hub.
+   * @param isLocal specify whether or not host should be treated as loopback.
+   */
+  public Face(String host, int port, boolean isLocal)
+  {
+    node_ = new Node
+      (new TcpTransport(), new TcpTransport.ConnectionInfo(host, port), isLocal);
+  }
+
+  /**
+   * Create a new Face for communication with an NDN hub at host using the
+   * default port 6363 and the default TcpTransport.
+   * @param host The host of the NDN hub.
+   * @param isLocal specify whether or not host should be treated as loopback.
+   */
+  public Face(String host, boolean isLocal)
+  {
+    node_ = new Node
+      (new TcpTransport(), new TcpTransport.ConnectionInfo(host, 6363), isLocal);
+  }
+
+  /**
    * Create a new Face for communication with an NDN hub at host using the
    * default port 6363 and the default TcpTransport.
    * @param host The host of the NDN hub.
