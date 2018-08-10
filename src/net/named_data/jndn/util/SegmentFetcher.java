@@ -20,8 +20,14 @@
 
 package net.named_data.jndn.util;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -109,6 +115,10 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
     void onComplete(Blob content);
   }
 
+  public interface ToFileOnComplete {
+    void onComplete(boolean isCompleted);
+  }
+
   public interface VerifySegment {
     boolean verifySegment(Data data);
   }
@@ -160,6 +170,46 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
      OnComplete onComplete, OnError onError)
   {
     new SegmentFetcher(face, null, verifySegment, onComplete, onError)
+            .fetchFirstSegment(baseInterest);
+  }
+
+  /**
+   * Initiate segment fetching. For more details, see the documentation for
+   * the class.
+   * @param face This calls face.expressInterest to fetch more segments.
+   * @param baseInterest An Interest for the initial segment of the requested
+   * data, where baseInterest.getName() has the name prefix.
+   * This interest may include a custom InterestLifetime and selectors that will
+   * propagate to all subsequent Interests. The only exception is that the
+   * initial Interest will be forced to include selectors "ChildSelector=1" and
+   * "MustBeFresh=true" which will be turned off in subsequent Interests.
+   * @param verifyTransferSegment When a Data packet is received this calls
+   * verifySegment.verifySegment(data). If it returns false then abort fetching
+   * and call onError.onError with ErrorCode.SEGMENT_VERIFICATION_FAILED. If
+   * data validation is not required, use DontVerifySegment.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onComplete When all segments are received, call
+   * ToFileOnComplete.onComplete(isCompleted) where isCompleted is the boolean
+   * value specifying whether all all data was written to the file.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onError Call onError.onError(errorCode, message) for timeout or an
+   * error processing segments.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param fileName The full path of the file with which to write.
+   */
+  public static void
+  fetchFile
+  (Face face, Interest baseInterest, VerifySegment verifyTransferSegment,
+   ToFileOnComplete onComplete, OnError onError, String fileName)
+  {
+    new SegmentFetcher(face, null, verifyTransferSegment, onComplete,
+            onError, fileName)
       .fetchFirstSegment(baseInterest);
   }
 
@@ -201,6 +251,44 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
   }
 
   /**
+   * Initiate segment fetching for file. For more details, see
+   * the documentation for the class.
+   * @param face This calls face.expressInterest to fetch more segments.
+   * @param baseInterest An Interest for the initial segment of the requested
+   * data, where baseInterest.getName() has the name prefix.
+   * This interest may include a custom InterestLifetime and selectors that will
+   * propagate to all subsequent Interests. The only exception is that the
+   * initial Interest will be forced to include selectors "ChildSelector=1" and
+   * "MustBeFresh=true" which will be turned off in subsequent Interests.
+   * @param validatorKeyChain When a Data packet is received this calls
+   * validatorKeyChain.verifyData(data). If validation fails then abort
+   * fetching and call onError with SEGMENT_VERIFICATION_FAILED. This does not
+   * make a copy of the KeyChain; the object must remain valid while fetching.
+   * If validatorKeyChain is null, this does not validate the data packet.
+   * @param onComplete When all segments are received, call
+   * ToFileOnComplete.onComplete(isCompleted) where isCompleted is the boolean
+   * value specifying whether all all data was written to the file.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param onError Call onError.onError(errorCode, message) for timeout
+   * or an error processing segments.
+   * NOTE: The library will log any exceptions thrown by this callback, but for
+   * better error handling the callback should catch and properly handle any
+   * exceptions.
+   * @param fileName The full path of the file with which to write.
+   */
+  public static void
+  fetchFile
+  (Face face, Interest baseInterest, KeyChain validatorKeyChain,
+   ToFileOnComplete onComplete, OnError onError, String fileName)
+  {
+     new SegmentFetcher
+      (face, validatorKeyChain, DontVerifySegment, onComplete, onError, fileName)
+		 .fetchFirstSegment(baseInterest);
+  }
+
+  /**
    * Create a new SegmentFetcher to use the Face. See the static fetch method
    * for details. If validatorKeyChain is not null, use it and ignore
    * verifySegment. After creating the SegmentFetcher, call fetchFirstSegment.
@@ -225,6 +313,48 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
     verifySegment_ = verifySegment;
     onComplete_ = onComplete;
     onError_ = onError;
+    toFileOnComplete_ = null;
+  }
+
+
+  /**
+   * Create a new SegmentFetcher to use the Face. See the static fetch method
+   * for details. If validatorKeyChain is not null, use it and ignore
+   * verifySegment. After creating the SegmentFetcher, call fetchFirstSegment.
+   * @param face This calls face.expressInterest to fetch more segments.
+   * @param validatorKeyChain If this is not null, use its verifyData instead of
+   * the verifySegment callback.
+   * @param verifySegment When a Data packet is received this calls
+   * verifySegment.verifySegment(data). If it returns false then abort fetching
+   * and call onError.onError with ErrorCode.SEGMENT_VERIFICATION_FAILED.
+   * @param onComplete When all segments are received, call
+   * ToFileOnComplete.onComplete(isCompleted) where isCompleted is the boolean
+   * value specifying whether all all data was written to the file.
+   * @param onError Call onError.onError(errorCode, message) for timeout or an
+   * error processing segments.
+   * @param fileName The full path of the file to write to.
+   */
+  private SegmentFetcher
+  (Face face, KeyChain validatorKeyChain, VerifySegment verifySegment,
+   ToFileOnComplete onComplete, OnError onError, String fileName)
+  {
+    face_ = face;
+    validatorKeyChain_ = validatorKeyChain;
+    verifySegment_ = verifySegment;
+    toFileOnComplete_ = onComplete;
+    onComplete_ = null;
+    onError_ = onError;
+    fileName_ = fileName;
+    newFile_ = Paths.get(fileName);
+    if (!Files.exists(newFile_)) {
+      try {
+          Files.createFile(newFile_);
+      }
+      catch (IOException exception) {
+        logger_.log(Level.SEVERE, "Error in creating new file", exception);
+        throw new RuntimeException("Failed to create file");
+      }
+    }
   }
 
   private void
@@ -342,7 +472,7 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
         return;
       }
 
-      long expectedSegmentNumber = contentParts_.size();
+      long expectedSegmentNumber = currentSegment_;
       if (currentSegment != expectedSegmentNumber) {
         // Try again to get the expected segment.  This also includes the case
         //   where the first segment is not segment 0.
@@ -350,7 +480,34 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
       }
       else {
         // Save the content and check if we are finished.
-        contentParts_.add(data.getContent());
+        ++currentSegment_;
+        if (fileName_ == "") {
+          contentParts_.add(data.getContent());
+        }
+        else {
+
+          OutputStream outStream = null;
+          try ( OutputStream newOutStream = Files.newOutputStream(newFile_,
+                  StandardOpenOption.APPEND)){
+            outStream = newOutStream;
+            outStream.write(data.getContent().getImmutableArray());
+
+          } catch (IOException exception) {
+            logger_.log(Level.SEVERE, "Error in writing bytes to file",
+                    exception);
+            try {
+              outStream.flush();
+            } finally {
+              try {
+                outStream.close();
+              } catch (IOException e) {
+                logger_.log(Level.SEVERE, "Error in closing file", e);
+              }
+              toFileOnComplete_.onComplete(false);
+              return;
+            }
+          }
+        }
 
         if (data.getMetaInfo().getFinalBlockId().getValue().size() > 0) {
           long finalSegmentNumber;
@@ -372,19 +529,23 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
           if (currentSegment == finalSegmentNumber) {
             // We are finished.
 
-            // Get the total size and concatenate to get content.
-            int totalSize = 0;
-            for (int i = 0; i < contentParts_.size(); ++i)
-              totalSize += ((Blob)contentParts_.get(i)).size();
-            ByteBuffer content = ByteBuffer.allocate(totalSize);
-            for (int i = 0; i < contentParts_.size(); ++i)
-              content.put(((Blob)contentParts_.get(i)).buf());
-            content.flip();
-
-            try {
-              onComplete_.onComplete(new Blob(content, false));
-            } catch (Throwable ex) {
-              logger_.log(Level.SEVERE, "Error in onComplete", ex);
+            if (fileName_.equals("")) {
+              // Get the total size and concatenate to get content.
+              int totalSize = 0;
+              for (int i = 0; i < contentParts_.size(); ++i)
+                totalSize += ((Blob) contentParts_.get(i)).size();
+              ByteBuffer content = ByteBuffer.allocate(totalSize);
+              for (int i = 0; i < contentParts_.size(); ++i)
+                content.put(((Blob) contentParts_.get(i)).buf());
+              content.flip();
+              try {
+                onComplete_.onComplete(new Blob(content, false));
+              } catch (Throwable ex) {
+                logger_.log(Level.SEVERE, "Error in onComplete", ex);
+              }
+            }
+            else {
+              toFileOnComplete_.onComplete(true);
             }
             return;
           }
@@ -438,6 +599,10 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
   private final KeyChain validatorKeyChain_;
   private final VerifySegment verifySegment_;
   private final OnComplete onComplete_;
+  private final ToFileOnComplete toFileOnComplete_;
   private final OnError onError_;
+  private String fileName_ = "";
+  private Path newFile_;
+  private long currentSegment_ = 0l;
   private static final Logger logger_ = Logger.getLogger(SegmentFetcher.class.getName());
 }
