@@ -25,9 +25,12 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.Random;
 import javax.crypto.Mac;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -119,7 +122,7 @@ public class Common {
    * Compute the HMAC with SHA-256 of data, as defined in
    * http://tools.ietf.org/html/rfc2104#section-2 .
    * @param key The key byte array.
-   * @param data The input byte buffer. This does not change the position.
+   * @param data The input byte buffer.
    * @return The HMAC result.
    */
   public static byte[]
@@ -147,6 +150,49 @@ public class Common {
     mac.update(data);
     data.position(savePosition);
     return mac.doFinal();
+  }
+
+  /**
+   * Compute the PBKDF2 with HMAC SHA1 of the password.
+   * @param password The input password, which should have characters in the
+   * range of 1 to 127.
+   * @param salt The 8-byte salt.
+   * @param nIterations The number of iterations of the hashing algorithm.
+   * @param resultLength The number of bytes of the result array.
+   * @return The result byte array.
+   */
+  public static byte[]
+  computePbkdf2WithHmacSha1
+    (char[] password, byte[] salt, int nIterations, int resultLength)
+    throws NoSuchAlgorithmException, InvalidKeySpecException
+  {
+    SecretKeyFactory keyFactory = SecretKeyFactory.getInstance
+      ("PBKDF2WithHmacSHA1");
+    PBEKeySpec keySpec = new PBEKeySpec
+      (password, salt, nIterations, resultLength * 8);
+    return keyFactory.generateSecret(keySpec).getEncoded();
+  }
+
+  /**
+   * Compute the PBKDF2 with HMAC SHA1 of the password.
+   * @param password The input password, which should have values in the
+   * range of 1 to 127.
+   * @param salt The 8-byte salt.
+   * @param nIterations The number of iterations of the hashing algorithm.
+   * @param resultLength The number of bytes of the result array.
+   * @return The result byte array.
+   */
+  public static byte[]
+  computePbkdf2WithHmacSha1
+    (byte[] password, byte[] salt, int nIterations, int resultLength)
+    throws NoSuchAlgorithmException, InvalidKeySpecException
+  {
+    char[] charPassword = new char[password.length];
+    for (int i = 0; i < password.length; ++i)
+      charPassword[i] = (char)password[i];
+
+    return computePbkdf2WithHmacSha1
+      (charPassword, salt, nIterations, resultLength);
   }
 
   /**
