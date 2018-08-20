@@ -29,7 +29,11 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithEcdsaSignature;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.Signature;
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.encoding.tlv.Tlv;
+import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.tpm.Tpm;
@@ -165,6 +169,28 @@ public class SafeBag {
   }
 
   /**
+   * Create a SafeBag by decoding the input as an NDN-TLV SafeBag.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public SafeBag(ByteBuffer input) throws EncodingException
+  {
+    wireDecode(input);
+  }
+
+  /**
+   * Create a SafeBag by decoding the input as an NDN-TLV SafeBag.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public SafeBag(Blob input) throws EncodingException
+  {
+    wireDecode(input);
+  }
+
+  /**
    * Get the certificate data packet.
    * @return The certificate as a Data packet. If you need to process it as a
    * certificate object then you must create a new CertificateV2(data).
@@ -178,6 +204,47 @@ public class SafeBag {
    * PrivateKeyInfo.
    */
   public final Blob getPrivateKeyBag() { return privateKeyBag_; }
+
+  /**
+   * Decode the input as an NDN-TLV SafeBag and update this object.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void
+  wireDecode(ByteBuffer input) throws EncodingException
+  {
+    // Decode directly as TLV. We don't support the WireFormat abstraction
+    // because this isn't meant to go directly on the wire.
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = decoder.readNestedTlvsStart(Tlv.SafeBag_SafeBag);
+
+    // Get the bytes of the certificate and decode.
+    int certificateBeginOffset = decoder.getOffset();
+    int certificateEndOffset = decoder.readNestedTlvsStart(Tlv.Data);
+    decoder.seek(certificateEndOffset);
+    certificate_ = new Data();
+    certificate_.wireDecode
+      (decoder.getSlice(certificateBeginOffset, certificateEndOffset),
+       TlvWireFormat.get());
+
+    privateKeyBag_ = new Blob
+      (decoder.readBlobTlv(Tlv.SafeBag_EncryptedKeyBag), true);
+
+    decoder.finishNestedTlvs(endOffset);
+  }
+
+  /**
+   * Decode the input as an NDN-TLV SafeBag and update this object.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void
+  wireDecode(Blob input) throws EncodingException
+  {
+    wireDecode(input.buf());
+  }
 
   private static CertificateV2
   makeSelfSignedCertificate
