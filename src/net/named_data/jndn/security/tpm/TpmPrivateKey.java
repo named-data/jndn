@@ -313,7 +313,7 @@ public class TpmPrivateKey {
         // Check the encryption scheme here to get the needed result length.
         int resultLength;
         if (encryptionSchemeOidString.equals(DES_EDE3_CBC_OID))
-          resultLength = 24;
+          resultLength = DES_EDE3_KEY_LENGTH;
         else
           throw new TpmPrivateKey.Error
             ("Unrecognized PBES2 encryption scheme OID: " +
@@ -554,6 +554,91 @@ public class TpmPrivateKey {
   }
 
   /**
+   * Get the encoded encrypted private key in PKCS #8.
+   * @param password The password for encrypting the private key.
+   * @return The encoding Blob of the EncryptedPrivateKeyInfo.
+   * @throws TpmPrivateKey.Error if no private key is loaded, or error encoding.
+   */
+  public final Blob
+  toEncryptedPkcs8(ByteBuffer password) throws TpmPrivateKey.Error
+  {
+    if (keyType_ == null)
+      throw new TpmPrivateKey.Error
+        ("toEncryptedPkcs8: The private key is not loaded");
+
+    // Create the derivedKey from the password.
+    final int nIterations = 2048;
+    byte[] salt = new byte[8];
+    Common.getRandom().nextBytes(salt);
+    byte[] derivedKey;
+    try {
+      derivedKey = Common.computePbkdf2WithHmacSha1
+        (new Blob(password, false).getImmutableArray(),
+         salt, nIterations, DES_EDE3_KEY_LENGTH);
+    }
+    catch (Throwable ex) {
+      // We don't expect this to happen.
+      throw new TpmPrivateKey.Error
+        ("Error computing the derived key using PBKDF2 with HMAC SHA1: " + ex);
+    }
+
+    // Use the derived key to get the encrypted pkcs8Encoding.
+    byte[] encryptedEncoding;
+    byte[] initialVector = new byte[8];
+    Common.getRandom().nextBytes(initialVector);
+    try {
+      DESedeKeySpec desKeySpec = new DESedeKeySpec(derivedKey);
+      Cipher cipher = Cipher.getInstance("DESede/CBC/PKCS5Padding");
+      cipher.init
+        (Cipher.ENCRYPT_MODE,
+         SecretKeyFactory.getInstance("DESede").generateSecret(desKeySpec),
+         new IvParameterSpec(initialVector));
+      encryptedEncoding = cipher.doFinal(privateKey_.getEncoded());
+    }
+    catch (Throwable ex) {
+      throw new TpmPrivateKey.Error
+        ("Error encrypting PKCS #8 key with DES-EDE3-CBC: " + ex);
+    }
+
+    try {
+      // Encode the PBES2 parameters. See https://www.ietf.org/rfc/rfc2898.txt .
+      DerSequence keyDerivationParameters = new DerSequence();
+      keyDerivationParameters.addChild(new DerNode.DerOctetString
+        (ByteBuffer.wrap(salt)));
+      keyDerivationParameters.addChild(new DerNode.DerInteger(nIterations));
+      DerSequence keyDerivationAlgorithmIdentifier = new DerSequence();
+      keyDerivationAlgorithmIdentifier.addChild(new DerNode.DerOid
+        (PBKDF2_OID));
+      keyDerivationAlgorithmIdentifier.addChild(keyDerivationParameters);
+
+      DerSequence encryptionSchemeAlgorithmIdentifier = new DerSequence();
+      encryptionSchemeAlgorithmIdentifier.addChild(new DerNode.DerOid
+        (DES_EDE3_CBC_OID));
+      encryptionSchemeAlgorithmIdentifier.addChild(new DerNode.DerOctetString
+        (ByteBuffer.wrap(initialVector)));
+
+      DerSequence encryptedKeyParameters = new DerSequence();
+      encryptedKeyParameters.addChild(keyDerivationAlgorithmIdentifier);
+      encryptedKeyParameters.addChild(encryptionSchemeAlgorithmIdentifier);
+      DerSequence encryptedKeyAlgorithmIdentifier = new DerSequence();
+      encryptedKeyAlgorithmIdentifier.addChild(new DerNode.DerOid(PBES2_OID));
+      encryptedKeyAlgorithmIdentifier.addChild(encryptedKeyParameters);
+
+      // Encode the PKCS #8 EncryptedPrivateKeyInfo.
+      // See https://tools.ietf.org/html/rfc5208.
+      DerSequence encryptedKey = new DerSequence();
+      encryptedKey.addChild(encryptedKeyAlgorithmIdentifier);
+      encryptedKey.addChild(new DerNode.DerOctetString
+        (ByteBuffer.wrap(encryptedEncoding)));
+
+      return encryptedKey.encode();
+    } catch (DerEncodingException ex) {
+      throw new TpmPrivateKey.Error
+        ("Error encoding the encryped PKCS #8 private key: " + ex);
+    }
+  }
+
+  /**
    * Generate a key pair according to keyParams and return a new TpmPrivateKey
    * with the private key. You can get the public key with derivePublicKey.
    * @param keyParams The parameters of the key.
@@ -626,11 +711,12 @@ public class TpmPrivateKey {
     }
   }
 
-  static private String RSA_ENCRYPTION_OID = "1.2.840.113549.1.1.1";
-  static private String EC_ENCRYPTION_OID = "1.2.840.10045.2.1";
-  static private String PBES2_OID = "1.2.840.113549.1.5.13";
-  static private String PBKDF2_OID = "1.2.840.113549.1.5.12";
-  static private String DES_EDE3_CBC_OID = "1.2.840.113549.3.7";
+  private static final String RSA_ENCRYPTION_OID = "1.2.840.113549.1.1.1";
+  private static final String EC_ENCRYPTION_OID = "1.2.840.10045.2.1";
+  private static final String PBES2_OID = "1.2.840.113549.1.5.13";
+  private static final String PBKDF2_OID = "1.2.840.113549.1.5.12";
+  private static final String DES_EDE3_CBC_OID = "1.2.840.113549.3.7";
+  private static final int DES_EDE3_KEY_LENGTH = 24;
 
   private KeyType keyType_ = null;
   private java.security.PrivateKey privateKey_;
