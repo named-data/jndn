@@ -22,6 +22,8 @@ package net.named_data.jndn.encrypt;
 
 import java.nio.ByteBuffer;
 import net.named_data.jndn.KeyLocator;
+import net.named_data.jndn.KeyLocatorType;
+import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
@@ -67,6 +69,27 @@ public class EncryptedContent {
   getKeyLocator() { return keyLocator_; }
 
   /**
+   * Check that the key locator type is KEYNAME and return the key Name.
+   * @return The key Name.
+   * @throws Error if the key locator type is not KEYNAME.
+   */
+  public final Name
+  getKeyLocatorName()
+  {
+    if (keyLocator_.getType() != KeyLocatorType.KEYNAME)
+      throw new Error("getKeyLocatorName: The KeyLocator type must be KEYNAME");
+
+    return keyLocator_.getKeyName();
+  }
+
+  /**
+   * Check if the initial vector is specified.
+   * @return True if the initial vector is specified.
+   */
+  public final boolean
+  hasInitialVector() { return !initialVector_.isNull(); }
+
+  /**
    * Get the initial vector.
    * @return The initial vector. If not specified, isNull() is true.
    */
@@ -79,6 +102,13 @@ public class EncryptedContent {
    */
   public final Blob
   getPayload() { return payload_; }
+
+  /**
+   * Get the encrypted payload key.
+   * @return The encrypted payload key. If not specified, isNull() is true.
+   */
+  public final Blob
+  getPayloadKey() { return payloadKey_; }
 
   /**
    * Set the algorithm type.
@@ -104,6 +134,19 @@ public class EncryptedContent {
   {
     keyLocator_ = keyLocator == null ?
       new KeyLocator() : new KeyLocator(keyLocator);
+    return this;
+  }
+
+  /**
+   * Set the key locator type to KeyLocatorType.KEYNAME and set the key Name.
+   * @param keyName The key locator Name, which is copied.
+   * @return This EncryptedContent so that you can chain calls to update values.
+   */
+  public final EncryptedContent
+  setKeyLocatorName(Name keyName)
+  {
+    keyLocator_.setType(KeyLocatorType.KEYNAME);
+    keyLocator_.setKeyName(keyName);
     return this;
   }
 
@@ -134,7 +177,33 @@ public class EncryptedContent {
   }
 
   /**
-   * Encode this EncryptedContent to a wire encoding.
+   * Set the encrypted payload key.
+   * @param payloadKey The encrypted payload key. If not specified, set to the
+   * default Blob() where isNull() is true.
+   * @return This EncryptedContent so that you can chain calls to update values.
+   */
+  public final EncryptedContent
+  setPayloadKey(Blob payloadKey)
+  {
+    payloadKey_ = (payloadKey == null ? new Blob() : payloadKey);
+    return this;
+  }
+
+  /**
+   * Set all the fields to indicate unspecified values.
+   */
+  public final void
+  clear()
+  {
+    algorithmType_ = EncryptAlgorithmType.NONE;
+    keyLocator_ = new KeyLocator();
+    initialVector_ = new Blob();
+    payload_ = new Blob();
+    payloadKey_ = new Blob();
+  }
+
+  /**
+   * Encode this to an EncryptedContent v1 wire encoding.
    * @param wireFormat A WireFormat object used to encode this EncryptedContent.
    * @return The encoded byte array as a Blob.
    */
@@ -145,7 +214,7 @@ public class EncryptedContent {
   }
 
   /**
-   * Encode this EncryptedContent for the default wire format.
+   * Encode this to an EncryptedContent v1 for the default wire format.
    * @return The encoded byte array as a Blob.
    */
   public final Blob
@@ -155,8 +224,29 @@ public class EncryptedContent {
   }
 
   /**
-   * Decode the input using a particular wire format and update this
-   * EncryptedContent.
+   * Encode this to an EncryptedContent v2 wire encoding.
+   * @param wireFormat A WireFormat object used to encode this EncryptedContent.
+   * @return The encoded byte array as a Blob.
+   */
+  public final Blob
+  wireEncodeV2(WireFormat wireFormat)
+  {
+    return wireFormat.encodeEncryptedContentV2(this);
+  }
+
+  /**
+   * Encode this to an EncryptedContent v2 for the default wire format.
+   * @return The encoded byte array as a Blob.
+   */
+  public final Blob
+  wireEncodeV2()
+  {
+    return wireEncodeV2(WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Decode the input as an EncryptedContent v1 using a particular wire format
+   * and update this EncryptedContent.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
    * @param wireFormat A WireFormat object used to decode the input.
@@ -169,8 +259,8 @@ public class EncryptedContent {
   }
 
   /**
-   * Decode the input wire encoding using the default wire format and update
-   * this EncryptedContent.
+   * Decode the input as an EncryptedContent v1 using the default wire format
+   * and update this EncryptedContent.
    * @param input The input buffer to decode.  This reads from position() to
    * limit(), but does not change the position.
    * @throws EncodingException For invalid encoding.
@@ -182,8 +272,8 @@ public class EncryptedContent {
   }
 
   /**
-   * Decode the input using a particular wire format and update this
-   * EncryptedContent.
+   * Decode the input as an EncryptedContent v1 using a particular wire format
+   * and update this EncryptedContent.
    * @param input The input blob to decode.
    * @param wireFormat A WireFormat object used to decode the input.
    * @throws EncodingException For invalid encoding.
@@ -195,7 +285,8 @@ public class EncryptedContent {
   }
 
   /**
-   * Decode the input the default wire format and update this EncryptedContent.
+   * Decode the input as an EncryptedContent v1 using the default wire format
+   * and update this EncryptedContent.
    * @param input The input blob to decode.
    * @throws EncodingException For invalid encoding.
    */
@@ -205,8 +296,61 @@ public class EncryptedContent {
     wireDecode(input, WireFormat.getDefaultWireFormat());
   }
 
+  /**
+   * Decode the input as an EncryptedContent v2 using a particular wire format
+   * and update this EncryptedContent.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @param wireFormat A WireFormat object used to decode the input.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void
+  wireDecodeV2(ByteBuffer input, WireFormat wireFormat) throws EncodingException
+  {
+    wireFormat.decodeEncryptedContentV2(this, input, true);
+  }
+
+  /**
+   * Decode the input as an EncryptedContent v2 using the default wire format
+   * and update this EncryptedContent.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void
+  wireDecodeV2(ByteBuffer input) throws EncodingException
+  {
+    wireDecodeV2(input, WireFormat.getDefaultWireFormat());
+  }
+
+  /**
+   * Decode the input as an EncryptedContent v2 using a particular wire format
+   * and update this EncryptedContent.
+   * @param input The input blob to decode.
+   * @param wireFormat A WireFormat object used to decode the input.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void
+  wireDecodeV2(Blob input, WireFormat wireFormat) throws EncodingException
+  {
+    wireFormat.decodeEncryptedContentV2(this, input.buf(), false);
+  }
+
+  /**
+   * Decode the input as an EncryptedContent v2 using the default wire format
+   * and update this EncryptedContent.
+   * @param input The input blob to decode.
+   * @throws EncodingException For invalid encoding.
+   */
+  public final void
+  wireDecodeV2(Blob input) throws EncodingException
+  {
+    wireDecodeV2(input, WireFormat.getDefaultWireFormat());
+  }
+
   private EncryptAlgorithmType algorithmType_ = EncryptAlgorithmType.NONE;
   private KeyLocator keyLocator_ = new KeyLocator();
   private Blob initialVector_ = new Blob();
   private Blob payload_ = new Blob();
+  private Blob payloadKey_ = new Blob();
 }
