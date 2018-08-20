@@ -113,13 +113,13 @@ public class TpmPrivateKey {
     // and decode that.
     Blob pkcs8;
     if (keyType == KeyType.EC) {
-      throw new Error("TODO: loadPkcs1 for EC is not implemented");
+      throw new TpmPrivateKey.Error("TODO: loadPkcs1 for EC is not implemented");
     }
     else if (keyType == KeyType.RSA)
       pkcs8 = encodePkcs8PrivateKey
         (encoding, new OID(RSA_ENCRYPTION_OID), new DerNode.DerNull());
     else
-      throw new Error("loadPkcs1: Unrecognized keyType: " + keyType);
+      throw new TpmPrivateKey.Error("loadPkcs1: Unrecognized keyType: " + keyType);
 
     loadPkcs8(pkcs8.buf(), keyType);
   }
@@ -159,7 +159,8 @@ public class TpmPrivateKey {
         oidString = "" + ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal();
       }
       catch (DerDecodingException ex) {
-        throw new Error("Cannot decode the PKCS #8 private key: " + ex);
+        throw new TpmPrivateKey.Error
+          ("Cannot decode the PKCS #8 private key: " + ex);
       }
 
       if (oidString.equals(EC_ENCRYPTION_OID))
@@ -167,7 +168,8 @@ public class TpmPrivateKey {
       else if (oidString.equals(RSA_ENCRYPTION_OID))
         keyType = KeyType.RSA;
       else
-        throw new Error("loadPkcs8: Unrecognized private key OID: " + oidString);
+        throw new TpmPrivateKey.Error
+          ("loadPkcs8: Unrecognized private key OID: " + oidString);
     }
 
     // Use a Blob to get the byte array.
@@ -181,11 +183,12 @@ public class TpmPrivateKey {
       }
       catch (InvalidKeySpecException ex) {
         // Don't expect this to happen.
-        throw new Error("loadPkcs8: EC is not supported: " + ex);
+        throw new TpmPrivateKey.Error("loadPkcs8: EC is not supported: " + ex);
       }
       catch (NoSuchAlgorithmException ex) {
         // Don't expect this to happen.
-        throw new Error("loadPkcs8: PKCS8EncodedKeySpec is not supported for EC: " + ex);
+        throw new TpmPrivateKey.Error
+          ("loadPkcs8: PKCS8EncodedKeySpec is not supported for EC: " + ex);
       }
     }
     else if (keyType == KeyType.RSA) {
@@ -196,15 +199,17 @@ public class TpmPrivateKey {
       }
       catch (InvalidKeySpecException ex) {
         // Don't expect this to happen.
-        throw new Error("loadPkcs8: RSA is not supported: " + ex);
+        throw new TpmPrivateKey.Error("loadPkcs8: RSA is not supported: " + ex);
       }
       catch (NoSuchAlgorithmException ex) {
         // Don't expect this to happen.
-        throw new Error("loadPkcs8: PKCS8EncodedKeySpec is not supported for RSA: " + ex);
+        throw new TpmPrivateKey.Error
+          ("loadPkcs8: PKCS8EncodedKeySpec is not supported for RSA: " + ex);
       }
     }
     else
-      throw new Error("loadPkcs8: Unrecognized keyType: " + keyType);
+      throw new TpmPrivateKey.Error
+        ("loadPkcs8: Unrecognized keyType: " + keyType);
   }
 
   /**
@@ -230,7 +235,8 @@ public class TpmPrivateKey {
   derivePublicKey() throws TpmPrivateKey.Error
   {
     if (keyType_ == KeyType.EC) {
-      throw new Error("TODO: derivePublicKey for EC is not implemented");
+      throw new TpmPrivateKey.Error
+        ("TODO: derivePublicKey for EC is not implemented");
     }
     else if (keyType_ == KeyType.RSA) {
       // Decode the PKCS #1 RSAPrivateKey. (We don't use RSAPrivateCrtKey because
@@ -240,7 +246,8 @@ public class TpmPrivateKey {
         DerNode parsedNode = DerNode.parse(toPkcs1().buf(), 0);
         rsaPrivateKeyChildren = parsedNode.getChildren();
       } catch (DerDecodingException ex) {
-        throw new Error("Error parsing RSA PKCS #1 key: " + ex);
+        throw new TpmPrivateKey.Error
+          ("Error parsing RSA PKCS #1 key: " + ex);
       }
       Blob modulus = ((DerNode)rsaPrivateKeyChildren.get(1)).getPayload();
       Blob publicExponent = ((DerNode)rsaPrivateKeyChildren.get(2)).getPayload();
@@ -253,11 +260,12 @@ public class TpmPrivateKey {
               new BigInteger(publicExponent.getImmutableArray())));
         return new Blob(publicKey.getEncoded(), false);
       } catch (Exception ex) {
-        throw new Error("Error making RSA public key: " + ex);
+        throw new TpmPrivateKey.Error("Error making RSA public key: " + ex);
       }
     }
     else
-      throw new Error("derivePublicKey: The private key is not loaded");
+      throw new TpmPrivateKey.Error
+        ("derivePublicKey: The private key is not loaded");
   }
 
   /**
@@ -282,7 +290,7 @@ public class TpmPrivateKey {
     else if (algorithmType == EncryptAlgorithmType.RsaOaep)
       transformation = "RSA/ECB/OAEPWithSHA-1AndMGF1Padding";
     else
-      throw new Error("unsupported padding scheme");
+      throw new TpmPrivateKey.Error("unsupported padding scheme");
 
     try {
       Cipher cipher = Cipher.getInstance(transformation);
@@ -291,7 +299,8 @@ public class TpmPrivateKey {
       byte[] cipherByteArray = new Blob(cipherText, false).getImmutableArray();
       return new Blob(cipher.doFinal(cipherByteArray), false);
     } catch (Exception ex) {
-      throw new Error("Error decrypting with private key: " + ex.getMessage());
+      throw new TpmPrivateKey.Error
+        ("Error decrypting with private key: " + ex.getMessage());
     }
   }
 
@@ -318,7 +327,7 @@ public class TpmPrivateKey {
     throws TpmPrivateKey.Error
   {
     if (digestAlgorithm != DigestAlgorithm.SHA256)
-      throw new Error
+      throw new TpmPrivateKey.Error
         ("TpmPrivateKey.sign: Unsupported digest algorithm");
 
     java.security.Signature signature = null;
@@ -328,7 +337,8 @@ public class TpmPrivateKey {
       }
       catch (NoSuchAlgorithmException e) {
         // Don't expect this to happen.
-        throw new Error("SHA256withECDSA algorithm is not supported");
+        throw new TpmPrivateKey.Error
+          ("SHA256withECDSA algorithm is not supported");
       }
     }
     else if (keyType_ == KeyType.RSA) {
@@ -337,7 +347,7 @@ public class TpmPrivateKey {
       }
       catch (NoSuchAlgorithmException e) {
         // Don't expect this to happen.
-        throw new Error("SHA256withRSA algorithm is not supported");
+        throw new TpmPrivateKey.Error("SHA256withRSA algorithm is not supported");
       }
     }
     else
@@ -347,14 +357,16 @@ public class TpmPrivateKey {
       signature.initSign(privateKey_);
     }
     catch (InvalidKeyException exception) {
-      throw new Error("InvalidKeyException: " + exception.getMessage());
+      throw new TpmPrivateKey.Error
+        ("InvalidKeyException: " + exception.getMessage());
     }
     try {
       signature.update(data);
       return new Blob(signature.sign(), false);
     }
     catch (SignatureException exception) {
-      throw new Error("SignatureException: " + exception.getMessage());
+      throw new TpmPrivateKey.Error
+        ("SignatureException: " + exception.getMessage());
     }
   }
 
@@ -367,7 +379,7 @@ public class TpmPrivateKey {
   toPkcs1() throws TpmPrivateKey.Error
   {
     if (keyType_ == null)
-      throw new Error("toPkcs1: The private key is not loaded");
+      throw new TpmPrivateKey.Error("toPkcs1: The private key is not loaded");
 
     // Decode the PKCS #8 private key.
     DerNode parsedNode;
@@ -376,7 +388,7 @@ public class TpmPrivateKey {
       List pkcs8Children = parsedNode.getChildren();
       return ((DerNode)pkcs8Children.get(2)).getPayload();
     } catch (DerDecodingException ex) {
-      throw new Error("Error decoding PKCS #8 private key: " + ex);
+      throw new TpmPrivateKey.Error("Error decoding PKCS #8 private key: " + ex);
     }
   }
 
@@ -425,7 +437,7 @@ public class TpmPrivateKey {
       generator = KeyPairGenerator.getInstance(keyAlgorithm);
     }
     catch(NoSuchAlgorithmException e){
-      throw new Error
+      throw new TpmPrivateKey.Error
         ("TpmPrivateKey: Could not create the key generator: " + e.getMessage());
     }
 
@@ -463,7 +475,7 @@ public class TpmPrivateKey {
 
       return result.encode();
     } catch (DerEncodingException ex) {
-      throw new Error("Error encoding PKCS #8 private key: " + ex);
+      throw new TpmPrivateKey.Error("Error encoding PKCS #8 private key: " + ex);
     }
   }
 
