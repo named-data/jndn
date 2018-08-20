@@ -291,7 +291,7 @@ public class WireFormat {
   }
 
   /**
-   * Decode input as a data packet and set the fields in the data object. Copy 
+   * Decode input as a data packet and set the fields in the data object. Copy
    * from the input when making new Blob values. Your derived class should
    * override.
    * @param data The Data object whose fields are updated.
@@ -571,7 +571,7 @@ public class WireFormat {
   }
 
   /**
-   * Decode input as an LpPacket and set the fields of the lpPacket object. Copy 
+   * Decode input as an LpPacket and set the fields of the lpPacket object. Copy
    * from the input when making new Blob values. Your derived class should
    * override.
    * @param lpPacket The LpPacket object whose fields are updated.
@@ -645,7 +645,7 @@ public class WireFormat {
   }
 
   /**
-   * Encode the EncryptedContent and return the encoding. Your derived class
+   * Encode the EncryptedContent v1 and return the encoding. Your derived class
    * should override.
    * @param encryptedContent The EncryptedContent object to encode.
    * @return A Blob containing the encoding.
@@ -660,7 +660,7 @@ public class WireFormat {
   }
 
   /**
-   * Decode input as an EncryptedContent and set the fields of the
+   * Decode input as an EncryptedContent v1 and set the fields of the
    * encryptedContent object. Your derived class should override.
    * @param encryptedContent The EncryptedContent object whose fields are
    * updated.
@@ -683,7 +683,7 @@ public class WireFormat {
   }
 
   /**
-   * Decode input as an EncryptedContent and set the fields of the
+   * Decode input as an EncryptedContent v1 and set the fields of the
    * encryptedContent object. Copy from the input when making new Blob values.
    * Your derived class should override.
    * @param encryptedContent The EncryptedContent object whose fields are
@@ -700,6 +700,70 @@ public class WireFormat {
     throws EncodingException
   {
     decodeEncryptedContent(encryptedContent, input, true);
+  }
+
+  /**
+   * Encode the EncryptedContent v2 (used in Name-based Access Control v2) and
+   * return the encoding.
+   * See https://github.com/named-data/name-based-access-control/blob/new/docs/spec.rst .
+   * Your derived class should override.
+   * @param encryptedContent The EncryptedContent object to encode.
+   * @return A Blob containing the encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public Blob
+  encodeEncryptedContentV2(EncryptedContent encryptedContent)
+  {
+    throw new UnsupportedOperationException
+      ("encodeEncryptedContentV2 is not implemented");
+  }
+
+  /**
+   * Decode input as an EncryptedContent v2 (used in Name-based Access Control
+   * v2) and set the fields of the encryptedContent object.
+   * See https://github.com/named-data/name-based-access-control/blob/new/docs/spec.rst .
+   * Your derived class should override.
+   * @param encryptedContent The EncryptedContent object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
+   * @throws EncodingException For invalid encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public void
+  decodeEncryptedContentV2
+    (EncryptedContent encryptedContent, ByteBuffer input, boolean copy)
+    throws EncodingException
+  {
+    throw new UnsupportedOperationException
+      ("decodeEncryptedContentV2 is not implemented");
+  }
+
+  /**
+   * Decode input as an EncryptedContent v2 (used in Name-based Access Control
+   * v2) and set the fields of the encryptedContent object.
+   * See https://github.com/named-data/name-based-access-control/blob/new/docs/spec.rst .
+   * Copy from the input when making new Blob values. Your derived class should
+   * override.
+   * @param encryptedContent The EncryptedContent object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @throws EncodingException For invalid encoding.
+   * @throws UnsupportedOperationException for unimplemented if the derived
+   * class does not override.
+   */
+  public final void
+  decodeEncryptedContentV2
+    (EncryptedContent encryptedContent, ByteBuffer input)
+    throws EncodingException
+  {
+    decodeEncryptedContentV2(encryptedContent, input, true);
   }
 
   /**
