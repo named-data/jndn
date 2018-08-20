@@ -142,14 +142,13 @@ public class TpmBackEndMemory extends TpmBackEnd {
     (Name keyName, ByteBuffer pkcs8, ByteBuffer password) throws TpmBackEnd.Error
   {
     try {
-      if (password != null)
-        throw new Error("Private key password-encryption is not implemented");
-      else {
-        TpmPrivateKey key = new TpmPrivateKey();
+      TpmPrivateKey key = new TpmPrivateKey();
+      if (password  != null)
+        key.loadEncryptedPkcs8(pkcs8, password);
+      else
         key.loadPkcs8(pkcs8);
-        // Copy the Name.
-        keys_.put(new Name(keyName), key);
-      }
+      // Copy the Name.
+      keys_.put(new Name(keyName), key);
     } catch (TpmPrivateKey.Error ex) {
       throw new Error("Cannot import private key: " + ex);
     }
