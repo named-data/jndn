@@ -112,18 +112,16 @@ public class TpmBackEndMemory extends TpmBackEnd {
   protected Blob
   doExportKey(Name keyName, ByteBuffer password) throws TpmBackEnd.Error
   {
-    if (password != null)
-      throw new TpmBackEnd.Error
-        ("Private key password-encryption is not implemented");
-    else {
-      if (!hasKey(keyName))
-        throw new TpmBackEnd.Error("exportKey: The key does not exist");
+    if (!hasKey(keyName))
+      throw new TpmBackEnd.Error("exportKey: The key does not exist");
 
-      try {
+    try {
+      if (password != null)
+        return keys_.get(keyName).toEncryptedPkcs8(password);
+      else
         return keys_.get(keyName).toPkcs8();
-      } catch (TpmPrivateKey.Error ex) {
-        throw new TpmBackEnd.Error("Error in toPkcs8: " + ex);
-      }
+    } catch (TpmPrivateKey.Error ex) {
+      throw new TpmBackEnd.Error("Error in toPkcs8: " + ex);
     }
   }
 
