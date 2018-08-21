@@ -237,7 +237,7 @@ public class EncryptorV2 {
        },
        new OnError() {
          public void onError(EncryptError.ErrorCode errorCode, String message) {
-           logger_.log(Level.SEVERE, "Failed to retrieve KEK: {0}", message);
+           logger_.log(Level.INFO, "Failed to retrieve KEK: {0}", message);
            isKekRetrievalInProgress_ = false;
            onError_.onError(errorCode, message);
          }
