@@ -26,11 +26,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
@@ -46,10 +42,8 @@ import net.named_data.jndn.security.SafeBag;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.pib.PibIdentity;
 import net.named_data.jndn.security.pib.PibKey;
-import net.named_data.jndn.security.tpm.TpmPrivateKey;
 import net.named_data.jndn.security.v2.Validator;
 import net.named_data.jndn.util.Blob;
-import net.named_data.jndn.util.Common;
 
 /**
  * DecryptorV2 decrypts the supplied EncryptedContent element, using
