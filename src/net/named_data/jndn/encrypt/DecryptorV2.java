@@ -159,7 +159,7 @@ public class DecryptorV2 {
       fetchCk(ckName, contentKey, onError, EncryptorV2.N_RETRIES);
   }
 
-  private static class ContentKey {
+  public static class ContentKey {
     public static class PendingDecrypt {
       public PendingDecrypt
         (EncryptedContent encryptedContent, DecryptSuccessCallback onSuccess,
