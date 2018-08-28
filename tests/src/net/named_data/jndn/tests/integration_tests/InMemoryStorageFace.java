@@ -37,6 +37,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encrypt.InMemoryStoragePersistent;
 import net.named_data.jndn.impl.DelayedCallTable;
+import net.named_data.jndn.util.Common;
 
 /**
  * InMemoryStorageFace extends Face to hold an InMemoryStoragePersistent and
@@ -140,4 +141,6 @@ public class InMemoryStorageFace extends Face {
   // Use delayedCallTable_ here so that we can call setNowOffsetMilliseconds_().
   public final DelayedCallTable delayedCallTable_ = new DelayedCallTable();
   private final InMemoryStoragePersistent storage_;
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
