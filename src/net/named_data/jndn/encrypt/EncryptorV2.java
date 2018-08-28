@@ -204,7 +204,7 @@ public class EncryptorV2 {
    * Get the the storage cache, which should only be used for testing.
    * @return The storage cache.
    */
-  public final HashMap<Name, Data>
+  public final HashMap
   getCache_() { return storage_.getCache_(); }
 
   /**

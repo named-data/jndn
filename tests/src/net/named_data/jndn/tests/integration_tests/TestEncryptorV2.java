@@ -208,8 +208,8 @@ public class TestEncryptorV2 {
 
     assertEquals(3, fixture_.encryptor_.size());
     int nCk = 0;
-    for (Data data : fixture_.encryptor_.getCache_().values()) {
-      if (data.getName().getPrefix(4).equals(new Name("/some/ck/prefix/CK")))
+    for (Object data : fixture_.encryptor_.getCache_().values()) {
+      if (((Data)data).getName().getPrefix(4).equals(new Name("/some/ck/prefix/CK")))
         ++nCk;
     }
     assertEquals(3, nCk);
