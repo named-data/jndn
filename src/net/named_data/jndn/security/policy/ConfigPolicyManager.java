@@ -117,7 +117,7 @@ public class ConfigPolicyManager extends PolicyManager {
 
   public ConfigPolicyManager
     (String configFileName, CertificateCache certificateCache, int searchDepth,
-     double graceInterval, double keyTimestampTtl) 
+     double graceInterval, double keyTimestampTtl)
     throws IOException, SecurityException, CertificateV2.Error
   {
     isSecurityV1_ = true;
@@ -134,7 +134,7 @@ public class ConfigPolicyManager extends PolicyManager {
 
   public ConfigPolicyManager
     (String configFileName, CertificateCache certificateCache, int searchDepth,
-     double graceInterval) 
+     double graceInterval)
     throws IOException, SecurityException, CertificateV2.Error
   {
     isSecurityV1_ = true;
@@ -245,7 +245,7 @@ public class ConfigPolicyManager extends PolicyManager {
 
   public ConfigPolicyManager
     (String configFileName, CertificateCacheV2 certificateCache, int searchDepth,
-     double graceInterval, double keyTimestampTtl) 
+     double graceInterval, double keyTimestampTtl)
     throws IOException, SecurityException, CertificateV2.Error
   {
     isSecurityV1_ = false;
@@ -262,7 +262,7 @@ public class ConfigPolicyManager extends PolicyManager {
 
   public ConfigPolicyManager
     (String configFileName, CertificateCacheV2 certificateCache, int searchDepth,
-     double graceInterval) 
+     double graceInterval)
     throws IOException, SecurityException, CertificateV2.Error
   {
     isSecurityV1_ = false;
@@ -326,7 +326,7 @@ public class ConfigPolicyManager extends PolicyManager {
    * verification rules.
    */
   public final void
-  load(String configFileName) 
+  load(String configFileName)
     throws IOException, SecurityException, CertificateV2.Error
   {
     reset();
@@ -341,7 +341,7 @@ public class ConfigPolicyManager extends PolicyManager {
    * @param inputName Used for log messages, etc.
    */
   public void
-  load(String input, String inputName) 
+  load(String input, String inputName)
     throws IOException, SecurityException, CertificateV2.Error
   {
     reset();
@@ -1175,7 +1175,7 @@ public class ConfigPolicyManager extends PolicyManager {
    * @return The CertificateV2 or null if not found.
    */
   private CertificateV2
-  lookupCertificateV2(String certID, boolean isPath) 
+  lookupCertificateV2(String certID, boolean isPath)
     throws SecurityException, CertificateV2.Error
   {
     if (isSecurityV1_)
@@ -1671,7 +1671,7 @@ public class ConfigPolicyManager extends PolicyManager {
   private class OnCertificateDownloadCompleteForInterest implements OnVerified {
     public OnCertificateDownloadCompleteForInterest
       (Interest originalInterest, int stepCount,
-       OnVerifiedInterest onVerified, 
+       OnVerifiedInterest onVerified,
        OnInterestValidationFailed onValidationFailed, WireFormat wireFormat)
     {
       originalInterest_ = originalInterest;
@@ -1811,7 +1811,7 @@ public class ConfigPolicyManager extends PolicyManager {
 
     public abstract boolean
     checkSignatureMatch
-      (ConfigPolicyManager policyManager, Name signatureName, Name objectName, 
+      (ConfigPolicyManager policyManager, Name signatureName, Name objectName,
        BoostInfoTree rule, String[] failureReason)
       throws SecurityException, NdnRegexMatcherBase.Error, CertificateV2.Error;
   }
@@ -1831,7 +1831,7 @@ public class ConfigPolicyManager extends PolicyManager {
 
     public boolean
     checkSignatureMatch
-      (ConfigPolicyManager policyManager, Name signatureName, Name objectName, 
+      (ConfigPolicyManager policyManager, Name signatureName, Name objectName,
        BoostInfoTree rule, String[] failureReason)
       throws SecurityException, NdnRegexMatcherBase.Error, CertificateV2.Error
     {

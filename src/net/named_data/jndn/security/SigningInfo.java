@@ -84,7 +84,7 @@ public class SigningInfo {
    * Create a SigningInfo of type SignerType.ID according to the given
    * PibIdentity. The digest algorithm is set to DigestAlgorithm.SHA256.
    * @param identity An existing PibIdentity which is not copied, or a null
-   * PibIdentity. If this is null then use the default identity, otherwise use 
+   * PibIdentity. If this is null then use the default identity, otherwise use
    * identity.getName().
    */
   public SigningInfo(PibIdentity identity)
@@ -97,7 +97,7 @@ public class SigningInfo {
    * Create a SigningInfo of type SignerType.KEY according to the given PibKey.
    * The digest algorithm is set to DigestAlgorithm.SHA256.
    * @param key An existing PibKey which is not copied, or a null PibKey. If
-   * this is null then use the default key for the identity, otherwise use 
+   * this is null then use the default key for the identity, otherwise use
    * key.getName().
    */
   public SigningInfo(PibKey key)
@@ -227,7 +227,7 @@ public class SigningInfo {
    * Set this to type SignerType.ID according to the given PibIdentity.
    * This does not change the digest algorithm.
    * @param identity An existing PibIdentity which is not copied, or a null
-   * PibIdentity. If this is null then use the default identity, otherwise use 
+   * PibIdentity. If this is null then use the default identity, otherwise use
    * identity.getName().
    * @return This SigningInfo.
    */
@@ -245,7 +245,7 @@ public class SigningInfo {
    * Set this to type SignerType.KEY according to the given PibKey.
    * This does not change the digest algorithm.
    * @param key An existing PibKey which is not copied, or a null PibKey. If
-   * this is null then use the default key for the identity, otherwise use 
+   * this is null then use the default key for the identity, otherwise use
    * key.getName().
    * @return This SigningInfo.
    */
@@ -291,7 +291,7 @@ public class SigningInfo {
 
   /**
    * Get the PibKey of the signer.
-   * @return The PibKey handler of the signer, or null if getSignerName() should 
+   * @return The PibKey handler of the signer, or null if getSignerName() should
    * be used to find the key.
    * @throws AssertionError if the signer type is not SignerType.KEY.
    */

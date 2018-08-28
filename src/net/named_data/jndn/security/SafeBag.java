@@ -200,7 +200,7 @@ public class SafeBag {
 
   /**
    * Get the encoded private key.
-   * @return The encoded private key. If encrypted, this is a PKCS #8 
+   * @return The encoded private key. If encrypted, this is a PKCS #8
    * EncryptedPrivateKeyInfo. If not encrypted, this is an unencrypted PKCS #8
    * PrivateKeyInfo.
    */

@@ -732,7 +732,7 @@ public class Name implements ChangeCountable, Comparable {
 
     public int hashCode()
     {
-      return 37 * 
+      return 37 *
         (type_ == ComponentType.OTHER_CODE ? otherTypeCode_ : type_.getNumericType()) +
         value_.hashCode();
     }

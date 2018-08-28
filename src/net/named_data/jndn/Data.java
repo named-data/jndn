@@ -204,7 +204,7 @@ public class Data implements ChangeCountable, SignatureHolder {
   public final long
   getIncomingFaceId()
   {
-    IncomingFaceId field = 
+    IncomingFaceId field =
       lpPacket_ == null ? null : IncomingFaceId.getFirstHeader(lpPacket_);
     return field == null ? -1 : field.getFaceId();
   }

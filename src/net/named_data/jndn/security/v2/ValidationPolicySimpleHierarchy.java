@@ -52,7 +52,7 @@ public class ValidationPolicySimpleHierarchy extends ValidationPolicy {
   public void
   checkPolicy
     (Interest interest, ValidationState state,
-     ValidationContinuation continueValidation) 
+     ValidationContinuation continueValidation)
     throws CertificateV2.Error, ValidatorConfigError
   {
     Name keyLocatorName = getKeyLocatorName(interest, state);

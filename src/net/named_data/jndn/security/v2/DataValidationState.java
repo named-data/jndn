@@ -80,7 +80,7 @@ public class DataValidationState extends ValidationState {
   verifyOriginalPacket_(CertificateV2 trustedCertificate)
   {
     if (VerificationHelpers.verifyDataSignature(data_, trustedCertificate)) {
-      logger_.log(Level.FINE, 
+      logger_.log(Level.FINE,
         "OK signature for data `{0}`", data_.getName().toUri());
       try {
         successCallback_.successCallback(data_);

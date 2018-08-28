@@ -131,7 +131,7 @@ public class Node implements ElementListener {
           public void run() {
             try {
               expressInterestHelper
-                (pendingInterestId, interestCopy, onData, onTimeout, 
+                (pendingInterestId, interestCopy, onData, onTimeout,
                  onNetworkNack, wireFormat, face);
             } catch (IOException ex) {
               logger_.log(Level.SEVERE, null, ex);

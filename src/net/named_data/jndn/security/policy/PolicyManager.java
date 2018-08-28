@@ -190,7 +190,7 @@ public abstract class PolicyManager {
       if (publicKeyDer.isNull())
         return false;
       return VerificationHelpers.verifySignature
-        (signedBlob.signedBuf(), signature.getSignature(), 
+        (signedBlob.signedBuf(), signature.getSignature(),
          new PublicKey(publicKeyDer), DigestAlgorithm.SHA256);
     }
     else if (signature instanceof DigestSha256Signature)

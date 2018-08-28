@@ -78,7 +78,7 @@ public abstract class TpmBackEnd {
    * @throws TpmBackEnd.Error if the key cannot be created.
    */
   public final TpmKeyHandle
-  createKey(Name identityName, KeyParams params) 
+  createKey(Name identityName, KeyParams params)
     throws TpmBackEnd.Error, Tpm.Error
   {
     // Do key name checking.

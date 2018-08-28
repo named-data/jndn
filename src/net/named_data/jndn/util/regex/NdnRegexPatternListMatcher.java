@@ -26,7 +26,7 @@ public class NdnRegexPatternListMatcher extends NdnRegexMatcherBase {
     throws NdnRegexMatcherBase.Error
   {
     super(expr, NdnRegexExprType.PATTERN_LIST, backrefManager);
-    
+
     compile();
   }
 
@@ -94,7 +94,7 @@ public class NdnRegexPatternListMatcher extends NdnRegexMatcherBase {
   }
 
   private int
-  extractSubPattern(char left, char right, int index) 
+  extractSubPattern(char left, char right, int index)
     throws NdnRegexMatcherBase.Error
   {
     int lcount = 1;

@@ -195,7 +195,7 @@ public abstract class PibImpl {
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public abstract void
-  setDefaultKeyOfIdentity(Name identityName, Name keyName) 
+  setDefaultKeyOfIdentity(Name identityName, Name keyName)
     throws Pib.Error, PibImpl.Error;
 
   /**
@@ -276,7 +276,7 @@ public abstract class PibImpl {
    * @throws PibImpl.Error for a non-semantic (database access) error.
    */
   public abstract void
-  setDefaultCertificateOfKey(Name keyName, Name certificateName) 
+  setDefaultCertificateOfKey(Name keyName, Name certificateName)
     throws Pib.Error, PibImpl.Error;
 
   /**

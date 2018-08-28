@@ -107,7 +107,7 @@ public class ExponentialReExpress implements OnTimeout {
     maxInterestLifetime_ = maxInterestLifetime;
   }
 
-  public void 
+  public void
   onTimeout(Interest interest)
   {
     double interestLifetime = interest.getInterestLifetimeMilliseconds();

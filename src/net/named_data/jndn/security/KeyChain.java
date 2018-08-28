@@ -216,7 +216,7 @@ public class KeyChain {
    * objects which are initialized with the explicit directory for the Android
    * filesDir.
    */
-  public KeyChain() 
+  public KeyChain()
     throws SecurityException, KeyChain.Error, PibImpl.Error, IOException
   {
     isSecurityV1_ = false;
@@ -684,7 +684,7 @@ public class KeyChain {
   /**
    * Sign the byte buffer according to the supplied signing parameters.
    * @param buffer The byte buffer to be signed.
-   * @param params The signing parameters. If params refers to an identity, this 
+   * @param params The signing parameters. If params refers to an identity, this
    * selects the default key of the identity. If params refers to a key or
    * certificate, this selects the corresponding key.
    * @return The signature Blob, or an isNull Blob if params.getDigestAlgorithm()
@@ -1885,7 +1885,7 @@ public class KeyChain {
 
   /**
    * Check the signature on the signed interest and call either
-   * onVerify.onVerifiedInterest or 
+   * onVerify.onVerifiedInterest or
    * onValidationFailed.onInterestValidationFailed. We
    * use callback functions because verify may fetch information to check the
    * signature.
@@ -2393,7 +2393,7 @@ public class KeyChain {
    * satisfied.
    */
   private Signature
-  prepareSignatureInfo(SigningInfo params, Name[] keyName) 
+  prepareSignatureInfo(SigningInfo params, Name[] keyName)
     throws PibImpl.Error, InvalidSigningInfoError, KeyChain.Error
   {
     PibIdentity identity = null;
@@ -2529,7 +2529,7 @@ public class KeyChain {
    */
   private class VerifyCallbacks implements OnData, OnTimeout {
     public VerifyCallbacks
-      (ValidationRequest nextStep, int retry, 
+      (ValidationRequest nextStep, int retry,
        OnDataValidationFailed onValidationFailed, Data originalData)
     {
       nextStep_ = nextStep;
@@ -2564,7 +2564,7 @@ public class KeyChain {
         catch (IOException ex) {
           try {
             onValidationFailed_.onDataValidationFailed
-              (originalData_, 
+              (originalData_,
                "Error in expressInterest to retry after timeout for fetching " +
                interest.getName().toUri() + ": " + ex);
           } catch (Throwable exception) {
@@ -2598,7 +2598,7 @@ public class KeyChain {
    */
   private class VerifyCallbacksForVerifyInterest implements OnData, OnTimeout {
     public VerifyCallbacksForVerifyInterest
-      (ValidationRequest nextStep, int retry, 
+      (ValidationRequest nextStep, int retry,
        OnInterestValidationFailed onValidationFailed, Interest originalInterest)
     {
       nextStep_ = nextStep;
@@ -2716,6 +2716,6 @@ public class KeyChain {
   private static HashMap<String, MakeTpmBackEnd> tpmFactories_ = null;
   private static final SigningInfo defaultSigningInfo_ = new SigningInfo();
   private static final KeyParams defaultKeyParams_ = new RsaKeyParams();
-  
+
   private static final Logger logger_ = Logger.getLogger(KeyChain.class.getName());
 }

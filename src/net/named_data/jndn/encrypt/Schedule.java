@@ -253,7 +253,7 @@ public class Schedule {
 
     // Encode backwards.
     encoder.writeNonNegativeIntegerTlv
-      (Tlv.Encrypt_RepeatUnit, 
+      (Tlv.Encrypt_RepeatUnit,
        RepetitiveInterval.getRepeatUnitNumericType(repetitiveInterval.getRepeatUnit()));
     encoder.writeNonNegativeIntegerTlv
       (Tlv.Encrypt_NRepeats, repetitiveInterval.getNRepeats());

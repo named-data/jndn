@@ -68,7 +68,7 @@ public class TlvDecoder {
    * @param firstOctet The first octet which is greater than or equal to 253,
    * used to decode the remaining bytes.
    * @return The decoded VAR-NUMBER as a Java 32-bit int.
-   * @throws EncodingException if the VAR-NUMBER is 64-bit or read past the end  
+   * @throws EncodingException if the VAR-NUMBER is 64-bit or read past the end
    * of the input.
    */
   public final int
@@ -163,7 +163,7 @@ public class TlvDecoder {
       boolean critical = (type <= 31 || (type & 1) == 1);
       if (critical && !skipCritical)
         throw new EncodingException("Unrecognized critical type code " + type);
-      
+
       // Read the length and update the position.
       int length = readVarNumber();
       int newPosition = input_.position() + length;

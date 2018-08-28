@@ -39,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class TestPibImpl {
-  class PibMemoryFixture extends PibDataFixture {
+  class PibMemoryFixture extends PibDataFixture2 {
     public PibMemoryFixture() throws EncodingException, CertificateV2.Error
     {
       pib = myPib_;
@@ -48,7 +48,7 @@ public class TestPibImpl {
     private final PibMemory myPib_ = new PibMemory();
   };
 
-  class PibSqlite3Fixture extends PibDataFixture {
+  class PibSqlite3Fixture extends PibDataFixture2 {
     public PibSqlite3Fixture() throws EncodingException, CertificateV2.Error, PibImpl.Error
     {
       File databaseDirectoryPath =
@@ -70,7 +70,7 @@ public class TestPibImpl {
   PibMemoryFixture pibMemoryFixture;
   PibSqlite3Fixture pibSqlite3Fixture;
 
-  PibDataFixture[] pibImpls = new PibDataFixture[2];
+  PibDataFixture2[] pibImpls = new PibDataFixture2[2];
   
   @Before
   public void
@@ -95,7 +95,7 @@ public class TestPibImpl {
   testCertificateDecoding() throws CertificateV2.Error
   {
     // Use pibMemoryFixture to test.
-    PibDataFixture fixture = pibMemoryFixture;
+    PibDataFixture2 fixture = pibMemoryFixture;
 
     assertTrue(fixture.id1Key1Cert1.getPublicKey().equals
       (fixture.id1Key1Cert2.getPublicKey()));
@@ -135,7 +135,7 @@ public class TestPibImpl {
   public void
   testTpmLocator() throws PibImpl.Error
   {
-    for (PibDataFixture fixture : pibImpls) {
+    for (PibDataFixture2 fixture : pibImpls) {
       PibImpl pib = fixture.pib;
 
       // Basic getting and setting
@@ -176,7 +176,7 @@ public class TestPibImpl {
   public void
   testIdentityManagement() throws Pib.Error,  PibImpl.Error
   {
-    for (PibDataFixture fixture : pibImpls) {
+    for (PibDataFixture2 fixture : pibImpls) {
       PibImpl pib = fixture.pib;
 
       // No default identity is set. This should throw an Error.
@@ -235,7 +235,7 @@ public class TestPibImpl {
   public void
   testClearIdentities() throws Pib.Error,  PibImpl.Error
   {
-    for (PibDataFixture fixture : pibImpls) {
+    for (PibDataFixture2 fixture : pibImpls) {
       PibImpl pib = fixture.pib;
 
       pib.setTpmLocator("tpmLocator");
@@ -259,7 +259,7 @@ public class TestPibImpl {
   public void
   testKeyManagement() throws Pib.Error,  PibImpl.Error
   {
-    for (PibDataFixture fixture : pibImpls) {
+    for (PibDataFixture2 fixture : pibImpls) {
       PibImpl pib = fixture.pib;
 
       // There is no default setting. This should throw an Error.
@@ -348,7 +348,7 @@ public class TestPibImpl {
   public void
   testCertificateManagement() throws Pib.Error,  PibImpl.Error
   {
-    for (PibDataFixture fixture : pibImpls) {
+    for (PibDataFixture2 fixture : pibImpls) {
       PibImpl pib = fixture.pib;
 
       // There is no default setting. This should throw an Error.
@@ -444,7 +444,7 @@ public class TestPibImpl {
   public void
   testDefaultsManagement() throws Pib.Error,  PibImpl.Error
   {
-    for (PibDataFixture fixture : pibImpls) {
+    for (PibDataFixture2 fixture : pibImpls) {
       PibImpl pib = fixture.pib;
 
       pib.addIdentity(fixture.id1);
@@ -495,7 +495,7 @@ public class TestPibImpl {
   public void
   testOverwrite() throws Pib.Error,  PibImpl.Error
   {
-    for (PibDataFixture fixture : pibImpls) {
+    for (PibDataFixture2 fixture : pibImpls) {
       PibImpl pib = fixture.pib;
 
       // Check for id1Key1, which should not exist.

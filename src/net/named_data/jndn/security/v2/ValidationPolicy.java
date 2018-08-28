@@ -135,7 +135,7 @@ public abstract class ValidationPolicy {
   public abstract void
   checkPolicy
     (Interest interest, ValidationState state,
-     ValidationContinuation continueValidation) 
+     ValidationContinuation continueValidation)
     throws CertificateV2.Error, ValidatorConfigError;
 
   /**
@@ -153,7 +153,7 @@ public abstract class ValidationPolicy {
   public void
   checkCertificatePolicy
     (CertificateV2 certificate, ValidationState state,
-     ValidationContinuation continueValidation) 
+     ValidationContinuation continueValidation)
     throws CertificateV2.Error, ValidatorConfigError
   {
     checkPolicy(certificate, state, continueValidation);
