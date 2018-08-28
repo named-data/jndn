@@ -56,10 +56,10 @@ public class InMemoryStoragePersistent {
   public Data
   find(Interest interest)
   {
-    for (Map.Entry<Name, Data> entry : cache_.entrySet()) {
+    for (Object entry : cache_.entrySet()) {
       // Debug: Check selectors, especially CanBePrefix.
-      if (interest.getName().isPrefixOf(entry.getKey()))
-        return entry.getValue();
+      if (interest.getName().isPrefixOf((Name)((Map.Entry)entry).getKey()))
+        return (Data)((Map.Entry)entry).getValue();
     }
 
     return null;
@@ -76,8 +76,10 @@ public class InMemoryStoragePersistent {
    * Get the the storage cache, which should only be used for testing.
    * @return The storage cache.
    */
-  public final HashMap<Name, Data>
+  public final HashMap
   getCache_() { return cache_; }
 
-  private final HashMap<Name, Data> cache_ = new HashMap<Name, Data>();
+  // Use HashMap without generics so it works with older Java compilers.
+  private final HashMap cache_ = 
+    new HashMap(); /**< The map key is the Data packet Name. The value is a Data. */
 }
