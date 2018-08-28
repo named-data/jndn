@@ -779,6 +779,53 @@ public class KeyChain {
   // Import and export
 
   /**
+   * Export a certificate and its corresponding private key in a SafeBag.
+   * @param certificate The certificate to export. This gets the key from the
+   * TPM using certificate.getKeyName().
+   * @param password The password for encrypting the private key. If the
+   * password is supplied, use it to put a PKCS #8 EncryptedPrivateKeyInfo in
+   * the SafeBag. If the password is null, put an unencrypted PKCS #8
+   * PrivateKeyInfo in the SafeBag.
+   * @return A SafeBag carrying the certificate and private key.
+   * @throw KeyChain.Error certificate.getKeyName() key does not exist, if the
+   * password is null and the TPM does not support exporting an unencrypted
+   * private key, or for other errors exporting the private key.
+   */
+  public final SafeBag
+  exportSafeBag(CertificateV2 certificate, ByteBuffer password)
+    throws KeyChain.Error
+  {
+    Name keyName = certificate.getKeyName();
+
+    Blob encryptedKey;
+    try {
+      encryptedKey = tpm_.exportPrivateKey_(keyName, password);
+    } catch (Throwable ex) {
+      throw new KeyChain.Error("Failed to export private key `" +
+        keyName.toUri() + "`: " + ex);
+    }
+
+    return new SafeBag(certificate, encryptedKey);
+  }
+
+  /**
+   * Export a certificate and its corresponding private key in a SafeBag, with a
+   * null password which exports an unencrypted PKCS #8 PrivateKeyInfo.
+   * @param certificate The certificate to export. This gets the key from the
+   * TPM using certificate.getKeyName().
+   * @return A SafeBag carrying the certificate and private key.
+   * @throw KeyChain.Error certificate.getKeyName() key does not exist, if the
+   * TPM does not support exporting an unencrypted private key, or for other
+   * errors exporting the private key.
+   */
+  public final SafeBag
+  exportSafeBag(CertificateV2 certificate)
+    throws KeyChain.Error
+  {
+    return exportSafeBag(certificate, null);
+  }
+
+  /**
    * Import a certificate and its corresponding private key encapsulated in a
    * SafeBag. If the certificate and key are imported properly, the default
    * setting will be updated as if a new key and certificate is added into this
