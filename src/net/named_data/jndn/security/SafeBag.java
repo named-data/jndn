@@ -34,6 +34,7 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.security.pib.Pib;
 import net.named_data.jndn.security.tpm.Tpm;
@@ -244,6 +245,29 @@ public class SafeBag {
   wireDecode(Blob input) throws EncodingException
   {
     wireDecode(input.buf());
+  }
+
+  /**
+   * Encode this as an NDN-TLV SafeBag.
+   * @return The encoded byte array as a Blob.
+   */
+  public final Blob
+  wireEncode()
+  {
+    // Encode directly as TLV. We don't support the WireFormat abstraction
+    // because this isn't meant to go directly on the wire.
+    TlvEncoder encoder = new TlvEncoder(256);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    encoder.writeBlobTlv(Tlv.SafeBag_EncryptedKeyBag, privateKeyBag_.buf());
+    // Add the entire Data packet encoding as is.
+    encoder.writeBuffer(certificate_.wireEncode(TlvWireFormat.get()).buf());
+
+    encoder.writeTypeAndLength
+      (Tlv.SafeBag_SafeBag, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
   }
 
   private static CertificateV2
