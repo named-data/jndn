@@ -48,6 +48,7 @@ import net.named_data.jndn.security.pib.PibImpl;
 import net.named_data.jndn.security.tpm.Tpm;
 import net.named_data.jndn.security.tpm.TpmBackEnd;
 import net.named_data.jndn.security.v2.CertificateV2;
+import net.named_data.jndn.util.Common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -155,4 +156,7 @@ public class TestAccessManagerV2 {
     assertEquals(1, nKek);
     assertEquals(2, nKdk);
   }
+
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
