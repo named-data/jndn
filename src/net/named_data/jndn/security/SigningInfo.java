@@ -154,6 +154,21 @@ public class SigningInfo {
   }
 
   /**
+   * Create a SigningInfo as a copy of the given signingInfo. (This takes a
+   * pointer to the given signingInfo PibIdentity and PibKey without copying.)
+   * @param signingInfo The SigningInfo to copy.
+   */
+  public SigningInfo(SigningInfo signingInfo)
+  {
+    type_ = signingInfo.type_;
+    name_ = new Name(signingInfo.name_);
+    identity_ = signingInfo.identity_;
+    key_ = signingInfo.key_;
+    digestAlgorithm_ = signingInfo.digestAlgorithm_;
+    validityPeriod_ = new ValidityPeriod(signingInfo.validityPeriod_);
+  }
+
+  /**
    * Set this to type SignerType.ID and an identity with name identityName.
    * This does not change the digest algorithm.
    * @param identityName The name of the identity. This copies the Name.

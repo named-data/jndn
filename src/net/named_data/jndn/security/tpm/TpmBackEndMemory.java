@@ -76,7 +76,8 @@ public class TpmBackEndMemory extends TpmBackEnd {
     try {
       key = TpmPrivateKey.generatePrivateKey(params);
     } catch (TpmPrivateKey.Error ex) {
-      throw new Error("Error in TpmPrivateKey.generatePrivateKey: " + ex);
+      throw new TpmBackEnd.Error
+        ("Error in TpmPrivateKey.generatePrivateKey: " + ex);
     }
     TpmKeyHandle keyHandle = new TpmKeyHandleMemory(key);
 
@@ -111,17 +112,16 @@ public class TpmBackEndMemory extends TpmBackEnd {
   protected Blob
   doExportKey(Name keyName, ByteBuffer password) throws TpmBackEnd.Error
   {
-    if (password != null)
-      throw new Error("Private key password-encryption is not implemented");
-    else {
-      if (!hasKey(keyName))
-        throw new Error("exportKey: The key does not exist");
+    if (!hasKey(keyName))
+      throw new TpmBackEnd.Error("exportKey: The key does not exist");
 
-      try {
+    try {
+      if (password != null)
+        return keys_.get(keyName).toEncryptedPkcs8(password);
+      else
         return keys_.get(keyName).toPkcs8();
-      } catch (TpmPrivateKey.Error ex) {
-        throw new Error("Error in toPkcs8: " + ex);
-      }
+    } catch (TpmPrivateKey.Error ex) {
+      throw new TpmBackEnd.Error("Error in toPkcs8: " + ex);
     }
   }
 
@@ -142,16 +142,15 @@ public class TpmBackEndMemory extends TpmBackEnd {
     (Name keyName, ByteBuffer pkcs8, ByteBuffer password) throws TpmBackEnd.Error
   {
     try {
-      if (password != null)
-        throw new Error("Private key password-encryption is not implemented");
-      else {
-        TpmPrivateKey key = new TpmPrivateKey();
+      TpmPrivateKey key = new TpmPrivateKey();
+      if (password  != null)
+        key.loadEncryptedPkcs8(pkcs8, password);
+      else
         key.loadPkcs8(pkcs8);
-        // Copy the Name.
-        keys_.put(new Name(keyName), key);
-      }
+      // Copy the Name.
+      keys_.put(new Name(keyName), key);
     } catch (TpmPrivateKey.Error ex) {
-      throw new Error("Cannot import private key: " + ex);
+      throw new TpmBackEnd.Error("Cannot import private key: " + ex);
     }
   }
 

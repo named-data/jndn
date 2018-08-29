@@ -113,6 +113,10 @@ public class Tlv {
   public static final int Encrypt_EncryptionAlgorithm = 131;
   public static final int Encrypt_EncryptedPayload = 132;
   public static final int Encrypt_InitialVector = 133;
+  public static final int Encrypt_EncryptedPayloadKey = 134;
+
+  public static final int SafeBag_SafeBag = 128;
+  public static final int SafeBag_EncryptedKeyBag = 129;
 
   // For RepetitiveInterval.
   public static final int Encrypt_StartDate = 134;

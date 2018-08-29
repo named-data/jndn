@@ -683,7 +683,7 @@ public class Tlv0_2WireFormat extends WireFormat {
   }
 
   /**
-   * Encode the EncryptedContent in NDN-TLV and return the encoding.
+   * Encode the EncryptedContent v1 in NDN-TLV and return the encoding.
    * @param encryptedContent The EncryptedContent object to encode.
    * @return A Blob containing the encoding.
    */
@@ -712,7 +712,7 @@ public class Tlv0_2WireFormat extends WireFormat {
   }
 
   /**
-   * Decode input as a EncryptedContent in NDN-TLV and set the fields of the
+   * Decode input as a EncryptedContent v1 in NDN-TLV and set the fields of the
    * encryptedContent object.
    * @param encryptedContent The EncryptedContent object whose fields are
    * updated.
@@ -732,6 +732,7 @@ public class Tlv0_2WireFormat extends WireFormat {
     int endOffset = decoder.readNestedTlvsStart
       (Tlv.Encrypt_EncryptedContent);
 
+    encryptedContent.clear();
     Tlv0_2WireFormat.decodeKeyLocator
       (Tlv.KeyLocator, encryptedContent.getKeyLocator(), decoder, copy);
 
@@ -754,6 +755,79 @@ public class Tlv0_2WireFormat extends WireFormat {
         (Tlv.Encrypt_InitialVector, endOffset), copy));
     encryptedContent.setPayload
       (new Blob(decoder.readBlobTlv(Tlv.Encrypt_EncryptedPayload), copy));
+
+    decoder.finishNestedTlvs(endOffset);
+  }
+
+  /**
+   * Encode the EncryptedContent v2 (used in Name-based Access Control v2) in
+   * NDN-TLV and return the encoding.
+   * See https://github.com/named-data/name-based-access-control/blob/new/docs/spec.rst .
+   * @param encryptedContent The EncryptedContent object to encode.
+   * @return A Blob containing the encoding.
+   */
+  public Blob
+  encodeEncryptedContentV2(EncryptedContent encryptedContent)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    if (encryptedContent.getKeyLocator().getType() == KeyLocatorType.KEYNAME)
+      Tlv0_2WireFormat.encodeName
+        (encryptedContent.getKeyLocator().getKeyName(), new int[1], new int[1],
+         encoder);
+    encoder.writeOptionalBlobTlv
+      (Tlv.Encrypt_EncryptedPayloadKey, encryptedContent.getPayloadKey().buf());
+    encoder.writeOptionalBlobTlv
+      (Tlv.Encrypt_InitialVector, encryptedContent.getInitialVector().buf());
+    encoder.writeBlobTlv
+      (Tlv.Encrypt_EncryptedPayload, encryptedContent.getPayload().buf());
+
+    encoder.writeTypeAndLength
+      (Tlv.Encrypt_EncryptedContent, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Decode input as an EncryptedContent v2 (used in Name-based Access Control
+   * v2) in NDN-TLV and set the fields of the encryptedContent object.
+   * See https://github.com/named-data/name-based-access-control/blob/new/docs/spec.rst .
+   * @param encryptedContent The EncryptedContent object whose fields are
+   * updated.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   * @param copy If true, copy from the input when making new Blob values. If
+   * false, then Blob values share memory with the input, which must remain
+   * unchanged while the Blob values are used.
+   * @throws EncodingException For invalid encoding.
+   */
+  public void
+  decodeEncryptedContentV2
+    (EncryptedContent encryptedContent, ByteBuffer input, boolean copy)
+    throws EncodingException
+  {
+    TlvDecoder decoder = new TlvDecoder(input);
+    int endOffset = decoder.readNestedTlvsStart
+      (Tlv.Encrypt_EncryptedContent);
+
+    encryptedContent.clear();
+    encryptedContent.setPayload
+      (new Blob(decoder.readBlobTlv(Tlv.Encrypt_EncryptedPayload), copy));
+    encryptedContent.setInitialVector
+      (new Blob(decoder.readOptionalBlobTlv
+        (Tlv.Encrypt_InitialVector, endOffset), copy));
+    encryptedContent.setPayloadKey
+      (new Blob(decoder.readOptionalBlobTlv
+        (Tlv.Encrypt_EncryptedPayloadKey, endOffset), copy));
+
+    if (decoder.peekType(Tlv.Name, endOffset)) {
+      decodeName
+        (encryptedContent.getKeyLocator().getKeyName(), new int[1], new int[1],
+         decoder, copy);
+      encryptedContent.getKeyLocator().setType(KeyLocatorType.KEYNAME);
+    }
 
     decoder.finishNestedTlvs(endOffset);
   }
