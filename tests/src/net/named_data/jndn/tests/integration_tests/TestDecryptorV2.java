@@ -23,6 +23,8 @@ package src.net.named_data.jndn.tests.integration_tests;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
@@ -42,7 +44,7 @@ import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.util.Blob;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestDecryptorV2 {
@@ -85,6 +87,14 @@ public class TestDecryptorV2 {
     public final InMemoryStorageFace face_;
     public final ValidatorNull validator_;
     public final DecryptorV2 decryptor_;
+  }
+
+  @Before
+  public void
+  setUp()
+  {
+    // Turn off INFO log messages.
+    Logger.getLogger("").setLevel(Level.SEVERE);
   }
 
   @Test

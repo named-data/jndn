@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -94,6 +96,9 @@ public class TestEncryptorV2 {
     throws KeyChain.Error, PibImpl.Error, SecurityException, IOException,
       EncodingException
   {
+    // Turn off INFO log messages.
+    Logger.getLogger("").setLevel(Level.SEVERE);
+
     fixture_ = new EncryptorFixture
       (true,
        new OnError() {
