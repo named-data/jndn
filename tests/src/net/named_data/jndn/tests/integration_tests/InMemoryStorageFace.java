@@ -37,6 +37,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encrypt.InMemoryStoragePersistent;
 import net.named_data.jndn.impl.DelayedCallTable;
+import net.named_data.jndn.impl.InterestFilterTable;
 import net.named_data.jndn.util.Common;
 
 /**
@@ -85,12 +86,8 @@ public class InMemoryStorageFace extends Face {
      ForwardingFlags flags, WireFormat wireFormat)
     throws IOException, net.named_data.jndn.security.SecurityException
   {
-    // Just save the callback. Assume there should be only one.
-    if (registeredOnInterest_ != null)
-      throw new Error("InMemoryStorageFace: Can only call registerPrefix once.");
-
-    registeredPrefix_ = new Name(prefix);
-    registeredOnInterest_ = onInterest;
+    interestFilterTable_.setInterestFilter
+      (0, new InterestFilter(prefix), onInterest, this);
 
     if (onRegisterSuccess != null)
       onRegisterSuccess.onRegisterSuccess(prefix, 0);
@@ -118,26 +115,28 @@ public class InMemoryStorageFace extends Face {
   /**
    * If registerPrefix has been called and the Interest matches the saved
    * registeredPrefix_, call the saved registeredOnInterest_.
-   * @param interest The Interest to receive and possibly call
-   * registeredOnInterest_.
+   * @param interest The Interest to receive and possibly call the
+   * OnInterest callback.
    */
   public void
   receive(Interest interest)
   {
-    if (registeredOnInterest_ == null ||
-        !registeredPrefix_.isPrefixOf(interest.getName()))
-      return;
-
-    registeredOnInterest_.onInterest
-      (registeredPrefix_, interest, this, 0,
-       new InterestFilter(registeredPrefix_));
+    ArrayList matchedFilters = new ArrayList();
+    interestFilterTable_.getMatchedFilters(interest, matchedFilters);
+    for (int i = 0; i < matchedFilters.size(); ++i) {
+      InterestFilterTable.Entry entry =
+        (InterestFilterTable.Entry)matchedFilters.get(i);
+      entry.getOnInterest().onInterest
+       (entry.getFilter().getPrefix(), interest, entry.getFace(),
+        entry.getInterestFilterId(), entry.getFilter());
+    }
   }
 
   public final ArrayList<Interest> sentInterests_ = new ArrayList<Interest>();
   public final ArrayList<Data> sentData_ = new ArrayList<Data>();
 
-  private Name registeredPrefix_ = new Name();
-  private OnInterestCallback registeredOnInterest_ = null;
+  private final InterestFilterTable interestFilterTable_ =
+    new InterestFilterTable();
   // Use delayedCallTable_ here so that we can call setNowOffsetMilliseconds_().
   public final DelayedCallTable delayedCallTable_ = new DelayedCallTable();
   private final InMemoryStoragePersistent storage_;
