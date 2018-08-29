@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
@@ -227,6 +228,13 @@ public class AccessManagerV2 {
    */
   public final int
   size() { return storage_.size(); }
+
+  /**
+   * Get the the storage cache, which should only be used for testing.
+   * @return The storage cache.
+   */
+  public final HashMap
+  getCache_() { return storage_.getCache_(); }
 
   private final PibIdentity identity_;
   private PibKey nacKey_;
