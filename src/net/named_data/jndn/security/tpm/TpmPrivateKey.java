@@ -36,6 +36,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import net.named_data.jndn.encoding.OID;
 import net.named_data.jndn.encoding.der.DerDecodingException;
 import net.named_data.jndn.encoding.der.DerEncodingException;
@@ -347,11 +348,10 @@ public class TpmPrivateKey {
         }
 
         try {
-          DESedeKeySpec desKeySpec = new DESedeKeySpec(derivedKey);
           Cipher cipher = Cipher.getInstance("DESede/CBC/PKCS5Padding");
           cipher.init
             (Cipher.DECRYPT_MODE,
-             SecretKeyFactory.getInstance("DESede").generateSecret(desKeySpec),
+             new SecretKeySpec(derivedKey, "DESede"),
              new IvParameterSpec(initialVector.getImmutableArray()));
           pkcs8Encoding = cipher.doFinal(encryptedKey.getImmutableArray());
         }
@@ -587,11 +587,10 @@ public class TpmPrivateKey {
     byte[] initialVector = new byte[8];
     Common.getRandom().nextBytes(initialVector);
     try {
-      DESedeKeySpec desKeySpec = new DESedeKeySpec(derivedKey);
       Cipher cipher = Cipher.getInstance("DESede/CBC/PKCS5Padding");
       cipher.init
         (Cipher.ENCRYPT_MODE,
-         SecretKeyFactory.getInstance("DESede").generateSecret(desKeySpec),
+         new SecretKeySpec(derivedKey, "DESede"),
          new IvParameterSpec(initialVector));
       encryptedEncoding = cipher.doFinal(privateKey_.getEncoded());
     }
