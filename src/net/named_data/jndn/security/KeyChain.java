@@ -159,8 +159,12 @@ public class KeyChain {
   }
 
   /**
-   * This is a temporary constructor for the transition to security v2. This
-   * creates a security v2 KeyChain but still uses the v1 PolicyManager.
+   * Creates a security v2 KeyChain with explicitly-created PIB and TPM objects,
+   * and that still uses the v1 PolicyManager.
+   * @param pibImpl An explicitly-created PIB object of a subclass of PibImpl.
+   * @param tpmBackEnd An explicitly-created TPM object of a subclass of
+   * TpmBackEnd.
+   * @param policyManager An object of a subclass of a security v1 PolicyManager.
    */
   public KeyChain
     (PibImpl pibImpl, TpmBackEnd tpmBackEnd, PolicyManager policyManager)
@@ -168,6 +172,23 @@ public class KeyChain {
   {
     isSecurityV1_ = false;
     policyManager_ = policyManager;
+
+    pib_ = new Pib("", "", pibImpl);
+    tpm_ = new Tpm("", "", tpmBackEnd);
+  }
+
+  /**
+   * Creates a security v2 KeyChain with explicitly-created PIB and TPM objects.
+   * This sets the policy manager to a security v1 NoVerifyPolicyManager.
+   * @param pibImpl An explicitly-created PIB object of a subclass of PibImpl.
+   * @param tpmBackEnd An explicitly-created TPM object of a subclass of
+   * TpmBackEnd.
+   */
+  public KeyChain(PibImpl pibImpl, TpmBackEnd tpmBackEnd)
+    throws PibImpl.Error
+  {
+    isSecurityV1_ = false;
+    policyManager_ = new NoVerifyPolicyManager();
 
     pib_ = new Pib("", "", pibImpl);
     tpm_ = new Tpm("", "", tpmBackEnd);
