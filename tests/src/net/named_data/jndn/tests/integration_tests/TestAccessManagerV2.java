@@ -140,7 +140,7 @@ public class TestAccessManagerV2 {
 
   @Test
   public void
-  testEnumerateDataFromStorage()
+  testEnumerateDataFromInMemoryStorage()
   {
     assertEquals(3, fixture_.manager_.size());
 
