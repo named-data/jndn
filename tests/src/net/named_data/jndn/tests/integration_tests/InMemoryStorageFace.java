@@ -35,13 +35,13 @@ import net.named_data.jndn.OnRegisterSuccess;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
-import net.named_data.jndn.encrypt.InMemoryStoragePersistent;
+import net.named_data.jndn.encrypt.InMemoryStorageRetaining;
 import net.named_data.jndn.impl.DelayedCallTable;
 import net.named_data.jndn.impl.InterestFilterTable;
 import net.named_data.jndn.util.Common;
 
 /**
- * InMemoryStorageFace extends Face to hold an InMemoryStoragePersistent and
+ * InMemoryStorageFace extends Face to hold an InMemoryStorageRetaining and
  * use it in expressInterest to instantly reply to an Interest. It also allows
  * one simple call to registerPrefix to remember the OnInterestCallback. This
  * also keeps a local DelayedCallTable (to use for callLater) so that you can
@@ -50,11 +50,11 @@ import net.named_data.jndn.util.Common;
 public class InMemoryStorageFace extends Face {
   /**
    * Create an InMemoryStorageFace to use the given storage.
-   * @param storage The InMemoryStoragePersistent used by expressInterest. If
+   * @param storage The InMemoryStorageRetaining used by expressInterest. If
    * the Data packet for the Interest is found, expressInterest immediately
    * calls onData, otherwise it immediately calls onTimeout.
    */
-  public InMemoryStorageFace(InMemoryStoragePersistent storage)
+  public InMemoryStorageFace(InMemoryStorageRetaining storage)
   {
     super("localhost");
 
@@ -139,7 +139,7 @@ public class InMemoryStorageFace extends Face {
     new InterestFilterTable();
   // Use delayedCallTable_ here so that we can call setNowOffsetMilliseconds_().
   public final DelayedCallTable delayedCallTable_ = new DelayedCallTable();
-  private final InMemoryStoragePersistent storage_;
+  private final InMemoryStorageRetaining storage_;
   // This is to force an import of net.named_data.jndn.util.
   private static Common dummyCommon_ = new Common();
 }

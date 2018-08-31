@@ -391,7 +391,7 @@ public class EncryptorV2 {
   private final OnError onError_;
 
   // Storage for encrypted CKs.
-  private final InMemoryStoragePersistent storage_ = new InMemoryStoragePersistent();
+  private final InMemoryStorageRetaining storage_ = new InMemoryStorageRetaining();
   private final long ckRegisteredPrefixId_;
   private long kekPendingInterestId_ = 0;
 

@@ -37,7 +37,7 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.AccessManagerV2;
 import net.named_data.jndn.encrypt.EncryptorV2;
-import net.named_data.jndn.encrypt.InMemoryStoragePersistent;
+import net.named_data.jndn.encrypt.InMemoryStorageRetaining;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.RsaKeyParams;
@@ -64,7 +64,7 @@ public class TestAccessManagerV2 {
         BadPaddingException, CertificateV2.Error, SecurityException, Tpm.Error,
         IOException
     {
-      face_ = new InMemoryStorageFace(new InMemoryStoragePersistent());
+      face_ = new InMemoryStorageFace(new InMemoryStorageRetaining());
       accessIdentity_ = addIdentity(new Name("/access/policy/identity"));
       // This is a hack to get access to the KEK key-id.
       nacIdentity_ = addIdentity

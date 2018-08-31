@@ -28,11 +28,13 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 
 /**
- * InMemoryStoragePersistent provides an application cache with persistent
- * in-memory storage, of which no replacement policy will be employed. Entries
- * will only be deleted by explicit application control.
+ * InMemoryStorageRetaining provides an application cache with persistent
+ * in-memory storage, of which no eviction policy will be employed. Entries
+ * will only be evicted by explicit application control.
+ * Note: In ndn-cxx, this class is called InMemoryStoragePersistent, but
+ * "persistent" misleadingly sounds like persistent on-disk storage.
  */
-public class InMemoryStoragePersistent {
+public class InMemoryStorageRetaining {
   /**
    * Insert a Data packet. If a Data packet with the same name, including the
    * implicit digest, already exists, replace it. 

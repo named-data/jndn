@@ -242,8 +242,8 @@ public class AccessManagerV2 {
   private final Face face_;
 
   // storage_ is for the KEK and KDKs.
-  private final InMemoryStoragePersistent storage_ =
-    new InMemoryStoragePersistent();
+  private final InMemoryStorageRetaining storage_ =
+    new InMemoryStorageRetaining();
   private final long kekRegisteredPrefixId_;
   private final long kdkRegisteredPrefixId_;
   private static final Logger logger_ = Logger.getLogger(AccessManagerV2.class.getName());

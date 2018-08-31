@@ -31,7 +31,7 @@ import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.DecryptorV2;
 import net.named_data.jndn.encrypt.EncryptError;
 import net.named_data.jndn.encrypt.EncryptedContent;
-import net.named_data.jndn.encrypt.InMemoryStoragePersistent;
+import net.named_data.jndn.encrypt.InMemoryStorageRetaining;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SafeBag;
 import net.named_data.jndn.security.SecurityException;
@@ -82,8 +82,8 @@ public class TestDecryptorV2 {
          validator_, keyChain_, face_);
     }
 
-    public final InMemoryStoragePersistent storage_ =
-      new InMemoryStoragePersistent();
+    public final InMemoryStorageRetaining storage_ =
+      new InMemoryStorageRetaining();
     public final InMemoryStorageFace face_;
     public final ValidatorNull validator_;
     public final DecryptorV2 decryptor_;
