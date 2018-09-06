@@ -33,8 +33,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.List;
 import javax.crypto.Cipher;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import net.named_data.jndn.encoding.OID;
@@ -299,12 +297,12 @@ public class TpmPrivateKey {
         Blob salt;
         int nIterations;
         try {
-          List Pbkdf2ParametersChildren =
+          List pbkdf2ParametersChildren =
             ((DerNode.DerSequence)keyDerivationParameters).getChildren();
           salt = (Blob)
-            ((DerNode.DerOctetString)Pbkdf2ParametersChildren.get(0)).toVal();
+            ((DerNode.DerOctetString)pbkdf2ParametersChildren.get(0)).toVal();
           nIterations = (int)
-            ((DerNode.DerInteger)Pbkdf2ParametersChildren.get(1)).toVal();
+            ((DerNode.DerInteger)pbkdf2ParametersChildren.get(1)).toVal();
         }
         catch (Throwable ex) {
           throw new TpmPrivateKey.Error
