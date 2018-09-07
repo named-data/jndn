@@ -1423,7 +1423,7 @@ public class Name implements ChangeCountable, Comparable {
 
   /**
    * Append a component of type ParametersSha256DigestComponent, so that
-   * ParametersSha256DigestComponent() is true.
+   * isParametersSha256Digest() is true.
    * @param digest The SHA-256 digest value.
    * @return This name so that you can chain calls to append.
    * @throws EncodingException If the digest length is not 32 bytes.
@@ -1436,7 +1436,7 @@ public class Name implements ChangeCountable, Comparable {
 
   /**
    * Append a component of type ParametersSha256DigestComponent, so that
-   * ParametersSha256DigestComponent() is true.
+   * isParametersSha256Digest() is true.
    * @param digest The SHA-256 digest value.
    * @return This name so that you can chain calls to append.
    * @throws EncodingException If the digest length is not 32 bytes.
