@@ -1,9 +1,11 @@
-Interim changes since jNDN v0.18 (2018-08-29)
+Interim changes since jNDN v0.18 (2018-09-07)
 ---------------------------------------------
 
 Changes
 * https://redmine.named-data.net/issues/4655 Added name-based access control v2,
   EncryptorV2, DecryptorV2 and AccessControlV2, with integration tests.
+* https://redmine.named-data.net/issues/4701 Added ComponentType.PARAMETERS_SHA256_DIGEST,
+  and support params-sha256=<hex-value> in the name URI.
 
 Bug fixes
 * https://github.com/named-data/jndn/pull/22 In decodeLpPacket, fix the check for
