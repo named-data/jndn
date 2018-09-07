@@ -883,6 +883,8 @@ public class Tlv0_2WireFormat extends WireFormat {
     Blob value = new Blob(decoder.readBlobTlv(type), copy);
     if (type == Tlv.ImplicitSha256DigestComponent)
       return Name.Component.fromImplicitSha256Digest(value);
+    else if (type == Tlv.ParametersSha256DigestComponent)
+      return Name.Component.fromParametersSha256Digest(value);
     else if (type == Tlv.NameComponent)
       return new Name.Component(value);
     else
