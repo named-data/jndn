@@ -74,6 +74,19 @@ public class TestNameMethods {
         0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
   });
 
+  private static final ByteBuffer TEST_NAME_PARAMETERS_DIGEST = toBuffer(new int[] {
+    0x7,  0x36, // Name
+      0x8,  0x5, // NameComponent
+          0x6c,  0x6f,  0x63,  0x61,  0x6c,
+      0x8,  0x3, // NameComponent
+          0x6e,  0x64,  0x6e,
+      0x8,  0x6, // NameComponent
+          0x70,  0x72,  0x65,  0x66,  0x69,  0x78,
+      0x02, 0x20, // ParametersSha256DigestComponent
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
+  });
+
   private String expectedURI;
   private Name.Component comp2;
 
@@ -295,9 +308,25 @@ public class TestNameMethods {
     try {
       decodedName2.wireDecode(new Blob(TEST_NAME_IMPLICIT_DIGEST, false), TlvWireFormat.get());
     } catch (EncodingException ex) {
-      fail("Can't decode TEST_NAME");
+      fail("Can't decode TEST_NAME_IMPLICIT_DIGEST");
     }
     assertEquals(decodedName2, name2);
+
+    // Test ParametersSha256Digest.
+    Name name3 = new Name
+      ("/local/ndn/prefix/params-sha256=" +
+       "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f");
+
+    Blob encoding3 = name3.wireEncode(TlvWireFormat.get());
+    assertTrue(encoding3.equals(new Blob(TEST_NAME_PARAMETERS_DIGEST, false)));
+
+    Name decodedName3 = new Name();
+    try {
+      decodedName3.wireDecode(new Blob(TEST_NAME_PARAMETERS_DIGEST, false), TlvWireFormat.get());
+    } catch (EncodingException ex) {
+      fail("Can't decode TEST_NAME_PARAMETERS_DIGEST");
+    }
+    assertEquals(decodedName3, name3);
   }
 
   @Test
@@ -374,6 +403,84 @@ public class TestNameMethods {
     // Check that it will accept a hex value in upper case too.
     name2 = new Name
       ("/hello/sha256digest=" +
+       "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548");
+    assertEquals(name.get(0), name2.get(1));
+  }
+
+  @Test
+  public void
+  testParametersSha256Digest() throws EncodingException
+  {
+    Name name = new Name();
+
+    ByteBuffer digest = toBuffer(new int[] {
+      0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
+      0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
+      0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
+      0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48,
+      0x00, 0x00
+    });
+
+    digest.limit(32);
+    name.appendParametersSha256Digest(new Blob(digest, true));
+    name.appendParametersSha256Digest(new Blob(digest, true).getImmutableArray());
+    assertEquals(name.get(0), name.get(1));
+
+    digest.limit(34);
+    boolean gotError = true;
+    try {
+      name.appendParametersSha256Digest(new Blob(digest, true));
+      gotError = false;
+    } catch (Throwable ex) {}
+    if (!gotError)
+      fail("Expected error in appendParametersSha256Digest");
+
+    digest.limit(30);
+    gotError = true;
+    try {
+      name.appendParametersSha256Digest(new Blob(digest, true));
+      gotError = false;
+    } catch (Throwable ex) {}
+    if (!gotError)
+      fail("Expected error in appendParametersSha256Digest");
+
+    // Add name.get(2) as a generic component.
+    digest.limit(32);
+    name.append(new Blob(digest, true));
+    assertTrue(name.get(0).compare(name.get(2)) < 0);
+    assertTrue(name.get(0).getValue().equals(name.get(2).getValue()));
+
+    // Add name.get(3) as a generic component whose first byte is greater.
+    digest.position(1);
+    digest.limit(33);
+    name.append(new Blob(digest, true));
+    assertTrue(name.get(0).compare(name.get(3)) < 0);
+
+    assertEquals
+      ("params-sha256=" +
+       "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548",
+       name.get(0).toEscapedString());
+
+    assertEquals(true, name.get(0).isParametersSha256Digest());
+    assertEquals(false, name.get(2).isParametersSha256Digest());
+
+    gotError = true;
+    try {
+      new Name("/hello/params-sha256=hmm");
+      gotError = false;
+    } catch (Throwable ex) {}
+    if (!gotError)
+      fail("Expected error in new Name from URI");
+
+    // Check canonical URI encoding (lower case).
+    Name name2 = new Name
+      ("/hello/params-sha256=" +
+       "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
+    assertEquals(name.get(0), name2.get(1));
+
+    // Check that it will accept a hex value in upper case too.
+    name2 = new Name
+      ("/hello/params-sha256=" +
        "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548");
     assertEquals(name.get(0), name2.get(1));
   }
