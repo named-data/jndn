@@ -28,6 +28,7 @@ package net.named_data.jndn;
  */
 public enum ComponentType {
   IMPLICIT_SHA256_DIGEST(1),
+  PARAMETERS_SHA256_DIGEST(2),
   GENERIC(8),
   OTHER_CODE(0x7fff);
 

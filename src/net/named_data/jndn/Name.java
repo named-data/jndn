@@ -48,6 +48,7 @@ public class Name implements ChangeCountable, Comparable {
     /**
      * Create a new GENERIC Name.Component, using the existing the Blob value.
      * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * (To create a ParametersSha256Digest component, use fromParametersSha256Digest.)
      * @param value The component value.  value may not be null, but
      * value.buf() may be null.
      */
@@ -64,6 +65,7 @@ public class Name implements ChangeCountable, Comparable {
      * Create a Name.Component of the given type, using the existing the Blob
      * value.
      * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * (To create a ParametersSha256Digest component, use fromParametersSha256Digest.)
      * @param value The component value. value may not be null, but value.buf()
      * may be null.
      * @param type The component type enum value. If the name component type is
@@ -87,6 +89,7 @@ public class Name implements ChangeCountable, Comparable {
      * Create a Name.Component of the given type, using the existing the Blob
      * value.
      * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * (To create a ParametersSha256Digest component, use fromParametersSha256Digest.)
      * @param value The component value. value may not be null, but value.buf()
      * may be null.
      * @param type The component type enum value. If name component type is not
@@ -126,6 +129,7 @@ public class Name implements ChangeCountable, Comparable {
     /**
      * Create a new GENERIC Name.Component, copying the given value.
      * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * (To create a ParametersSha256Digest component, use fromParametersSha256Digest.)
      * @param value The value byte array.
      */
     public
@@ -138,6 +142,7 @@ public class Name implements ChangeCountable, Comparable {
     /**
      * Create a Name.Component of the given type, copying the given value.
      * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * (To create a ParametersSha256Digest component, use fromParametersSha256Digest.)
      * @param value The value byte array.
      * @param type The component type enum value. If the name component type is
      * not a recognized ComponentType enum value, call
@@ -157,6 +162,7 @@ public class Name implements ChangeCountable, Comparable {
     /**
      * Create a Name.Component of the given type, copying the given value.
      * (To create an ImplicitSha256Digest component, use fromImplicitSha256Digest.)
+     * (To create a ParametersSha256Digest component, use fromParametersSha256Digest.)
      * @param value The value byte array.
      * @param type The component type enum value. If name component type is not
      * a recognized ComponentType enum value, then set this to
@@ -271,6 +277,11 @@ public class Name implements ChangeCountable, Comparable {
         Blob.toHex(value_.buf(), result);
         return;
       }
+      if (type_ == ComponentType.PARAMETERS_SHA256_DIGEST) {
+        result.append("params-sha256=");
+        Blob.toHex(value_.buf(), result);
+        return;
+      }
 
       if (type_ != ComponentType.GENERIC) {
         result.append(type_ == ComponentType.OTHER_CODE ?
@@ -372,6 +383,16 @@ public class Name implements ChangeCountable, Comparable {
     isImplicitSha256Digest()
     {
       return type_ == ComponentType.IMPLICIT_SHA256_DIGEST;
+    }
+
+    /**
+     * Check if this component is a ParametersSha256Digest component.
+     * @return True if this is a ParametersSha256Digest component.
+     */
+    public final boolean
+    isParametersSha256Digest()
+    {
+      return type_ == ComponentType.PARAMETERS_SHA256_DIGEST;
     }
 
     /**
@@ -671,6 +692,38 @@ public class Name implements ChangeCountable, Comparable {
     }
 
     /**
+     * Create a component of type ParametersSha256DigestComponent, so that
+     * isParametersSha256Digest() is true.
+     * @param digest The SHA-256 digest value.
+     * @return The new Component.
+     * @throws EncodingException If the digest length is not 32 bytes.
+     */
+    public static Component
+    fromParametersSha256Digest(Blob digest) throws EncodingException
+    {
+      if (digest.size() != 32)
+        throw new EncodingException
+          ("Name.Component.fromParametersSha256Digest: The digest length must be 32 bytes");
+
+      Component result = new Component(digest);
+      result.type_ = ComponentType.PARAMETERS_SHA256_DIGEST;
+      return result;
+    }
+
+    /**
+     * Create a component of type ParametersSha256DigestComponent, so that
+     * isParametersSha256Digest() is true.
+     * @param digest The SHA-256 digest value.
+     * @return The new Component.
+     * @throws EncodingException If the digest length is not 32 bytes.
+     */
+    public static Component
+    fromParametersSha256Digest(byte[] digest) throws EncodingException
+    {
+      return fromParametersSha256Digest(new Blob(digest));
+    }
+
+    /**
      * Get the successor of this component, as described in Name.getSuccessor.
      * @return A new Name.Component which is the successor of this.
      */
@@ -913,6 +966,7 @@ public class Name implements ChangeCountable, Comparable {
 
     // Unescape the components.
     String sha256digestPrefix = "sha256digest=";
+    String paramsSha256Prefix = "params-sha256=";
     while (iComponentStart < uri.length()) {
       int iComponentEnd = uri.indexOf("/", iComponentStart);
       if (iComponentEnd < 0)
@@ -924,6 +978,16 @@ public class Name implements ChangeCountable, Comparable {
         try {
           component = Component.fromImplicitSha256Digest
             (fromHex(uri, iComponentStart + sha256digestPrefix.length(),
+                     iComponentEnd));
+        } catch (EncodingException ex) {
+          throw new Error(ex.getMessage());
+        }
+      }
+      else if (paramsSha256Prefix.regionMatches
+          (0, uri, iComponentStart, paramsSha256Prefix.length())) {
+        try {
+          component = Component.fromParametersSha256Digest
+            (fromHex(uri, iComponentStart + paramsSha256Prefix.length(),
                      iComponentEnd));
         } catch (EncodingException ex) {
           throw new Error(ex.getMessage());
@@ -945,12 +1009,16 @@ public class Name implements ChangeCountable, Comparable {
                " in URI " + uri);
           }
 
-          if (otherTypeCode == ComponentType.GENERIC.getNumericType() ||
-              otherTypeCode == ComponentType.IMPLICIT_SHA256_DIGEST.getNumericType())
-            throw new Error("Unexpected Name Component type: " + typeString +
-               " in URI " + uri);
+          // Allow for a decimal value of recognized component types.
+          if (otherTypeCode == ComponentType.GENERIC.getNumericType())
+            type = ComponentType.GENERIC;
+          else if (otherTypeCode == ComponentType.IMPLICIT_SHA256_DIGEST.getNumericType())
+            type = ComponentType.IMPLICIT_SHA256_DIGEST;
+          else if (otherTypeCode == ComponentType.PARAMETERS_SHA256_DIGEST.getNumericType())
+            type = ComponentType.PARAMETERS_SHA256_DIGEST;
+          else
+              type = ComponentType.OTHER_CODE;
 
-          type = ComponentType.OTHER_CODE;
           iComponentStart = iTypeCodeEnd + 1;
         }
 
@@ -980,6 +1048,7 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Append a new GENERIC component, copying from value.
    * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * (To append a ParametersSha256Digest component, use appendParametersSha256Digest.)
    * @param value The component value.
    * @return This name so that you can chain calls to append.
    */
@@ -992,6 +1061,7 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Append a new component of the given type, copying from value.
    * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * (To append a ParametersSha256Digest component, use appendParametersSha256Digest.)
    * @param value The component value.
    * @param type The component type enum value. If the name component type is
    * not a recognized ComponentType enum value, call
@@ -1011,6 +1081,7 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Append a new component of the given type, copying from value.
    * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * (To append a ParametersSha256Digest component, use appendParametersSha256Digest.)
    * @param value The component value.
    * @param type The component type enum value. If name component type is not
    * a recognized ComponentType enum value, then set this to
@@ -1029,6 +1100,7 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Append a new GENERIC component, using the existing Blob value.
    * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * (To append a ParametersSha256Digest component, use appendParametersSha256Digest.)
    * @param value The component value.
    * @return This name so that you can chain calls to append.
    */
@@ -1041,6 +1113,7 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Append a new component of the given type, using the existing Blob value.
    * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * (To append a ParametersSha256Digest component, use appendParametersSha256Digest.)
    * @param value The component value.
    * @param type The component type enum value. If the name component type is
    * not a recognized ComponentType enum value, call
@@ -1060,6 +1133,7 @@ public class Name implements ChangeCountable, Comparable {
   /**
    * Append a new component of the given type, using the existing Blob value.
    * (To append an ImplicitSha256Digest component, use appendImplicitSha256Digest.)
+   * (To append a ParametersSha256Digest component, use appendParametersSha256Digest.)
    * @param value The component value.
    * @param type The component type enum value. If name component type is not
    * a recognized ComponentType enum value, then set this to
@@ -1345,6 +1419,32 @@ public class Name implements ChangeCountable, Comparable {
   appendImplicitSha256Digest(byte[] digest) throws EncodingException
   {
     return append(Component.fromImplicitSha256Digest(digest));
+  }
+
+  /**
+   * Append a component of type ParametersSha256DigestComponent, so that
+   * ParametersSha256DigestComponent() is true.
+   * @param digest The SHA-256 digest value.
+   * @return This name so that you can chain calls to append.
+   * @throws EncodingException If the digest length is not 32 bytes.
+   */
+  public final Name
+  appendParametersSha256Digest(Blob digest) throws EncodingException
+  {
+    return append(Component.fromParametersSha256Digest(digest));
+  }
+
+  /**
+   * Append a component of type ParametersSha256DigestComponent, so that
+   * ParametersSha256DigestComponent() is true.
+   * @param digest The SHA-256 digest value.
+   * @return This name so that you can chain calls to append.
+   * @throws EncodingException If the digest length is not 32 bytes.
+   */
+  public final Name
+  appendParametersSha256Digest(byte[] digest) throws EncodingException
+  {
+    return append(Component.fromParametersSha256Digest(digest));
   }
 
   /**
