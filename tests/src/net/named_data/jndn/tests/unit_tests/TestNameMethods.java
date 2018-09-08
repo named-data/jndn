@@ -275,7 +275,7 @@ public class TestNameMethods {
     assertEquals(new Name("ndn:/%00%01/%01%03"), new Name("ndn:/%00%01/%01%02").getSuccessor());
     assertEquals(new Name("ndn:/%00%01/%02%00"), new Name("ndn:/%00%01/%01%FF").getSuccessor());
     assertEquals(new Name("ndn:/%00%01/%00%00%00"), new Name("ndn:/%00%01/%FF%FF").getSuccessor());
-    assertEquals(new Name("/%00"), new Name().getSuccessor());
+    assertEquals(new Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"), new Name().getSuccessor());
     assertEquals(new Name("/%00%01/%00"), new Name("/%00%01/...").getSuccessor());
   }
 

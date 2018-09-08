@@ -1510,7 +1510,7 @@ public class Name implements ChangeCountable, Comparable {
    *
    * Examples:
    *
-   * - The successor of / is /%00
+   * - The successor of / is /sha256digest=0000000000000000000000000000000000000000000000000000000000000000
    * - The successor of /%00%01/%01%02 is /%00%01/%01%03
    * - The successor of /%00%01/%01%FF is /%00%01/%02%00
    * - The successor of /%00%01/%FF%FF is /%00%01/%00%00%00
@@ -1520,12 +1520,8 @@ public class Name implements ChangeCountable, Comparable {
   public final Name
   getSuccessor()
   {
-    if (size() == 0) {
-      // Return "/%00".
-      Name result = new Name();
-      result.append(new byte[1]);
-      return result;
-    }
+    if (size() == 0)
+      return new Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");
     else
       return getPrefix(-1).append(get(-1).getSuccessor());
   }
