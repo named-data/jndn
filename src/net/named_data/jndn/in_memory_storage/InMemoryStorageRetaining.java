@@ -18,7 +18,7 @@
  * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
-package net.named_data.jndn.encrypt;
+package net.named_data.jndn.in_memory_storage;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -49,6 +49,7 @@ import net.named_data.jndn.security.SigningInfo;
 import net.named_data.jndn.security.v2.Validator;
 import net.named_data.jndn.encrypt.EncryptError.OnError;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
+import net.named_data.jndn.in_memory_storage.InMemoryStorageRetaining;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.certificate.PublicKey;
 import net.named_data.jndn.util.Blob;

@@ -38,7 +38,7 @@ import net.named_data.jndn.encrypt.EncryptError;
 import net.named_data.jndn.encrypt.EncryptorV2;
 import net.named_data.jndn.encrypt.EncryptError.OnError;
 import net.named_data.jndn.encrypt.EncryptedContent;
-import net.named_data.jndn.encrypt.InMemoryStorageRetaining;
+import net.named_data.jndn.in_memory_storage.InMemoryStorageRetaining;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.SigningInfo;

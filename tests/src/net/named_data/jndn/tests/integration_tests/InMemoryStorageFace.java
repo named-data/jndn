@@ -35,7 +35,7 @@ import net.named_data.jndn.OnRegisterSuccess;
 import net.named_data.jndn.OnTimeout;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
-import net.named_data.jndn.encrypt.InMemoryStorageRetaining;
+import net.named_data.jndn.in_memory_storage.InMemoryStorageRetaining;
 import net.named_data.jndn.impl.DelayedCallTable;
 import net.named_data.jndn.impl.InterestFilterTable;
 import net.named_data.jndn.util.Common;

@@ -40,6 +40,7 @@ import net.named_data.jndn.OnInterestCallback;
 import net.named_data.jndn.OnRegisterFailed;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encrypt.algo.EncryptAlgorithmType;
+import net.named_data.jndn.in_memory_storage.InMemoryStorageRetaining;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.SigningInfo;
