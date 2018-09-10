@@ -28,9 +28,9 @@ import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 
 /**
- * InMemoryStorageRetaining provides an application cache with persistent
- * in-memory storage, of which no eviction policy will be employed. Entries
- * will only be evicted by explicit application control.
+ * InMemoryStorageRetaining provides an application cache with in-memory 
+ * storage, of which no eviction policy will be employed. Entries will only be
+ * evicted by explicit application control.
  * Note: In ndn-cxx, this class is called InMemoryStoragePersistent, but
  * "persistent" misleadingly sounds like persistent on-disk storage.
  */
