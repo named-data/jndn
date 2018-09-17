@@ -147,7 +147,8 @@ public class TlvDecoder {
    * critical, throw an exception. If true, then skip the unrecognized type code
    * without error.
    * @throws EncodingException if the TLV length does not equal the total length
-   * of the nested TLVs.
+   * of the nested TLVs, or if skipCritical is false and the unrecognized type
+   * code to skip is critical.
    */
   public final void
   finishNestedTlvs(int endOffset, boolean skipCritical) throws EncodingException
@@ -189,7 +190,7 @@ public class TlvDecoder {
    * @param endOffset The offset of the end of the parent TLV, returned
    * by readNestedTlvsStart.
    * @throws EncodingException if the TLV length does not equal the total length
-   * of the nested TLVs.
+   * of the nested TLVs, or the unrecognized type code to skip is critical.
    */
   public final void
   finishNestedTlvs(int endOffset) throws EncodingException
