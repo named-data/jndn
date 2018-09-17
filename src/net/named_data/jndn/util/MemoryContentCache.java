@@ -837,12 +837,12 @@ public class MemoryContentCache implements OnInterestCallback {
       face_ = face;
 
       // Set up timeoutTimeMilliseconds_.
-      if (interest_.getInterestLifetimeMilliseconds() >= 0.0)
-        timeoutTimeMilliseconds_ = Common.getNowMilliseconds() +
-          interest_.getInterestLifetimeMilliseconds();
-      else
-        // No timeout.
-        timeoutTimeMilliseconds_ = -1.0;
+      double interestLifetime = interest_.getInterestLifetimeMilliseconds();
+      if (interestLifetime < 0.0)
+        // The InterestLifetime is omitted, so use a default.
+        interestLifetime = 4000.0;
+
+      timeoutTimeMilliseconds_ = Common.getNowMilliseconds() + interestLifetime;
     }
 
     /**
@@ -866,7 +866,7 @@ public class MemoryContentCache implements OnInterestCallback {
     public final boolean
     isTimedOut(double nowMilliseconds)
     {
-      return timeoutTimeMilliseconds_ >= 0.0 && nowMilliseconds >= timeoutTimeMilliseconds_;
+      return nowMilliseconds >= timeoutTimeMilliseconds_;
     }
 
     private final Interest interest_;
