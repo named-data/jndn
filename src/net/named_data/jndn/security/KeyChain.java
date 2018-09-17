@@ -808,7 +808,7 @@ public class KeyChain {
    * the SafeBag. If the password is null, put an unencrypted PKCS #8
    * PrivateKeyInfo in the SafeBag.
    * @return A SafeBag carrying the certificate and private key.
-   * @throw KeyChain.Error certificate.getKeyName() key does not exist, if the
+   * @throws KeyChain.Error certificate.getKeyName() key does not exist, if the
    * password is null and the TPM does not support exporting an unencrypted
    * private key, or for other errors exporting the private key.
    */
@@ -835,7 +835,7 @@ public class KeyChain {
    * @param certificate The certificate to export. This gets the key from the
    * TPM using certificate.getKeyName().
    * @return A SafeBag carrying the certificate and private key.
-   * @throw KeyChain.Error certificate.getKeyName() key does not exist, if the
+   * @throws KeyChain.Error certificate.getKeyName() key does not exist, if the
    * TPM does not support exporting an unencrypted private key, or for other
    * errors exporting the private key.
    */
