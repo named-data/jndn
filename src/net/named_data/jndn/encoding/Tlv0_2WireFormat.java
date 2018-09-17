@@ -474,7 +474,9 @@ public class Tlv0_2WireFormat extends WireFormat {
     else
       controlResponse.setBodyAsControlParameters(null);
 
-    decoder.finishNestedTlvs(endOffset);
+    // The NFD management protocol is at the application-layer, so skip
+    // unrecognized type codes.
+    decoder.finishNestedTlvs(endOffset, true);
   }
 
   /**
@@ -1470,7 +1472,9 @@ public class Tlv0_2WireFormat extends WireFormat {
       (decoder.readOptionalNonNegativeIntegerTlv
        (Tlv.ControlParameters_ExpirationPeriod, endOffset));
 
-    decoder.finishNestedTlvs(endOffset);
+    // The NFD management protocol is at the application-layer, so skip
+    // unrecognized type codes.
+    decoder.finishNestedTlvs(endOffset, true);
   }
 
   /**
