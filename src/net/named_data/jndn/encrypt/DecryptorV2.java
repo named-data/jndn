@@ -58,7 +58,7 @@ public class DecryptorV2 {
   }
 
   /**
-   * @brief Constructor
+   * Create a DecryptorV2 with the give parameters.
    * @param credentialsKey Credentials key to be used to retrieve and decrypt KDK
    * @param validator Validation policy to ensure validity of KDK and CK
    * @param keyChain  KeyChain
