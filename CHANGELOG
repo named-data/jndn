@@ -1,3 +1,10 @@
+jNDN v0.20 (2018-09-22)
+-----------------------
+
+Bug fixes
+* https://redmine.named-data.net/issues/4732 In decodeControlParameters, skip
+  unrecognized TLVs.
+
 jNDN v0.19 (2018-09-17)
 -----------------------
 
