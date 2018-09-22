@@ -373,6 +373,35 @@ public class TlvDecoder {
   }
 
   /**
+   * Decode the type and length from the input starting at the input buffer
+   * position, expecting the type to be expectedType, then skip (and ignore) the
+   * value.
+   * @param expectedType The expected type as a 32-bit Java int.
+   * @throws EncodingException if did not get the expected TLV type.
+   */
+  public final void
+  skipTlv(int expectedType) throws EncodingException
+  {
+    int length = readTypeAndLength(expectedType);
+    // readTypeAndLength already checked if length exceeds the input buffer.
+    input_.position(input_.position() + length);
+  }
+
+  /**
+   * Peek at the next TLV, and if it has the expectedType then call skipTlv to
+   * skip (and ignore) it.
+   * @param expectedType The expected type as a 32-bit Java int.
+   * @param endOffset The offset of the end of the parent TLV, returned
+   * by readNestedTlvsStart.
+   */
+  public final void
+  skipOptionalTlv(int expectedType, int endOffset) throws EncodingException
+  {
+    if (peekType(expectedType, endOffset))
+      skipTlv(expectedType);
+  }
+
+  /**
    * Get the input buffer position (offset), used for the next read.
    * @return The input buffer position (offset).
    */
