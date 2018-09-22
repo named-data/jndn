@@ -85,10 +85,17 @@ public class Tlv {
   public static final int ControlParameters_ControlParameters =   104;
   public static final int ControlParameters_FaceId =              105;
   public static final int ControlParameters_Uri =                 114;
+  public static final int ControlParameters_LocalUri =            129;
   public static final int ControlParameters_LocalControlFeature = 110;
   public static final int ControlParameters_Origin =              111;
   public static final int ControlParameters_Cost =                106;
+  public static final int ControlParameters_Capacity =            131;
+  public static final int ControlParameters_Count =               132;
+  public static final int ControlParameters_BaseCongestionMarkingInterval = 135;
+  public static final int ControlParameters_DefaultCongestionThreshold = 136;
+  public static final int ControlParameters_Mtu =                 137;
   public static final int ControlParameters_Flags =               108;
+  public static final int ControlParameters_Mask =                112;
   public static final int ControlParameters_Strategy =            107;
   public static final int ControlParameters_ExpirationPeriod =    109;
 
