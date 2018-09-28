@@ -43,9 +43,9 @@ import net.named_data.jndn.util.Common;
 /**
  * InMemoryStorageFace extends Face to hold an InMemoryStorageRetaining and
  * use it in expressInterest to instantly reply to an Interest. It also allows
- * one simple call to registerPrefix to remember the OnInterestCallback. This
- * also keeps a local DelayedCallTable (to use for callLater) so that you can
- * call its setNowOffsetMilliseconds_ for testing.
+ * calls to registerPrefix to remember an OnInterestCallback. This also keeps a
+ * local DelayedCallTable (to use for callLater) so that you can call its
+ * setNowOffsetMilliseconds_ for testing.
  */
 public class InMemoryStorageFace extends Face {
   /**
@@ -66,6 +66,7 @@ public class InMemoryStorageFace extends Face {
     (Interest interest, OnData onData, OnTimeout onTimeout,
      OnNetworkNack onNetworkNack, WireFormat wireFormat) throws IOException
   {
+    // Make a copy of the interest.
     sentInterests_.add(new Interest(interest));
 
     Data data = storage_.find(interest);
@@ -113,8 +114,8 @@ public class InMemoryStorageFace extends Face {
   }
 
   /**
-   * If registerPrefix has been called and the Interest matches the saved
-   * registeredPrefix_, call the saved registeredOnInterest_.
+   * For each entry from calls to registerPrefix where the Interest matches the
+   * prefix, call its OnInterest callback.
    * @param interest The Interest to receive and possibly call the
    * OnInterest callback.
    */
