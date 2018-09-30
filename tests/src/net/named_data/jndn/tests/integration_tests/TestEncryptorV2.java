@@ -110,7 +110,7 @@ public class TestEncryptorV2 {
 
   @Test
   public void
-  testEncryptAndPublishedCk()
+  testEncryptAndPublishCk()
     throws NoSuchAlgorithmException, NoSuchPaddingException,
       InvalidAlgorithmParameterException, IllegalBlockSizeException,
       BadPaddingException
