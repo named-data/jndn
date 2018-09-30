@@ -75,12 +75,12 @@ public class EncryptorV2 {
    * onError.onError(errorCode, message) where errorCode is from the
    * EncryptError.ErrorCode enum, and message is an error string. The encrypt
    * method will continue trying to retrieve the KEK until success (with each
-   * attempt separated by RETRY_DELAY_KEK_RETRIEVAL) and onError may be called
-   * multiple times.
+   * attempt separated by RETRY_DELAY_KEK_RETRIEVAL_MS) and onError may be
+   * called multiple times.
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param validator The validation policy to ensure correctness of KEK.
+   * @param validator The validation policy to ensure correctness of the KEK.
    * @param keyChain The KeyChain used to sign Data packets.
    * @param face The Face that will be used to fetch the KEK and publish CK data.
    */
@@ -137,6 +137,12 @@ public class EncryptorV2 {
       face_.removePendingInterest(kekPendingInterestId_);
   }
 
+  /**
+   * Encrypt the plainData using the existing Content Key (CK) and return a new
+   * EncryptedContent.
+   * @param plainData The data to encrypt.
+   * @return The new EncryptedContent.
+   */
   public final EncryptedContent
   encrypt(byte[] plainData)
     throws NoSuchAlgorithmException, NoSuchPaddingException,
