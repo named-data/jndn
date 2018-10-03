@@ -404,7 +404,7 @@ public class DecryptorV2 {
     contentKey.pendingDecrypts.clear();
   }
 
-  private void
+  private static void
   doDecrypt
     (EncryptedContent content, Blob ckBits, DecryptSuccessCallback onSuccess,
      EncryptError.OnError onError)
