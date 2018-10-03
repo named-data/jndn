@@ -150,14 +150,14 @@ public class EncryptorV2 {
       BadPaddingException
   {
     // Generate the initial vector.
-    byte[] iv = new byte[AES_IV_SIZE];
-    Common.getRandom().nextBytes(iv);
+    byte[] initialVector = new byte[AES_IV_SIZE];
+    Common.getRandom().nextBytes(initialVector);
 
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
     try {
       cipher.init
         (Cipher.ENCRYPT_MODE, new SecretKeySpec(ckBits_, "AES"),
-         new IvParameterSpec(iv));
+         new IvParameterSpec(initialVector));
     } catch (InvalidKeyException ex) {
       throw new Error
         ("If the error is 'Illegal key size', try installing the " +
@@ -167,7 +167,7 @@ public class EncryptorV2 {
     byte[] encryptedData = cipher.doFinal(plainData);
 
     EncryptedContent content = new EncryptedContent();
-    content.setInitialVector(new Blob(iv, false));
+    content.setInitialVector(new Blob(initialVector, false));
     content.setPayload(new Blob(encryptedData, false));
     content.setKeyLocatorName(ckName_);
 
@@ -201,7 +201,7 @@ public class EncryptorV2 {
   }
 
   /**
-   * The number of packets stored in in-memory storage.
+   * Get the number of packets stored in in-memory storage.
    * @return The number of packets.
    */
   public final int
@@ -270,10 +270,11 @@ public class EncryptorV2 {
       new Name(accessPrefix_).append(NAME_COMPONENT_KEK));
 
     if (kekPendingInterestId_ > 0) {
-      onError.onError(EncryptError.ErrorCode.SecurityException,
+      onError.onError(EncryptError.ErrorCode.General,
         "fetchKekAndPublishCkData: There is already a kekPendingInterestId_");
       return;
     }
+
     try {
       kekPendingInterestId_ = face_.expressInterest
         (new Interest(new Name(accessPrefix_).append(NAME_COMPONENT_KEK))
@@ -362,7 +363,7 @@ public class EncryptorV2 {
         (new Name(ckName_).append(NAME_COMPONENT_ENCRYPTED_BY)
          .append(kekData_.getName()));
       ckData.setContent(content.wireEncodeV2());
-      // FreshnessPeriod can serve as a soft access control for revoking access
+      // FreshnessPeriod can serve as a soft access control for revoking access.
       ckData.getMetaInfo().setFreshnessPeriod(DEFAULT_CK_FRESHNESS_PERIOD_MS);
       keyChain_.sign(ckData, ckDataSigningInfo_);
       storage_.insert(ckData);
