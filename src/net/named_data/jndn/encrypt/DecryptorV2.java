@@ -58,11 +58,13 @@ public class DecryptorV2 {
   }
 
   /**
-   * Create a DecryptorV2 with the give parameters.
-   * @param credentialsKey Credentials key to be used to retrieve and decrypt KDK
-   * @param validator Validation policy to ensure validity of KDK and CK
-   * @param keyChain  KeyChain
-   * @param face      Face that will be used to fetch CK and KDK
+   * Create a DecryptorV2 with the given parameters.
+   * @param credentialsKey The credentials key to be used to retrieve and
+   * decrypt the KDK.
+   * @param validator The validation policy to ensure the validity of the KDK
+   * and CK.
+   * @param keyChain The KeyChain that will be used to decrypt the KDK.
+   * @param face The Face that will be used to fetch the CK and KDK.
    */
   public DecryptorV2
     (PibKey credentialsKey, Validator validator, KeyChain keyChain, Face face)
@@ -135,6 +137,7 @@ public class DecryptorV2 {
         "Missing required initial vector in the supplied EncryptedContent block");
       onError.onError(EncryptError.ErrorCode.MissingRequiredInitialVector,
         "Missing required initial vector in the supplied EncryptedContent block");
+      return;
     }
 
     Name ckName = encryptedContent.getKeyLocatorName();
@@ -186,8 +189,8 @@ public class DecryptorV2 {
     (final Name ckName, final ContentKey contentKey,
      final EncryptError.OnError onError, final int nTriesLeft)
   {
-    // full name of CK is
-
+    // The full name of the CK is
+    //
     // <whatever-prefix>/CK/<ck-id>  /ENCRYPTED-BY /<kek-prefix>/KEK/<key-id>
     // \                          /                \                        /
     //  -----------  -------------                  -----------  -----------
@@ -213,19 +216,17 @@ public class DecryptorV2 {
                  // The error has already been reported.
                  return;
 
-               // Check if KDK already exists.
-               PibIdentity kdkIdentity;
+               // Check if the KDK already exists.
+               PibIdentity kdkIdentity = null;
                try {
                  kdkIdentity = internalKeyChain_.getPib().getIdentity(kdkIdentityName[0]);
                } catch (Pib.Error ex) {
-                 kdkIdentity = null;
                }
                if (kdkIdentity != null) {
-                 PibKey kdkKey;
+                 PibKey kdkKey = null;
                  try {
                    kdkKey = kdkIdentity.getKey(kdkKeyName[0]);
                  } catch (Pib.Error ex) {
-                   kdkKey = null;
                  }
                  if (kdkKey != null) {
                    // The KDK was already fetched and imported.
@@ -292,7 +293,7 @@ public class DecryptorV2 {
       contentKey.pendingInterest = face_.expressInterest
         (new Interest(kdkName).setMustBeFresh(true).setCanBePrefix(false),
          new OnData() {
-           public void onData(Interest ckInterest, Data kdkData) {
+           public void onData(Interest kdkInterest, Data kdkData) {
              contentKey.pendingInterest = 0;
              // TODO: Verify that the key is legitimate.
 
@@ -330,6 +331,9 @@ public class DecryptorV2 {
     }
   }
 
+  /**
+   * @return True for success, false for error (where this has called onError).
+   */
   private boolean
   decryptAndImportKdk(Data kdkData, EncryptError.OnError onError)
   {
@@ -438,7 +442,7 @@ public class DecryptorV2 {
   }
 
   /**
-   * Convert KEK name to the KDK prefix:
+   * Convert the KEK name to the KDK prefix:
    * <access-namespace>/KEK/<key-id> ==> <access-namespace>/KDK/<key-id>.
    * @param kekName The KEK name.
    * @param onError This calls onError.onError(errorCode, message) for an error.
@@ -459,7 +463,7 @@ public class DecryptorV2 {
   }
 
   /**
-   * Extract KDK information from the CK Data packet name. The KDK identity name
+   * Extract the KDK information from the CK Data packet name. The KDK identity name
    * plus the KDK key ID together identify the KDK private key in the KeyChain.
    * @param ckDataName The name of the CK Data packet.
    * @param ckName The CK name from the Interest used to fetch the CK Data packet.
@@ -503,7 +507,7 @@ public class DecryptorV2 {
   // The internal in-memory keychain for temporarily storing KDKs.
   private final KeyChain internalKeyChain_;
 
-  // TODO add some expiration, so they are not stored forever
+  // TODO: add some expiration, so they are not stored forever.
   private final HashMap<Name, ContentKey> contentKeys_ =
     new HashMap<Name, ContentKey>();
 
