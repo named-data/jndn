@@ -119,7 +119,7 @@ public class AccessManagerV2 {
     kekData.setName(new Name(kekPrefix).append(nacKeyId));
     kekData.getMetaInfo().setFreshnessPeriod(DEFAULT_KEK_FRESHNESS_PERIOD_MS);
     keyChain_.sign(kekData, new SigningInfo(identity_));
-    // kek looks like a cert, but doesn't have ValidityPeriod
+    // A KEK looks like a certificate, but doesn't have a ValidityPeriod.
     storage_.insert(kekData);
 
     OnInterestCallback serveFromStorage = new OnInterestCallback() {
@@ -143,7 +143,7 @@ public class AccessManagerV2 {
       }
     };
 
-    OnRegisterFailed registerFailed = new OnRegisterFailed() {
+    OnRegisterFailed onRegisterFailed = new OnRegisterFailed() {
       public void onRegisterFailed(Name prefix) {
         logger_.log(Level.SEVERE,
           "AccessManagerV2: Failed to register prefix {0}", prefix.toUri());
@@ -151,12 +151,12 @@ public class AccessManagerV2 {
     };
 
     kekRegisteredPrefixId_ = face_.registerPrefix
-      (kekPrefix, serveFromStorage, registerFailed);
+      (kekPrefix, serveFromStorage, onRegisterFailed);
 
     Name kdkPrefix = new Name(nacKey_.getIdentityName())
       .append(EncryptorV2.NAME_COMPONENT_KDK).append(nacKeyId);
     kdkRegisteredPrefixId_ = face_.registerPrefix
-      (kdkPrefix, serveFromStorage, registerFailed);
+      (kdkPrefix, serveFromStorage, onRegisterFailed);
   }
 
   public final void
@@ -193,8 +193,8 @@ public class AccessManagerV2 {
     Common.getRandom().nextBytes(secret);
     // To be compatible with OpenSSL which uses a null-terminated string,
     // replace each 0 with 1. And to be compatible with the Java security
-    // library interprets the secret as a char array converted to UTF8, limit
-    // each byte to the ASCII range 1 to 127.
+    // library which interprets the secret as a char array converted to UTF8,
+    // limit each byte to the ASCII range 1 to 127.
     for (int i = 0; i < secretLength; ++i) {
       if (secret[i] == 0)
         secret[i] = 1;
@@ -214,7 +214,7 @@ public class AccessManagerV2 {
 
     Data kdkData = new Data(kdkName);
     kdkData.setContent(encryptedContent.wireEncodeV2());
-    // FreshnessPeriod can serve as a soft access control for revoking access
+    // FreshnessPeriod can serve as a soft access control for revoking access.
     kdkData.getMetaInfo().setFreshnessPeriod(DEFAULT_KDK_FRESHNESS_PERIOD_MS);
     keyChain_.sign(kdkData, new SigningInfo(identity_));
 
@@ -224,7 +224,7 @@ public class AccessManagerV2 {
   }
 
   /**
-   * The number of packets stored in in-memory storage.
+   * Get the number of packets stored in in-memory storage.
    * @return The number of packets.
    */
   public final int
