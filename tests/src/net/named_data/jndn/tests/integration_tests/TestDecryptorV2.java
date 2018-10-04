@@ -122,7 +122,6 @@ public class TestDecryptorV2 {
        },
        new EncryptError.OnError() {
          public void onError(EncryptError.ErrorCode errorCode, String message) {
-           System.out.println("Debug onError " + message);
            ++nFailures[0];
          }
        });
