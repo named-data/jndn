@@ -62,6 +62,17 @@ public class Interest implements ChangeCountable {
   }
 
   /**
+   * Create a new Interest with a Name from the given URI string, and "none" for
+   * other values.
+   * @param uri The URI string.
+   */
+  public
+  Interest(String uri)
+  {
+    name_.set(new Name(uri));
+  }
+
+  /**
    * Create a new interest as a deep copy of the given interest.
    * @param interest The interest to copy.
    */
