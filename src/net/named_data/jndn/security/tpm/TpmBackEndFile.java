@@ -157,7 +157,7 @@ public class TpmBackEndFile extends TpmBackEnd {
     try {
       key = TpmPrivateKey.generatePrivateKey(params);
     } catch (TpmPrivateKey.Error ex) {
-      throw new Error("Error in TpmPrivateKey.generatePrivateKey: " + ex);
+      throw new TpmBackEnd.Error("Error in TpmPrivateKey.generatePrivateKey: " + ex);
     }
     TpmKeyHandle keyHandle = new TpmKeyHandleMemory(key);
 
@@ -176,6 +176,67 @@ public class TpmBackEndFile extends TpmBackEnd {
   doDeleteKey(Name keyName) throws TpmBackEnd.Error
   {
     toFilePath(keyName).delete();
+  }
+
+  /**
+   * Get the encoded private key with name keyName in PKCS #8 format, possibly
+   * password-encrypted.
+   * @param keyName The name of the key in the TPM.
+   * @param password The password for encrypting the private key. If the
+   * password is supplied, use it to return a PKCS #8 EncryptedPrivateKeyInfo.
+   * If the password is null, return an unencrypted PKCS #8 PrivateKeyInfo.
+   * @return The encoded private key.
+   * @throws TpmBackEnd.Error if the key does not exist or if the key cannot be
+   * exported, e.g., insufficient privileges.
+   */
+  protected Blob
+  doExportKey(Name keyName, ByteBuffer password) throws TpmBackEnd.Error
+  {
+    TpmPrivateKey key;
+    try {
+      key = loadKey(keyName);
+    } catch (TpmBackEnd.Error ex) {
+      throw new TpmBackEnd.Error("Cannot export private key: " + ex);
+    }
+
+    try {
+      if (password != null)
+        return key.toEncryptedPkcs8(password);
+      else
+        return key.toPkcs8();
+    } catch (TpmPrivateKey.Error ex) {
+      // We don't expect this since we just decoded it.
+      throw new TpmBackEnd.Error("Error PKCS#8 encoding private key: " + ex);
+    }
+  }
+
+  /**
+   * Import an encoded private key with name keyName in PKCS #8 format, possibly
+   * password-encrypted.
+   * @param keyName The name of the key to use in the TPM.
+   * @param pkcs8 The input byte buffer. If the password is supplied, this is a
+   * PKCS #8 EncryptedPrivateKeyInfo. If the password is null, this is an
+   * unencrypted PKCS #8 PrivateKeyInfo.
+   * @param password The password for decrypting the private key. If the
+   * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
+   * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
+   * @throws TpmBackEnd.Error for an error importing the key.
+   */
+  protected void
+  doImportKey
+    (Name keyName, ByteBuffer pkcs8, ByteBuffer password) throws TpmBackEnd.Error
+  {
+    TpmPrivateKey key = new TpmPrivateKey();
+    try {
+      if (password  != null)
+        key.loadEncryptedPkcs8(pkcs8, password);
+      else
+        key.loadPkcs8(pkcs8);
+    } catch (TpmPrivateKey.Error ex) {
+      throw new TpmBackEnd.Error("Cannot import private key: " + ex);
+    }
+
+    saveKey(keyName, key);
   }
 
   /**
@@ -202,10 +263,10 @@ public class TpmBackEndFile extends TpmBackEnd {
       }
     }
     catch(FileNotFoundException ex) {
-      throw new Error("Error reading private key file: " + ex);
+      throw new TpmBackEnd.Error("Error reading private key file: " + ex);
     }
     catch(IOException ex) {
-      throw new Error("Error reading private key file: " + ex);
+      throw new TpmBackEnd.Error("Error reading private key file: " + ex);
     }
 
     byte[] pkcs = Common.base64Decode(base64.toString());
@@ -213,7 +274,7 @@ public class TpmBackEndFile extends TpmBackEnd {
     try {
       key.loadPkcs1(ByteBuffer.wrap(pkcs), null);
     } catch (TpmPrivateKey.Error ex) {
-      throw new Error("Error decoding private key file: " + ex);
+      throw new TpmBackEnd.Error("Error decoding private key file: " + ex);
     }
     return key;
   }
@@ -231,7 +292,7 @@ public class TpmBackEndFile extends TpmBackEnd {
     try {
       base64 = Common.base64Encode(key.toPkcs1().getImmutableArray(), true);
     } catch (TpmPrivateKey.Error ex) {
-      throw new Error("Error encoding private key file: " + ex);
+      throw new TpmBackEnd.Error("Error encoding private key file: " + ex);
     }
 
     try {
@@ -247,7 +308,7 @@ public class TpmBackEndFile extends TpmBackEnd {
       }
     }
     catch (IOException ex) {
-      throw new Error("Error writing private key file: " + ex);
+      throw new TpmBackEnd.Error("Error writing private key file: " + ex);
     }
   }
 
