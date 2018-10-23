@@ -22,6 +22,7 @@
 package src.net.named_data.jndn.tests.integration_tests;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -43,11 +44,11 @@ import net.named_data.jndn.security.v2.CertificateV2;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.security.SecurityException;
 import net.named_data.jndn.security.VerificationHelpers;
-import net.named_data.jndn.security.policy.PolicyManager;
 import net.named_data.jndn.security.tpm.TpmBackEndFile;
 import net.named_data.jndn.security.tpm.TpmKeyHandle;
+import net.named_data.jndn.security.tpm.TpmPrivateKey;
 import net.named_data.jndn.util.Blob;
-import net.named_data.jndn.util.SignedBlob;
+import net.named_data.jndn.util.Common;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -203,7 +204,78 @@ public class TestTpmBackEnds {
   }
 */
  
-  // TODO: ImportExport
+  @Test
+  public void
+  testImportExport() throws TpmBackEnd.Error, Tpm.Error, TpmPrivateKey.Error
+  {
+    String privateKeyPkcs1Base64 =
+      "MIIEpAIBAAKCAQEAw0WM1/WhAxyLtEqsiAJgWDZWuzkYpeYVdeeZcqRZzzfRgBQT\n" +
+      "sNozS5t4HnwTZhwwXbH7k3QN0kRTV826Xobws3iigohnM9yTK+KKiayPhIAm/+5H\n" +
+      "GT6SgFJhYhqo1/upWdueojil6RP4/AgavHhopxlAVbk6G9VdVnlQcQ5Zv0OcGi73\n" +
+      "c+EnYD/YgURYGSngUi/Ynsh779p2U69/te9gZwIL5PuE9BiO6I39cL9z7EK1SfZh\n" +
+      "OWvDe/qH7YhD/BHwcWit8FjRww1glwRVTJsA9rH58ynaAix0tcR/nBMRLUX+e3rU\n" +
+      "RHg6UbSjJbdb9qmKM1fTGHKUzL/5pMG6uBU0ywIDAQABAoIBADQkckOIl4IZMUTn\n" +
+      "W8LFv6xOdkJwMKC8G6bsPRFbyY+HvC2TLt7epSvfS+f4AcYWaOPcDu2E49vt2sNr\n" +
+      "cASly8hgwiRRAB3dHH9vcsboiTo8bi2RFvMqvjv9w3tK2yMxVDtmZamzrrnaV3YV\n" +
+      "Q+5nyKo2F/PMDjQ4eUAKDOzjhBuKHsZBTFnA1MFNI+UKj5X4Yp64DFmKlxTX/U2b\n" +
+      "wzVywo5hzx2Uhw51jmoLls4YUvMJXD0wW5ZtYRuPogXvXb/of9ef/20/wU11WFKg\n" +
+      "Xb4gfR8zUXaXS1sXcnVm3+24vIs9dApUwykuoyjOqxWqcHRec2QT2FxVGkFEraze\n" +
+      "CPa4rMECgYEA5Y8CywomIcTgerFGFCeMHJr8nQGqY2V/owFb3k9maczPnC9p4a9R\n" +
+      "c5szLxA9FMYFxurQZMBWSEG2JS1HR2mnjigx8UKjYML/A+rvvjZOMe4M6Sy2ggh4\n" +
+      "SkLZKpWTzjTe07ByM/j5v/SjNZhWAG7sw4/LmPGRQkwJv+KZhGojuOkCgYEA2cOF\n" +
+      "T6cJRv6kvzTz9S0COZOVm+euJh/BXp7oAsAmbNfOpckPMzqHXy8/wpdKl6AAcB57\n" +
+      "OuztlNfV1D7qvbz7JuRlYwQ0cEfBgbZPcz1p18HHDXhwn57ZPb8G33Yh9Omg0HNA\n" +
+      "Imb4LsVuSqxA6NwSj7cpRekgTedrhLFPJ+Ydb5MCgYEAsM3Q7OjILcIg0t6uht9e\n" +
+      "vrlwTsz1mtCV2co2I6crzdj9HeI2vqf1KAElDt6G7PUHhglcr/yjd8uEqmWRPKNX\n" +
+      "ddnnfVZB10jYeP/93pac6z/Zmc3iU4yKeUe7U10ZFf0KkiiYDQd59CpLef/2XScS\n" +
+      "HB0oRofnxRQjfjLc4muNT+ECgYEAlcDk06MOOTly+F8lCc1bA1dgAmgwFd2usDBd\n" +
+      "Y07a3e0HGnGLN3Kfl7C5i0tZq64HvxLnMd2vgLVxQlXGPpdQrC1TH+XLXg+qnlZO\n" +
+      "ivSH7i0/gx75bHvj75eH1XK65V8pDVDEoSPottllAIs21CxLw3N1ObOZWJm2EfmR\n" +
+      "cuHICmsCgYAtFJ1idqMoHxES3mlRpf2JxyQudP3SCm2WpGmqVzhRYInqeatY5sUd\n" +
+      "lPLHm/p77RT7EyxQHTlwn8FJPuM/4ZH1rQd/vB+Y8qAtYJCexDMsbvLW+Js+VOvk\n" +
+      "jweEC0nrcL31j9mF0vz5E6tfRu4hhJ6L4yfWs0gSejskeVB/w8QY4g==\n";
+
+    for (TpmBackEnd tpm : backEndList) {
+      Name keyName = new Name("/Test/KeyName/KEY/1");
+      tpm.deleteKey(keyName);
+      assertEquals(false, tpm.hasKey(keyName));
+
+      TpmPrivateKey privateKey = new TpmPrivateKey();
+      Blob privateKeyPkcs1Encoding = new Blob
+        (Common.base64Decode(privateKeyPkcs1Base64));
+      privateKey.loadPkcs1(privateKeyPkcs1Encoding.buf());
+
+      ByteBuffer password = new Blob("password").buf();
+      Blob encryptedPkcs8 = privateKey.toEncryptedPkcs8(password);
+
+      tpm.importKey(keyName, encryptedPkcs8.buf(), password);
+      assertEquals(true, tpm.hasKey(keyName));
+      try {
+        // Can't import the same keyName again.
+        tpm.importKey(keyName, encryptedPkcs8.buf(), password);
+        fail("Did not throw the expected exception");
+      }
+      catch (TpmBackEnd.Error ex) {}
+      catch (Exception ex) { fail("Did not throw the expected exception"); }
+
+      Blob exportedKey = tpm.exportKey(keyName, password);
+      assertEquals(true, tpm.hasKey(keyName));
+
+      TpmPrivateKey privateKey2 = new TpmPrivateKey();
+      privateKey2.loadEncryptedPkcs8(exportedKey.buf(), password);
+      Blob privateKey2Pkcs1Encoding = privateKey2.toPkcs1();
+      assertTrue(privateKeyPkcs1Encoding.equals(privateKey2Pkcs1Encoding));
+
+      tpm.deleteKey(keyName);
+      assertEquals(false, tpm.hasKey(keyName));
+      try {
+        tpm.exportKey(keyName, password);
+        fail("Did not throw the expected exception");
+      }
+      catch (TpmBackEnd.Error ex) {}
+      catch (Exception ex) { fail("Did not throw the expected exception"); }
+    }
+  }
 
   @Test
   public void
