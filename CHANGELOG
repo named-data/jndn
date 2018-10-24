@@ -1,5 +1,8 @@
-jNDN v0.20 (2018-09-22)
+jNDN v0.20 (2018-10-24)
 -----------------------
+
+Changes
+* In TpmBackEndFile, implemented private key import/export.
 
 Bug fixes
 * https://redmine.named-data.net/issues/4732 In decodeControlParameters, skip
