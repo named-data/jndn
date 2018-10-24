@@ -85,33 +85,34 @@ public class TestTpmPrivateKey {
 "jweEC0nrcL31j9mF0vz5E6tfRu4hhJ6L4yfWs0gSejskeVB/w8QY4g==\n";
 
       privateKeyPkcs8 =
-"MIIFCzA9BgkqhkiG9w0BBQ0wMDAbBgkqhkiG9w0BBQwwDgQIOKYJXvB6p8kCAggA\n" +
-"MBEGBSsOAwIHBAiQgMK8kQXTyASCBMjeNiKYYw5/yHgs9BfSGrpqvV0LkkgMQNUW\n" +
-"R4ZY8fuNjZynd+PxDuw2pyrv1Yv3jc+tupwUehZEzYOnGd53wQAuLO+Z0TBgRFN7\n" +
-"Lhk+AxlT7hu0xaB3ZpJ/uvWpgEJHsq/aB/GYgyzXcQo2AiqzERVpMCWJVmE1L977\n" +
-"CHwJmLm5mxclVLYp1UK5lkIBFu/M4nPavmNmYNUU1LOrXRo56TlJ2kUp8gQyQI1P\n" +
-"VPxi4chmlsr/OnQ2d1eZN+euFm0CS+yP+LFgI9ZqdyH1w+J43SXdHDzauVcZp7oa\n" +
-"Kw24OrhHfolLAnQIECXEJYeT7tZmhC4O9V6B18PFVyxWnEU4eFNpFE8kYSmm8Um2\n" +
-"buvDKI71q43hm23moYT9uIM1f4M8UkoOliJGrlf4xgEcmDuokEX01PdOq1gc4nvG\n" +
-"0DCwDI9cOsyn8cxhk9UVtFgzuG/seuznxIv1F5H0hzYOyloStXxRisJES0kgByBt\n" +
-"FFTfyoFKRrmCjRIygwVKUSkSDR0DlQS5ZLvQyIswnSQFwxAHqfvoSL4dB9UAIAQ+\n" +
-"ALVF1maaHgptbL6Ifqf0GFCv0hdNCVNDNCdy8R+S6nEYE+YdYSIdT1L88KD5PjU3\n" +
-"YY/CMnxhTncMaT4acPO1UUYuSGRZ/JL6E0ihoqIU+bqUgLSHNzhPySPfN9uqN61Y\n" +
-"HFBtxeEPWKU0f/JPkRBMmZdMI1/OVmA3QHSRBydI+CQN8no2gZRFoVbHTkG8IMpE\n" +
-"1fiDJpwFkpzIv/JPiTSE7DeBH5NJk1bgu7TcuZfa4unyAqss0UuLnXzS06TppkUj\n" +
-"QGft0g8VPW56eli6B4xrSzzuvAdbrxsVfxdmtHPyYxLb3/UG1g4x/H/yULhx7x9P\n" +
-"iI6cw6JUE+8bwJV2ZIlHXXHO+wUp/gCFJ6MHo9wkR1QvnHP2ClJAzBm9OvYnUx2Y\n" +
-"SX0HxEowW8BkhxOF184LEmxeua0yyZUqCdrYmErp7x9EY/LhD1zBwH8OGRa0qzmR\n" +
-"VKxAPKihkb9OgxcUKbvKePx3k2cQ7fbCUspGPm4Kn1zwMgRAZ4fz/o8Lnwc8MSY3\n" +
-"lPWnmLTFu420SRH2g9N0o/r195hiZ5cc+KfF4pwZWKbEbKFk/UfXA9vmOi7BBtDJ\n" +
-"RWshOINhzMU6Ij3KuaEpHni1HoHjw0SQ97ow2x/aB8k2QC28tbsa49lD2KKJku6b\n" +
-"2Or89adwFKqMgS2IXfXMXs/iG5EFLYN6r8e40Dn5f1vJfRLJl03XByIfT2n92pw3\n" +
-"fP7muOIKLUsEKjOrmn94NwMlfeW13oQHEH2KjPOWFS/tyJHDdVU+of4COH5yg59a\n" +
-"TZqFkOTGeliE1O+6sfF9fRuVxFUF3D8Hpr0JIjdc6+3RgIlGsXc8BwiSjDSI2XW+\n" +
-"vo75/2zPU9t8OeXEIJk2CQGyqLwUJ6dyi/yDRrvZAgjrUvbpcxydnBAHrLbLUGXJ\n" +
-"aEHH2tjEtnTqVyTchr1yHoupcFOCkA0dAA66XqwcssQxJiMGrWTpCbgd9mrTXQaZ\n" +
-"U7afFN1jpO78tgBQUUpImXdHLLsqdN5tefqjileZGZ9x3/C6TNAfDwYJdsicNNn5\n" +
-"y+JVsbltfLWlJxb9teb3dtQiFlJ7ofprLJnJVqI/Js8lozY+KaxV2vtbZkcD4dM=\n";
+"MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQINwot3btbWkUCAggA\n" +
+"MBQGCCqGSIb3DQMHBAg6anV8j085cASCBMhUhNxb+sBuPj76dbsHqnuZybQF9q9G\n" +
+"yvyrhZ5wpuslkEI8Iw5c/d7C721BzOoLLU6ip4bEAfB+0HtO4qWhlFmUAkw+d0km\n" +
+"6Zw9PbkldNG8zHxTLrm7idz2hixnV5SYY+3MeaMbDWBazjxTKJZHakHodZ03di6S\n" +
+"+EhLlZGKTWdtGwXvYrdbGGX7psnrq6Gh+oJyKz8swVZYT5c3Ta1q/r7dTBsN20Su\n" +
+"rZVCWXwqF9JM77RxiilYtlqBm1/jR/6Y6Hsa7V20WfENmUWkPj5nN6/0JSg3Ohs6\n" +
+"iLI+RN01hBxEhh2BIOg7A5aJrJvw5Y36oTKN6NfN+jKtd/xVX4OTnjJWAu07sxe4\n" +
+"/gzvjCLTiZV840iuHzjYLhiKU1gcAq0HdVmStJG0KKL//QwoQZWSB+ezqaUrRqM0\n" +
+"j/yF8yeNljf3d102alCjOlDd+WzntZGkh2qgOEdamDWTLnUV05FsFsgvQxi4/eH8\n" +
+"aUzaLja8Ejf2DdkrzVtn3rZBqIIduv20tJept6XJdnkVfN4aQn6djgC07/wZawYv\n" +
+"WO/9XPZVTamBs6/6rm72pPUsnlashJmdWR2GYQQsrGiqAx5pSkiRUK5o5YtYAYFq\n" +
+"cTEkHOPuLr4xEkkxuJr9WcBn1xzVXTY0jOUdSQsN4n0UC1deS1Vtt0l3ETlclhV1\n" +
+"WGf6gPb5Y2WSY7Gxn2s5goGVpdEr5WYF6zfUwBsM9U40u5NAuq6q0NrIVoVguGhP\n" +
+"/GpxQrN8QPWvKtLJUKRtepWK6FLejcwGdDVaKYWF2qiK8bLPW2R1ZWbt18tjfcSV\n" +
+"LDEFhbNZrQAbQKukVL7g6RNk2ZE2ZQOWcP1VihyX9h+h6iZBJQQJVSUht2P9omKP\n" +
+"vXchMFGhb6e0VSxbb4Nw7Yq2/tEVwZGXsnKFEzyS2LkP2biqEHbjXtI1hreTxhOt\n" +
+"zz/zXz/4AMl1MJEf0SpJ7Yaowl5lsSo2qoFJTwV6nK2YI25e80dcNMAWzAXokCDN\n" +
+"GX4Iio411w9ZWIKrtiHnkDh1+u/ktLrRY/vwVtXIokzIo99UwTWcCtIJYktzmYp1\n" +
+"L0E8EgurD/lFV4jGHMU0Q0ufxikteGXjAgA56F29xo879HDTn6+EsMvRLFhV7e38\n" +
+"8ntTLNXa4uSF4pub2oltWEFRewCQaprKgCzG8cVs3fl5yHISYC9bsSLOVkjE2PPR\n" +
+"avNFBV0W5BorX+A+ujYbfA54/EGTZfYtgt8TgkcAWY9ZVozrx8mQV5Z0CcDcNmHr\n" +
+"S9IHlwAV1rKImH0l72lEUoObfNsB3ZYstgWPA7LY0Ir1GgSD1ArFJcIn0ZyNaq9/\n" +
+"UhctA/83oybq/dpKIkgyppuyF1QihC0LiARRdTQypkvtpCrIMYeOm12NIpU14eO4\n" +
+"AiHAMvZN2r++a6n43x/MFm82rnCXjwTIp6qwF43q2l36Af/acRFxxiQsUk7yr/fy\n" +
+"rG5ILv3+vJN1/GcAh1uBezvMG50eIPmFkB1t+5unLezwFpyJ9CyfD6Hb3cZ0Ae0y\n" +
+"nXZKRy1psgDy0jDAtmzyOO0+aT45tlA0nRwG7R3CvgKn33EkcaYT5NZ+47y0LDfW\n" +
+"73yeM6F0A9SuqWUNp/QFT0/tqgqoG1blsi2tV4V5RBtt80BhDqx4XxW0nCp9MWS4\n" +
+"/4Q=\n";
 
       privateKeyPkcs8Unencrypted =
 "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDDRYzX9aEDHIu0\n" +
@@ -209,7 +210,7 @@ public class TestTpmPrivateKey {
 
   @Test
   public void
-  testSaveLoad()
+  testSaveLoad() throws TpmPrivateKey.Error
   {
     for (KeyTestData dataSet : keyTestData) {
       // Load the key in PKCS #1 format.
@@ -239,7 +240,7 @@ public class TestTpmPrivateKey {
         fail("Unexpected exception: " + ex.getMessage());
       }
 
-      // Save the key in PKCS #8 format.
+      // Save the key in unencrypted PKCS #8 format.
       Blob savedPkcs8Key = null;
       try {
         savedPkcs8Key = key8.toPkcs8();
@@ -247,6 +248,29 @@ public class TestTpmPrivateKey {
         fail("Unexpected exception: " + ex.getMessage());
       }
       assertTrue(savedPkcs8Key.equals(new Blob(pkcs8)));
+
+      ByteBuffer password = new Blob("password").buf();
+
+      // Load the key in encrypted PKCS #8 format.
+      byte[] encryptedPkcs8 = Common.base64Decode(dataSet.privateKeyPkcs8);
+      TpmPrivateKey encryptedKey8 = new TpmPrivateKey();
+      try {
+        encryptedKey8.loadEncryptedPkcs8(ByteBuffer.wrap(encryptedPkcs8), password);
+      } catch (Throwable ex) {
+        fail("Unexpected exception: " + ex.getMessage());
+      }
+
+      // Save the key in encrypted PKCS #8 format and resave as unencrypted.
+      Blob savedEncryptedPkcs8Key = null;
+      try {
+        savedEncryptedPkcs8Key = encryptedKey8.toEncryptedPkcs8(password);
+      } catch (Throwable ex) {
+        fail("Unexpected exception: " + ex.getMessage());
+      }
+      key8 =  new TpmPrivateKey();
+      key8.loadEncryptedPkcs8(savedEncryptedPkcs8Key.buf(), password);
+      Blob resavedPkcs8Key = key8.toPkcs8();
+      assertTrue(resavedPkcs8Key.equals(new Blob(pkcs8)));
     }
   }
 
