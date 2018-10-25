@@ -803,10 +803,10 @@ public class KeyChain {
    * Export a certificate and its corresponding private key in a SafeBag.
    * @param certificate The certificate to export. This gets the key from the
    * TPM using certificate.getKeyName().
-   * @param password The password for encrypting the private key. If the
-   * password is supplied, use it to put a PKCS #8 EncryptedPrivateKeyInfo in
-   * the SafeBag. If the password is null, put an unencrypted PKCS #8
-   * PrivateKeyInfo in the SafeBag.
+   * @param password The password for encrypting the private key, which should
+   * have characters in the range of 1 to 127. If the password is supplied, use
+   * it to put a PKCS #8 EncryptedPrivateKeyInfo in the SafeBag. If the password
+   * is null, put an unencrypted PKCS #8 PrivateKeyInfo in the SafeBag.
    * @return A SafeBag carrying the certificate and private key.
    * @throws KeyChain.Error certificate.getKeyName() key does not exist, if the
    * password is null and the TPM does not support exporting an unencrypted
@@ -853,9 +853,10 @@ public class KeyChain {
    * KeyChain.
    * @param safeBag The SafeBag containing the certificate and private key. This
    * copies the values from the SafeBag.
-   * @param password The password for decrypting the private key. If the
-   * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
-   * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
+   * @param password The password for decrypting the private key, which should
+   * have characters in the range of 1 to 127. If the password is supplied, use
+   * it to decrypt the PKCS #8 EncryptedPrivateKeyInfo. If the password is null,
+   * import an unencrypted PKCS #8 PrivateKeyInfo.
    * @throws KeyChain.Error if the private key cannot be imported, or if a
    * public key or private key of the same name already exists, or if a
    * certificate of the same name already exists.

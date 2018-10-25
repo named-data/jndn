@@ -234,7 +234,8 @@ public class TpmPrivateKey {
    * This replaces any existing private key in this object. This partially
    * decodes the private key to determine the key type.
    * @param encoding The byte buffer with the private key encoding.
-   * @param password The password for decrypting the private key.
+   * @param password The password for decrypting the private key, which should
+   * have characters in the range of 1 to 127.
    * @throws TpmPrivateKey.Error for errors decoding or decrypting the key.
    */
   public final void
@@ -553,7 +554,8 @@ public class TpmPrivateKey {
 
   /**
    * Get the encoded encrypted private key in PKCS #8.
-   * @param password The password for encrypting the private key.
+   * @param password The password for encrypting the private key, which should
+   * have characters in the range of 1 to 127.
    * @return The encoding Blob of the EncryptedPrivateKeyInfo.
    * @throws TpmPrivateKey.Error if no private key is loaded, or error encoding.
    */

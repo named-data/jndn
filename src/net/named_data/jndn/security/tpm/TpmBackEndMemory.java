@@ -102,9 +102,10 @@ public class TpmBackEndMemory extends TpmBackEnd {
    * Get the encoded private key with name keyName in PKCS #8 format, possibly
    * password-encrypted.
    * @param keyName The name of the key in the TPM.
-   * @param password The password for encrypting the private key. If the
-   * password is supplied, use it to return a PKCS #8 EncryptedPrivateKeyInfo.
-   * If the password is null, return an unencrypted PKCS #8 PrivateKeyInfo.
+   * @param password The password for encrypting the private key, which should
+   * have characters in the range of 1 to 127. If the password is supplied, use
+   * it to return a PKCS #8 EncryptedPrivateKeyInfo. If the password is null,
+   * return an unencrypted PKCS #8 PrivateKeyInfo.
    * @return The encoded private key.
    * @throws TpmBackEnd.Error if the key does not exist or if the key cannot be
    * exported, e.g., insufficient privileges.
@@ -132,9 +133,10 @@ public class TpmBackEndMemory extends TpmBackEnd {
    * @param pkcs8 The input byte buffer. If the password is supplied, this is a
    * PKCS #8 EncryptedPrivateKeyInfo. If the password is null, this is an
    * unencrypted PKCS #8 PrivateKeyInfo.
-   * @param password The password for decrypting the private key. If the
-   * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
-   * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
+   * @param password The password for decrypting the private key, which should
+   * have characters in the range of 1 to 127. If the password is supplied, use
+   * it to decrypt the PKCS #8 EncryptedPrivateKeyInfo. If the password is null,
+   * import an unencrypted PKCS #8 PrivateKeyInfo.
    * @throws TpmBackEnd.Error for an error importing the key.
    */
   protected void

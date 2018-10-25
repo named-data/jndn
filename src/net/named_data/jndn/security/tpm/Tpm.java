@@ -239,9 +239,10 @@ public class Tpm {
    * encrypted.
    * This should only be called by KeyChain.
    * @param keyName The name of the key in the TPM.
-   * @param password The password for encrypting the private key. If the
-   * password is supplied, use it to return a PKCS #8 EncryptedPrivateKeyInfo.
-   * If the password is null, return an unencrypted PKCS #8 PrivateKeyInfo.
+   * @param password The password for encrypting the private key, which should
+   * have characters in the range of 1 to 127. If the password is supplied, use
+   * it to return a PKCS #8 EncryptedPrivateKeyInfo. If the password is null,
+   * return an unencrypted PKCS #8 PrivateKeyInfo.
    * @return The private key encoded in PKCS #8 format, or an isNull Blob if
    * the key does not exist.
    * @throws TpmBackEnd.Error if the key does not exist or if the key cannot be
@@ -261,9 +262,10 @@ public class Tpm {
    * @param pkcs8 The input byte buffer. If the password is supplied, this is a
    * PKCS #8 EncryptedPrivateKeyInfo. If the password is null, this is an
    * unencrypted PKCS #8 PrivateKeyInfo.
-   * @param password The password for decrypting the private key. If the
-   * password is supplied, use it to decrypt the PKCS #8 EncryptedPrivateKeyInfo.
-   * If the password is null, import an unencrypted PKCS #8 PrivateKeyInfo.
+   * @param password The password for decrypting the private key, which should
+   * have characters in the range of 1 to 127. If the password is supplied, use
+   * it to decrypt the PKCS #8 EncryptedPrivateKeyInfo. If the password is null,
+   * import an unencrypted PKCS #8 PrivateKeyInfo.
    * @throws TpmBackEnd.Error if the key cannot be imported.
    */
   public final void

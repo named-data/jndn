@@ -74,8 +74,10 @@ public class SafeBag {
    * PKCS #8 PrivateKeyInfo.
    * @param publicKeyEncoding The encoded public key for the certificate.
    * @param password The password for decrypting the private key in order to
-   * sign the self-signed certificate. If the password is used to decrypt the
-   * PKCS #8 EncryptedPrivateKeyInfo.
+   * sign the self-signed certificate, which should have characters in the range
+   * of 1 to 127. If the password is supplied, use it to decrypt the PKCS #8
+   * EncryptedPrivateKeyInfo. If the password is null, privateKeyBag is an
+   * unencrypted PKCS #8 PrivateKeyInfo.
    * @param digestAlgorithm The digest algorithm for signing the self-signed
    * certificate.
    * @param wireFormat A WireFormat object used to encode the self-signed
@@ -105,8 +107,10 @@ public class SafeBag {
    * PKCS #8 PrivateKeyInfo.
    * @param publicKeyEncoding The encoded public key for the certificate.
    * @param password The password for decrypting the private key in order to
-   * sign the self-signed certificate. If the password is used to decrypt the
-   * PKCS #8 EncryptedPrivateKeyInfo.
+   * sign the self-signed certificate, which should have characters in the range
+   * of 1 to 127. If the password is supplied, use it to decrypt the PKCS #8
+   * EncryptedPrivateKeyInfo. If the password is null, privateKeyBag is an
+   * unencrypted PKCS #8 PrivateKeyInfo.
    * @param digestAlgorithm The digest algorithm for signing the self-signed
    * certificate.
    */
@@ -134,8 +138,10 @@ public class SafeBag {
    * PKCS #8 PrivateKeyInfo.
    * @param publicKeyEncoding The encoded public key for the certificate.
    * @param password The password for decrypting the private key in order to
-   * sign the self-signed certificate. If the password is used to decrypt the
-   * PKCS #8 EncryptedPrivateKeyInfo.
+   * sign the self-signed certificate, which should have characters in the range
+   * of 1 to 127. If the password is supplied, use it to decrypt the PKCS #8
+   * EncryptedPrivateKeyInfo. If the password is null, privateKeyBag is an
+   * unencrypted PKCS #8 PrivateKeyInfo.
    */
   public SafeBag
     (Name keyName, Blob privateKeyBag, Blob publicKeyEncoding,
