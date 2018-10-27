@@ -13,7 +13,7 @@ Prerequisites
 
 Following are the detailed steps for each platform to install the prerequisites.
 
-## OS X 10.9.5, OS X 10.10.2, OS X 10.11, macOS 10.12 and macOS 10.13
+## OS X 10.9.5, OS X 10.10.2, OS X 10.11, macOS 10.12, macOS 10.13 and macOS 10.14
 To install Apache Maven, first install Xcode. To install the command line tools, in a terminal enter:
 
     xcode-select --install
