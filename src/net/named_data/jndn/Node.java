@@ -437,37 +437,10 @@ public class Node implements ElementListener {
     }
 
     // Now process as Interest or Data.
-    if (interest != null) {
-      // Quickly lock and get all interest filter callbacks which match.
-      ArrayList matchedFilters = new ArrayList();
-      interestFilterTable_.getMatchedFilters(interest, matchedFilters);
-
-      // The lock on interestFilterTable_ is released, so call the callbacks.
-      for (int i = 0; i < matchedFilters.size(); ++i) {
-        InterestFilterTable.Entry entry =
-          (InterestFilterTable.Entry)matchedFilters.get(i);
-        try {
-          entry.getOnInterest().onInterest
-           (entry.getFilter().getPrefix(), interest, entry.getFace(),
-            entry.getInterestFilterId(), entry.getFilter());
-        } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, "Error in onInterest", ex);
-        }
-      }
-    }
-    else if (data != null) {
-      ArrayList<PendingInterestTable.Entry> pitEntries =
-        new ArrayList<PendingInterestTable.Entry>();
-      pendingInterestTable_.extractEntriesForExpressedInterest(data, pitEntries);
-      for (int i = 0; i < pitEntries.size(); ++i) {
-        PendingInterestTable.Entry pendingInterest = pitEntries.get(i);
-        try {
-          pendingInterest.getOnData().onData(pendingInterest.getInterest(), data);
-        } catch (Throwable ex) {
-          logger_.log(Level.SEVERE, "Error in onData", ex);
-        }
-      }
-    }
+    if (interest != null)
+      dispatchInterest(interest);
+    else if (data != null)
+      satisfyPendingInterests(data);
   }
 
   /**
@@ -595,6 +568,59 @@ public class Node implements ElementListener {
           ("The encoded interest size exceeds the maximum limit getMaxNdnPacketSize()");
       transport_.send(encoding.buf());
     }
+  }
+
+  /**
+   * Call the OnInterest callback for all entries in the interestFilterTable_
+   * that match the interest.
+   * @param interest The Interest to match.
+   */
+  private void
+  dispatchInterest(Interest interest)
+  {
+    // Quickly lock and get all interest filter callbacks which match.
+    ArrayList matchedFilters = new ArrayList();
+    interestFilterTable_.getMatchedFilters(interest, matchedFilters);
+
+    // The lock on interestFilterTable_ is released, so call the callbacks.
+    for (int i = 0; i < matchedFilters.size(); ++i) {
+      InterestFilterTable.Entry entry =
+        (InterestFilterTable.Entry)matchedFilters.get(i);
+      try {
+        entry.getOnInterest().onInterest
+         (entry.getFilter().getPrefix(), interest, entry.getFace(),
+          entry.getInterestFilterId(), entry.getFilter());
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, "Error in onInterest", ex);
+      }
+    }
+  }
+
+  /**
+   * Extract entries from the pendingInterestTable_ which match data, and call
+   * each OnData callback.
+   * @param data The Data packet to match.
+   * @return True if the data matched an entry in the pendingInterestTable_.
+   */
+  private boolean
+  satisfyPendingInterests(Data data) throws EncodingException
+  {
+    boolean hasMatch = false;
+
+    ArrayList<PendingInterestTable.Entry> pitEntries =
+      new ArrayList<PendingInterestTable.Entry>();
+    pendingInterestTable_.extractEntriesForExpressedInterest(data, pitEntries);
+    for (int i = 0; i < pitEntries.size(); ++i) {
+      PendingInterestTable.Entry pendingInterest = pitEntries.get(i);
+      hasMatch = true;
+      try {
+        pendingInterest.getOnData().onData(pendingInterest.getInterest(), data);
+      } catch (Throwable ex) {
+        logger_.log(Level.SEVERE, "Error in onData", ex);
+      }
+    }
+
+    return hasMatch;
   }
 
   private enum ConnectStatus { UNCONNECTED, CONNECT_REQUESTED, CONNECT_COMPLETE }
