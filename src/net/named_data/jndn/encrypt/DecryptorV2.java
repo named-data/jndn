@@ -385,8 +385,8 @@ public class DecryptorV2 {
         (content.getPayload().buf(), kdkKeyName);
     } catch (Exception ex) {
       // We don't expect this from the in-memory KeyChain.
-      onError.onError(EncryptError.ErrorCode.EncryptionFailure,
-        "Error decrypting CK EncryptedContent " + ex);
+      onError.onError(EncryptError.ErrorCode.DecryptionFailure,
+        "Error decrypting the CK EncryptedContent " + ex);
       return;
     }
     
