@@ -545,7 +545,7 @@ public class TestInterestMethods {
     Interest interest8 = new Interest(new Name("/A/B"));
     interest8.getExclude().appendComponent(interest7.getName().get(2));
     assertEquals(false, interest8.matchesData(data7));
-}
+  }
 
   @Test
   public void
@@ -568,6 +568,46 @@ public class TestInterestMethods {
     assertEquals(true,  new InterestFilter("/a", "<b><>*").doesMatch(new Name("/a/b")));
     assertEquals(false, new InterestFilter("/a", "<b><>+").doesMatch(new Name("/a/b")));
     assertEquals(true,  new InterestFilter("/a", "<b><>+").doesMatch(new Name("/a/b/c")));
+  }
+
+  @Test
+  public void
+  testSetParameters()
+  {
+    Interest interest = new Interest();
+    assertTrue(!interest.hasParameters());
+    Blob parameters = new Blob(toBuffer(new int[] { 0x23, 0x00 }), false);
+    interest.setParameters(parameters);
+    assertTrue(interest.hasParameters());
+    assertTrue(interest.getParameters().equals(parameters));
+
+    interest.setParameters(new Blob());
+    assertTrue(!interest.hasParameters());
+  }
+
+  @Test
+  public void
+  testAppendParametersDigest()
+  {
+    Name name = new Name("/local/ndn/prefix");
+    Interest interest = new Interest(name);
+
+    assertTrue(!interest.hasParameters());
+    // No parameters yet, so it should do nothing.
+    interest.appendParametersDigestToName();
+    assertEquals("/local/ndn/prefix", interest.getName().toUri());
+
+    Blob parameters = new Blob(toBuffer(new int[] { 0x23, 0x01, 0xC0 }), false);
+    interest.setParameters(parameters);
+    assertTrue(interest.hasParameters());
+    interest.appendParametersDigestToName();
+    assertEquals(name.size() + 1, interest.getName().size());
+    assertTrue(interest.getName().getPrefix(-1).equals(name));
+    int SHA256_LENGTH = 32;
+    assertEquals(SHA256_LENGTH, interest.getName().get(-1).getValue().size());
+
+    assertEquals(interest.getName().toUri(), "/local/ndn/prefix/" +
+      "params-sha256=a16cc669b4c9ef6801e1569488513f9523ffb28a39e53aa6e11add8d00a413fc");
   }
 
   @Test
