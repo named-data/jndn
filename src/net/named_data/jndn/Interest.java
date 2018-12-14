@@ -21,6 +21,8 @@ package net.named_data.jndn;
 
 import java.nio.ByteBuffer;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
@@ -29,6 +31,7 @@ import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCountable;
 import net.named_data.jndn.util.ChangeCounter;
+import net.named_data.jndn.util.Common;
 import net.named_data.jndn.util.SignedBlob;
 
 /**
@@ -91,6 +94,7 @@ public class Interest implements ChangeCountable {
     nonce_ = interest.getNonce();
 
     forwardingHint_.set(new DelegationSet(interest.getForwardingHint()));
+    parameters_ = interest.parameters_;
     linkWireEncoding_ = interest.linkWireEncoding_;
     linkWireEncodingFormat_ = interest.linkWireEncodingFormat_;
     if (interest.link_.get() != null)
@@ -327,6 +331,20 @@ public class Interest implements ChangeCountable {
    */
   public final DelegationSet
   getForwardingHint() { return (DelegationSet)forwardingHint_.get(); }
+
+  /**
+   * Check if the Interest parameters are specified.
+   * @return True if the Interest parameters are specified, false if not.
+   */
+  public final boolean
+  hasParameters() { return parameters_.size() > 0; }
+
+  /**
+   * Get the Interest parameters.
+   * @return The parameters as a Blob, which isNull() if unspecified.
+   */
+  public final Blob
+  getParameters() { return parameters_; }
 
   /**
    * Check if this interest has a link object (or a link wire encoding which
@@ -586,6 +604,43 @@ public class Interest implements ChangeCountable {
     forwardingHint_.set(forwardingHint == null ?
       new DelegationSet() : new DelegationSet(forwardingHint));
     ++changeCount_;
+    return this;
+  }
+
+  /**
+   * Set the Interest parameters to the given value.
+   * @param parameters The Interest parameters Blob.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
+  setParameters(Blob parameters)
+  {
+    parameters_ = (parameters == null ? new Blob() : parameters);
+    ++changeCount_;
+    return this;
+  }
+
+  /**
+   * Append the digest of the Interest parameters to the Name as a
+   * ParametersSha256DigestComponent. However, if the Interest parameters is
+   * unspecified, do nothing. This does not check if the Name already has a
+   * parameters digest component, so calling again will append another component.
+   * @return This Interest so that you can chain calls to update values.
+   */
+  public final Interest
+  appendParametersDigestToName()
+  {
+    if (!hasParameters())
+      return this;
+
+    try {
+      getName().appendParametersSha256Digest
+              (new Blob(Common.digestSha256(parameters_.buf()), false));
+    } catch (EncodingException ex) {
+      // We don't expect this.
+      Logger.getLogger(Interest.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
     return this;
   }
 
@@ -891,6 +946,7 @@ public class Interest implements ChangeCountable {
   private WireFormat linkWireEncodingFormat_ = null;
   private final ChangeCounter forwardingHint_ =
     new ChangeCounter(new DelegationSet());
+  private Blob parameters_ = new Blob();
   private final ChangeCounter link_ = new ChangeCounter(null);
   private int selectedDelegationIndex_ = -1;
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
