@@ -572,14 +572,18 @@ public class TestInterestMethods {
 
   @Test
   public void
-  testSetParameters()
+  testSetParameters() throws EncodingException
   {
-    Interest interest = new Interest();
+    Interest interest = new Interest("/ndn");
     assertTrue(!interest.hasParameters());
     Blob parameters = new Blob(toBuffer(new int[] { 0x23, 0x00 }), false);
     interest.setParameters(parameters);
     assertTrue(interest.hasParameters());
     assertTrue(interest.getParameters().equals(parameters));
+
+    Interest decodedInterest = new Interest();
+    decodedInterest.wireDecode(interest.wireEncode());
+    assertTrue(decodedInterest.getParameters().equals(parameters));
 
     interest.setParameters(new Blob());
     assertTrue(!interest.hasParameters());
