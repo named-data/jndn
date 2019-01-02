@@ -25,10 +25,6 @@ package net.named_data.jndn.security;
 public enum KeyType {
   RSA(0),
   EC(1),
-  /**
-   * @deprecated  Use KeyType.EC .
-   */
-  ECDSA(1),
   AES(128);
 
   KeyType (int type)
