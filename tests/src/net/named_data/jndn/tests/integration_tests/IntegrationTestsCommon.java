@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2018 Regents of the University of California.
+ * Copyright (C) 2015-2019 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * @author: Andrew Brown <andrew.brown@intel.com>
  *

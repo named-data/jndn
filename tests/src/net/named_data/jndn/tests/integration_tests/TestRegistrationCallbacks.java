@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2018 Regents of the University of California.
+ * Copyright (C) 2015-2019 Regents of the University of California.
  * @author: Andrew Brown <andrew.brown@intel.com>
  *
  * This program is free software: you can redistribute it and/or modify
