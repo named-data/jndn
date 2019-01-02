@@ -168,7 +168,7 @@ class EncryptStaticData2 {
 }
 
 /**
- * EncryptStaticData has static data blocs used by TestEncryptorV2, etc.
+ * EncryptStaticData has static data blocks used by TestEncryptorV2, etc.
  */
 public class EncryptStaticData {
   // Convert the int array to a ByteBuffer.
