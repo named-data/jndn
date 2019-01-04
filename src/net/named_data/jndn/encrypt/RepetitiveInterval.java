@@ -269,12 +269,13 @@ public class RepetitiveInterval implements Comparable {
     return compare((RepetitiveInterval)other) == 0;
   }
 
-  public int hashCode() {
+  public int hashCode() 
+  {
+    long longStartDate = Double.doubleToLongBits(startDate_);
+    long longEndDate = Double.doubleToLongBits(endDate_);
     int hash = 3;
-    hash = 73 * hash + (int)
-      (Double.doubleToLongBits(startDate_) ^ (Double.doubleToLongBits(startDate_) >>> 32));
-    hash = 73 * hash + (int)
-      (Double.doubleToLongBits(endDate_) ^ (Double.doubleToLongBits(endDate_) >>> 32));
+    hash = 73 * hash + (int)(longStartDate ^ (longStartDate >>> 32));
+    hash = 73 * hash + (int)(longEndDate ^ (longEndDate >>> 32));
     hash = 73 * hash + intervalStartHour_;
     hash = 73 * hash + intervalEndHour_;
     hash = 73 * hash + nRepeats_;
