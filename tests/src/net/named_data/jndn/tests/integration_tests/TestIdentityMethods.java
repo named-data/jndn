@@ -293,6 +293,9 @@ public class TestIdentityMethods {
   public void
   testEcdsaIdentity() throws SecurityException
   {
+    if (!testEcdsa_)
+      return;
+
     Name identityName = new Name("/TestSqlIdentityStorage/KeyType/ECDSA");
     Name keyName = identityManager.generateEcdsaKeyPairAsDefault(identityName);
     IdentityCertificate cert = identityManager.selfSign(keyName);
@@ -313,4 +316,6 @@ public class TestIdentityMethods {
   private IdentityManager identityManager;
   private PolicyManager policyManager;
   private KeyChain keyChain;
+  // Set testEcdsa_ false if ECDSA is not available.
+  public static boolean testEcdsa_ = true;
 }
