@@ -89,11 +89,13 @@ class CredentialStorage {
         (keyName, KeyType.RSA, DEFAULT_RSA_PUBLIC_KEY_DER,
          DEFAULT_RSA_PRIVATE_KEY_DER);
 
-      identityStorage_.addKey
-        (ecdsaKeyName, KeyType.EC, new Blob(DEFAULT_EC_PUBLIC_KEY_DER, false));
-      privateKeyStorage_.setKeyPairForKeyName
-        (ecdsaKeyName, KeyType.EC, DEFAULT_EC_PUBLIC_KEY_DER,
-         DEFAULT_EC_PRIVATE_KEY_DER);
+      if (testEcdsa_) {
+        identityStorage_.addKey
+          (ecdsaKeyName, KeyType.EC, new Blob(DEFAULT_EC_PUBLIC_KEY_DER, false));
+        privateKeyStorage_.setKeyPairForKeyName
+          (ecdsaKeyName, KeyType.EC, DEFAULT_EC_PUBLIC_KEY_DER,
+           DEFAULT_EC_PRIVATE_KEY_DER);
+      }
     } catch (SecurityException ex) {
       // Don't expect this to happen;
       System.out.println("Exception setting test keys: " + ex);
@@ -261,6 +263,8 @@ class CredentialStorage {
      new SelfVerifyPolicyManager(identityStorage_));
   private final Name defaultCertName_;
   private final Name ecdsaCertName_;
+  // Set testEcdsa_ false if ECDSA is not available.
+  public static boolean testEcdsa_ = true;
 };
 
 public class TestDataMethods {
@@ -586,6 +590,9 @@ public class TestDataMethods {
   public void
   testVerifyEcdsa() throws SecurityException
   {
+    if (!CredentialStorage.testEcdsa_)
+      return;
+
     VerifyCounter counter = new VerifyCounter();
 
     try {
