@@ -574,10 +574,11 @@ public class MemoryContentCache implements OnInterestCallback {
         try {
           // Send to the same face from the original call to onInterest.
           // wireEncode returns the cached encoding if available.
+          logger_.log(Level.INFO, "MemoryContentCache:  Reply w/ add Data {0}",
+            data.getName());
           pendingInterest.getFace().send(data.wireEncode());
         } catch (IOException ex) {
-          Logger.getLogger(MemoryContentCache.class.getName()).log(Level.SEVERE,
-            ex.getMessage());
+          logger_.log(Level.SEVERE, ex.getMessage());
           return;
         }
 
@@ -642,6 +643,9 @@ public class MemoryContentCache implements OnInterestCallback {
     (Name prefix, Interest interest, Face face, long interestFilterId,
      InterestFilter filter)
   {
+    logger_.log(Level.INFO, "MemoryContentCache:  Received Interest {0}",
+      interest.toUri());
+
     double nowMilliseconds = Common.getNowMilliseconds();
     doCleanup(nowMilliseconds);
 
@@ -665,10 +669,12 @@ public class MemoryContentCache implements OnInterestCallback {
           !(interest.getMustBeFresh() && !isFresh)) {
         if (interest.getChildSelector() < 0) {
           // No child selector, so send the first match that we have found.
+          logger_.log(Level.INFO, "MemoryContentCache:         Reply Data {0}",
+            content.getName());
           try {
             face.send(content.getDataEncoding());
           } catch (IOException ex) {
-            Logger.getLogger(MemoryContentCache.class.getName()).log(Level.SEVERE, null, ex);
+            logger_.log(Level.SEVERE, null, ex);
           }
           return;
         }
@@ -708,12 +714,16 @@ public class MemoryContentCache implements OnInterestCallback {
     if (selectedEncoding != null) {
       // We found the leftmost or rightmost child.
       try {
+        logger_.log(Level.INFO, "MemoryContentCache: Reply Data to Interest {0}",
+          interest.toUri());
         face.send(selectedEncoding);
       } catch (IOException ex) {
-        Logger.getLogger(MemoryContentCache.class.getName()).log(Level.SEVERE, null, ex);
+        logger_.log(Level.SEVERE, null, ex);
       }
     }
     else {
+      logger_.log(Level.INFO, "MemoryContentCache: onDataNotFound for {0}",
+        interest.toUri());
       // Call the onDataNotFound callback (if defined).
       Object onDataNotFound = onDataNotFoundForPrefix_.get(prefix.toUri());
       if (onDataNotFound != null) {
