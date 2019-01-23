@@ -243,8 +243,7 @@ public class Tpm {
    * have characters in the range of 1 to 127. If the password is supplied, use
    * it to return a PKCS #8 EncryptedPrivateKeyInfo. If the password is null,
    * return an unencrypted PKCS #8 PrivateKeyInfo.
-   * @return The private key encoded in PKCS #8 format, or an isNull Blob if
-   * the key does not exist.
+   * @return The private key encoded in PKCS #8 format.
    * @throws TpmBackEnd.Error if the key does not exist or if the key cannot be
    * exported, e.g., insufficient privileges.
    */
