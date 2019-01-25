@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2015-2019 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * @author: From ndn-cxx link.hpp https://github.com/named-data/ndn-cxx/blob/master/src/link.hpp
+ * @author: From ndn-cxx link.hpp https://github.com/named-data/ndn-cxx/blob/master/ndn-cxx/link.hpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
