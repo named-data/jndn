@@ -1577,7 +1577,8 @@ public class Tlv0_2WireFormat extends WireFormat {
     int saveLength = encoder.getLength();
 
     // Encode backwards.
-    encoder.writeOptionalBlobTlv(Tlv.Parameters, interest.getParameters().buf());
+    encoder.writeOptionalBlobTlv
+      (Tlv.ApplicationParameters, interest.getParameters().buf());
     // TODO: HopLimit.
     encoder.writeOptionalNonNegativeIntegerTlvFromDouble
       (Tlv.InterestLifetime, interest.getInterestLifetimeMilliseconds());
@@ -1716,9 +1717,10 @@ public class Tlv0_2WireFormat extends WireFormat {
     decoder.readOptionalBlobTlv(Tlv.HopLimit, endOffset);
 
     interest.setParameters
-      (new Blob(decoder.readOptionalBlobTlv(Tlv.Parameters, endOffset), copy));
+      (new Blob(decoder.readOptionalBlobTlv
+                (Tlv.ApplicationParameters, endOffset), copy));
 
-    decoder.readOptionalBlobTlv(Tlv.Parameters, endOffset);
+    decoder.readOptionalBlobTlv(Tlv.ApplicationParameters, endOffset);
 
     // Set the nonce last because setting other interest fields clears it.
     interest.setNonce(new Blob(nonce, copy));
