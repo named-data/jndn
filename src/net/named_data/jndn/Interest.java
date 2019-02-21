@@ -94,7 +94,7 @@ public class Interest implements ChangeCountable {
     nonce_ = interest.getNonce();
 
     forwardingHint_.set(new DelegationSet(interest.getForwardingHint()));
-    parameters_ = interest.parameters_;
+    applicationParameters_ = interest.applicationParameters_;
     linkWireEncoding_ = interest.linkWireEncoding_;
     linkWireEncodingFormat_ = interest.linkWireEncodingFormat_;
     if (interest.link_.get() != null)
@@ -337,14 +337,14 @@ public class Interest implements ChangeCountable {
    * @return True if the Interest parameters are specified, false if not.
    */
   public final boolean
-  hasParameters() { return parameters_.size() > 0; }
+  hasParameters() { return applicationParameters_.size() > 0; }
 
   /**
    * Get the Interest parameters.
    * @return The parameters as a Blob, which isNull() if unspecified.
    */
   public final Blob
-  getParameters() { return parameters_; }
+  getParameters() { return applicationParameters_; }
 
   /**
    * Check if this interest has a link object (or a link wire encoding which
@@ -615,7 +615,7 @@ public class Interest implements ChangeCountable {
   public final Interest
   setParameters(Blob parameters)
   {
-    parameters_ = (parameters == null ? new Blob() : parameters);
+    applicationParameters_ = (parameters == null ? new Blob() : parameters);
     ++changeCount_;
     return this;
   }
@@ -635,7 +635,7 @@ public class Interest implements ChangeCountable {
 
     try {
       getName().appendParametersSha256Digest
-              (new Blob(Common.digestSha256(parameters_.buf()), false));
+              (new Blob(Common.digestSha256(applicationParameters_.buf()), false));
     } catch (EncodingException ex) {
       // We don't expect this.
       Logger.getLogger(Interest.class.getName()).log(Level.SEVERE, null, ex);
@@ -946,7 +946,7 @@ public class Interest implements ChangeCountable {
   private WireFormat linkWireEncodingFormat_ = null;
   private final ChangeCounter forwardingHint_ =
     new ChangeCounter(new DelegationSet());
-  private Blob parameters_ = new Blob();
+  private Blob applicationParameters_ = new Blob();
   private final ChangeCounter link_ = new ChangeCounter(null);
   private int selectedDelegationIndex_ = -1;
   private SignedBlob defaultWireEncoding_ = new SignedBlob();
