@@ -333,18 +333,30 @@ public class Interest implements ChangeCountable {
   getForwardingHint() { return (DelegationSet)forwardingHint_.get(); }
 
   /**
-   * Check if the Interest parameters are specified.
-   * @return True if the Interest parameters are specified, false if not.
+   * Check if the application parameters are specified.
+   * @return True if the application parameters are specified, false if not.
    */
   public final boolean
-  hasParameters() { return applicationParameters_.size() > 0; }
+  hasApplicationParameters() { return applicationParameters_.size() > 0; }
 
   /**
-   * Get the Interest parameters.
+   * @deprecated Use hasApplicationParameters.
+   */
+  public final boolean
+  hasParameters() { return hasApplicationParameters(); }
+
+  /**
+   * Get the application parameters.
    * @return The parameters as a Blob, which isNull() if unspecified.
    */
   public final Blob
-  getParameters() { return applicationParameters_; }
+  getApplicationParameters() { return applicationParameters_; }
+
+  /**
+   * @deprecated Use getApplicationParameters.
+   */
+  public final Blob
+  getParameters() { return getApplicationParameters(); }
 
   /**
    * Check if this interest has a link object (or a link wire encoding which
@@ -608,21 +620,31 @@ public class Interest implements ChangeCountable {
   }
 
   /**
-   * Set the Interest parameters to the given value.
-   * @param parameters The Interest parameters Blob.
+   * Set the application parameters to the given value.
+   * @param applicationParameters The application parameters Blob.
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setParameters(Blob parameters)
+  setApplicationParameters(Blob applicationParameters)
   {
-    applicationParameters_ = (parameters == null ? new Blob() : parameters);
+    applicationParameters_ = 
+      (applicationParameters == null ? new Blob() : applicationParameters);
     ++changeCount_;
     return this;
   }
 
   /**
-   * Append the digest of the Interest parameters to the Name as a
-   * ParametersSha256DigestComponent. However, if the Interest parameters is
+   * @deprecated Use setApplicationParameters.
+   */
+  public final Interest
+  setParameters(Blob applicationParameters)
+  {
+    return setApplicationParameters(applicationParameters);
+  }
+
+  /**
+   * Append the digest of the application parameters to the Name as a
+   * ParametersSha256DigestComponent. However, if the application parameters is
    * unspecified, do nothing. This does not check if the Name already has a
    * parameters digest component, so calling again will append another component.
    * @return This Interest so that you can chain calls to update values.
@@ -630,7 +652,7 @@ public class Interest implements ChangeCountable {
   public final Interest
   appendParametersDigestToName()
   {
-    if (!hasParameters())
+    if (!hasApplicationParameters())
       return this;
 
     try {

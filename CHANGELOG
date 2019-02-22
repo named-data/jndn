@@ -1,8 +1,12 @@
-Interim changes since jNDN v0.20 (2019-01-02)
+Interim changes since jNDN v0.20 (2019-02-22)
 ---------------------------------------------
 
 Changes
 * Removed deprecated KeyType.ECDSA. (Use EC.)
+
+Deprecated
+* In Interest, deprecated getParameters, setParameters and hasParameters. Use
+  getApplicationParameters, setApplicationParameters and hasApplicationParameters.
 
 jNDN v0.20 (2018-10-24)
 -----------------------
