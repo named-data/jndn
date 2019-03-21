@@ -794,6 +794,7 @@ public class Node implements ElementListener {
     controlParameters.setForwardingFlags(flags);
 
     Interest commandInterest = new Interest();
+    commandInterest.setCanBePrefix(true);
 
     // Determine whether to use remote prefix registration.
     boolean faceIsLocal;
