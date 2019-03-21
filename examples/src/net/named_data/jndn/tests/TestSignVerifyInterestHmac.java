@@ -68,6 +68,9 @@ public class TestSignVerifyInterestHmac {
       // Don't show INFO log messages.
       Logger.getLogger("").setLevel(Level.WARNING);
 
+      // Silence the warning from Interest wire encode.
+      Interest.setDefaultCanBePrefix(true);
+
       Interest interest = new Interest();
       interest.wireDecode(new Blob(TlvInterest, false));
 

@@ -39,6 +39,9 @@ public class TestListRib {
   main(String[] args)
   {
     try {
+      // Silence the warning from Interest wire encode.
+      Interest.setDefaultCanBePrefix(true);
+
       // The default Face connects to the local NFD.
       Face face = new Face();
 

@@ -171,6 +171,9 @@ public class TestRegisterRoute {
   main(String[] args) throws EncodingException
   {
     try {
+      // Silence the warning from Interest wire encode.
+      Interest.setDefaultCanBePrefix(true);
+
       final Name prefix = new Name("/nfd/edu/ucla/remap/test");
       // Route to aleph.ndn.ucla.edu.  Have to use the canonical name with
       // an IP address and port.

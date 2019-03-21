@@ -56,6 +56,9 @@ public class TestEchoConsumer {
   main(String[] args)
   {
     try {
+      // Silence the warning from Interest wire encode.
+      Interest.setDefaultCanBePrefix(true);
+
       Face face = new Face();
 
       Counter1 counter = new Counter1();

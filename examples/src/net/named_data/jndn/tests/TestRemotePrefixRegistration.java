@@ -50,6 +50,9 @@ public class TestRemotePrefixRegistration {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
+    // Silence the warning from Interest wire encode.
+    Interest.setDefaultCanBePrefix(true);
+
     Face face = new Face(System.getProperty("ip"));
     KeyChain keyChain = buildTestKeyChain();
     face.setCommandSigningInfo(keyChain, keyChain.getDefaultCertificateName());

@@ -54,6 +54,9 @@ public class TestGetAsync {
   main(String[] args)
   {
     try {
+      // Silence the warning from Interest wire encode.
+      Interest.setDefaultCanBePrefix(true);
+
       Face face = new Face("memoria.ndn.ucla.edu");
 
       Counter counter = new Counter();

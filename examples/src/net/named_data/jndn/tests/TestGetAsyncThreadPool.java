@@ -87,6 +87,9 @@ public class TestGetAsyncThreadPool {
   main(String[] args)
   {
     try {
+      // Silence the warning from Interest wire encode.
+      Interest.setDefaultCanBePrefix(true);
+
       final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(2);
       Face face = new ThreadPoolFace
         (threadPool, new AsyncTcpTransport(threadPool),
