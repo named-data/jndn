@@ -240,6 +240,9 @@ public class TestEncodeDecodeInterest {
   main(String[] args)
   {
     try {
+      // Silence the warning from Interest wire encode.
+      Interest.setDefaultCanBePrefix(true);
+
       Interest interest = new Interest();
       interest.wireDecode(new Blob(TlvInterest, false));
       System.out.println("Interest:");

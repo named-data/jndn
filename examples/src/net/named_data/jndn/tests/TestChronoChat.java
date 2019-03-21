@@ -615,6 +615,9 @@ public class TestChronoChat {
       //Logger.getLogger("").setLevel(Level.FINE);
       // Logger.getLogger("").getHandlers()[0].setLevel(Level.FINE);
 
+      // Silence the warning from Interest wire encode.
+      Interest.setDefaultCanBePrefix(true);
+
       System.out.println("Enter your chat username:");
       BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
       String screenName = reader.readLine();

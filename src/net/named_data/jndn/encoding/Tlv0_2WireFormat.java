@@ -105,6 +105,12 @@ public class Tlv0_2WireFormat extends WireFormat {
   encodeInterest
     (Interest interest, int[] signedPortionBeginOffset, int[] signedPortionEndOffset)
   {
+    if (!interest.getDidSetCanBePrefix_() && !didCanBePrefixWarning_) {
+      System.out.println
+        ("WARNING: The default CanBePrefix will change. See Interest.setDefaultCanBePrefix() for details.");
+      didCanBePrefixWarning_ = true;
+    }
+
     if (interest.hasApplicationParameters())
       // The application has specified a format v0.3 field. As we transition to
       // format v0.3, encode as format v0.3 even though the application default
@@ -1730,4 +1736,5 @@ public class Tlv0_2WireFormat extends WireFormat {
 
   private static final Random random_ = new Random();
   private static Tlv0_2WireFormat instance_ = new Tlv0_2WireFormat();
+  private static boolean didCanBePrefixWarning_ = false;
 }

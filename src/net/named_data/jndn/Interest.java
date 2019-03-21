@@ -85,6 +85,7 @@ public class Interest implements ChangeCountable {
     name_.set(new Name(interest.getName()));
     minSuffixComponents_ = interest.minSuffixComponents_;
     maxSuffixComponents_ = interest.maxSuffixComponents_;
+    didSetCanBePrefix_ = interest.didSetCanBePrefix_;
     keyLocator_.set(new KeyLocator(interest.getKeyLocator()));
     exclude_.set(new Exclude(interest.getExclude()));
     childSelector_ = interest.childSelector_;
@@ -115,6 +116,31 @@ public class Interest implements ChangeCountable {
 
   public static final int CHILD_SELECTOR_LEFT = 0;
   public static final int CHILD_SELECTOR_RIGHT = 1;
+
+  /**
+   * Get the default value of the CanBePrefix flag used in the Interest 
+   * constructor. You can change this with setDefaultCanBePrefix().
+   * @return The default value of the CanBePrefix flag.
+   */
+  public static boolean
+  getDefaultCanBePrefix() { return defaultCanBePrefix_; }
+
+  /**
+   * Set the default value of the CanBePrefix flag used in the Interest
+   * constructor. The default is currently true, but will be changed at a later
+   * date. The application should call this before creating any Interest
+   * (even to set the default again to true), or the application should
+   * explicitly call setCanBePrefix() after creating the Interest. Otherwise
+   * wireEncode will print a warning message. This is to avoid breaking any code
+   * when the library default for CanBePrefix is changed at a later date.
+   * @param defaultCanBePrefix The default value of the CanBePrefix flag.
+   */
+  public static void
+  setDefaultCanBePrefix(boolean defaultCanBePrefix)
+  {
+    defaultCanBePrefix_ = defaultCanBePrefix;
+    didSetDefaultCanBePrefix_ = true;
+  }
 
   /**
    * Encode this Interest for a particular wire format. If wireFormat is the
@@ -508,6 +534,7 @@ public class Interest implements ChangeCountable {
     // Use the closest v0.2 semantics. CanBePrefix is the opposite of exact
     // match where MaxSuffixComponents is 1 (for the implicit digest).
     maxSuffixComponents_ = (canBePrefix ? -1 : 1);
+    didSetCanBePrefix_ = true;
     ++changeCount_;
     return this;
   }
@@ -942,6 +969,14 @@ public class Interest implements ChangeCountable {
     return changeCount_;
   }
 
+  /**
+   * This internal library method gets didSetCanBePrefix_ which is set true when
+   * the application calls setCanBePrefix(), or if the application had already
+   * called setDefaultCanBePrefix() before creating the Interest.
+   */
+  public boolean
+  getDidSetCanBePrefix_() { return didSetCanBePrefix_; }
+
   private void
   setDefaultWireEncoding
     (SignedBlob defaultWireEncoding, WireFormat defaultWireEncodingFormat)
@@ -955,7 +990,9 @@ public class Interest implements ChangeCountable {
 
   private final ChangeCounter name_ = new ChangeCounter(new Name());
   private int minSuffixComponents_ = -1;
-  private int maxSuffixComponents_ = -1;
+  private int maxSuffixComponents_ = (defaultCanBePrefix_ ? -1 : 1);
+  // didSetCanBePrefix_ is true if the app already called setDefaultCanBePrefix().
+  private boolean didSetCanBePrefix_ = didSetDefaultCanBePrefix_;
   private final ChangeCounter keyLocator_ = new ChangeCounter(new KeyLocator());
   private final ChangeCounter exclude_ = new ChangeCounter(new Exclude());
   private int childSelector_ = -1;
@@ -976,4 +1013,6 @@ public class Interest implements ChangeCountable {
   private long getDefaultWireEncodingChangeCount_ = 0;
   private long changeCount_ = 0;
   private static final Random random_ = new Random();
+  private static boolean defaultCanBePrefix_ = true;
+  private static boolean didSetDefaultCanBePrefix_ = false;
 }
