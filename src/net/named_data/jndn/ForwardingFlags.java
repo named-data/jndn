@@ -59,16 +59,26 @@ public class ForwardingFlags {
   /**
    * Set the value of the "childInherit" flag
    * @param childInherit true to set the flag, false to clear it.
+   * @return This ForwardingFlags so that you can chain calls to update values.
    */
-  public final void
-  setChildInherit(boolean childInherit) { childInherit_ = childInherit; }
+  public final ForwardingFlags
+  setChildInherit(boolean childInherit)
+  {
+    childInherit_ = childInherit;
+    return this;
+  }
 
   /**
    * Set the value of the "capture" flag
    * @param capture true to set the flag, false to clear it.
+   * @return This ForwardingFlags so that you can chain calls to update values.
    */
-  public final void
-  setCapture(boolean capture) { capture_ = capture; }
+  public final ForwardingFlags
+  setCapture(boolean capture)
+  {
+    capture_ = capture;
+    return this;
+  }
 
   /**
    * Get an integer with the bits set according to the NFD forwarding flags as
@@ -92,12 +102,14 @@ public class ForwardingFlags {
    * Set the flags according to the NFD forwarding flags as used in the
    * ControlParameters of the command interest.
    * @param nfdForwardingFlags An integer with the bits set.
+   * @return This ForwardingFlags so that you can chain calls to update values.
    */
-  public final void
+  public final ForwardingFlags
   setNfdForwardingFlags(int nfdForwardingFlags)
   {
     childInherit_ = (nfdForwardingFlags & NfdForwardingFlags_CHILD_INHERIT) != 0;
     capture_ = (nfdForwardingFlags & NfdForwardingFlags_CAPTURE) != 0;
+    return this;
   }
 
   private static final int NfdForwardingFlags_CHILD_INHERIT  = 1;
