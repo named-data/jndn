@@ -792,6 +792,11 @@ public class Node implements ElementListener {
     ControlParameters controlParameters = new ControlParameters();
     controlParameters.setName(prefix);
     controlParameters.setForwardingFlags(flags);
+    if (flags.getOrigin() >= 0) {
+      controlParameters.setOrigin(flags.getOrigin());
+      // Remove the origin value from the flags since it is not used to encode.
+      controlParameters.getForwardingFlags().setOrigin(-1);
+    }
 
     Interest commandInterest = new Interest();
     commandInterest.setCanBePrefix(true);
