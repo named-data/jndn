@@ -68,12 +68,18 @@ public class TpmBackEndFile extends TpmBackEnd {
   /**
    * Create a TpmBackEndFile to use the given path to store files.
    * @param locationPath The full path of the directory to store private keys.
-   * This creates the directory if it doesn't exist. For example, you can get
-   * the default directory path from an Android files directory with
-   * getDefaultDirecoryPath(context.getFilesDir()) .
+   * This creates the directory if it doesn't exist.
+   * If locationPath is empty, then store private key files in the default location
+   * HOME/.ndn/ndnsec-key-file where HOME is System.getProperty("user.home").
+   * Note that on Android there is no HOME and you must supply the locationPath.
+   * For example, you can get the default directory path from an Android files
+   * directory with getDefaultDirecoryPath(context.getFilesDir()) .
    */
   public TpmBackEndFile(String locationPath)
   {
+    if (locationPath == null || locationPath.equals(""))
+      locationPath = getDefaultDirecoryPath(Common.getHomeDirectory());
+
     keyStorePath_ = new File(locationPath);
     keyStorePath_.mkdirs();
   }
