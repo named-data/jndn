@@ -30,7 +30,7 @@ import net.named_data.jndn.Data;
 import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.DigestSha256Signature;
 import net.named_data.jndn.Exclude;
-import net.named_data.jndn.ForwardingFlags;
+import net.named_data.jndn.RegistrationOptions;
 import net.named_data.jndn.GenericSignature;
 import net.named_data.jndn.HmacWithSha256Signature;
 import net.named_data.jndn.Interest;
@@ -1396,7 +1396,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     // Encode ForwardingFlags
     int flags = controlParameters.getForwardingFlags().getNfdForwardingFlags();
-    if (flags != new ForwardingFlags().getNfdForwardingFlags())
+    if (flags != new RegistrationOptions().getNfdForwardingFlags())
         // The flags are not the default value.
         encoder.writeNonNegativeIntegerTlv(Tlv.ControlParameters_Flags, flags);
 
@@ -1478,7 +1478,7 @@ public class Tlv0_2WireFormat extends WireFormat {
 
     // set forwarding flags
     if (decoder.peekType(Tlv.ControlParameters_Flags, endOffset)) {
-      ForwardingFlags flags = new ForwardingFlags();
+      RegistrationOptions flags = new RegistrationOptions();
       flags.setNfdForwardingFlags((int) decoder.
         readNonNegativeIntegerTlv(Tlv.ControlParameters_Flags));
       controlParameters.setForwardingFlags(flags);

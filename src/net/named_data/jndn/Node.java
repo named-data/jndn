@@ -237,8 +237,8 @@ public class Node implements ElementListener {
    * onRegisterSuccess.onRegisterSuccess(prefix, registeredPrefixId) when this
    * receives a success message from the forwarder. If onRegisterSuccess is null,
    * this does not use it.
-   * @param flags The flags for finer control of which interests are forwarded
-   * to the application.
+   * @param registrationOptions The registration options for finer control of
+   * how to forward an interest and other options.
    * @param wireFormat A WireFormat object used to encode the message.
    * @param commandKeyChain The KeyChain object for signing interests.
    * @param commandCertificateName The certificate name for signing interests.
@@ -252,12 +252,13 @@ public class Node implements ElementListener {
   registerPrefix
     (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
-     ForwardingFlags flags, WireFormat wireFormat, KeyChain commandKeyChain,
-     Name commandCertificateName, Face face) throws IOException, SecurityException
+     RegistrationOptions registrationOptions, WireFormat wireFormat,
+     KeyChain commandKeyChain, Name commandCertificateName, Face face)
+    throws IOException, SecurityException
   {
     nfdRegisterPrefix
       (registeredPrefixId, new Name(prefix), onInterest, onRegisterFailed,
-       onRegisterSuccess, flags, commandKeyChain, commandCertificateName,
+       onRegisterSuccess, registrationOptions, commandKeyChain, commandCertificateName,
        wireFormat, face);
   }
 
@@ -765,7 +766,7 @@ public class Node implements ElementListener {
    * @param onInterest
    * @param onRegisterFailed
    * @param onRegisterSuccess
-   * @param flags
+   * @param registrationOptions
    * @param commandKeyChain
    * @param commandCertificateName
    * @param wireFormat
@@ -778,7 +779,7 @@ public class Node implements ElementListener {
   nfdRegisterPrefix
     (long registeredPrefixId, Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
-     ForwardingFlags flags, KeyChain commandKeyChain,
+     RegistrationOptions registrationOptions, KeyChain commandKeyChain,
      Name commandCertificateName, WireFormat wireFormat, Face face)
     throws SecurityException
   {
@@ -791,9 +792,9 @@ public class Node implements ElementListener {
 
     ControlParameters controlParameters = new ControlParameters();
     controlParameters.setName(prefix);
-    controlParameters.setForwardingFlags(flags);
-    if (flags.getOrigin() >= 0) {
-      controlParameters.setOrigin(flags.getOrigin());
+    controlParameters.setForwardingFlags(registrationOptions);
+    if (registrationOptions.getOrigin() >= 0) {
+      controlParameters.setOrigin(registrationOptions.getOrigin());
       // Remove the origin value from the flags since it is not used to encode.
       controlParameters.getForwardingFlags().setOrigin(-1);
     }
