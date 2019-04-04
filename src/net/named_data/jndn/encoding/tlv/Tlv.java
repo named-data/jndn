@@ -55,19 +55,6 @@ public class Tlv {
   public static final int CanBePrefix =      33;
   public static final int HopLimit =         34;
   public static final int ApplicationParameters = 35;
-  public static final int FaceInstance =     128;
-  public static final int ForwardingEntry =  129;
-  public static final int StatusResponse =   130;
-  public static final int Action =           131;
-  public static final int FaceID =           132;
-  public static final int IPProto =          133;
-  public static final int Host =             134;
-  public static final int Port =             135;
-  public static final int MulticastInterface = 136;
-  public static final int MulticastTTL =     137;
-  public static final int ForwardingFlags =  138;
-  public static final int StatusCode =       139;
-  public static final int StatusText =       140;
 
   public static final int SignatureType_DigestSha256 = 0;
   public static final int SignatureType_SignatureSha256WithRsa = 1;
