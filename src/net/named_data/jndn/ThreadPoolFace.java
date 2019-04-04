@@ -255,8 +255,8 @@ public class ThreadPoolFace extends Face {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param flags The flags for finer control of which interests are forwarded
-   * to the application.
+   * @param registrationOptions The registration options for finer control of
+   * how to forward an interest and other options.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
@@ -265,7 +265,7 @@ public class ThreadPoolFace extends Face {
   registerPrefix
     (final Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
-     final ForwardingFlags flags, final WireFormat wireFormat)
+     final RegistrationOptions registrationOptions, final WireFormat wireFormat)
     throws IOException, SecurityException
   {
     final long registeredPrefixId = node_.getNextEntryId();
@@ -336,7 +336,7 @@ public class ThreadPoolFace extends Face {
         try {
           node_.registerPrefix
             (registeredPrefixId, prefix, onInterestSubmit, onRegisterFailedSubmit,
-             onRegisterSuccessSubmit, flags, wireFormat,
+             onRegisterSuccessSubmit, registrationOptions, wireFormat,
              commandKeyChain_, commandCertificateName_, ThreadPoolFace.this);
         } catch (Throwable ex) {
           logger_.log(Level.SEVERE, null, ex);

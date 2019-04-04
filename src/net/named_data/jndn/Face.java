@@ -837,8 +837,8 @@ public class Face {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param flags The flags for finer control of which interests are forwarded
-   * to the application.
+   * @param registrationOptions The registration options for finer control of
+   * how to forward an interest and other options.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
@@ -850,7 +850,7 @@ public class Face {
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
-     ForwardingFlags flags, WireFormat wireFormat)
+     RegistrationOptions registrationOptions, WireFormat wireFormat)
     throws IOException, SecurityException
   {
     // Get the registeredPrefixId now so we can return it to the caller.
@@ -858,7 +858,7 @@ public class Face {
 
     node_.registerPrefix
       (registeredPrefixId, prefix, onInterest, onRegisterFailed,
-       onRegisterSuccess, flags, wireFormat, commandKeyChain_,
+       onRegisterSuccess, registrationOptions, wireFormat, commandKeyChain_,
        commandCertificateName_, this);
 
     return registeredPrefixId;
@@ -866,18 +866,18 @@ public class Face {
 
   /**
    * @deprecated Use
-   * registerPrefix(prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags, wireFormat)
+   * registerPrefix(prefix, onInterest, onRegisterFailed, onRegisterSuccess, registrationOptions, wireFormat)
    * where the onRegisterSuccess parameter comes after onRegisterFailed.
    */
   public long
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
      OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
-     ForwardingFlags flags, WireFormat wireFormat)
+     RegistrationOptions registrationOptions, WireFormat wireFormat)
     throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags, wireFormat);
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, registrationOptions, wireFormat);
   }
 
   /**
@@ -908,8 +908,8 @@ public class Face {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param flags The flags for finer control of which interests are forwarded
-   * to the application.
+   * @param registrationOptions The registration options for finer control of
+   * how to forward an interest and other options.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
@@ -918,33 +918,33 @@ public class Face {
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
-     ForwardingFlags flags) throws IOException, SecurityException
+     RegistrationOptions registrationOptions) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags,
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, registrationOptions,
        WireFormat.getDefaultWireFormat());
   }
 
   /**
    * @deprecated Use
-   * registerPrefix(prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags)
+   * registerPrefix(prefix, onInterest, onRegisterFailed, onRegisterSuccess, registrationOptions)
    * where the onRegisterSuccess parameter comes after onRegisterFailed.
    */
   public long
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
      OnRegisterSuccess onRegisterSuccess, OnRegisterFailed onRegisterFailed,
-     ForwardingFlags flags) throws IOException, SecurityException
+     RegistrationOptions registrationOptions) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, flags,
+      (prefix, onInterest, onRegisterFailed, onRegisterSuccess, registrationOptions,
        WireFormat.getDefaultWireFormat());
   }
 
   /**
    * Register prefix with the connected NDN hub and call onInterest when a
    * matching interest is received.
-   * Use default ForwardingFlags.
+   * Use default RegistrationOptions.
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest If not null, this creates an interest filter from prefix
    * so that when an Interest is received which matches the filter, this calls
@@ -984,7 +984,7 @@ public class Face {
   {
     return registerPrefix
       (prefix, onInterest, onRegisterFailed, onRegisterSuccess,
-       new ForwardingFlags(), wireFormat);
+       new RegistrationOptions(), wireFormat);
   }
 
   /**
@@ -1000,14 +1000,14 @@ public class Face {
   {
     return registerPrefix
       (prefix, onInterest, onRegisterFailed, onRegisterSuccess,
-       new ForwardingFlags(), wireFormat);
+       new RegistrationOptions(), wireFormat);
   }
 
   /**
    * Register prefix with the connected NDN hub and call onInterest when a
    * matching interest is received.
    * This uses the default WireFormat.getDefaultWireFormat().
-   * Use default ForwardingFlags.
+   * Use default RegistrationOptions.
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest If not null, this creates an interest filter from prefix
    * so that when an Interest is received which matches the filter, this calls
@@ -1046,7 +1046,7 @@ public class Face {
   {
     return registerPrefix
       (prefix, onInterest, onRegisterFailed, onRegisterSuccess,
-       new ForwardingFlags(), WireFormat.getDefaultWireFormat());
+       new RegistrationOptions(), WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -1062,7 +1062,7 @@ public class Face {
   {
     return registerPrefix
       (prefix, onInterest, onRegisterFailed, onRegisterSuccess,
-       new ForwardingFlags(), WireFormat.getDefaultWireFormat());
+       new RegistrationOptions(), WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -1085,8 +1085,8 @@ public class Face {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param flags The flags for finer control of which interests are forwarded
-   * to the application.
+   * @param registrationOptions The registration options for finer control of
+   * how to forward an interest and other options.
    * @param wireFormat A WireFormat object used to encode the message.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
@@ -1097,11 +1097,11 @@ public class Face {
   public long
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
-     OnRegisterFailed onRegisterFailed, ForwardingFlags flags,
+     OnRegisterFailed onRegisterFailed, RegistrationOptions registrationOptions,
      WireFormat wireFormat) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, null, flags, wireFormat);
+      (prefix, onInterest, onRegisterFailed, null, registrationOptions, wireFormat);
   }
 
   /**
@@ -1125,8 +1125,8 @@ public class Face {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param flags The flags for finer control of which interests are forwarded
-   * to the application.
+   * @param registrationOptions The registration options for finer control of
+   * how to forward an interest and other options.
    * @return The registered prefix ID which can be used with
    * removeRegisteredPrefix.
    * @throws IOException For I/O error in sending the registration request.
@@ -1134,10 +1134,10 @@ public class Face {
   public long
   registerPrefix
     (Name prefix, OnInterestCallback onInterest, OnRegisterFailed onRegisterFailed,
-     ForwardingFlags flags) throws IOException, SecurityException
+     RegistrationOptions registrationOptions) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, null, flags,
+      (prefix, onInterest, onRegisterFailed, null, registrationOptions,
        WireFormat.getDefaultWireFormat());
   }
 
@@ -1145,7 +1145,7 @@ public class Face {
    * Register prefix with the connected NDN hub and call onInterest when a
    * matching interest is received. To register a prefix with NFD, you must
    * first call setCommandSigningInfo.
-   * Use default ForwardingFlags.
+   * Use default RegistrationOptions.
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest If not null, this creates an interest filter from prefix
    * so that when an Interest is received which matches the filter, this calls
@@ -1175,7 +1175,7 @@ public class Face {
      WireFormat wireFormat) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, null, new ForwardingFlags(),
+      (prefix, onInterest, onRegisterFailed, null, new RegistrationOptions(),
        wireFormat);
   }
 
@@ -1184,7 +1184,7 @@ public class Face {
    * matching interest is received. To register a prefix with NFD, you must
    * first call setCommandSigningInfo.
    * This uses the default WireFormat.getDefaultWireFormat().
-   * Use default ForwardingFlags.
+   * Use default RegistrationOptions.
    * @param prefix A Name for the prefix to register. This copies the Name.
    * @param onInterest If not null, this creates an interest filter from prefix
    * so that when an Interest is received which matches the filter, this calls
@@ -1213,7 +1213,7 @@ public class Face {
      OnRegisterFailed onRegisterFailed) throws IOException, SecurityException
   {
     return registerPrefix
-      (prefix, onInterest, onRegisterFailed, null, new ForwardingFlags(),
+      (prefix, onInterest, onRegisterFailed, null, new RegistrationOptions(),
        WireFormat.getDefaultWireFormat());
   }
 
