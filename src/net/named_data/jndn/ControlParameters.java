@@ -53,7 +53,7 @@ public class ControlParameters {
     localControlFeature_ = controlParameters.localControlFeature_;
     origin_ = controlParameters.origin_;
     cost_ = controlParameters.cost_;
-    flags_ = new ForwardingFlags(controlParameters.flags_);
+    flags_ = new RegistrationOptions(controlParameters.flags_);
     strategy_ = new Name(controlParameters.strategy_);
     expirationPeriod_ = controlParameters.expirationPeriod_;
   }
@@ -152,7 +152,7 @@ public class ControlParameters {
   public final int
   getCost() { return cost_; }
 
-  public final ForwardingFlags
+  public final RegistrationOptions
   getForwardingFlags() { return flags_; }
 
   public final Name
@@ -236,16 +236,17 @@ public class ControlParameters {
   }
 
   /**
-   * Set the ForwardingFlags object to a copy of forwardingFlags. You can use
-   * getForwardingFlags() and change the existing ForwardingFlags object.
-   * @param forwardingFlags The new cost value, or null for not specified.
+   * Set the RegistrationOptions object to a copy of forwardingFlags. You can use
+   * getForwardingFlags() and change the existing RegistrationOptions object.
+   * @param flags The new RegistrationOptions object containing the flags, or
+   * null for not specified.
    * @return This ControlParameters so that you can chain calls to update values.
    */
   public final ControlParameters
-  setForwardingFlags(ForwardingFlags forwardingFlags)
+  setForwardingFlags(RegistrationOptions flags)
   {
-    flags_ = forwardingFlags == null ?
-      new ForwardingFlags() : new ForwardingFlags(forwardingFlags);
+    flags_ = flags == null ?
+      new RegistrationOptions() : new RegistrationOptions(flags);
     return this;
   }
 
@@ -286,7 +287,7 @@ public class ControlParameters {
     localControlFeature_ = -1;
     origin_ = -1;
     cost_ = -1;
-    flags_ = new ForwardingFlags();
+    flags_ = new RegistrationOptions();
     strategy_ = new Name();
     expirationPeriod_ = -1.0;
   }
@@ -303,7 +304,7 @@ public class ControlParameters {
   private int localControlFeature_ = -1;     /**< -1 for none. */
   private int origin_ = -1;                  /**< -1 for none. */
   private int cost_ = -1;                    /**< -1 for none. */
-  private ForwardingFlags flags_ = new ForwardingFlags();
+  private RegistrationOptions flags_ = new RegistrationOptions();
   private Name strategy_ = new Name();
   private double expirationPeriod_ = -1.0;   /**< Milliseconds. -1 for none. */
 }

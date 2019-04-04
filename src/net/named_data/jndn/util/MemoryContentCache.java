@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
-import net.named_data.jndn.ForwardingFlags;
+import net.named_data.jndn.RegistrationOptions;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
@@ -119,7 +119,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param flags See Face.registerPrefix.
+   * @param registrationOptions See Face.registerPrefix.
    * @param wireFormat See Face.registerPrefix.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
@@ -129,13 +129,14 @@ public class MemoryContentCache implements OnInterestCallback {
   registerPrefix
     (Name prefix, OnRegisterFailed onRegisterFailed,
      OnRegisterSuccess onRegisterSuccess, OnInterestCallback onDataNotFound,
-     ForwardingFlags flags, WireFormat wireFormat)
+     RegistrationOptions registrationOptions, WireFormat wireFormat)
      throws IOException, SecurityException
   {
     if (onDataNotFound != null)
       onDataNotFoundForPrefix_.put(prefix.toUri(), onDataNotFound);
     long registeredPrefixId = face_.registerPrefix
-      (prefix, this, onRegisterFailed, onRegisterSuccess, flags, wireFormat);
+      (prefix, this, onRegisterFailed, onRegisterSuccess, registrationOptions,
+       wireFormat);
     registeredPrefixIdList_.add(registeredPrefixId);
   }
 
@@ -168,7 +169,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * you want to automatically store all pending interests, you can simply use
    * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
    * this does not use it.
-   * @param flags See Face.registerPrefix.
+   * @param registrationOptions See Face.registerPrefix.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
@@ -177,10 +178,10 @@ public class MemoryContentCache implements OnInterestCallback {
   registerPrefix
     (Name prefix, OnRegisterFailed onRegisterFailed,
      OnRegisterSuccess onRegisterSuccess, OnInterestCallback onDataNotFound,
-     ForwardingFlags flags) throws IOException, SecurityException
+     RegistrationOptions registrationOptions) throws IOException, SecurityException
   {
     registerPrefix
-      (prefix, onRegisterFailed, onRegisterSuccess, onDataNotFound, flags,
+      (prefix, onRegisterFailed, onRegisterSuccess, onDataNotFound, registrationOptions,
        WireFormat.getDefaultWireFormat());
   }
 
@@ -190,7 +191,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * Alternatively, if the Face's registerPrefix has already been called, then
    * you can call this object's setInterestFilter.
    * This uses the default WireFormat.getDefaultWireFormat().
-   * Use default ForwardingFlags.
+   * Use default RegistrationOptions.
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
@@ -229,7 +230,7 @@ public class MemoryContentCache implements OnInterestCallback {
   {
     registerPrefix
       (prefix, onRegisterFailed, onRegisterSuccess, onDataNotFound,
-       new ForwardingFlags(), WireFormat.getDefaultWireFormat());
+       new RegistrationOptions(), WireFormat.getDefaultWireFormat());
   }
 
   /**
@@ -239,7 +240,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * you can call this object's setInterestFilter.
    * Do not call a callback if a data packet is not found in the cache.
    * This uses the default WireFormat.getDefaultWireFormat().
-   * Use default ForwardingFlags.
+   * Use default RegistrationOptions.
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
@@ -263,7 +264,7 @@ public class MemoryContentCache implements OnInterestCallback {
     throws IOException, SecurityException
   {
     registerPrefix
-      (prefix, onRegisterFailed, onRegisterSuccess, null, new ForwardingFlags(),
+      (prefix, onRegisterFailed, onRegisterSuccess, null, new RegistrationOptions(),
        WireFormat.getDefaultWireFormat());
   }
 
@@ -291,7 +292,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * NOTE: The library will log any exceptions thrown by this callback, but for
    * better error handling the callback should catch and properly handle any
    * exceptions.
-   * @param flags See Face.registerPrefix.
+   * @param registrationOptions See Face.registerPrefix.
    * @param wireFormat See Face.registerPrefix.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
@@ -300,10 +301,11 @@ public class MemoryContentCache implements OnInterestCallback {
   public final void
   registerPrefix
     (Name prefix, OnRegisterFailed onRegisterFailed, OnInterestCallback onDataNotFound,
-     ForwardingFlags flags, WireFormat wireFormat) throws IOException, SecurityException
+     RegistrationOptions registrationOptions, WireFormat wireFormat)
+    throws IOException, SecurityException
   {
     registerPrefix
-      (prefix, onRegisterFailed, null, onDataNotFound, flags, wireFormat);
+      (prefix, onRegisterFailed, null, onDataNotFound, registrationOptions, wireFormat);
   }
 
   /**
@@ -328,7 +330,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * you want to automatically store all pending interests, you can simply use
    * getStorePendingInterest() for onDataNotFound. If onDataNotFound is null,
    * this does not use it.
-   * @param flags See Face.registerPrefix.
+   * @param registrationOptions See Face.registerPrefix.
    * @throws IOException For I/O error in sending the registration request.
    * @throws SecurityException If signing a command interest for NFD and cannot
    * find the private key for the certificateName.
@@ -336,10 +338,10 @@ public class MemoryContentCache implements OnInterestCallback {
   public final void
   registerPrefix
     (Name prefix, OnRegisterFailed onRegisterFailed, OnInterestCallback onDataNotFound,
-     ForwardingFlags flags) throws IOException, SecurityException
+     RegistrationOptions registrationOptions) throws IOException, SecurityException
   {
     registerPrefix
-      (prefix, onRegisterFailed, onDataNotFound, flags,
+      (prefix, onRegisterFailed, onDataNotFound, registrationOptions,
        WireFormat.getDefaultWireFormat());
   }
 
@@ -349,7 +351,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * Alternatively, if the Face's registerPrefix has already been called, then
    * you can call this object's setInterestFilter.
    * This uses the default WireFormat.getDefaultWireFormat().
-   * Use default ForwardingFlags.
+   * Use default RegistrationOptions.
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
@@ -379,7 +381,7 @@ public class MemoryContentCache implements OnInterestCallback {
     throws IOException, SecurityException
   {
     registerPrefix
-      (prefix, onRegisterFailed, onDataNotFound, new ForwardingFlags(),
+      (prefix, onRegisterFailed, onDataNotFound, new RegistrationOptions(),
        WireFormat.getDefaultWireFormat());
   }
 
@@ -390,7 +392,7 @@ public class MemoryContentCache implements OnInterestCallback {
    * you can call this object's setInterestFilter.
    * Do not call a callback if a data packet is not found in the cache.
    * This uses the default WireFormat.getDefaultWireFormat().
-   * Use default ForwardingFlags.
+   * Use default RegistrationOptions.
    * @param prefix The Name for the prefix to register. This copies the Name.
    * @param onRegisterFailed If register prefix fails for any reason, this
    * calls onRegisterFailed.onRegisterFailed(prefix).
@@ -406,7 +408,7 @@ public class MemoryContentCache implements OnInterestCallback {
     throws IOException, SecurityException
   {
     registerPrefix
-      (prefix, onRegisterFailed, null, new ForwardingFlags(),
+      (prefix, onRegisterFailed, null, new RegistrationOptions(),
        WireFormat.getDefaultWireFormat());
   }
 
