@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.Face;
-import net.named_data.jndn.ForwardingFlags;
+import net.named_data.jndn.RegistrationOptions;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.Name;
@@ -84,7 +84,7 @@ public class InMemoryStorageFace extends Face {
   registerPrefix
     (Name prefix, OnInterestCallback onInterest,
      OnRegisterFailed onRegisterFailed, OnRegisterSuccess onRegisterSuccess,
-     ForwardingFlags flags, WireFormat wireFormat)
+     RegistrationOptions registrationOptions, WireFormat wireFormat)
     throws IOException, net.named_data.jndn.security.SecurityException
   {
     interestFilterTable_.setInterestFilter
