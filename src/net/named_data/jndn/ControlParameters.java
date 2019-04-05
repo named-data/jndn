@@ -236,7 +236,7 @@ public class ControlParameters {
   }
 
   /**
-   * Set the RegistrationOptions object to a copy of forwardingFlags. You can use
+   * Set the RegistrationOptions object to a copy of flags. You can use
    * getForwardingFlags() and change the existing RegistrationOptions object.
    * @param flags The new RegistrationOptions object containing the flags, or
    * null for not specified.
