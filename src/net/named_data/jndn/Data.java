@@ -246,7 +246,7 @@ public class Data implements ChangeCountable, SignatureHolder {
       fullName.appendImplicitSha256Digest(implicitDigest);
     } catch (EncodingException ex) {
       // We don't expect this since the digest is the correct length.
-      throw new Error(ex);
+      throw new Error(ex.getMessage());
     }
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
