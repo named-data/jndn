@@ -170,13 +170,8 @@ public class TrustAnchorContainer {
       if (!interest.getName().isPrefixOf(certificate.getName()))
         break;
 
-      try {
-        if (interest.matchesData(certificate))
-          return certificate;
-      } catch (EncodingException ex) {
-        // We don't expect this to happen.
-        throw new java.lang.Error("Error in matchesData: " + ex);
-      }
+      if (interest.matchesData(certificate))
+        return certificate;
     }
 
     return null;

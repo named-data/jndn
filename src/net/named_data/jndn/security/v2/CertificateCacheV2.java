@@ -148,13 +148,8 @@ public class CertificateCacheV2 {
       if (!interest.getName().isPrefixOf(certificate.getName()))
         break;
 
-      try {
-        if (interest.matchesData(certificate))
-          return certificate;
-      } catch (EncodingException ex) {
-        // We don't expect this. Promote to Error.
-        throw new Error("Error in Interest.matchesData: " + ex);
-      }
+      if (interest.matchesData(certificate))
+        return certificate;
     }
 
     return null;
