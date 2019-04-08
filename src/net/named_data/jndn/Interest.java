@@ -838,7 +838,7 @@ public class Interest implements ChangeCountable {
    * @return True if the given Data packet can satisfy this Interest.
    */
   public final boolean
-  matchesData(Data data, WireFormat wireFormat) throws EncodingException
+  matchesData(Data data, WireFormat wireFormat)
   {
     // Imitate ndn-cxx Interest::matchesData.
     int interestNameLength = getName().size();
@@ -917,7 +917,7 @@ public class Interest implements ChangeCountable {
    * @return True if the given Data packet can satisfy this Interest.
    */
   public final boolean
-  matchesData(Data data) throws EncodingException
+  matchesData(Data data)
   {
     return matchesData(data, WireFormat.getDefaultWireFormat());
   }
