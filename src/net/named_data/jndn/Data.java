@@ -230,7 +230,7 @@ public class Data implements ChangeCountable, SignatureHolder {
    * to change it then make a copy.
    */
   public final Name
-  getFullName(WireFormat wireFormat) throws EncodingException
+  getFullName(WireFormat wireFormat)
   {
     // The default full name depends on the default wire encoding.
     if (!getDefaultWireEncoding().isNull() && defaultFullName_.size() > 0 &&
@@ -241,8 +241,13 @@ public class Data implements ChangeCountable, SignatureHolder {
 
     Name fullName = new Name(getName());
     // wireEncode will use the cached encoding if possible.
-    fullName.appendImplicitSha256Digest
-      (Common.digestSha256(wireEncode(wireFormat).buf()));
+    byte[] implicitDigest = Common.digestSha256(wireEncode(wireFormat).buf());
+    try {
+      fullName.appendImplicitSha256Digest(implicitDigest);
+    } catch (EncodingException ex) {
+      // We don't expect this since the digest is the correct length.
+      throw new Error(ex);
+    }
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // wireEncode has already set defaultWireEncodingFormat_.
