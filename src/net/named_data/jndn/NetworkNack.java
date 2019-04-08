@@ -72,9 +72,14 @@ public class NetworkNack {
    * @param reason The network Nack reason enum value. If the packet's reason
    * code is not a recognized Reason enum value, use Reason.OTHER_CODE and call
    * setOtherReasonCode().
+   * @return This NetworkNack so that you can chain calls to update values.
    */
-  public void
-  setReason(Reason reason) { reason_ = reason; }
+  public NetworkNack
+  setReason(Reason reason)
+  {
+    reason_ = reason;
+    return this;
+  }
 
   /**
    * Set the packet's reason code to use when the reason enum is
@@ -82,13 +87,15 @@ public class NetworkNack {
    * just call setReason().
    * @param otherReasonCode The packet's unrecognized reason code, which must be
    * non-negative.
+   * @return This NetworkNack so that you can chain calls to update values.
    */
-  public void
+  public NetworkNack
   setOtherReasonCode(int otherReasonCode)
   {
     if (otherReasonCode < 0)
       throw new Error("NetworkNack other reason code must be non-negative");
     otherReasonCode_ = otherReasonCode;
+    return this;
   }
 
   /**
