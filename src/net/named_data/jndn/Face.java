@@ -80,6 +80,22 @@ public class Face {
   }
 
   /**
+   * Enable or disable Interest loopback. If Interest loopback is enabled, then
+   * an Interest to expressInterest is also sent to each of the matching
+   * OnInterest callbacks that the application gave to registerPrefix or
+   * setInterestFilter, and a Data that the application gives to putData can
+   * satisfy pending Interests. This way one part of an application can do
+   * Interest/Data exchange with another part through the same Face. Interest
+   * loopback is disabled by default.
+   * @param interestLoopbackEnabled If True, enable Interest loopback, otherwise
+   * disable it.
+   */
+  void
+  setInterestLoopbackEnabled(boolean interestLoopbackEnabled) {
+    node_.setInterestLoopbackEnabled(interestLoopbackEnabled);
+  }
+
+  /**
    * Send the Interest through the transport, read the entire response and call
    * onData, onTimeout or onNetworkNack as described below.
    * @param interest The Interest to send.  This copies the Interest.

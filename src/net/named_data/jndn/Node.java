@@ -62,6 +62,17 @@ public class Node implements ElementListener {
   }
 
   /**
+   * Enable or disable Interest loopback.
+   * @param interestLoopbackEnabled If True, enable Interest loopback,
+   * otherwise disable it.
+   */
+  void
+  setInterestLoopbackEnabled(boolean interestLoopbackEnabled)
+  {
+    interestLoopbackEnabled_ = interestLoopbackEnabled;
+  }
+
+  /**
    * Send the Interest through the transport, read the entire response and call
    * onData, onTimeout or onNetworkNack as described below.
    * @param pendingInterestId The getNextEntryId() for the pending interest ID
@@ -323,6 +334,21 @@ public class Node implements ElementListener {
   public final void
   putData(Data data, WireFormat wireFormat) throws IOException
   {
+    if (interestLoopbackEnabled_) {
+      boolean hasApplicationMatch = satisfyPendingInterests(data);
+      if (hasApplicationMatch)
+        // satisfyPendingInterests called the OnData callback for one of
+        // the pending Interests from the application, so we don't need
+        // to send the Data packet to the forwarder. There is a
+        // possibility that we also received an overlapping  matching
+        // Interest from the forwarder within the Interest lifetime which
+        // we won't satisfy by sending the Data to the forwarder. To fix
+        // this case we could just send the Data to the forwarder anyway,
+        // or we can make the pending Interest table more complicated by
+        // also tracking the Interests that we receive from the forwarder.
+        return;
+    }
+
     Blob encoding = data.wireEncode(wireFormat);
     if (encoding.size() > getMaxNdnPacketSize())
       throw new Error
@@ -517,7 +543,8 @@ public class Node implements ElementListener {
 
   /**
    * Do the work of expressInterest once we know we are connected. Add the entry
-   * to the PIT, encode and send the interest.
+   * to the PIT, encode and send the interest. If Interest loopback is
+   * enabled, then also call dispatchInterest.
    * @param pendingInterestId The getNextEntryId() for the pending interest ID
    * which Face got so it could return it to the caller.
    * @param interestCopy The Interest to send, which has already been copied by
@@ -568,6 +595,9 @@ public class Node implements ElementListener {
         throw new Error
           ("The encoded interest size exceeds the maximum limit getMaxNdnPacketSize()");
       transport_.send(encoding.buf());
+
+      if (interestLoopbackEnabled_)
+          dispatchInterest(interestCopy);
     }
   }
 
@@ -604,7 +634,7 @@ public class Node implements ElementListener {
    * @return True if the data matched an entry in the pendingInterestTable_.
    */
   private boolean
-  satisfyPendingInterests(Data data) throws EncodingException
+  satisfyPendingInterests(Data data)
   {
     boolean hasMatch = false;
 
@@ -875,6 +905,7 @@ public class Node implements ElementListener {
   private long lastEntryId_;
   private final Object lastEntryIdLock_ = new Object();
   private ConnectStatus connectStatus_ = ConnectStatus.UNCONNECTED;
+  boolean interestLoopbackEnabled_ = false;
   private static Blob nonceTemplate_ = new Blob(new byte[] { 0, 0, 0, 0 });
   private static final Logger logger_ = Logger.getLogger(Node.class.getName());
 }
