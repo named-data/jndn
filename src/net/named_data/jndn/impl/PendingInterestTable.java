@@ -167,7 +167,6 @@ public class PendingInterestTable {
    */
   public synchronized final void
   extractEntriesForExpressedInterest(Data data, ArrayList<Entry> entries)
-    throws EncodingException
   {
     // Go backwards through the list so we can remove entries.
     for (int i = table_.size() - 1; i >= 0; --i) {
