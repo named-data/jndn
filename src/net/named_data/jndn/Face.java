@@ -91,7 +91,8 @@ public class Face {
    * disable it.
    */
   void
-  setInterestLoopbackEnabled(boolean interestLoopbackEnabled) {
+  setInterestLoopbackEnabled(boolean interestLoopbackEnabled)
+  {
     node_.setInterestLoopbackEnabled(interestLoopbackEnabled);
   }
 

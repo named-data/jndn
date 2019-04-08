@@ -597,7 +597,7 @@ public class Node implements ElementListener {
       transport_.send(encoding.buf());
 
       if (interestLoopbackEnabled_)
-          dispatchInterest(interestCopy);
+        dispatchInterest(interestCopy);
     }
   }
 
