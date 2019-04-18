@@ -90,7 +90,7 @@ public class Face {
    * @param interestLoopbackEnabled If True, enable Interest loopback, otherwise
    * disable it.
    */
-  void
+  public final void
   setInterestLoopbackEnabled(boolean interestLoopbackEnabled)
   {
     node_.setInterestLoopbackEnabled(interestLoopbackEnabled);

@@ -66,7 +66,7 @@ public class Node implements ElementListener {
    * @param interestLoopbackEnabled If True, enable Interest loopback,
    * otherwise disable it.
    */
-  void
+  public final void
   setInterestLoopbackEnabled(boolean interestLoopbackEnabled)
   {
     interestLoopbackEnabled_ = interestLoopbackEnabled;
