@@ -143,6 +143,20 @@ public class MetaInfo implements ChangeCountable {
   }
 
   /**
+   * Clear fields and reset to default values.
+   */
+  public final void
+  clear()
+  {
+    type_ = ContentType.BLOB;
+    otherTypeCode_ = -1;
+    freshnessPeriod_ = -1;
+    finalBlockId_ = new Name.Component();
+
+    ++changeCount_;
+  }
+
+  /**
    * Get the change count, which is incremented each time this object is changed.
    * @return The change count.
    */
