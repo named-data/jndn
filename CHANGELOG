@@ -1,4 +1,4 @@
-Interim changes since jNDN v0.21 (2019-04-05)
+Interim changes since jNDN v0.21 (2019-05-07)
 ---------------------------------------------
 
 Changes
@@ -14,6 +14,8 @@ Deprecated
 Bug fixes
 * https://redmine.named-data.net/issues/4905 On Ubuntu for the default KeyChain()
   constructor, properly access the file-base TPM in the home directory.
+* https://redmine.named-data.net/issues/4926 In decoding Data, make MetaInfo
+  and Content optional.
 
 jNDN v0.21 (2019-03-05)
 -----------------------
