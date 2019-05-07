@@ -379,8 +379,12 @@ public class Tlv0_2WireFormat extends WireFormat {
     signedPortionBeginOffset[0] = decoder.getOffset();
 
     decodeName(data.getName(), new int[1], new int[1], decoder, copy);
-    decodeMetaInfo(data.getMetaInfo(), decoder, copy);
-    data.setContent(new Blob(decoder.readBlobTlv(Tlv.Content), copy));
+    if (decoder.peekType(Tlv.MetaInfo, endOffset))
+      decodeMetaInfo(data.getMetaInfo(), decoder, copy);
+    else
+      data.getMetaInfo().clear();
+    data.setContent
+      (new Blob(decoder.readOptionalBlobTlv(Tlv.Content, endOffset), copy));
     decodeSignatureInfo(data, decoder, copy);
 
     signedPortionEndOffset[0] = decoder.getOffset();
