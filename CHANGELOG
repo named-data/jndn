@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.21 (2019-05-07)
----------------------------------------------
+jNDN v0.22 (2019-05-08)
+-----------------------
 
 Changes
 * https://redmine.named-data.net/issues/4807 Print a warning if the application
