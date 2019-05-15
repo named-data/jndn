@@ -1328,6 +1328,55 @@ public class Name implements ChangeCountable, Comparable {
   public String toString() { return toUri(); }
 
   /**
+   * Append a component whose value is the nonNegativeInteger encoding of the
+   * number.
+   * @param number The number to be encoded.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  appendNumber(long number)
+  {
+    return appendNumber(number, ComponentType.GENERIC, -1);
+  }
+
+  /**
+   * Append a component of the given type whose value is the
+   * nonNegativeInteger encoding of the number.
+   * @param number The number to be encoded.
+   * @param type The component type enum value. If the name component type is
+   * not a recognized ComponentType enum value, call
+   * fromNumber(number, ComponentType.OTHER_CODE, otherTypeCode).
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  appendNumber(long number, ComponentType type)
+  {
+    if (type == ComponentType.OTHER_CODE)
+      throw new AssertionError
+        ("To use an other code, call appendNumber(value, ComponentType.OTHER_CODE, otherTypeCode)");
+
+    return appendNumber(number, type, -1);
+  }
+
+  /**
+   * Append a component of the given type whose value is the
+   * nonNegativeInteger encoding of the number.
+   * @param number The number to be encoded.
+   * @param type The component type enum value. If name component type is not
+   * a recognized ComponentType enum value, then set this to
+   * ComponentType.OTHER_CODE and use the otherTypeCode parameter.
+   * @param otherTypeCode If type is ComponentType.OTHER_CODE,
+   * then this is the packet's unrecognized content type code, which must be
+   * non-negative.
+   * @return This name so that you can chain calls to append.
+   */
+  public final Name
+  appendNumber(long number, ComponentType type, int otherTypeCode)
+  {
+    return append(Component.fromNumber(number, type, otherTypeCode));
+  }
+
+  /**
    * Append a component with the encoded segment number according to NDN
    * naming conventions for "Segment number" (marker 0x00).
    * http://named-data.net/doc/tech-memos/naming-conventions.pdf
