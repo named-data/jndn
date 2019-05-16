@@ -1359,6 +1359,20 @@ public class Face {
   }
 
   /**
+   * The OnInterest callback can call this to put a Nack for the received Interest.
+   * @note This method is an experimental feature, and the API may change.
+   * @param interest The Interest to put in the Nack packet.
+   * @param networkNack The NetworkNack with the reason code. For example,
+   * new NetworkNack().setReason(NetworkNack.Reason.NO_ROUTE).
+   * @throws Error If the encoded Nack packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  putNack(Interest interest, NetworkNack networkNack) throws IOException
+  {
+    node_.putNack(interest, networkNack);
+  }
+
+  /**
    * Process any packets to receive and call callbacks such as onData,
    * onInterest or onTimeout. This returns immediately if there is no data to
    * receive. This blocks while calling the callbacks. You should repeatedly

@@ -32,6 +32,7 @@ import net.named_data.jndn.encoding.TlvWireFormat;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.impl.DelayedCallTable;
 import net.named_data.jndn.impl.InterestFilterTable;
 import net.named_data.jndn.impl.PendingInterestTable;
@@ -371,6 +372,25 @@ public class Node implements ElementListener {
         ("The encoded packet size exceeds the maximum limit getMaxNdnPacketSize()");
 
     transport_.send(encoding);
+  }
+
+  /**
+   * The OnInterest callback can call this to put a Nack for the received Interest.
+   * @param interest The Interest to put in the Nack packet.
+   * @param networkNack The NetworkNack with the reason code. For example,
+   * new NetworkNack().setReason(NetworkNack.Reason.NO_ROUTE).
+   * @throws Error If the encoded Nack packet size exceeds getMaxNdnPacketSize().
+   */
+  public final void
+  putNack(Interest interest, NetworkNack networkNack) throws IOException
+  {
+    // TODO: Generalize this and move to WireFormat.encodeLpPacket.
+    Blob encoding = encodeLpNack(interest, networkNack);
+    if (encoding.size() > getMaxNdnPacketSize())
+      throw new Error
+        ("The encoded Nack packet size exceeds the maximum limit getMaxNdnPacketSize()");
+
+    transport_.send(encoding.buf());
   }
 
   /**
@@ -885,6 +905,49 @@ public class Node implements ElementListener {
         logger_.log(Level.SEVERE, "Error in onRegisterFailed", exception);
       }
     }
+  }
+
+  /**
+   * Encode the interest into an NDN-TLV LpPacket as a NACK with the reason code
+   * in the networkNack object.
+   * TODO: Generalize this and move to WireFormat.encodeLpPacket.
+   * @param interest The Interest to put in the LpPacket fragment.
+   * @param networkNack The NetworkNack with the reason code.
+   * @return A Blob containing the encoding.
+   */
+  private static Blob
+  encodeLpNack(Interest interest, NetworkNack networkNack)
+  {
+    TlvEncoder encoder = new TlvEncoder(256);
+    int saveLength = encoder.getLength();
+
+    // Encode backwards.
+    // Encode the fragment with the Interest.
+    encoder.writeBlobTlv(Tlv.LpPacket_Fragment, interest.wireEncode().buf());
+
+    // Encode the reason.
+    int reason;
+    if (networkNack.getReason() == NetworkNack.Reason.NONE ||
+        networkNack.getReason() == NetworkNack.Reason.CONGESTION ||
+        networkNack.getReason() == NetworkNack.Reason.DUPLICATE ||
+        networkNack.getReason() == NetworkNack.Reason.NO_ROUTE)
+      // The Reason enum is set up with the correct integer for each NDN-TLV Reason.
+      reason = networkNack.getReason().getNumericType();
+    else if (networkNack.getReason() == NetworkNack.Reason.OTHER_CODE)
+      reason = networkNack.getOtherReasonCode();
+    else
+      // We don't expect this to happen.
+      throw new Error("unrecognized NetworkNack.getReason() value");
+
+    int nackSaveLength = encoder.getLength();
+    encoder.writeNonNegativeIntegerTlv(Tlv.LpPacket_NackReason, reason);
+    encoder.writeTypeAndLength
+      (Tlv.LpPacket_Nack, encoder.getLength() - nackSaveLength);
+
+    encoder.writeTypeAndLength
+      (Tlv.LpPacket_LpPacket, encoder.getLength() - saveLength);
+
+    return new Blob(encoder.getOutput(), false);
   }
 
   private final Transport transport_;
