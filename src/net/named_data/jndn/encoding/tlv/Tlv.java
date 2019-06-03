@@ -54,7 +54,7 @@ public class Tlv {
   public static final int SelectedDelegation = 32;
   public static final int CanBePrefix =      33;
   public static final int HopLimit =         34;
-  public static final int ApplicationParameters = 35;
+  public static final int ApplicationParameters = 36;
 
   public static final int SignatureType_DigestSha256 = 0;
   public static final int SignatureType_SignatureSha256WithRsa = 1;
