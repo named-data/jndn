@@ -1,4 +1,4 @@
-jNDN v0.22 (2019-05-15)
+jNDN v0.22 (2019-06-03)
 -----------------------
 
 Changes
@@ -17,6 +17,7 @@ Bug fixes
   constructor, properly access the file-base TPM in the home directory.
 * https://redmine.named-data.net/issues/4926 In decoding Data, make MetaInfo
   and Content optional.
+* https://redmine.named-data.net/issues/4947 ApplicationParameters TLV type code.
 
 jNDN v0.21 (2019-03-05)
 -----------------------
