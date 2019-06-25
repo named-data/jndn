@@ -137,7 +137,8 @@ public class KeyLocator implements ChangeCountable {
 
   /**
    * If the signature is a type that has a KeyLocator, then return it. Otherwise
-   * throw an error.
+   * throw an error. To check if the signature has a KeyLocator without throwing
+   * an error, you can use canGetFromSignature().
    * @param signature An object of a subclass of Signature.
    * @return The signature's KeyLocator. It is an error if signature doesn't
    * have a KeyLocator.
