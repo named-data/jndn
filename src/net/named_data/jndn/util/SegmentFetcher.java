@@ -458,17 +458,17 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
     private void sendInterest(long segmentNum, final Interest interest, boolean isRetransmission) throws IOException {
         int timeout = options_.useConstantInterestTimeout ? options_.maxTimeout : getEstimatedRto();
 
+        if (isRetransmission) {
+            updateRetransmittedSegment(segmentNum, timeout);
+        }else {
+            pendingSegments_.put(segmentNum, new PendingSegment(SegmentState.FirstInterest,
+                    System.currentTimeMillis(), timeout));
+            highInterest_ = segmentNum;
+        }
+
         face_.expressInterest(interest, this, this, this);
         ++nSegmentsInFlight_;
 
-        if (isRetransmission) {
-            updateRetransmittedSegment(segmentNum, timeout);
-            return;
-        }
-
-        pendingSegments_.put(segmentNum, new PendingSegment(SegmentState.FirstInterest,
-                System.currentTimeMillis() , timeout));
-        highInterest_ = segmentNum;
     }
 
     private void updateRetransmittedSegment(long segmentNum, long rtoTimeout) {
