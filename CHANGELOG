@@ -1,4 +1,4 @@
-jNDN v0.22 (2019-06-03)
+jNDN v0.22 (2019-07-08)
 -----------------------
 
 Changes
@@ -8,6 +8,7 @@ Changes
 * https://redmine.named-data.net/issues/4869 In RegistrationOptions, added setOrigin()
   to use in the flags argument of registerPrefix.
 * https://redmine.named-data.net/issues/4813 In Face, added putNack().
+* https://github.com/named-data/jndn/pull/24 Aimd pipelining in Segment fetcher (Thanks, Ritik!)
 
 Deprecated
 * Deprecated ForwardingFlags. Use RegistrationOptions.
