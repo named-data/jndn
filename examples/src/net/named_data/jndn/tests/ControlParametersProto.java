@@ -8,8 +8,9 @@ public final class ControlParametersProto {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface ControlParametersTypesOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ControlParametersTypesOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.ControlParametersTypes)
+      com.google.protobuf.MessageOrBuilder {
   }
   /**
    * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes}
@@ -20,8 +21,9 @@ public final class ControlParametersProto {
    * </pre>
    */
   public static final class ControlParametersTypes extends
-      com.google.protobuf.GeneratedMessage
-      implements ControlParametersTypesOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.ControlParametersTypes)
+      ControlParametersTypesOrBuilder {
     // Use ControlParametersTypes.newBuilder() to construct.
     private ControlParametersTypes(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -105,10 +107,10 @@ public final class ControlParametersProto {
       return PARSER;
     }
 
-    public interface NameOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
+    public interface NameOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.ControlParametersTypes.Name)
+        com.google.protobuf.MessageOrBuilder {
 
-      // repeated bytes component = 8;
       /**
        * <code>repeated bytes component = 8;</code>
        */
@@ -126,8 +128,9 @@ public final class ControlParametersProto {
      * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes.Name}
      */
     public static final class Name extends
-        com.google.protobuf.GeneratedMessage
-        implements NameOrBuilder {
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.ControlParametersTypes.Name)
+        NameOrBuilder {
       // Use Name.newBuilder() to construct.
       private Name(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -223,7 +226,6 @@ public final class ControlParametersProto {
         return PARSER;
       }
 
-      // repeated bytes component = 8;
       public static final int COMPONENT_FIELD_NUMBER = 8;
       private java.util.List<com.google.protobuf.ByteString> component_;
       /**
@@ -252,7 +254,8 @@ public final class ControlParametersProto {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         memoizedIsInitialized = 1;
         return true;
@@ -364,8 +367,9 @@ public final class ControlParametersProto {
        * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes.Name}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.NameOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.ControlParametersTypes.Name)
+          net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.NameOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return net.named_data.jndn.tests.ControlParametersProto.internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_descriptor;
@@ -484,7 +488,6 @@ public final class ControlParametersProto {
         }
         private int bitField0_;
 
-        // repeated bytes component = 8;
         private java.util.List<com.google.protobuf.ByteString> component_ = java.util.Collections.emptyList();
         private void ensureComponentIsMutable() {
           if (!((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -542,7 +545,8 @@ public final class ControlParametersProto {
         public Builder addAllComponent(
             java.lang.Iterable<? extends com.google.protobuf.ByteString> values) {
           ensureComponentIsMutable();
-          super.addAll(values, component_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, component_);
           onChanged();
           return this;
         }
@@ -567,10 +571,10 @@ public final class ControlParametersProto {
       // @@protoc_insertion_point(class_scope:net.named_data.jndn.tests.ControlParametersTypes.Name)
     }
 
-    public interface StrategyOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
+    public interface StrategyOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.ControlParametersTypes.Strategy)
+        com.google.protobuf.MessageOrBuilder {
 
-      // required .net.named_data.jndn.tests.ControlParametersTypes.Name name = 7;
       /**
        * <code>required .net.named_data.jndn.tests.ControlParametersTypes.Name name = 7;</code>
        */
@@ -588,8 +592,9 @@ public final class ControlParametersProto {
      * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes.Strategy}
      */
     public static final class Strategy extends
-        com.google.protobuf.GeneratedMessage
-        implements StrategyOrBuilder {
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.ControlParametersTypes.Strategy)
+        StrategyOrBuilder {
       // Use Strategy.newBuilder() to construct.
       private Strategy(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -688,7 +693,6 @@ public final class ControlParametersProto {
       }
 
       private int bitField0_;
-      // required .net.named_data.jndn.tests.ControlParametersTypes.Name name = 7;
       public static final int NAME_FIELD_NUMBER = 7;
       private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name name_;
       /**
@@ -716,7 +720,8 @@ public final class ControlParametersProto {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (!hasName()) {
           memoizedIsInitialized = 0;
@@ -827,8 +832,9 @@ public final class ControlParametersProto {
        * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes.Strategy}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.StrategyOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.ControlParametersTypes.Strategy)
+          net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.StrategyOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return net.named_data.jndn.tests.ControlParametersProto.internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_descriptor;
@@ -954,7 +960,6 @@ public final class ControlParametersProto {
         }
         private int bitField0_;
 
-        // required .net.named_data.jndn.tests.ControlParametersTypes.Name name = 7;
         private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name name_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
             net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.NameOrBuilder> nameBuilder_;
@@ -1063,7 +1068,7 @@ public final class ControlParametersProto {
           if (nameBuilder_ == null) {
             nameBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.NameOrBuilder>(
-                    name_,
+                    getName(),
                     getParentForChildren(),
                     isClean());
             name_ = null;
@@ -1082,10 +1087,10 @@ public final class ControlParametersProto {
       // @@protoc_insertion_point(class_scope:net.named_data.jndn.tests.ControlParametersTypes.Strategy)
     }
 
-    public interface ControlParametersOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
+    public interface ControlParametersOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.ControlParametersTypes.ControlParameters)
+        com.google.protobuf.MessageOrBuilder {
 
-      // optional .net.named_data.jndn.tests.ControlParametersTypes.Name name = 7;
       /**
        * <code>optional .net.named_data.jndn.tests.ControlParametersTypes.Name name = 7;</code>
        */
@@ -1099,7 +1104,6 @@ public final class ControlParametersProto {
        */
       net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.NameOrBuilder getNameOrBuilder();
 
-      // optional uint64 face_id = 105;
       /**
        * <code>optional uint64 face_id = 105;</code>
        */
@@ -1109,7 +1113,6 @@ public final class ControlParametersProto {
        */
       long getFaceId();
 
-      // optional string uri = 114;
       /**
        * <code>optional string uri = 114;</code>
        */
@@ -1124,17 +1127,20 @@ public final class ControlParametersProto {
       com.google.protobuf.ByteString
           getUriBytes();
 
-      // optional uint64 local_control_feature = 110;
       /**
-       * <code>optional uint64 local_control_feature = 110;</code>
+       * <code>optional string local_uri = 129;</code>
        */
-      boolean hasLocalControlFeature();
+      boolean hasLocalUri();
       /**
-       * <code>optional uint64 local_control_feature = 110;</code>
+       * <code>optional string local_uri = 129;</code>
        */
-      long getLocalControlFeature();
+      java.lang.String getLocalUri();
+      /**
+       * <code>optional string local_uri = 129;</code>
+       */
+      com.google.protobuf.ByteString
+          getLocalUriBytes();
 
-      // optional uint64 origin = 111;
       /**
        * <code>optional uint64 origin = 111;</code>
        */
@@ -1144,7 +1150,6 @@ public final class ControlParametersProto {
        */
       long getOrigin();
 
-      // optional uint64 cost = 106;
       /**
        * <code>optional uint64 cost = 106;</code>
        */
@@ -1154,7 +1159,24 @@ public final class ControlParametersProto {
        */
       long getCost();
 
-      // optional uint64 flags = 108;
+      /**
+       * <code>optional uint64 capacity = 131;</code>
+       */
+      boolean hasCapacity();
+      /**
+       * <code>optional uint64 capacity = 131;</code>
+       */
+      long getCapacity();
+
+      /**
+       * <code>optional uint64 count = 132;</code>
+       */
+      boolean hasCount();
+      /**
+       * <code>optional uint64 count = 132;</code>
+       */
+      long getCount();
+
       /**
        * <code>optional uint64 flags = 108;</code>
        */
@@ -1164,7 +1186,15 @@ public final class ControlParametersProto {
        */
       long getFlags();
 
-      // optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;
+      /**
+       * <code>optional uint64 mask = 112;</code>
+       */
+      boolean hasMask();
+      /**
+       * <code>optional uint64 mask = 112;</code>
+       */
+      long getMask();
+
       /**
        * <code>optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;</code>
        */
@@ -1178,7 +1208,6 @@ public final class ControlParametersProto {
        */
       net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.StrategyOrBuilder getStrategyOrBuilder();
 
-      // optional uint64 expiration_period = 109;
       /**
        * <code>optional uint64 expiration_period = 109;</code>
        */
@@ -1187,13 +1216,50 @@ public final class ControlParametersProto {
        * <code>optional uint64 expiration_period = 109;</code>
        */
       long getExpirationPeriod();
+
+      /**
+       * <code>optional uint64 face_persistency = 133;</code>
+       */
+      boolean hasFacePersistency();
+      /**
+       * <code>optional uint64 face_persistency = 133;</code>
+       */
+      long getFacePersistency();
+
+      /**
+       * <code>optional uint64 base_congestion_marking_interval = 135;</code>
+       */
+      boolean hasBaseCongestionMarkingInterval();
+      /**
+       * <code>optional uint64 base_congestion_marking_interval = 135;</code>
+       */
+      long getBaseCongestionMarkingInterval();
+
+      /**
+       * <code>optional uint64 default_congestion_threshold = 136;</code>
+       */
+      boolean hasDefaultCongestionThreshold();
+      /**
+       * <code>optional uint64 default_congestion_threshold = 136;</code>
+       */
+      long getDefaultCongestionThreshold();
+
+      /**
+       * <code>optional uint64 mtu = 137;</code>
+       */
+      boolean hasMtu();
+      /**
+       * <code>optional uint64 mtu = 137;</code>
+       */
+      long getMtu();
     }
     /**
      * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes.ControlParameters}
      */
     public static final class ControlParameters extends
-        com.google.protobuf.GeneratedMessage
-        implements ControlParametersOrBuilder {
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.ControlParametersTypes.ControlParameters)
+        ControlParametersOrBuilder {
       // Use ControlParameters.newBuilder() to construct.
       private ControlParameters(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -1264,7 +1330,7 @@ public final class ControlParametersProto {
               }
               case 858: {
                 net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.Builder subBuilder = null;
-                if (((bitField0_ & 0x00000080) == 0x00000080)) {
+                if (((bitField0_ & 0x00000400) == 0x00000400)) {
                   subBuilder = strategy_.toBuilder();
                 }
                 strategy_ = input.readMessage(net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.PARSER, extensionRegistry);
@@ -1272,22 +1338,17 @@ public final class ControlParametersProto {
                   subBuilder.mergeFrom(strategy_);
                   strategy_ = subBuilder.buildPartial();
                 }
-                bitField0_ |= 0x00000080;
+                bitField0_ |= 0x00000400;
                 break;
               }
               case 864: {
-                bitField0_ |= 0x00000040;
+                bitField0_ |= 0x00000100;
                 flags_ = input.readUInt64();
                 break;
               }
               case 872: {
-                bitField0_ |= 0x00000100;
+                bitField0_ |= 0x00000800;
                 expirationPeriod_ = input.readUInt64();
-                break;
-              }
-              case 880: {
-                bitField0_ |= 0x00000008;
-                localControlFeature_ = input.readUInt64();
                 break;
               }
               case 888: {
@@ -1295,9 +1356,51 @@ public final class ControlParametersProto {
                 origin_ = input.readUInt64();
                 break;
               }
+              case 896: {
+                bitField0_ |= 0x00000200;
+                mask_ = input.readUInt64();
+                break;
+              }
               case 914: {
+                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000004;
-                uri_ = input.readBytes();
+                uri_ = bs;
+                break;
+              }
+              case 1034: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000008;
+                localUri_ = bs;
+                break;
+              }
+              case 1048: {
+                bitField0_ |= 0x00000040;
+                capacity_ = input.readUInt64();
+                break;
+              }
+              case 1056: {
+                bitField0_ |= 0x00000080;
+                count_ = input.readUInt64();
+                break;
+              }
+              case 1064: {
+                bitField0_ |= 0x00001000;
+                facePersistency_ = input.readUInt64();
+                break;
+              }
+              case 1080: {
+                bitField0_ |= 0x00002000;
+                baseCongestionMarkingInterval_ = input.readUInt64();
+                break;
+              }
+              case 1088: {
+                bitField0_ |= 0x00004000;
+                defaultCongestionThreshold_ = input.readUInt64();
+                break;
+              }
+              case 1096: {
+                bitField0_ |= 0x00008000;
+                mtu_ = input.readUInt64();
                 break;
               }
             }
@@ -1340,7 +1443,6 @@ public final class ControlParametersProto {
       }
 
       private int bitField0_;
-      // optional .net.named_data.jndn.tests.ControlParametersTypes.Name name = 7;
       public static final int NAME_FIELD_NUMBER = 7;
       private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name name_;
       /**
@@ -1362,7 +1464,6 @@ public final class ControlParametersProto {
         return name_;
       }
 
-      // optional uint64 face_id = 105;
       public static final int FACE_ID_FIELD_NUMBER = 105;
       private long faceId_;
       /**
@@ -1378,7 +1479,6 @@ public final class ControlParametersProto {
         return faceId_;
       }
 
-      // optional string uri = 114;
       public static final int URI_FIELD_NUMBER = 114;
       private java.lang.Object uri_;
       /**
@@ -1421,23 +1521,48 @@ public final class ControlParametersProto {
         }
       }
 
-      // optional uint64 local_control_feature = 110;
-      public static final int LOCAL_CONTROL_FEATURE_FIELD_NUMBER = 110;
-      private long localControlFeature_;
+      public static final int LOCAL_URI_FIELD_NUMBER = 129;
+      private java.lang.Object localUri_;
       /**
-       * <code>optional uint64 local_control_feature = 110;</code>
+       * <code>optional string local_uri = 129;</code>
        */
-      public boolean hasLocalControlFeature() {
+      public boolean hasLocalUri() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional uint64 local_control_feature = 110;</code>
+       * <code>optional string local_uri = 129;</code>
        */
-      public long getLocalControlFeature() {
-        return localControlFeature_;
+      public java.lang.String getLocalUri() {
+        java.lang.Object ref = localUri_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            localUri_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string local_uri = 129;</code>
+       */
+      public com.google.protobuf.ByteString
+          getLocalUriBytes() {
+        java.lang.Object ref = localUri_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          localUri_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
       }
 
-      // optional uint64 origin = 111;
       public static final int ORIGIN_FIELD_NUMBER = 111;
       private long origin_;
       /**
@@ -1453,7 +1578,6 @@ public final class ControlParametersProto {
         return origin_;
       }
 
-      // optional uint64 cost = 106;
       public static final int COST_FIELD_NUMBER = 106;
       private long cost_;
       /**
@@ -1469,14 +1593,43 @@ public final class ControlParametersProto {
         return cost_;
       }
 
-      // optional uint64 flags = 108;
+      public static final int CAPACITY_FIELD_NUMBER = 131;
+      private long capacity_;
+      /**
+       * <code>optional uint64 capacity = 131;</code>
+       */
+      public boolean hasCapacity() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional uint64 capacity = 131;</code>
+       */
+      public long getCapacity() {
+        return capacity_;
+      }
+
+      public static final int COUNT_FIELD_NUMBER = 132;
+      private long count_;
+      /**
+       * <code>optional uint64 count = 132;</code>
+       */
+      public boolean hasCount() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional uint64 count = 132;</code>
+       */
+      public long getCount() {
+        return count_;
+      }
+
       public static final int FLAGS_FIELD_NUMBER = 108;
       private long flags_;
       /**
        * <code>optional uint64 flags = 108;</code>
        */
       public boolean hasFlags() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional uint64 flags = 108;</code>
@@ -1485,14 +1638,28 @@ public final class ControlParametersProto {
         return flags_;
       }
 
-      // optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;
+      public static final int MASK_FIELD_NUMBER = 112;
+      private long mask_;
+      /**
+       * <code>optional uint64 mask = 112;</code>
+       */
+      public boolean hasMask() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional uint64 mask = 112;</code>
+       */
+      public long getMask() {
+        return mask_;
+      }
+
       public static final int STRATEGY_FIELD_NUMBER = 107;
       private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy strategy_;
       /**
        * <code>optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;</code>
        */
       public boolean hasStrategy() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;</code>
@@ -1507,14 +1674,13 @@ public final class ControlParametersProto {
         return strategy_;
       }
 
-      // optional uint64 expiration_period = 109;
       public static final int EXPIRATION_PERIOD_FIELD_NUMBER = 109;
       private long expirationPeriod_;
       /**
        * <code>optional uint64 expiration_period = 109;</code>
        */
       public boolean hasExpirationPeriod() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
        * <code>optional uint64 expiration_period = 109;</code>
@@ -1523,21 +1689,89 @@ public final class ControlParametersProto {
         return expirationPeriod_;
       }
 
+      public static final int FACE_PERSISTENCY_FIELD_NUMBER = 133;
+      private long facePersistency_;
+      /**
+       * <code>optional uint64 face_persistency = 133;</code>
+       */
+      public boolean hasFacePersistency() {
+        return ((bitField0_ & 0x00001000) == 0x00001000);
+      }
+      /**
+       * <code>optional uint64 face_persistency = 133;</code>
+       */
+      public long getFacePersistency() {
+        return facePersistency_;
+      }
+
+      public static final int BASE_CONGESTION_MARKING_INTERVAL_FIELD_NUMBER = 135;
+      private long baseCongestionMarkingInterval_;
+      /**
+       * <code>optional uint64 base_congestion_marking_interval = 135;</code>
+       */
+      public boolean hasBaseCongestionMarkingInterval() {
+        return ((bitField0_ & 0x00002000) == 0x00002000);
+      }
+      /**
+       * <code>optional uint64 base_congestion_marking_interval = 135;</code>
+       */
+      public long getBaseCongestionMarkingInterval() {
+        return baseCongestionMarkingInterval_;
+      }
+
+      public static final int DEFAULT_CONGESTION_THRESHOLD_FIELD_NUMBER = 136;
+      private long defaultCongestionThreshold_;
+      /**
+       * <code>optional uint64 default_congestion_threshold = 136;</code>
+       */
+      public boolean hasDefaultCongestionThreshold() {
+        return ((bitField0_ & 0x00004000) == 0x00004000);
+      }
+      /**
+       * <code>optional uint64 default_congestion_threshold = 136;</code>
+       */
+      public long getDefaultCongestionThreshold() {
+        return defaultCongestionThreshold_;
+      }
+
+      public static final int MTU_FIELD_NUMBER = 137;
+      private long mtu_;
+      /**
+       * <code>optional uint64 mtu = 137;</code>
+       */
+      public boolean hasMtu() {
+        return ((bitField0_ & 0x00008000) == 0x00008000);
+      }
+      /**
+       * <code>optional uint64 mtu = 137;</code>
+       */
+      public long getMtu() {
+        return mtu_;
+      }
+
       private void initFields() {
         name_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name.getDefaultInstance();
         faceId_ = 0L;
         uri_ = "";
-        localControlFeature_ = 0L;
+        localUri_ = "";
         origin_ = 0L;
         cost_ = 0L;
+        capacity_ = 0L;
+        count_ = 0L;
         flags_ = 0L;
+        mask_ = 0L;
         strategy_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.getDefaultInstance();
         expirationPeriod_ = 0L;
+        facePersistency_ = 0L;
+        baseCongestionMarkingInterval_ = 0L;
+        defaultCongestionThreshold_ = 0L;
+        mtu_ = 0L;
       }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (hasStrategy()) {
           if (!getStrategy().isInitialized()) {
@@ -1561,23 +1795,44 @@ public final class ControlParametersProto {
         if (((bitField0_ & 0x00000020) == 0x00000020)) {
           output.writeUInt64(106, cost_);
         }
-        if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((bitField0_ & 0x00000400) == 0x00000400)) {
           output.writeMessage(107, strategy_);
         }
-        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((bitField0_ & 0x00000100) == 0x00000100)) {
           output.writeUInt64(108, flags_);
         }
-        if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((bitField0_ & 0x00000800) == 0x00000800)) {
           output.writeUInt64(109, expirationPeriod_);
-        }
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          output.writeUInt64(110, localControlFeature_);
         }
         if (((bitField0_ & 0x00000010) == 0x00000010)) {
           output.writeUInt64(111, origin_);
         }
+        if (((bitField0_ & 0x00000200) == 0x00000200)) {
+          output.writeUInt64(112, mask_);
+        }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           output.writeBytes(114, getUriBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          output.writeBytes(129, getLocalUriBytes());
+        }
+        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+          output.writeUInt64(131, capacity_);
+        }
+        if (((bitField0_ & 0x00000080) == 0x00000080)) {
+          output.writeUInt64(132, count_);
+        }
+        if (((bitField0_ & 0x00001000) == 0x00001000)) {
+          output.writeUInt64(133, facePersistency_);
+        }
+        if (((bitField0_ & 0x00002000) == 0x00002000)) {
+          output.writeUInt64(135, baseCongestionMarkingInterval_);
+        }
+        if (((bitField0_ & 0x00004000) == 0x00004000)) {
+          output.writeUInt64(136, defaultCongestionThreshold_);
+        }
+        if (((bitField0_ & 0x00008000) == 0x00008000)) {
+          output.writeUInt64(137, mtu_);
         }
         getUnknownFields().writeTo(output);
       }
@@ -1600,29 +1855,57 @@ public final class ControlParametersProto {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(106, cost_);
         }
-        if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((bitField0_ & 0x00000400) == 0x00000400)) {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(107, strategy_);
         }
-        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((bitField0_ & 0x00000100) == 0x00000100)) {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(108, flags_);
         }
-        if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((bitField0_ & 0x00000800) == 0x00000800)) {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(109, expirationPeriod_);
-        }
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeUInt64Size(110, localControlFeature_);
         }
         if (((bitField0_ & 0x00000010) == 0x00000010)) {
           size += com.google.protobuf.CodedOutputStream
             .computeUInt64Size(111, origin_);
         }
+        if (((bitField0_ & 0x00000200) == 0x00000200)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(112, mask_);
+        }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           size += com.google.protobuf.CodedOutputStream
             .computeBytesSize(114, getUriBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(129, getLocalUriBytes());
+        }
+        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(131, capacity_);
+        }
+        if (((bitField0_ & 0x00000080) == 0x00000080)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(132, count_);
+        }
+        if (((bitField0_ & 0x00001000) == 0x00001000)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(133, facePersistency_);
+        }
+        if (((bitField0_ & 0x00002000) == 0x00002000)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(135, baseCongestionMarkingInterval_);
+        }
+        if (((bitField0_ & 0x00004000) == 0x00004000)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(136, defaultCongestionThreshold_);
+        }
+        if (((bitField0_ & 0x00008000) == 0x00008000)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeUInt64Size(137, mtu_);
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -1706,8 +1989,9 @@ public final class ControlParametersProto {
        * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes.ControlParameters}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.ControlParametersTypes.ControlParameters)
+          net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return net.named_data.jndn.tests.ControlParametersProto.internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_descriptor;
@@ -1752,22 +2036,36 @@ public final class ControlParametersProto {
           bitField0_ = (bitField0_ & ~0x00000002);
           uri_ = "";
           bitField0_ = (bitField0_ & ~0x00000004);
-          localControlFeature_ = 0L;
+          localUri_ = "";
           bitField0_ = (bitField0_ & ~0x00000008);
           origin_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000010);
           cost_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000020);
-          flags_ = 0L;
+          capacity_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000040);
+          count_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00000080);
+          flags_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00000100);
+          mask_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00000200);
           if (strategyBuilder_ == null) {
             strategy_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.getDefaultInstance();
           } else {
             strategyBuilder_.clear();
           }
-          bitField0_ = (bitField0_ & ~0x00000080);
+          bitField0_ = (bitField0_ & ~0x00000400);
           expirationPeriod_ = 0L;
-          bitField0_ = (bitField0_ & ~0x00000100);
+          bitField0_ = (bitField0_ & ~0x00000800);
+          facePersistency_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00001000);
+          baseCongestionMarkingInterval_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00002000);
+          defaultCongestionThreshold_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00004000);
+          mtu_ = 0L;
+          bitField0_ = (bitField0_ & ~0x00008000);
           return this;
         }
 
@@ -1815,7 +2113,7 @@ public final class ControlParametersProto {
           if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
             to_bitField0_ |= 0x00000008;
           }
-          result.localControlFeature_ = localControlFeature_;
+          result.localUri_ = localUri_;
           if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
             to_bitField0_ |= 0x00000010;
           }
@@ -1827,19 +2125,47 @@ public final class ControlParametersProto {
           if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
             to_bitField0_ |= 0x00000040;
           }
-          result.flags_ = flags_;
+          result.capacity_ = capacity_;
           if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
             to_bitField0_ |= 0x00000080;
+          }
+          result.count_ = count_;
+          if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+            to_bitField0_ |= 0x00000100;
+          }
+          result.flags_ = flags_;
+          if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+            to_bitField0_ |= 0x00000200;
+          }
+          result.mask_ = mask_;
+          if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+            to_bitField0_ |= 0x00000400;
           }
           if (strategyBuilder_ == null) {
             result.strategy_ = strategy_;
           } else {
             result.strategy_ = strategyBuilder_.build();
           }
-          if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
-            to_bitField0_ |= 0x00000100;
+          if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+            to_bitField0_ |= 0x00000800;
           }
           result.expirationPeriod_ = expirationPeriod_;
+          if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
+            to_bitField0_ |= 0x00001000;
+          }
+          result.facePersistency_ = facePersistency_;
+          if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+            to_bitField0_ |= 0x00002000;
+          }
+          result.baseCongestionMarkingInterval_ = baseCongestionMarkingInterval_;
+          if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+            to_bitField0_ |= 0x00004000;
+          }
+          result.defaultCongestionThreshold_ = defaultCongestionThreshold_;
+          if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+            to_bitField0_ |= 0x00008000;
+          }
+          result.mtu_ = mtu_;
           result.bitField0_ = to_bitField0_;
           onBuilt();
           return result;
@@ -1867,8 +2193,10 @@ public final class ControlParametersProto {
             uri_ = other.uri_;
             onChanged();
           }
-          if (other.hasLocalControlFeature()) {
-            setLocalControlFeature(other.getLocalControlFeature());
+          if (other.hasLocalUri()) {
+            bitField0_ |= 0x00000008;
+            localUri_ = other.localUri_;
+            onChanged();
           }
           if (other.hasOrigin()) {
             setOrigin(other.getOrigin());
@@ -1876,14 +2204,35 @@ public final class ControlParametersProto {
           if (other.hasCost()) {
             setCost(other.getCost());
           }
+          if (other.hasCapacity()) {
+            setCapacity(other.getCapacity());
+          }
+          if (other.hasCount()) {
+            setCount(other.getCount());
+          }
           if (other.hasFlags()) {
             setFlags(other.getFlags());
+          }
+          if (other.hasMask()) {
+            setMask(other.getMask());
           }
           if (other.hasStrategy()) {
             mergeStrategy(other.getStrategy());
           }
           if (other.hasExpirationPeriod()) {
             setExpirationPeriod(other.getExpirationPeriod());
+          }
+          if (other.hasFacePersistency()) {
+            setFacePersistency(other.getFacePersistency());
+          }
+          if (other.hasBaseCongestionMarkingInterval()) {
+            setBaseCongestionMarkingInterval(other.getBaseCongestionMarkingInterval());
+          }
+          if (other.hasDefaultCongestionThreshold()) {
+            setDefaultCongestionThreshold(other.getDefaultCongestionThreshold());
+          }
+          if (other.hasMtu()) {
+            setMtu(other.getMtu());
           }
           this.mergeUnknownFields(other.getUnknownFields());
           return this;
@@ -1918,7 +2267,6 @@ public final class ControlParametersProto {
         }
         private int bitField0_;
 
-        // optional .net.named_data.jndn.tests.ControlParametersTypes.Name name = 7;
         private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name name_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
             net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.NameOrBuilder> nameBuilder_;
@@ -2027,7 +2375,7 @@ public final class ControlParametersProto {
           if (nameBuilder_ == null) {
             nameBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Name.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.NameOrBuilder>(
-                    name_,
+                    getName(),
                     getParentForChildren(),
                     isClean());
             name_ = null;
@@ -2035,7 +2383,6 @@ public final class ControlParametersProto {
           return nameBuilder_;
         }
 
-        // optional uint64 face_id = 105;
         private long faceId_ ;
         /**
          * <code>optional uint64 face_id = 105;</code>
@@ -2068,7 +2415,6 @@ public final class ControlParametersProto {
           return this;
         }
 
-        // optional string uri = 114;
         private java.lang.Object uri_ = "";
         /**
          * <code>optional string uri = 114;</code>
@@ -2082,9 +2428,12 @@ public final class ControlParametersProto {
         public java.lang.String getUri() {
           java.lang.Object ref = uri_;
           if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            uri_ = s;
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              uri_ = s;
+            }
             return s;
           } else {
             return (java.lang.String) ref;
@@ -2142,40 +2491,82 @@ public final class ControlParametersProto {
           return this;
         }
 
-        // optional uint64 local_control_feature = 110;
-        private long localControlFeature_ ;
+        private java.lang.Object localUri_ = "";
         /**
-         * <code>optional uint64 local_control_feature = 110;</code>
+         * <code>optional string local_uri = 129;</code>
          */
-        public boolean hasLocalControlFeature() {
+        public boolean hasLocalUri() {
           return ((bitField0_ & 0x00000008) == 0x00000008);
         }
         /**
-         * <code>optional uint64 local_control_feature = 110;</code>
+         * <code>optional string local_uri = 129;</code>
          */
-        public long getLocalControlFeature() {
-          return localControlFeature_;
+        public java.lang.String getLocalUri() {
+          java.lang.Object ref = localUri_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              localUri_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
         }
         /**
-         * <code>optional uint64 local_control_feature = 110;</code>
+         * <code>optional string local_uri = 129;</code>
          */
-        public Builder setLocalControlFeature(long value) {
-          bitField0_ |= 0x00000008;
-          localControlFeature_ = value;
+        public com.google.protobuf.ByteString
+            getLocalUriBytes() {
+          java.lang.Object ref = localUri_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            localUri_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string local_uri = 129;</code>
+         */
+        public Builder setLocalUri(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+          localUri_ = value;
           onChanged();
           return this;
         }
         /**
-         * <code>optional uint64 local_control_feature = 110;</code>
+         * <code>optional string local_uri = 129;</code>
          */
-        public Builder clearLocalControlFeature() {
+        public Builder clearLocalUri() {
           bitField0_ = (bitField0_ & ~0x00000008);
-          localControlFeature_ = 0L;
+          localUri_ = getDefaultInstance().getLocalUri();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string local_uri = 129;</code>
+         */
+        public Builder setLocalUriBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+          localUri_ = value;
           onChanged();
           return this;
         }
 
-        // optional uint64 origin = 111;
         private long origin_ ;
         /**
          * <code>optional uint64 origin = 111;</code>
@@ -2208,7 +2599,6 @@ public final class ControlParametersProto {
           return this;
         }
 
-        // optional uint64 cost = 106;
         private long cost_ ;
         /**
          * <code>optional uint64 cost = 106;</code>
@@ -2241,13 +2631,76 @@ public final class ControlParametersProto {
           return this;
         }
 
-        // optional uint64 flags = 108;
+        private long capacity_ ;
+        /**
+         * <code>optional uint64 capacity = 131;</code>
+         */
+        public boolean hasCapacity() {
+          return ((bitField0_ & 0x00000040) == 0x00000040);
+        }
+        /**
+         * <code>optional uint64 capacity = 131;</code>
+         */
+        public long getCapacity() {
+          return capacity_;
+        }
+        /**
+         * <code>optional uint64 capacity = 131;</code>
+         */
+        public Builder setCapacity(long value) {
+          bitField0_ |= 0x00000040;
+          capacity_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional uint64 capacity = 131;</code>
+         */
+        public Builder clearCapacity() {
+          bitField0_ = (bitField0_ & ~0x00000040);
+          capacity_ = 0L;
+          onChanged();
+          return this;
+        }
+
+        private long count_ ;
+        /**
+         * <code>optional uint64 count = 132;</code>
+         */
+        public boolean hasCount() {
+          return ((bitField0_ & 0x00000080) == 0x00000080);
+        }
+        /**
+         * <code>optional uint64 count = 132;</code>
+         */
+        public long getCount() {
+          return count_;
+        }
+        /**
+         * <code>optional uint64 count = 132;</code>
+         */
+        public Builder setCount(long value) {
+          bitField0_ |= 0x00000080;
+          count_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional uint64 count = 132;</code>
+         */
+        public Builder clearCount() {
+          bitField0_ = (bitField0_ & ~0x00000080);
+          count_ = 0L;
+          onChanged();
+          return this;
+        }
+
         private long flags_ ;
         /**
          * <code>optional uint64 flags = 108;</code>
          */
         public boolean hasFlags() {
-          return ((bitField0_ & 0x00000040) == 0x00000040);
+          return ((bitField0_ & 0x00000100) == 0x00000100);
         }
         /**
          * <code>optional uint64 flags = 108;</code>
@@ -2259,7 +2712,7 @@ public final class ControlParametersProto {
          * <code>optional uint64 flags = 108;</code>
          */
         public Builder setFlags(long value) {
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000100;
           flags_ = value;
           onChanged();
           return this;
@@ -2268,13 +2721,44 @@ public final class ControlParametersProto {
          * <code>optional uint64 flags = 108;</code>
          */
         public Builder clearFlags() {
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000100);
           flags_ = 0L;
           onChanged();
           return this;
         }
 
-        // optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;
+        private long mask_ ;
+        /**
+         * <code>optional uint64 mask = 112;</code>
+         */
+        public boolean hasMask() {
+          return ((bitField0_ & 0x00000200) == 0x00000200);
+        }
+        /**
+         * <code>optional uint64 mask = 112;</code>
+         */
+        public long getMask() {
+          return mask_;
+        }
+        /**
+         * <code>optional uint64 mask = 112;</code>
+         */
+        public Builder setMask(long value) {
+          bitField0_ |= 0x00000200;
+          mask_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional uint64 mask = 112;</code>
+         */
+        public Builder clearMask() {
+          bitField0_ = (bitField0_ & ~0x00000200);
+          mask_ = 0L;
+          onChanged();
+          return this;
+        }
+
         private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy strategy_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
             net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.StrategyOrBuilder> strategyBuilder_;
@@ -2282,7 +2766,7 @@ public final class ControlParametersProto {
          * <code>optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;</code>
          */
         public boolean hasStrategy() {
-          return ((bitField0_ & 0x00000080) == 0x00000080);
+          return ((bitField0_ & 0x00000400) == 0x00000400);
         }
         /**
          * <code>optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;</code>
@@ -2307,7 +2791,7 @@ public final class ControlParametersProto {
           } else {
             strategyBuilder_.setMessage(value);
           }
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000400;
           return this;
         }
         /**
@@ -2321,7 +2805,7 @@ public final class ControlParametersProto {
           } else {
             strategyBuilder_.setMessage(builderForValue.build());
           }
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000400;
           return this;
         }
         /**
@@ -2329,7 +2813,7 @@ public final class ControlParametersProto {
          */
         public Builder mergeStrategy(net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy value) {
           if (strategyBuilder_ == null) {
-            if (((bitField0_ & 0x00000080) == 0x00000080) &&
+            if (((bitField0_ & 0x00000400) == 0x00000400) &&
                 strategy_ != net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.getDefaultInstance()) {
               strategy_ =
                 net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.newBuilder(strategy_).mergeFrom(value).buildPartial();
@@ -2340,7 +2824,7 @@ public final class ControlParametersProto {
           } else {
             strategyBuilder_.mergeFrom(value);
           }
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000400;
           return this;
         }
         /**
@@ -2353,14 +2837,14 @@ public final class ControlParametersProto {
           } else {
             strategyBuilder_.clear();
           }
-          bitField0_ = (bitField0_ & ~0x00000080);
+          bitField0_ = (bitField0_ & ~0x00000400);
           return this;
         }
         /**
          * <code>optional .net.named_data.jndn.tests.ControlParametersTypes.Strategy strategy = 107;</code>
          */
         public net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.Builder getStrategyBuilder() {
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000400;
           onChanged();
           return getStrategyFieldBuilder().getBuilder();
         }
@@ -2383,7 +2867,7 @@ public final class ControlParametersProto {
           if (strategyBuilder_ == null) {
             strategyBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.Strategy.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.StrategyOrBuilder>(
-                    strategy_,
+                    getStrategy(),
                     getParentForChildren(),
                     isClean());
             strategy_ = null;
@@ -2391,13 +2875,12 @@ public final class ControlParametersProto {
           return strategyBuilder_;
         }
 
-        // optional uint64 expiration_period = 109;
         private long expirationPeriod_ ;
         /**
          * <code>optional uint64 expiration_period = 109;</code>
          */
         public boolean hasExpirationPeriod() {
-          return ((bitField0_ & 0x00000100) == 0x00000100);
+          return ((bitField0_ & 0x00000800) == 0x00000800);
         }
         /**
          * <code>optional uint64 expiration_period = 109;</code>
@@ -2409,7 +2892,7 @@ public final class ControlParametersProto {
          * <code>optional uint64 expiration_period = 109;</code>
          */
         public Builder setExpirationPeriod(long value) {
-          bitField0_ |= 0x00000100;
+          bitField0_ |= 0x00000800;
           expirationPeriod_ = value;
           onChanged();
           return this;
@@ -2418,8 +2901,136 @@ public final class ControlParametersProto {
          * <code>optional uint64 expiration_period = 109;</code>
          */
         public Builder clearExpirationPeriod() {
-          bitField0_ = (bitField0_ & ~0x00000100);
+          bitField0_ = (bitField0_ & ~0x00000800);
           expirationPeriod_ = 0L;
+          onChanged();
+          return this;
+        }
+
+        private long facePersistency_ ;
+        /**
+         * <code>optional uint64 face_persistency = 133;</code>
+         */
+        public boolean hasFacePersistency() {
+          return ((bitField0_ & 0x00001000) == 0x00001000);
+        }
+        /**
+         * <code>optional uint64 face_persistency = 133;</code>
+         */
+        public long getFacePersistency() {
+          return facePersistency_;
+        }
+        /**
+         * <code>optional uint64 face_persistency = 133;</code>
+         */
+        public Builder setFacePersistency(long value) {
+          bitField0_ |= 0x00001000;
+          facePersistency_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional uint64 face_persistency = 133;</code>
+         */
+        public Builder clearFacePersistency() {
+          bitField0_ = (bitField0_ & ~0x00001000);
+          facePersistency_ = 0L;
+          onChanged();
+          return this;
+        }
+
+        private long baseCongestionMarkingInterval_ ;
+        /**
+         * <code>optional uint64 base_congestion_marking_interval = 135;</code>
+         */
+        public boolean hasBaseCongestionMarkingInterval() {
+          return ((bitField0_ & 0x00002000) == 0x00002000);
+        }
+        /**
+         * <code>optional uint64 base_congestion_marking_interval = 135;</code>
+         */
+        public long getBaseCongestionMarkingInterval() {
+          return baseCongestionMarkingInterval_;
+        }
+        /**
+         * <code>optional uint64 base_congestion_marking_interval = 135;</code>
+         */
+        public Builder setBaseCongestionMarkingInterval(long value) {
+          bitField0_ |= 0x00002000;
+          baseCongestionMarkingInterval_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional uint64 base_congestion_marking_interval = 135;</code>
+         */
+        public Builder clearBaseCongestionMarkingInterval() {
+          bitField0_ = (bitField0_ & ~0x00002000);
+          baseCongestionMarkingInterval_ = 0L;
+          onChanged();
+          return this;
+        }
+
+        private long defaultCongestionThreshold_ ;
+        /**
+         * <code>optional uint64 default_congestion_threshold = 136;</code>
+         */
+        public boolean hasDefaultCongestionThreshold() {
+          return ((bitField0_ & 0x00004000) == 0x00004000);
+        }
+        /**
+         * <code>optional uint64 default_congestion_threshold = 136;</code>
+         */
+        public long getDefaultCongestionThreshold() {
+          return defaultCongestionThreshold_;
+        }
+        /**
+         * <code>optional uint64 default_congestion_threshold = 136;</code>
+         */
+        public Builder setDefaultCongestionThreshold(long value) {
+          bitField0_ |= 0x00004000;
+          defaultCongestionThreshold_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional uint64 default_congestion_threshold = 136;</code>
+         */
+        public Builder clearDefaultCongestionThreshold() {
+          bitField0_ = (bitField0_ & ~0x00004000);
+          defaultCongestionThreshold_ = 0L;
+          onChanged();
+          return this;
+        }
+
+        private long mtu_ ;
+        /**
+         * <code>optional uint64 mtu = 137;</code>
+         */
+        public boolean hasMtu() {
+          return ((bitField0_ & 0x00008000) == 0x00008000);
+        }
+        /**
+         * <code>optional uint64 mtu = 137;</code>
+         */
+        public long getMtu() {
+          return mtu_;
+        }
+        /**
+         * <code>optional uint64 mtu = 137;</code>
+         */
+        public Builder setMtu(long value) {
+          bitField0_ |= 0x00008000;
+          mtu_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional uint64 mtu = 137;</code>
+         */
+        public Builder clearMtu() {
+          bitField0_ = (bitField0_ & ~0x00008000);
+          mtu_ = 0L;
           onChanged();
           return this;
         }
@@ -2435,10 +3046,10 @@ public final class ControlParametersProto {
       // @@protoc_insertion_point(class_scope:net.named_data.jndn.tests.ControlParametersTypes.ControlParameters)
     }
 
-    public interface ControlParametersResponseOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
+    public interface ControlParametersResponseOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponse)
+        com.google.protobuf.MessageOrBuilder {
 
-      // required uint64 status_code = 102;
       /**
        * <code>required uint64 status_code = 102;</code>
        */
@@ -2448,7 +3059,6 @@ public final class ControlParametersProto {
        */
       long getStatusCode();
 
-      // required string status_text = 103;
       /**
        * <code>required string status_text = 103;</code>
        */
@@ -2463,7 +3073,6 @@ public final class ControlParametersProto {
       com.google.protobuf.ByteString
           getStatusTextBytes();
 
-      // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
       /**
        * <code>repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        */
@@ -2497,8 +3106,9 @@ public final class ControlParametersProto {
      * </pre>
      */
     public static final class ControlParametersResponse extends
-        com.google.protobuf.GeneratedMessage
-        implements ControlParametersResponseOrBuilder {
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponse)
+        ControlParametersResponseOrBuilder {
       // Use ControlParametersResponse.newBuilder() to construct.
       private ControlParametersResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -2550,8 +3160,9 @@ public final class ControlParametersProto {
                 break;
               }
               case 826: {
+                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000002;
-                statusText_ = input.readBytes();
+                statusText_ = bs;
                 break;
               }
               case 834: {
@@ -2605,7 +3216,6 @@ public final class ControlParametersProto {
       }
 
       private int bitField0_;
-      // required uint64 status_code = 102;
       public static final int STATUS_CODE_FIELD_NUMBER = 102;
       private long statusCode_;
       /**
@@ -2621,7 +3231,6 @@ public final class ControlParametersProto {
         return statusCode_;
       }
 
-      // required string status_text = 103;
       public static final int STATUS_TEXT_FIELD_NUMBER = 103;
       private java.lang.Object statusText_;
       /**
@@ -2664,7 +3273,6 @@ public final class ControlParametersProto {
         }
       }
 
-      // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
       public static final int CONTROL_PARAMETERS_FIELD_NUMBER = 104;
       private java.util.List<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> controlParameters_;
       /**
@@ -2708,7 +3316,8 @@ public final class ControlParametersProto {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (!hasStatusCode()) {
           memoizedIsInitialized = 0;
@@ -2848,8 +3457,9 @@ public final class ControlParametersProto {
        * </pre>
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponseOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponse)
+          net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponseOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return net.named_data.jndn.tests.ControlParametersProto.internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_descriptor;
@@ -3029,7 +3639,6 @@ public final class ControlParametersProto {
         }
         private int bitField0_;
 
-        // required uint64 status_code = 102;
         private long statusCode_ ;
         /**
          * <code>required uint64 status_code = 102;</code>
@@ -3062,7 +3671,6 @@ public final class ControlParametersProto {
           return this;
         }
 
-        // required string status_text = 103;
         private java.lang.Object statusText_ = "";
         /**
          * <code>required string status_text = 103;</code>
@@ -3076,9 +3684,12 @@ public final class ControlParametersProto {
         public java.lang.String getStatusText() {
           java.lang.Object ref = statusText_;
           if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            statusText_ = s;
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              statusText_ = s;
+            }
             return s;
           } else {
             return (java.lang.String) ref;
@@ -3136,7 +3747,6 @@ public final class ControlParametersProto {
           return this;
         }
 
-        // repeated .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
         private java.util.List<net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> controlParameters_ =
           java.util.Collections.emptyList();
         private void ensureControlParametersIsMutable() {
@@ -3278,7 +3888,8 @@ public final class ControlParametersProto {
             java.lang.Iterable<? extends net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters> values) {
           if (controlParametersBuilder_ == null) {
             ensureControlParametersIsMutable();
-            super.addAll(values, controlParameters_);
+            com.google.protobuf.AbstractMessageLite.Builder.addAll(
+                values, controlParameters_);
             onChanged();
           } else {
             controlParametersBuilder_.addAllMessages(values);
@@ -3387,10 +3998,10 @@ public final class ControlParametersProto {
       // @@protoc_insertion_point(class_scope:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponse)
     }
 
-    public interface ControlParametersMessageOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
+    public interface ControlParametersMessageOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersMessage)
+        com.google.protobuf.MessageOrBuilder {
 
-      // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
       /**
        * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;</code>
        *
@@ -3425,8 +4036,9 @@ public final class ControlParametersProto {
      * </pre>
      */
     public static final class ControlParametersMessage extends
-        com.google.protobuf.GeneratedMessage
-        implements ControlParametersMessageOrBuilder {
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersMessage)
+        ControlParametersMessageOrBuilder {
       // Use ControlParametersMessage.newBuilder() to construct.
       private ControlParametersMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -3525,7 +4137,6 @@ public final class ControlParametersProto {
       }
 
       private int bitField0_;
-      // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
       public static final int CONTROL_PARAMETERS_FIELD_NUMBER = 104;
       private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters controlParameters_;
       /**
@@ -3565,7 +4176,8 @@ public final class ControlParametersProto {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (!hasControlParameters()) {
           memoizedIsInitialized = 0;
@@ -3685,8 +4297,9 @@ public final class ControlParametersProto {
        * </pre>
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersMessageOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersMessage)
+          net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersMessageOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return net.named_data.jndn.tests.ControlParametersProto.internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_descriptor;
@@ -3816,7 +4429,6 @@ public final class ControlParametersProto {
         }
         private int bitField0_;
 
-        // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParameters control_parameters = 104;
         private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters controlParameters_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
             net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder> controlParametersBuilder_;
@@ -3961,7 +4573,7 @@ public final class ControlParametersProto {
           if (controlParametersBuilder_ == null) {
             controlParametersBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParameters.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersOrBuilder>(
-                    controlParameters_,
+                    getControlParameters(),
                     getParentForChildren(),
                     isClean());
             controlParameters_ = null;
@@ -3980,10 +4592,10 @@ public final class ControlParametersProto {
       // @@protoc_insertion_point(class_scope:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersMessage)
     }
 
-    public interface ControlParametersResponseMessageOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
+    public interface ControlParametersResponseMessageOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponseMessage)
+        com.google.protobuf.MessageOrBuilder {
 
-      // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponse control_response = 101;
       /**
        * <code>required .net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponse control_response = 101;</code>
        *
@@ -4013,8 +4625,9 @@ public final class ControlParametersProto {
      * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponseMessage}
      */
     public static final class ControlParametersResponseMessage extends
-        com.google.protobuf.GeneratedMessage
-        implements ControlParametersResponseMessageOrBuilder {
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponseMessage)
+        ControlParametersResponseMessageOrBuilder {
       // Use ControlParametersResponseMessage.newBuilder() to construct.
       private ControlParametersResponseMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -4113,7 +4726,6 @@ public final class ControlParametersProto {
       }
 
       private int bitField0_;
-      // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponse control_response = 101;
       public static final int CONTROL_RESPONSE_FIELD_NUMBER = 101;
       private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponse controlResponse_;
       /**
@@ -4153,7 +4765,8 @@ public final class ControlParametersProto {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (!hasControlResponse()) {
           memoizedIsInitialized = 0;
@@ -4268,8 +4881,9 @@ public final class ControlParametersProto {
        * Protobuf type {@code net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponseMessage}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponseMessageOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponseMessage)
+          net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponseMessageOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return net.named_data.jndn.tests.ControlParametersProto.internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponseMessage_descriptor;
@@ -4399,7 +5013,6 @@ public final class ControlParametersProto {
         }
         private int bitField0_;
 
-        // required .net.named_data.jndn.tests.ControlParametersTypes.ControlParametersResponse control_response = 101;
         private net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponse controlResponse_ = net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponse.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
             net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponse, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponse.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponseOrBuilder> controlResponseBuilder_;
@@ -4544,7 +5157,7 @@ public final class ControlParametersProto {
           if (controlResponseBuilder_ == null) {
             controlResponseBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponse, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponse.Builder, net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypes.ControlParametersResponseOrBuilder>(
-                    controlResponse_,
+                    getControlResponse(),
                     getParentForChildren(),
                     isClean());
             controlResponse_ = null;
@@ -4568,7 +5181,8 @@ public final class ControlParametersProto {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -4673,8 +5287,9 @@ public final class ControlParametersProto {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypesOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:net.named_data.jndn.tests.ControlParametersTypes)
+        net.named_data.jndn.tests.ControlParametersProto.ControlParametersTypesOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return net.named_data.jndn.tests.ControlParametersProto.internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor;
@@ -4785,37 +5400,37 @@ public final class ControlParametersProto {
     // @@protoc_insertion_point(class_scope:net.named_data.jndn.tests.ControlParametersTypes)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_net_named_data_jndn_tests_ControlParametersTypes_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponseMessage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -4830,84 +5445,88 @@ public final class ControlParametersProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\036control-parameters-proto.proto\022\031net.na" +
-      "med_data.jndn.tests\"\346\006\n\026ControlParameter" +
+      "med_data.jndn.tests\"\207\010\n\026ControlParameter" +
       "sTypes\032\031\n\004Name\022\021\n\tcomponent\030\010 \003(\014\032P\n\010Str" +
       "ategy\022D\n\004name\030\007 \002(\01326.net.named_data.jnd" +
-      "n.tests.ControlParametersTypes.Name\032\254\002\n\021" +
+      "n.tests.ControlParametersTypes.Name\032\315\003\n\021" +
       "ControlParameters\022D\n\004name\030\007 \001(\01326.net.na" +
       "med_data.jndn.tests.ControlParametersTyp" +
-      "es.Name\022\017\n\007face_id\030i \001(\004\022\013\n\003uri\030r \001(\t\022\035\n" +
-      "\025local_control_feature\030n \001(\004\022\016\n\006origin\030o" +
-      " \001(\004\022\014\n\004cost\030j \001(\004\022\r\n\005flags\030l \001(\004\022L\n\010str",
-      "ategy\030k \001(\0132:.net.named_data.jndn.tests." +
-      "ControlParametersTypes.Strategy\022\031\n\021expir" +
-      "ation_period\030m \001(\004\032\246\001\n\031ControlParameters" +
-      "Response\022\023\n\013status_code\030f \002(\004\022\023\n\013status_" +
-      "text\030g \002(\t\022_\n\022control_parameters\030h \003(\0132C" +
-      ".net.named_data.jndn.tests.ControlParame" +
-      "tersTypes.ControlParameters\032{\n\030ControlPa" +
-      "rametersMessage\022_\n\022control_parameters\030h " +
-      "\002(\0132C.net.named_data.jndn.tests.ControlP" +
-      "arametersTypes.ControlParameters\032\211\001\n Con",
-      "trolParametersResponseMessage\022e\n\020control" +
-      "_response\030e \002(\0132K.net.named_data.jndn.te" +
-      "sts.ControlParametersTypes.ControlParame" +
-      "tersResponse"
+      "es.Name\022\017\n\007face_id\030i \001(\004\022\013\n\003uri\030r \001(\t\022\022\n" +
+      "\tlocal_uri\030\201\001 \001(\t\022\016\n\006origin\030o \001(\004\022\014\n\004cos" +
+      "t\030j \001(\004\022\021\n\010capacity\030\203\001 \001(\004\022\016\n\005count\030\204\001 \001",
+      "(\004\022\r\n\005flags\030l \001(\004\022\014\n\004mask\030p \001(\004\022L\n\010strat" +
+      "egy\030k \001(\0132:.net.named_data.jndn.tests.Co" +
+      "ntrolParametersTypes.Strategy\022\031\n\021expirat" +
+      "ion_period\030m \001(\004\022\031\n\020face_persistency\030\205\001 " +
+      "\001(\004\022)\n base_congestion_marking_interval\030" +
+      "\207\001 \001(\004\022%\n\034default_congestion_threshold\030\210" +
+      "\001 \001(\004\022\014\n\003mtu\030\211\001 \001(\004\032\246\001\n\031ControlParameter" +
+      "sResponse\022\023\n\013status_code\030f \002(\004\022\023\n\013status" +
+      "_text\030g \002(\t\022_\n\022control_parameters\030h \003(\0132" +
+      "C.net.named_data.jndn.tests.ControlParam",
+      "etersTypes.ControlParameters\032{\n\030ControlP" +
+      "arametersMessage\022_\n\022control_parameters\030h" +
+      " \002(\0132C.net.named_data.jndn.tests.Control" +
+      "ParametersTypes.ControlParameters\032\211\001\n Co" +
+      "ntrolParametersResponseMessage\022e\n\020contro" +
+      "l_response\030e \002(\0132K.net.named_data.jndn.t" +
+      "ests.ControlParametersTypes.ControlParam" +
+      "etersResponse"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor,
-              new java.lang.String[] { });
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_descriptor =
-            internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(0);
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_descriptor,
-              new java.lang.String[] { "Component", });
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_descriptor =
-            internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(1);
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_descriptor,
-              new java.lang.String[] { "Name", });
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_descriptor =
-            internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(2);
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_descriptor,
-              new java.lang.String[] { "Name", "FaceId", "Uri", "LocalControlFeature", "Origin", "Cost", "Flags", "Strategy", "ExpirationPeriod", });
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_descriptor =
-            internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(3);
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_descriptor,
-              new java.lang.String[] { "StatusCode", "StatusText", "ControlParameters", });
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_descriptor =
-            internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(4);
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_descriptor,
-              new java.lang.String[] { "ControlParameters", });
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponseMessage_descriptor =
-            internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(5);
-          internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponseMessage_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponseMessage_descriptor,
-              new java.lang.String[] { "ControlResponse", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor,
+        new java.lang.String[] { });
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_descriptor =
+      internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(0);
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_ControlParametersTypes_Name_descriptor,
+        new java.lang.String[] { "Component", });
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_descriptor =
+      internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(1);
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_ControlParametersTypes_Strategy_descriptor,
+        new java.lang.String[] { "Name", });
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_descriptor =
+      internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(2);
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParameters_descriptor,
+        new java.lang.String[] { "Name", "FaceId", "Uri", "LocalUri", "Origin", "Cost", "Capacity", "Count", "Flags", "Mask", "Strategy", "ExpirationPeriod", "FacePersistency", "BaseCongestionMarkingInterval", "DefaultCongestionThreshold", "Mtu", });
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_descriptor =
+      internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(3);
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponse_descriptor,
+        new java.lang.String[] { "StatusCode", "StatusText", "ControlParameters", });
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_descriptor =
+      internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(4);
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersMessage_descriptor,
+        new java.lang.String[] { "ControlParameters", });
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponseMessage_descriptor =
+      internal_static_net_named_data_jndn_tests_ControlParametersTypes_descriptor.getNestedTypes().get(5);
+    internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponseMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_net_named_data_jndn_tests_ControlParametersTypes_ControlParametersResponseMessage_descriptor,
+        new java.lang.String[] { "ControlResponse", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
