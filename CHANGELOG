@@ -1,4 +1,15 @@
-jNDN v0.22 (2019-07-08)
+Interim changes since jNDN v0.22 (2019-07-09)
+---------------------------------------------
+
+Changes
+* https://redmine.named-data.net/issues/4813 In Face, added putNack().
+* https://github.com/named-data/jndn/pull/24 Aimd pipelining in Segment fetcher (Thanks, Ritik!)
+
+Bug fixes
+* https://redmine.named-data.net/issues/4947 ApplicationParameters TLV type code.
+* https://redmine.named-data.net/issues/4968 In examples, updated ControlParameters protobuf.
+
+jNDN v0.22 (2019-07-09)
 -----------------------
 
 Changes
@@ -7,8 +18,6 @@ Changes
 * https://redmine.named-data.net/issues/4869 Renamed ForwardingFlags to RegistrationOptions.
 * https://redmine.named-data.net/issues/4869 In RegistrationOptions, added setOrigin()
   to use in the flags argument of registerPrefix.
-* https://redmine.named-data.net/issues/4813 In Face, added putNack().
-* https://github.com/named-data/jndn/pull/24 Aimd pipelining in Segment fetcher (Thanks, Ritik!)
 
 Deprecated
 * Deprecated ForwardingFlags. Use RegistrationOptions.
@@ -18,7 +27,6 @@ Bug fixes
   constructor, properly access the file-base TPM in the home directory.
 * https://redmine.named-data.net/issues/4926 In decoding Data, make MetaInfo
   and Content optional.
-* https://redmine.named-data.net/issues/4947 ApplicationParameters TLV type code.
 
 jNDN v0.21 (2019-03-05)
 -----------------------
