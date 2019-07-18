@@ -459,7 +459,11 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
         int timeout = options_.useConstantInterestTimeout ? options_.maxTimeout : getEstimatedRto();
 
         if (isRetransmission) {
-            updateRetransmittedSegment(segmentNum, timeout);
+            PendingSegment pendingSegmentIt = pendingSegments_.get(segmentNum);
+            if (pendingSegmentIt == null) return;
+            pendingSegmentIt.state = SegmentState.Retransmitted;
+            pendingSegmentIt.sendTime = System.currentTimeMillis();
+            pendingSegmentIt.rto = timeout;
         }else {
             pendingSegments_.put(segmentNum, new PendingSegment(SegmentState.FirstInterest,
                     System.currentTimeMillis(), timeout));
@@ -469,13 +473,6 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
         face_.expressInterest(interest, this, this, this);
         ++nSegmentsInFlight_;
 
-    }
-
-    private void updateRetransmittedSegment(long segmentNum, long rtoTimeout) {
-        PendingSegment pendingSegmentIt = pendingSegments_.get(segmentNum);
-        pendingSegmentIt.state = SegmentState.Retransmitted;
-        pendingSegmentIt.sendTime = System.currentTimeMillis();
-        pendingSegmentIt.rto = rtoTimeout;
     }
 
     private int getEstimatedRto() {
@@ -555,7 +552,7 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
         // The first received Interest could have any segment ID
         final long pendingSegmentIt;
         if (receivedSegments_.size() > 0) {
-            if (receivedSegments_.containsKey(segmentNum))
+            if (receivedSegments_.containsKey(segmentNum) || !pendingSegments_.containsKey(segmentNum))
                 return;
             pendingSegmentIt = segmentNum;
         } else {
