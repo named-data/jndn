@@ -575,12 +575,10 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
         } else if(validator_ != null){
             try {
                 validator_.validate(data, new DataValidationSuccessCallback() {
-                    @Override
                     public void successCallback(Data data) {
                         onVerified(data, originalInterest, pendingSegmentIt);
                     }
                 }, new DataValidationFailureCallback() {
-                    @Override
                     public void failureCallback(Data data, ValidationError error) {
                         onDataValidationFailed(data, error.toString());
                     }
@@ -726,7 +724,6 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
         }
     }
 
-    @Override
         public void onNetworkNack(Interest interest, NetworkNack networkNack) {
         if (shouldStop()) return;
 
@@ -770,7 +767,6 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
     }
 
     private Runnable rtoTimeoutRunnable_ = new Runnable() {
-        @Override
         public void run() {
             if (shouldStop()) return;
 
