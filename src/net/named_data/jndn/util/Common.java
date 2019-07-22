@@ -32,6 +32,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import net.named_data.jndn.contrib.Murmur3;
 
 /**
  * The Common class has static utility functions.
@@ -366,6 +367,40 @@ public class Common {
   getCurrentDirectory()
   {
     return new File(System.getProperty("user.dir", "."));
+  }
+
+  /**
+   * Compute the MurmurHash3 of the data.
+   * @param nHashSeed The hash seed.
+   * @param dataToHash The input byte array to hash.
+   * @return The hash value. This returns a long to make it easier to interpret
+   * it as an unsigned 32-bit integer (instead of the Java int which is signed).
+   */
+  public static long
+  murmurHash3(int nHashSeed, byte[] dataToHash)
+  {
+    int hash = Murmur3.hash32(dataToHash, dataToHash.length, nHashSeed);
+    return hash >= 0 ? hash : 0x100000000L + hash;
+  }
+
+  /**
+   * Compute the MurmurHash3 of the integer value.
+   * @param nHashSeed The hash seed.
+   * @param value The integer value, interpreted as a 4-byte little-endian array.
+   * This ignores the upper 4 bytes of the long integer.
+   * @return The hash value. This returns a Java int which is a 32-bit signed
+   * integer, but it should be interpreted as a 32-bit unsigned integer.
+   */
+  public static long
+  murmurHash3(int nHashSeed, long value)
+  {
+    byte[] dataToHash = new byte[] {
+      (byte) (value        & 0xff),
+      (byte)((value >> 8)  & 0xff),
+      (byte)((value >> 16) & 0xff),
+      (byte)((value >> 24) & 0xff)
+    };
+    return murmurHash3(nHashSeed, dataToHash);
   }
 
   /**
