@@ -927,7 +927,7 @@ public class Tlv0_2WireFormat extends WireFormat {
    * assumed to be a signature for a signed interest).
    * @param encoder The TlvEncoder to receive the encoding.
    */
-  private static void
+  public static void
   encodeName
     (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset,
      TlvEncoder encoder)
@@ -975,7 +975,7 @@ public class Tlv0_2WireFormat extends WireFormat {
    * unchanged while the Blob values are used.
    * @throws EncodingException
    */
-  private static void
+  public static void
   decodeName
     (Name name, int[] signedPortionBeginOffset, int[] signedPortionEndOffset,
      TlvDecoder decoder, boolean copy) throws EncodingException
