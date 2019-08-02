@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.Tlv0_2WireFormat;
-import net.named_data.jndn.encoding.tlv.Tlv;
 import net.named_data.jndn.encoding.tlv.TlvDecoder;
 import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.util.Blob;
@@ -40,8 +39,25 @@ public class PSyncState {
    */
   public PSyncState() {}
 
-  // TODO: PSyncState(const uint8_t *input, size_t inputLength)
-  // TODO: PSyncState(const Blob& input)
+  /**
+   * Create a PSyncState by decoding the input as an NDN-TLV PSyncContent.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   */
+  public PSyncState(ByteBuffer input) throws EncodingException
+  {
+    wireDecode(input);
+  }
+
+  /**
+   * Create a PSyncState by decoding the input as an NDN-TLV PSyncContent.
+   * @param input The input buffer to decode.  This reads from position() to
+   * limit(), but does not change the position.
+   */
+  public PSyncState(Blob input) throws EncodingException
+  {
+    wireDecode(input);
+  }
 
   /**
    * Append the name to the content.
@@ -101,7 +117,7 @@ public class PSyncState {
     // Decode a sequence of Name.
     while (decoder.getOffset() < endOffset) {
       Name name = new Name();
-      Tlv0_2WireFormat.decodeName(name, decoder, true);
+      Tlv0_2WireFormat.decodeName(name, new int[1], new int[1], decoder, true);
       content_.add(name);
     }
 
