@@ -20,6 +20,7 @@
 
 package net.named_data.jndn.in_memory_storage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import net.named_data.jndn.Data;
@@ -65,6 +66,24 @@ public class InMemoryStorageRetaining {
     }
 
     return null;
+  }
+
+  /**
+   * Remove matching entries by prefix.
+   * @param prefix The prefix Name of the entries to remove.
+   */
+  public final void
+  remove(Name prefix)
+  {
+    // First get the keys to delete, to not change the HashMap while iterating.
+    ArrayList keys = new ArrayList();
+    for (Object key : cache_.keySet()) {
+      if (prefix.isPrefixOf((Name)key))
+        keys.add(key);
+    }
+
+    for (Object key : keys)
+      cache_.remove(key);
   }
 
   /**
