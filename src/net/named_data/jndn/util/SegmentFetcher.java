@@ -328,7 +328,7 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
     (Face face, Interest baseInterest, Options options, Validator validator,
      SegmentFetcher.OnComplete onComplete, SegmentFetcher.OnError onError) {
         new SegmentFetcher(face, baseInterest,null, options, validator,
-                null, onComplete, onError)
+                DontVerifySegment, onComplete, onError)
                 .run();
     }
 
@@ -336,7 +336,7 @@ public class SegmentFetcher implements OnData, OnDataValidationFailed, OnTimeout
     (Face face, Interest baseInterest, Validator validator,
      SegmentFetcher.OnComplete onComplete, SegmentFetcher.OnError onError) {
         new SegmentFetcher(face, baseInterest, null, new Options(), validator,
-                null, onComplete, onError)
+                DontVerifySegment, onComplete, onError)
                 .run();
     }
 
