@@ -325,6 +325,7 @@ public class FullPSync2017 extends PSyncProducerBase
 
     final Interest syncInterest = new Interest(syncInterestName);
     syncInterest.setInterestLifetimeMilliseconds(syncInterestLifetime_);
+    syncInterest.setNonce(new Blob(new byte[4], false));
     syncInterest.refreshNonce();
 
     SegmentFetcher.fetch
