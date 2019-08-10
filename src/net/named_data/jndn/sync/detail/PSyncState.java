@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2019 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
- * @author: From the PSync library https://github.com/named-data/PSync/blob/master/PSync/detail/state.hpp
+ * @author: From the PSync library https://github.com/named-data/PSync/blob/master/PSync/detail/state.cpp
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
