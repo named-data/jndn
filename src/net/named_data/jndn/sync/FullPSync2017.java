@@ -380,7 +380,7 @@ public class FullPSync2017 extends PSyncProducerBase
     Name.Component ibltName = interestName.get(-1);
 
     logger_.log(Level.FINE, "Full Sync Interest received, nonce: " +
-      interest.getNonce() + ", hash:" + interestName.hashCode());
+      interest.getNonce().toHex() + ", hash:" + interestName.hashCode());
 
     InvertibleBloomLookupTable iblt = new InvertibleBloomLookupTable
       (new InvertibleBloomLookupTable(expectedNEntries_));
