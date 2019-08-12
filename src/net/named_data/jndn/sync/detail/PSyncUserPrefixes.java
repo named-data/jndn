@@ -58,6 +58,21 @@ public class PSyncUserPrefixes {
   }
 
   /**
+   * Return the current sequence number of the given prefix, or zero if not found.
+   * @param prefix The prefix for the sequence number.
+   * @return The sequence number for the prefix, or 0 if not found.
+   */
+  public final int
+  getSequenceNoOrZero(Name prefix)
+  {
+    Integer sequenceNo = prefixes_.get(prefix);
+    if (sequenceNo == null)
+      return 0;
+
+    return sequenceNo;
+  }
+
+  /**
    * Add a user node for synchronization based on the prefix Name, and
    * initialize the sequence number to zero. However, if the prefix Name already
    * exists, then do nothing and return false. This does not add sequence number
