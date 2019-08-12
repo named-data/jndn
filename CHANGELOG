@@ -4,6 +4,8 @@ Interim changes since jNDN v0.22 (2019-07-09)
 Changes
 * https://redmine.named-data.net/issues/4813 In Face, added putNack().
 * https://github.com/named-data/jndn/pull/24 Aimd pipelining in Segment fetcher (Thanks, Ritik!)
+* sync: Added FullPSync2017 and FullPSync2017WithUsers, implementing the Full PSync protocol.
+* examples: Added TestFullPsync and TestFullPSyncWithUsers.
 
 Bug fixes
 * https://redmine.named-data.net/issues/4947 ApplicationParameters TLV type code.
