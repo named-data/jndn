@@ -216,9 +216,10 @@ public class TestFullPSync {
       }
     }
 
-    public void onNamesUpdate(ArrayList<Name> names) {
+    public final void
+    onNamesUpdate(ArrayList<Name> names) {
       for (Name name : names)
-        System.out.println("Update " + name.toUri());
+        System.out.println("Update " + name);
     }
 
     private final Face face_;
@@ -242,7 +243,7 @@ public class TestFullPSync {
     Interest.setDefaultCanBePrefix(true);
 
     System.out.println("Enter your user prefix (e.g. /a)");
-     String userPrefixUri = "";
+    String userPrefixUri = "";
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     try {
       userPrefixUri = reader.readLine().trim();
