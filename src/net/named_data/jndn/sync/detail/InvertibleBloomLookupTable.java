@@ -319,7 +319,7 @@ public class InvertibleBloomLookupTable {
 
     while (true) {
       int count = inflaterStream.read(buffer);
-      if (count < 0)
+      if (count <= 0)
         break;
 
       outputStream.write(buffer, 0, count);
