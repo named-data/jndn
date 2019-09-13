@@ -69,8 +69,8 @@ public class InvertibleBloomLookupTable {
   /**
    * Populate the hash table using the encoded array representation of the IBLT.
    * @param encoding The encoded representation of the IBLT.
-   * @throws Error if the size of the decoded values is not compatible with this
-   * IBLT.
+   * @throws AssertionError if the size of the decoded values is not compatible
+   * with this IBLT.
    */
   public final void
   initialize(Blob encoding) throws IOException
@@ -78,7 +78,7 @@ public class InvertibleBloomLookupTable {
     long[] values = decode(encoding);
 
     if (3 * hashTable_.size() != values.length)
-      throw new Error("The received Invertible Bloom Filter cannot be decoded");
+      throw new AssertionError("The received Invertible Bloom Filter cannot be decoded");
 
     for (int i = 0; i < hashTable_.size(); i++) {
       HashTableEntry entry = hashTable_.get(i);

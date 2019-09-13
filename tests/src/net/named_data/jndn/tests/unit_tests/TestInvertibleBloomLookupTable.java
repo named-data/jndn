@@ -89,7 +89,7 @@ public class TestInvertibleBloomLookupTable {
       receivedDifferentSize.initialize(ibltName.get(-1).getValue());
       fail("Did not throw the expected exception");
     }
-    catch (Error ex) {}
+    catch (AssertionError ex) {}
     catch (Exception ex) { fail("Did not throw the expected exception"); }
   }
 
