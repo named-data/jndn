@@ -329,7 +329,7 @@ public class FullPSync2017 extends PSyncProducerBase
     syncInterest.refreshNonce();
 
     SegmentFetcher.fetch
-      (face_, syncInterest, (Validator)null,
+      (face_, syncInterest, SegmentFetcher.DontVerifySegment,
        new SegmentFetcher.OnComplete() {
          public void onComplete(Blob content) {
            onSyncData(content, syncInterest);
