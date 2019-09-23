@@ -74,11 +74,11 @@ public class PSyncProducerBase {
   protected final void
   removeFromIblt(Name name)
   {
-    Long hash = nameToHash_.get(name);
+    Object hash = nameToHash_.get(name);
     if (hash != null) {
       nameToHash_.remove(name);
       hashToName_.remove(hash);
-      iblt_.erase(hash);
+      iblt_.erase((long)hash);
     }
   }
 
@@ -101,9 +101,9 @@ public class PSyncProducerBase {
   // nameToHash_ and hashToName_ are just for looking up the hash more quickly
   // (instead of calculating it again).
   // The key is the Name. The value is the hash.
-  protected final HashMap<Name, Long> nameToHash_ = new HashMap<Name, Long>();
+  protected final HashMap<Name, Object> nameToHash_ = new HashMap<Name, Object>();
   // The key is the hash. The value is the Name.
-  protected final HashMap<Long, Name> hashToName_ = new HashMap<Long, Name>();
+  protected final HashMap<Object, Name> hashToName_ = new HashMap<Object, Name>();
 
   protected final Name syncPrefix_;
   protected final double syncReplyFreshnessPeriod_;
