@@ -266,7 +266,7 @@ public class FullPSync2017 extends PSyncProducerBase
   public static final double DEFAULT_SYNC_INTEREST_LIFETIME = 1000;
   public static final double DEFAULT_SYNC_REPLY_FRESHNESS_PERIOD = 1000;
 
-  private class PendingEntryInfoFull {
+  public class PendingEntryInfoFull {
     public PendingEntryInfoFull(InvertibleBloomLookupTable iblt)
     {
       iblt_ = iblt;
