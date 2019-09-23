@@ -438,7 +438,7 @@ public class FullPSync2017 extends PSyncProducerBase
     }
 
     if (state.getContent().size() > 0) {
-      logger_.log(Level.FINE, "Sending sync content: {0}", state.toString());
+      logger_.log(Level.FINE, "Sending sync content: " + state);
       try {
         sendSyncData(interestName, state.wireEncode());
       } catch (Exception ex) {
