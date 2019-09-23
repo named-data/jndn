@@ -593,7 +593,9 @@ public class FullPSync2017 extends PSyncProducerBase
 
     // First copy the keys, to not change the HashMap while iterating.
     HashSet<Name> keys = new HashSet<Name>();
-    keys.addAll(pendingEntries_.keySet());
+    for (Name key : pendingEntries_.keySet())
+      keys.add(key);
+
     for (Name keyName : keys) {
       PendingEntryInfoFull pendingEntry = pendingEntries_.get(keyName);
 
