@@ -197,7 +197,7 @@ public class FullPSync2017WithUsers
   removeUserNode(Name prefix)
   {
     if (prefixes_.isUserNode(prefix)) {
-      int sequenceNo = prefixes_.prefixes_.get(prefix);
+      int sequenceNo = (int)prefixes_.prefixes_.get(prefix);
       prefixes_.removeUserNode(prefix);
       fullPSync_.removeName(new Name(prefix).appendNumber(sequenceNo));
     }
@@ -254,7 +254,7 @@ public class FullPSync2017WithUsers
     long sequenceNo = name.get(-1).toNumber();
 
     boolean havePrefix = prefixes_.isUserNode(prefix);
-    if (!havePrefix || prefixes_.prefixes_.get(prefix) < sequenceNo) {
+    if (!havePrefix || (int)prefixes_.prefixes_.get(prefix) < sequenceNo) {
       if (havePrefix) {
         int oldSequenceNo = prefixes_.getSequenceNoOrZero(prefix);
         if (oldSequenceNo != 0)

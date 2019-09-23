@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.named_data.jndn.Name;
+import net.named_data.jndn.util.Common;
 
 /**
  * PSyncUserPrefixes holds the prefixes_ map from prefix to sequence number,
@@ -50,11 +51,11 @@ public class PSyncUserPrefixes {
   public final int
   getSequenceNo(Name prefix)
   {
-    Integer sequenceNo = prefixes_.get(prefix);
+    Object sequenceNo = prefixes_.get(prefix);
     if (sequenceNo == null)
       return -1;
 
-    return sequenceNo;
+    return (int)sequenceNo;
   }
 
   /**
@@ -65,11 +66,11 @@ public class PSyncUserPrefixes {
   public final int
   getSequenceNoOrZero(Name prefix)
   {
-    Integer sequenceNo = prefixes_.get(prefix);
+    Object sequenceNo = prefixes_.get(prefix);
     if (sequenceNo == null)
       return 0;
 
-    return sequenceNo;
+    return (int)sequenceNo;
   }
 
   /**
@@ -127,9 +128,9 @@ public class PSyncUserPrefixes {
     oldSequenceNo[0] = 0;
     logger_.log(Level.FINE, "updateSequenceNo: {0} " + sequenceNo, prefix);
 
-    Integer entrySequenceNo = prefixes_.get(prefix);
+    Object entrySequenceNo = prefixes_.get(prefix);
     if (entrySequenceNo != null)
-      oldSequenceNo[0] = entrySequenceNo;
+      oldSequenceNo[0] = (int)entrySequenceNo;
     else {
       logger_.log(Level.INFO, "The prefix was not found in prefixes_");
       return false;
@@ -147,6 +148,8 @@ public class PSyncUserPrefixes {
   }
 
   // The key is the prefix Name. The value is the sequence number for the prefix.
-  public final HashMap<Name, Integer> prefixes_ = new HashMap<Name, Integer>();
+  public final HashMap<Name, Object> prefixes_ = new HashMap<Name, Object>();
   private static final Logger logger_ = Logger.getLogger(PSyncUserPrefixes.class.getName());
+  // This is to force an import of net.named_data.jndn.util.
+  private static Common dummyCommon_ = new Common();
 }
