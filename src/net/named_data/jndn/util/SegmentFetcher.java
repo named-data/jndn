@@ -48,20 +48,20 @@ import net.named_data.jndn.security.v2.*;
 /**
  * SegmentFetcher is a utility class to fetch the latest version of segmented data.
  *
- * SegmentFetcher assumes that segments in the object are named `/<prefix>/<version>/<segment>`,
+ * SegmentFetcher assumes that segments in the object are named `/{prefix}/{version}/{segment}`,
  * where:
- * - `<prefix>` is the specified prefix,
- * - `<version>` is an unknown version that needs to be discovered, and
- * - `<segment>` is a segment number (the number of segments in the object is unknown until a Data
+ * - `{prefix}` is the specified prefix,
+ * - `{version}` is an unknown version that needs to be discovered, and
+ * - `{segment}` is a segment number (the number of segments in the object is unknown until a Data
  *   packet containing the `FinalBlockId` field is received).
  *
  * SegmentFetcher implements the following logic:
  *
  * 1. Express an Interest to discover the latest version of the object:
  *
- *    Interest: `/<prefix>?ndn.CanBePrefix=true&ndn.MustBeFresh=true`
+ *    Interest: `/{prefix}?ndn.CanBePrefix=true,ndn.MustBeFresh=true`
  *
- * 2. Infer the latest version of the object: `<version> = Data.getName().get(-2)`
+ * 2. Infer the latest version of the object: `{version} = Data.getName().get(-2)`
  *
  * 3. Keep sending Interests for future segments until an error occurs or the number of segments
  *    indicated by the FinalBlockId in a received Data packet is reached. This retrieval will start
@@ -70,7 +70,7 @@ import net.named_data.jndn.security.v2.*;
  *    manage the Interest window size. Interests expressed in this step will follow this Name
  *    format:
  *
- *    Interest: `/<prefix>/<version>/<segment=(N)>`
+ *    Interest: `/{prefix}/{version}/{segment=(N)}`
  *
  * 4. Call the OnComplete callback with a blob that concatenates the content
  *    from all the segmented objects.
