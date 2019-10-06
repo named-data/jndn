@@ -39,7 +39,7 @@ import net.named_data.jndn.sync.PSyncMissingDataInfo;
 import net.named_data.jndn.util.Blob;
 
 /**
- * TestFullPSync generates new user prefixes with the given prefix and publishes 
+ * TestFullPSyncWithUsers generates new user prefixes with the given prefix and publishes
  * new sequence numbers for them using FullPSync2017WithUsers. The also receives
  * and displays new sequence numbers from the other users. This requires a
  * running local NFD. This is compatible with the PSync full-sync example program:
