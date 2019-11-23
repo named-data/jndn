@@ -2160,6 +2160,12 @@ public class KeyChain {
   construct(String pibLocator, String tpmLocator, boolean allowReset)
     throws KeyChain.Error, PibImpl.Error, SecurityException, IOException
   {
+    ConfigFile config = new ConfigFile();
+    if (pibLocator.equals(""))
+      pibLocator = getDefaultPibLocator(config);
+    if (tpmLocator.equals(""))
+      tpmLocator = getDefaultTpmLocator(config);
+
     // PIB locator.
     String[] pibScheme = new String[1];
     String[] pibLocation = new String[1];
@@ -2182,7 +2188,6 @@ public class KeyChain {
     parseAndCheckTpmLocator(tpmLocator, tpmScheme, tpmLocation);
     String canonicalTpmLocator = tpmScheme[0] + ":" + tpmLocation[0];
 
-    ConfigFile config = new ConfigFile();
     if (canonicalPibLocator.equals(getDefaultPibLocator(config))) {
       // The default PIB must use the default TPM.
       if (!oldTpmLocator.equals("") &&
@@ -2380,7 +2385,7 @@ public class KeyChain {
   }
 
   private static String
-  getDefaultPibLocator(ConfigFile config)
+  getDefaultPibLocator(ConfigFile config) throws Error
   {
     if (defaultPibLocator_ != null)
       return defaultPibLocator_;
@@ -2391,11 +2396,16 @@ public class KeyChain {
     else
       defaultPibLocator_ = config.get("pib", getDefaultPibScheme() + ":");
 
+    String[] pibScheme = new String[1];
+    String[] pibLocation = new String[1];
+    parseAndCheckPibLocator(defaultPibLocator_, pibScheme, pibLocation);
+    defaultPibLocator_ = pibScheme[0] + ":" + pibLocation[0];
+
     return defaultPibLocator_;
   }
 
   private static String
-  getDefaultTpmLocator(ConfigFile config) throws SecurityException
+  getDefaultTpmLocator(ConfigFile config) throws SecurityException, Error
   {
     if (defaultTpmLocator_ != null)
       return defaultTpmLocator_;
@@ -2405,6 +2415,11 @@ public class KeyChain {
       defaultTpmLocator_ = clientTpm;
     else
       defaultTpmLocator_ = config.get("tpm", getDefaultTpmScheme() + ":");
+
+    String[] tpmScheme = new String[1];
+    String[] tpmLocation = new String[1];
+    parseAndCheckTpmLocator(defaultTpmLocator_, tpmScheme, tpmLocation);
+    defaultTpmLocator_ = tpmScheme[0] + ":" + tpmLocation[0];
 
     return defaultTpmLocator_;
   }
