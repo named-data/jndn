@@ -325,7 +325,7 @@ public class Interest implements ChangeCountable {
   getChildSelector() { return childSelector_; }
 
   /**
-   * Get the must be fresh flag. If not specified, the default is true.
+   * Get the must be fresh flag. If not specified, the default is false.
    * @return The must be fresh flag.
    */
   public final boolean
@@ -555,7 +555,7 @@ public class Interest implements ChangeCountable {
   /**
    * Set the MustBeFresh flag.
    * @param mustBeFresh True if the content must be fresh, otherwise false. If
-   * you do not set this flag, the default value is true.
+   * you do not set this flag, the default value is false.
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
@@ -996,7 +996,7 @@ public class Interest implements ChangeCountable {
   private final ChangeCounter keyLocator_ = new ChangeCounter(new KeyLocator());
   private final ChangeCounter exclude_ = new ChangeCounter(new Exclude());
   private int childSelector_ = -1;
-  private boolean mustBeFresh_ = true;
+  private boolean mustBeFresh_ = false;
   private double interestLifetimeMilliseconds_ = -1;
   private Blob nonce_ = new Blob();
   private long getNonceChangeCount_ = 0;
