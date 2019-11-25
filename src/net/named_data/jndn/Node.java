@@ -851,6 +851,7 @@ public class Node implements ElementListener {
 
     Interest commandInterest = new Interest();
     commandInterest.setCanBePrefix(true);
+    commandInterest.setMustBeFresh(true);
 
     // Determine whether to use remote prefix registration.
     boolean faceIsLocal;

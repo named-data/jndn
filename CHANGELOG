@@ -1,5 +1,12 @@
-jNDN v0.23 (2019-10-04)
+Interim changes since jNDN v0.23 (2019-11-25)
 ---------------------------------------------
+
+Changes
+* https://redmine.named-data.net/issues/5055 In Interest, changed the
+  MustBeFresh default value to false.
+
+jNDN v0.23 (2019-10-04)
+-----------------------
 
 Changes
 * https://redmine.named-data.net/issues/4813 In Face, added putNack().
