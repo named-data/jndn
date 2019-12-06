@@ -20,17 +20,21 @@
 
 package net.named_data.jndn.security.tpm;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.security.KeyPairGenerator;
+import java.security.KeyPair;
+import java.security.Security;
 import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -48,12 +52,24 @@ import net.named_data.jndn.security.KeyType;
 import net.named_data.jndn.security.RsaKeyParams;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.Common;
+import org.spongycastle.asn1.pkcs.PrivateKeyInfo;
+import org.spongycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.spongycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
+import org.spongycastle.operator.InputDecryptorProvider;
+import org.spongycastle.operator.OperatorCreationException;
+import org.spongycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.spongycastle.pkcs.PKCSException;
+
 
 /**
  * A TpmPrivateKey holds an in-memory private key and provides cryptographic
  * operations such as for signing by the in-memory TPM.
  */
 public class TpmPrivateKey {
+  static {
+    Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+  }
+
   /**
    * A TpmPrivateKey.Error extends Exception and represents an error in private
    * key processing.
@@ -125,6 +141,48 @@ public class TpmPrivateKey {
       throw new TpmPrivateKey.Error("loadPkcs1: Unrecognized keyType: " + keyType);
 
     loadPkcs8(pkcs8.buf(), keyType);
+  }
+
+  /**
+   * Load the encrypted private key from a buffer with the PKCS #8 encoding of
+   * the EncryptedPrivateKeyInfo.
+   * This replaces any existing private key in this object.
+   * @param encoding The byte buffer with the private key encoding.
+   * @param password The password for decrypting the private key, which should
+   * have characters in the range of 1 to 127.
+   * @throws TpmPrivateKey.Error for errors decoding or decrypting the key.
+   */
+  public final void
+  loadEncryptedPkcs8
+  (ByteBuffer encoding, ByteBuffer password) throws TpmPrivateKey.Error {
+    //BouncyCastle classes expect a byte array and char array
+    byte[] encodingBytes = new byte[10];
+    encodingBytes = new byte[encoding.capacity()];
+    encoding.get(encodingBytes, 0, encodingBytes.length);
+    encoding.clear();
+
+    CharBuffer charBuffer = Charset.forName("ISO-8859-1").decode(password);
+    char[] passwordBytes = charBuffer.array();
+
+    try {
+      PKCS8EncryptedPrivateKeyInfo privateKeyInfo = new PKCS8EncryptedPrivateKeyInfo(encodingBytes);
+      JceOpenSSLPKCS8DecryptorProviderBuilder jce = new JceOpenSSLPKCS8DecryptorProviderBuilder();
+      jce.setProvider("SC");
+      InputDecryptorProvider decProv = jce.build(passwordBytes);
+      PrivateKeyInfo info = privateKeyInfo.decryptPrivateKeyInfo(decProv);
+      JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+      privateKey_ = converter.getPrivateKey(info);
+      String keyTypeString = privateKey_.getAlgorithm();
+      if (keyTypeString.equals("RSA")) keyType_ = KeyType.RSA;
+      else if (keyTypeString.equals("ECDSA")) keyType_= KeyType.EC;
+      else throw new TpmPrivateKey.Error
+        ("loadEncryptedPkcs8: Key type " + keyTypeString + " not supported");
+
+    } catch (IOException | OperatorCreationException | PKCSException ex) {
+        throw new TpmPrivateKey.Error
+          ("loadEncryptedPkcs8: Error parsing PrivateKey info: " + ex);
+	}
+
   }
 
   /**
@@ -226,149 +284,6 @@ public class TpmPrivateKey {
   loadPkcs8(ByteBuffer encoding) throws TpmPrivateKey.Error
   {
     loadPkcs8(encoding, null);
-  }
-
-  /**
-   * Load the encrypted private key from a buffer with the PKCS #8 encoding of
-   * the EncryptedPrivateKeyInfo.
-   * This replaces any existing private key in this object. This partially
-   * decodes the private key to determine the key type.
-   * @param encoding The byte buffer with the private key encoding.
-   * @param password The password for decrypting the private key, which should
-   * have characters in the range of 1 to 127.
-   * @throws TpmPrivateKey.Error for errors decoding or decrypting the key.
-   */
-  public final void
-  loadEncryptedPkcs8(ByteBuffer encoding, ByteBuffer password)
-    throws TpmPrivateKey.Error
-  {
-    // Decode the PKCS #8 EncryptedPrivateKeyInfo.
-    // See https://tools.ietf.org/html/rfc5208.
-    String oidString;
-    Object parameters;
-    Blob encryptedKey;
-    try {
-      DerNode parsedNode = DerNode.parse(encoding, 0);
-      List encryptedPkcs8Children = parsedNode.getChildren();
-      List algorithmIdChildren = DerNode.getSequence
-        (encryptedPkcs8Children, 0).getChildren();
-      oidString = "" + ((DerNode.DerOid)algorithmIdChildren.get(0)).toVal();
-      parameters = algorithmIdChildren.get(1);
-
-      encryptedKey = 
-        (Blob)((DerNode.DerOctetString)encryptedPkcs8Children.get(1)).toVal();
-    }
-    catch (Throwable ex) {
-      throw new TpmPrivateKey.Error
-        ("Cannot decode the PKCS #8 EncryptedPrivateKeyInfo: " + ex);
-    }
-
-    // Use the password to get the unencrypted pkcs8Encoding.
-    byte[] pkcs8Encoding;
-    if (oidString.equals(PBES2_OID)) {
-      // Decode the PBES2 parameters. See https://www.ietf.org/rfc/rfc2898.txt .
-      String keyDerivationOidString;
-      Object keyDerivationParameters;
-      String encryptionSchemeOidString;
-      Object encryptionSchemeParameters;
-      try {
-        List parametersChildren = ((DerNode.DerSequence)parameters).getChildren();
-
-        List keyDerivationAlgorithmIdChildren = DerNode.getSequence
-          (parametersChildren, 0).getChildren();
-        keyDerivationOidString = "" +
-          ((DerNode.DerOid)keyDerivationAlgorithmIdChildren.get(0)).toVal();
-        keyDerivationParameters = keyDerivationAlgorithmIdChildren.get(1);
-
-        List encryptionSchemeAlgorithmIdChildren = DerNode.getSequence
-          (parametersChildren, 1).getChildren();
-        encryptionSchemeOidString = "" +
-          ((DerNode.DerOid)encryptionSchemeAlgorithmIdChildren.get(0)).toVal();
-        encryptionSchemeParameters = encryptionSchemeAlgorithmIdChildren.get(1);
-      }
-      catch (Throwable ex) {
-        throw new TpmPrivateKey.Error
-          ("Cannot decode the PBES2 parameters: " + ex);
-      }
-
-      // Get the derived key from the password.
-      byte[] derivedKey = null;
-      if (keyDerivationOidString.equals(PBKDF2_OID)) {
-        // Decode the PBKDF2 parameters.
-        Blob salt;
-        int nIterations;
-        try {
-          List pbkdf2ParametersChildren =
-            ((DerNode.DerSequence)keyDerivationParameters).getChildren();
-          salt = (Blob)
-            ((DerNode.DerOctetString)pbkdf2ParametersChildren.get(0)).toVal();
-          nIterations = (int)
-            ((DerNode.DerInteger)pbkdf2ParametersChildren.get(1)).toVal();
-        }
-        catch (Throwable ex) {
-          throw new TpmPrivateKey.Error
-            ("Cannot decode the PBES2 parameters: " + ex);
-        }
-
-        // Check the encryption scheme here to get the needed result length.
-        int resultLength;
-        if (encryptionSchemeOidString.equals(DES_EDE3_CBC_OID))
-          resultLength = DES_EDE3_KEY_LENGTH;
-        else
-          throw new TpmPrivateKey.Error
-            ("Unrecognized PBES2 encryption scheme OID: " +
-             encryptionSchemeOidString);
-
-        try {
-          derivedKey = Common.computePbkdf2WithHmacSha1
-            (new Blob(password, false).getImmutableArray(),
-             salt.getImmutableArray(), nIterations, resultLength);
-        }
-        catch (Throwable ex) {
-          throw new TpmPrivateKey.Error
-            ("Error computing the derived key using PBKDF2 with HMAC SHA1: " + ex);
-        }
-      }
-      else
-        throw new TpmPrivateKey.Error
-          ("Unrecognized PBES2 key derivation OID: " + keyDerivationOidString);
-
-      // Use the derived key to get the unencrypted pkcs8Encoding.
-      if (encryptionSchemeOidString.equals(DES_EDE3_CBC_OID)) {
-        // Decode the DES-EDE3-CBC parameters.
-        Blob initialVector;
-        try {
-          initialVector = (Blob)
-            ((DerNode.DerOctetString)encryptionSchemeParameters).toVal();
-        }
-        catch (Throwable ex) {
-          throw new TpmPrivateKey.Error
-            ("Cannot decode the DES-EDE3-CBC parameters: " + ex);
-        }
-
-        try {
-          Cipher cipher = Cipher.getInstance("DESede/CBC/PKCS5Padding");
-          cipher.init
-            (Cipher.DECRYPT_MODE,
-             new SecretKeySpec(derivedKey, "DESede"),
-             new IvParameterSpec(initialVector.getImmutableArray()));
-          pkcs8Encoding = cipher.doFinal(encryptedKey.getImmutableArray());
-        }
-        catch (Throwable ex) {
-          throw new TpmPrivateKey.Error
-            ("Error decrypting PKCS #8 key with DES-EDE3-CBC: " + ex);
-        }
-      }
-      else
-        throw new TpmPrivateKey.Error
-          ("Unrecognized PBES2 encryption scheme OID: " +
-           encryptionSchemeOidString);
-    }
-    else
-      throw new TpmPrivateKey.Error
-        ("Unrecognized PKCS #8 EncryptedPrivateKeyInfo OID: " + oidString);
-
-    loadPkcs8(ByteBuffer.wrap(pkcs8Encoding));
   }
 
   /**
@@ -554,8 +469,7 @@ public class TpmPrivateKey {
 
   /**
    * Get the encoded encrypted private key in PKCS #8.
-   * @param password The password for encrypting the private key, which should
-   * have characters in the range of 1 to 127.
+   * @param password The password for encrypting the private key.
    * @return The encoding Blob of the EncryptedPrivateKeyInfo.
    * @throws TpmPrivateKey.Error if no private key is loaded, or error encoding.
    */
@@ -692,7 +606,7 @@ public class TpmPrivateKey {
    */
   private static Blob
   encodePkcs8PrivateKey(ByteBuffer privateKeyDer, OID oid, DerNode parameters)
-    throws TpmPrivateKey.Error
+          throws TpmPrivateKey.Error
   {
     try {
       DerSequence algorithmIdentifier = new DerSequence();
