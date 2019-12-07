@@ -868,13 +868,12 @@ public class Node implements ElementListener {
       return;
     }
 
+    commandInterest.setName(new Name("/localhost/nfd/rib/register"));
     if (faceIsLocal) {
-      commandInterest.setName(new Name("/localhost/nfd/rib/register"));
       // The interest is answered by the local host, so set a short timeout.
       commandInterest.setInterestLifetimeMilliseconds(2000.0);
     }
     else {
-      commandInterest.setName(new Name("/localhop/nfd/rib/register"));
       // The host is remote, so set a longer timeout.
       commandInterest.setInterestLifetimeMilliseconds(4000.0);
     }
