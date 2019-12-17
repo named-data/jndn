@@ -1,9 +1,12 @@
-Interim changes since jNDN v0.23 (2019-11-25)
+Interim changes since jNDN v0.23 (2019-12-17)
 ---------------------------------------------
 
 Changes
 * https://redmine.named-data.net/issues/5055 In Interest, changed the
   MustBeFresh default value to false.
+
+Bug fixes
+* In expressInterest, use the nonce in the Interest if provided.
 
 jNDN v0.23 (2019-10-04)
 -----------------------

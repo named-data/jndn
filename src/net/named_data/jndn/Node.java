@@ -106,9 +106,11 @@ public class Node implements ElementListener {
      final WireFormat wireFormat, final Face face)
      throws IOException
   {
-    // Set the nonce in our copy of the Interest so it is saved in the PIT.
-    interestCopy.setNonce(nonceTemplate_);
-    interestCopy.refreshNonce();
+    if (interestCopy.getNonce().size() == 0) {
+      // Set the nonce in our copy of the Interest so it is saved in the PIT.
+      interestCopy.setNonce(nonceTemplate_);
+      interestCopy.refreshNonce();
+    }
 
     if (connectStatus_ == ConnectStatus.CONNECT_COMPLETE) {
       // We are connected. Simply send the interest without synchronizing.
