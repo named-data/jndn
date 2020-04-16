@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2019 Regents of the University of California.
+ * Copyright (C) 2014-2020 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  * From PyNDN unit-tests by Adeola Bannis.
  * From ndn-cxx unit tests:
@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import net.named_data.jndn.Data;
 import net.named_data.jndn.DigestSha256Signature;
-import net.named_data.jndn.Exclude;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.InterestFilter;
 import net.named_data.jndn.KeyLocator;
@@ -312,28 +311,6 @@ public class TestInterestMethods {
 
   @Test
   public void
-  testRedecodeImplicitDigestExclude()
-  {
-    // Check that we encode and decode correctly with an implicit digest exclude.
-    Interest interest = new Interest(new Name("/A"));
-    interest.getExclude().appendComponent(new Name("/sha256digest=" +
-      "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f").get(0));
-    ArrayList dump = dumpInterest(interest);
-
-    Blob encoding = interest.wireEncode();
-    Interest reDecodedInterest = new Interest();
-    try {
-      reDecodedInterest.wireDecode(encoding);
-    } catch (EncodingException ex) {
-      fail("Can't decode reDecodedInterest");
-    }
-    ArrayList redecodedDump = dumpInterest(reDecodedInterest);
-    assertTrue("Re-decoded interest does not match original",
-               interestDumpsEqual(dump, redecodedDump));
-  }
-
-  @Test
-  public void
   testCreateFresh()
   {
     Interest freshInterest = createFreshInterest();
@@ -390,7 +367,7 @@ public class TestInterestMethods {
     assertFalse(referenceInterest.getNonce().isNull());
     Interest interest = new Interest(referenceInterest);
     // Change a child object.
-    interest.getExclude().clear();
+    interest.setInterestLifetimeMilliseconds(1);
     assertTrue("Interest should not have a nonce after changing fields",
                interest.getNonce().isNull());
   }
@@ -409,27 +386,6 @@ public class TestInterestMethods {
     assertFalse("The refreshed nonce should be different",
                interest.getNonce().equals(oldNonce));
   }
-
-  @Test
-  public void
-  testExcludeMatches()
-  {
-    Exclude exclude = new Exclude();
-    exclude.appendComponent(new Name("%00%02").get(0));
-    exclude.appendAny();
-    exclude.appendComponent(new Name("%00%20").get(0));
-
-    Name.Component component;
-    component = new Name("%00%01").get(0);
-    assertFalse(component.toEscapedString() + " should not match " + exclude.toUri(),
-                exclude.matches(component));
-    component = new Name("%00%0F").get(0);
-    assertTrue(component.toEscapedString() + " should match " + exclude.toUri(),
-               exclude.matches(component));
-    component = new Name("%00%21").get(0);
-    assertFalse(component.toEscapedString() + " should not match " + exclude.toUri(),
-                exclude.matches(component));
-}
 
   @Test
   public void
