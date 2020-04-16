@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2016-2019 Regents of the University of California.
+ * Copyright (C) 2016-2020 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -227,19 +227,19 @@ public class Tlv0_2WireFormat extends WireFormat {
      int[] signedPortionEndOffset, boolean copy) throws EncodingException
   {
     try {
-      decodeInterestV02
+      decodeInterestV03
         (interest, input, signedPortionBeginOffset, signedPortionEndOffset,
          copy);
-    } catch (Exception exceptionV02) {
+    } catch (Exception exceptionV03) {
       try {
-        // Failed to decode as format v0.2. Try to decode as v0.3.
-        decodeInterestV03
+        // Failed to decode as format v0.3. Try to decode as v0.2.
+        decodeInterestV02
           (interest, input, signedPortionBeginOffset, signedPortionEndOffset,
            copy);
       } catch (Exception ex) {
-        // Ignore the exception decoding as format v0.3 and throw the exception
-        // from trying to decode as format as format v0.2.
-        throw exceptionV02;
+        // Ignore the exception decoding as format v0.2 and throw the exception
+        // from trying to decode as format as format v0.3.
+        throw exceptionV03;
       }
     }
   }
