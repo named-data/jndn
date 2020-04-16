@@ -4,7 +4,7 @@
     <groupId>net.named-data</groupId>
     <artifactId>jndn-without-protobuf</artifactId>
     <packaging>jar</packaging>
-    <version>0.23</version>
+    <version>0.24</version>
     <name>jndn</name>
     <description>jNDN is a new implementation of a Named Data Networking client library written in Java. It is wire format compatible with the new NDN-TLV encoding, with NDNx and PARC's CCNx.</description>
     <url>http://github.com/named-data/jndn</url>

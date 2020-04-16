@@ -1,5 +1,5 @@
-Interim changes since jNDN v0.23 (2020-04-16)
----------------------------------------------
+jNDN v0.24 (2020-04-16)
+-----------------------
 
 Changes
 * https://redmine.named-data.net/issues/5055 In Interest, changed the
