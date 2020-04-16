@@ -34,6 +34,7 @@ import net.named_data.jndn.KeyLocatorType;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Sha256WithRsaSignature;
 import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.Tlv0_2WireFormat;
 import net.named_data.jndn.security.KeyChain;
 import net.named_data.jndn.security.OnVerifiedInterest;
 import net.named_data.jndn.security.OnInterestValidationFailed;
@@ -320,7 +321,7 @@ public class TestInterestMethods {
 
     Interest reDecodedFreshInterest = new Interest();
     try {
-      reDecodedFreshInterest.wireDecode(freshInterest.wireEncode());
+      reDecodedFreshInterest.wireDecode(freshInterest.wireEncode(Tlv0_2WireFormat.get()));
     } catch (EncodingException ex) {
       fail("Can't decode reDecodedFreshInterest");
     }
