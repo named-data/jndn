@@ -26,7 +26,7 @@ In a terminal, enter:
 
 Optional: To install Android SDK, install from https://developer.android.com/sdk/index.html .
 
-## Ubuntu 12.04, 14.04, 15.04, 16.04 and 18.04
+## Ubuntu 12.04, 14.04, 15.04, 16.04, 18.04 and 20.04
 To install Apache Maven, in a terminal enter:
 
     sudo apt-get install maven
