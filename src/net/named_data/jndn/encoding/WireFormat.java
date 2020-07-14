@@ -27,7 +27,10 @@ import net.named_data.jndn.DelegationSet;
 import net.named_data.jndn.Interest;
 import net.named_data.jndn.Name;
 import net.named_data.jndn.Signature;
+import net.named_data.jndn.encoding.tlv.Tlv;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
 import net.named_data.jndn.encrypt.EncryptedContent;
+import net.named_data.jndn.lp.LpHeaderFiled;
 import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
 
@@ -547,6 +550,64 @@ public class WireFormat {
   {
     throw new UnsupportedOperationException
       ("encodeSignatureValue is not implemented");
+  }
+
+  /**
+   * Wrapper a Interest to a LpPacket, and encode the LpHeaderFields contains in Interest's lpPacket_ object.
+   * Then encode the LpPacket and return the result.
+   *
+   * @param interest    The Interest need to be wrapper
+   * @param wireFormat  The WireFormat use to encode Interest
+   * @return The encode result of LpPacket (which contain the input Interest)
+   */
+  public static Blob encodeLpPacket(Interest interest, WireFormat wireFormat) {
+    TlvEncoder encoder = new TlvEncoder(256);
+
+    int saveLength = encoder.getLength();
+    // Encode backwards.
+    // Encode the fragment with the Interest.
+    encoder.writeBlobTlv
+        (Tlv.LpPacket_Fragment, interest.wireEncode(wireFormat).buf());
+
+    // encode LpHeaderFields
+    if (interest.countHeaderField() > 0) {
+      for (LpHeaderFiled lpHeaderFiled : interest.getHeaderFields()) {
+        lpHeaderFiled.wireEncode(encoder);
+      }
+    }
+
+    encoder.writeTypeAndLength
+        (Tlv.LpPacket_LpPacket, encoder.getLength() - saveLength);
+    return new Blob(encoder.getOutput(), false);
+  }
+
+  /**
+   * Wrapper a Data to a LpPacket, and encode the LpHeaderFields contains in Data's lpPacket_ object.
+   * Then encode the LpPacket and return the result.
+   *
+   * @param data        The Data need to be wrapper
+   * @param wireFormat  The WireFormat use to encode Data
+   * @return The encode result of LpPacket (which contain the input Data)
+   */
+  public static Blob encodeLpPacket(Data data, WireFormat wireFormat) {
+    TlvEncoder encoder = new TlvEncoder(256);
+
+    int saveLength = encoder.getLength();
+    // Encode backwards.
+    // Encode the fragment with the Data.
+    encoder.writeBlobTlv
+        (Tlv.LpPacket_Fragment, data.wireEncode(wireFormat).buf());
+
+    // encode LpHeaderFields
+    if (data.countHeaderField() > 0) {
+      for (LpHeaderFiled lpHeaderFiled : data.getHeaderFields()) {
+        lpHeaderFiled.wireEncode(encoder);
+      }
+    }
+
+    encoder.writeTypeAndLength
+        (Tlv.LpPacket_LpPacket, encoder.getLength() - saveLength);
+    return new Blob(encoder.getOutput(), false);
   }
 
   /**

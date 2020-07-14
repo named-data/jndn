@@ -1,17 +1,18 @@
 /**
  * Copyright (C) 2013-2019 Regents of the University of California.
- * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * A copy of the GNU Lesser General Public License is in the file COPYING.
@@ -20,13 +21,16 @@
 package net.named_data.jndn;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
+import net.named_data.jndn.lp.CongestionMark;
 import net.named_data.jndn.lp.IncomingFaceId;
+import net.named_data.jndn.lp.LpHeaderFiled;
 import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCountable;
@@ -45,9 +49,7 @@ public class Interest implements ChangeCountable {
    * @param interestLifetimeMilliseconds The interest lifetime in milliseconds,
    * or -1 for none.
    */
-  public
-  Interest(Name name, double interestLifetimeMilliseconds)
-  {
+  public Interest(Name name, double interestLifetimeMilliseconds) {
     if (name != null)
       name_.set(new Name(name));
     interestLifetimeMilliseconds_ = interestLifetimeMilliseconds;
@@ -57,9 +59,7 @@ public class Interest implements ChangeCountable {
    * Create a new Interest with the given name and "none" for other values.
    * @param name The name for the interest.
    */
-  public
-  Interest(Name name)
-  {
+  public Interest(Name name) {
     if (name != null)
       name_.set(new Name(name));
   }
@@ -69,9 +69,7 @@ public class Interest implements ChangeCountable {
    * other values.
    * @param uri The URI string.
    */
-  public
-  Interest(String uri)
-  {
+  public Interest(String uri) {
     name_.set(new Name(uri));
   }
 
@@ -79,9 +77,7 @@ public class Interest implements ChangeCountable {
    * Create a new interest as a deep copy of the given interest.
    * @param interest The interest to copy.
    */
-  public
-  Interest(Interest interest)
-  {
+  public Interest(Interest interest) {
     name_.set(new Name(interest.getName()));
     minSuffixComponents_ = interest.minSuffixComponents_;
     maxSuffixComponents_ = interest.maxSuffixComponents_;
@@ -99,31 +95,31 @@ public class Interest implements ChangeCountable {
     linkWireEncoding_ = interest.linkWireEncoding_;
     linkWireEncodingFormat_ = interest.linkWireEncodingFormat_;
     if (interest.link_.get() != null)
-      link_.set(new Link((Link)interest.link_.get()));
+      link_.set(new Link((Link) interest.link_.get()));
     selectedDelegationIndex_ = interest.selectedDelegationIndex_;
 
     setDefaultWireEncoding
-      (interest.getDefaultWireEncoding(), interest.defaultWireEncodingFormat_);
+        (interest.getDefaultWireEncoding(), interest.defaultWireEncodingFormat_);
   }
 
   /**
    * Create a new Interest with an empty name and "none" for all values.
    */
-  public
-  Interest()
-  {
+  public Interest() {
   }
 
   public static final int CHILD_SELECTOR_LEFT = 0;
   public static final int CHILD_SELECTOR_RIGHT = 1;
 
   /**
-   * Get the default value of the CanBePrefix flag used in the Interest 
+   * Get the default value of the CanBePrefix flag used in the Interest
    * constructor. You can change this with setDefaultCanBePrefix().
    * @return The default value of the CanBePrefix flag.
    */
   public static boolean
-  getDefaultCanBePrefix() { return defaultCanBePrefix_; }
+  getDefaultCanBePrefix() {
+    return defaultCanBePrefix_;
+  }
 
   /**
    * Set the default value of the CanBePrefix flag used in the Interest
@@ -136,8 +132,7 @@ public class Interest implements ChangeCountable {
    * @param defaultCanBePrefix The default value of the CanBePrefix flag.
    */
   public static void
-  setDefaultCanBePrefix(boolean defaultCanBePrefix)
-  {
+  setDefaultCanBePrefix(boolean defaultCanBePrefix) {
     defaultCanBePrefix_ = defaultCanBePrefix;
     didSetDefaultCanBePrefix_ = true;
   }
@@ -150,8 +145,7 @@ public class Interest implements ChangeCountable {
    * @return The encoded buffer.
    */
   public final SignedBlob
-  wireEncode(WireFormat wireFormat)
-  {
+  wireEncode(WireFormat wireFormat) {
     if (!getDefaultWireEncoding().isNull() &&
         getDefaultWireEncodingFormat() == wireFormat)
       // We already have an encoding in the desired format.
@@ -160,9 +154,9 @@ public class Interest implements ChangeCountable {
     int[] signedPortionBeginOffset = new int[1];
     int[] signedPortionEndOffset = new int[1];
     Blob encoding = wireFormat.encodeInterest
-      (this, signedPortionBeginOffset, signedPortionEndOffset);
+        (this, signedPortionBeginOffset, signedPortionEndOffset);
     SignedBlob wireEncoding = new SignedBlob
-      (encoding, signedPortionBeginOffset[0], signedPortionEndOffset[0]);
+        (encoding, signedPortionBeginOffset[0], signedPortionEndOffset[0]);
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // This is the default wire encoding.
@@ -177,8 +171,7 @@ public class Interest implements ChangeCountable {
    * @return The encoded buffer.
    */
   public final SignedBlob
-  wireEncode()
-  {
+  wireEncode() {
     return wireEncode(WireFormat.getDefaultWireFormat());
   }
 
@@ -190,25 +183,23 @@ public class Interest implements ChangeCountable {
    * @throws EncodingException For invalid encoding.
    */
   public final void
-  wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException
-  {
+  wireDecode(ByteBuffer input, WireFormat wireFormat) throws EncodingException {
     wireDecodeHelper(input, wireFormat, true);
   }
 
   private void
   wireDecodeHelper
-    (ByteBuffer input, WireFormat wireFormat, boolean copy) throws EncodingException
-  {
+      (ByteBuffer input, WireFormat wireFormat, boolean copy) throws EncodingException {
     int[] signedPortionBeginOffset = new int[1];
     int[] signedPortionEndOffset = new int[1];
     wireFormat.decodeInterest
-      (this, input, signedPortionBeginOffset, signedPortionEndOffset, copy);
+        (this, input, signedPortionBeginOffset, signedPortionEndOffset, copy);
 
     if (wireFormat == WireFormat.getDefaultWireFormat())
       // This is the default wire encoding.
       setDefaultWireEncoding
-        (new SignedBlob(input, copy, signedPortionBeginOffset[0],
-         signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
+          (new SignedBlob(input, copy, signedPortionBeginOffset[0],
+              signedPortionEndOffset[0]), WireFormat.getDefaultWireFormat());
     else
       setDefaultWireEncoding(new SignedBlob(), null);
   }
@@ -221,8 +212,7 @@ public class Interest implements ChangeCountable {
    * @throws EncodingException For invalid encoding.
    */
   public final void
-  wireDecode(ByteBuffer input) throws EncodingException
-  {
+  wireDecode(ByteBuffer input) throws EncodingException {
     wireDecode(input, WireFormat.getDefaultWireFormat());
   }
 
@@ -235,8 +225,7 @@ public class Interest implements ChangeCountable {
    * @throws EncodingException For invalid encoding.
    */
   public final void
-  wireDecode(Blob input, WireFormat wireFormat) throws EncodingException
-  {
+  wireDecode(Blob input, WireFormat wireFormat) throws EncodingException {
     wireDecodeHelper(input.buf(), wireFormat, false);
   }
 
@@ -247,8 +236,7 @@ public class Interest implements ChangeCountable {
    * @throws EncodingException For invalid encoding.
    */
   public final void
-  wireDecode(Blob input) throws EncodingException
-  {
+  wireDecode(Blob input) throws EncodingException {
     wireDecode(input, WireFormat.getDefaultWireFormat());
   }
 
@@ -261,8 +249,7 @@ public class Interest implements ChangeCountable {
    * http://named-data.net/doc/ndn-ccl-api/interest.html#interest-touri-method .
    */
   public final String
-  toUri()
-  {
+  toUri() {
     StringBuffer selectors = new StringBuffer();
 
     if (minSuffixComponents_ >= 0)
@@ -274,7 +261,7 @@ public class Interest implements ChangeCountable {
     selectors.append("&ndn.MustBeFresh=").append(mustBeFresh_ ? 1 : 0);
     if (interestLifetimeMilliseconds_ >= 0)
       selectors.append("&ndn.InterestLifetime=").append
-        ((long)Math.round(interestLifetimeMilliseconds_));
+          ((long) Math.round(interestLifetimeMilliseconds_));
     if (nonce_.size() > 0) {
       selectors.append("&ndn.Nonce=");
       Name.toEscapedString(nonce_.buf(), selectors);
@@ -294,13 +281,19 @@ public class Interest implements ChangeCountable {
   }
 
   public final Name
-  getName() { return (Name)name_.get(); }
+  getName() {
+    return (Name) name_.get();
+  }
 
   public final int
-  getMinSuffixComponents() { return minSuffixComponents_; }
+  getMinSuffixComponents() {
+    return minSuffixComponents_;
+  }
 
   public final int
-  getMaxSuffixComponents() { return maxSuffixComponents_; }
+  getMaxSuffixComponents() {
+    return maxSuffixComponents_;
+  }
 
   /**
    * Get the CanBePrefix flag. If not specified, the default is true, or the
@@ -308,31 +301,40 @@ public class Interest implements ChangeCountable {
    * @return The CanBePrefix flag.
    */
   public final boolean
-  getCanBePrefix()
-  {
+  getCanBePrefix() {
     // Use the closest v0.2 semantics. CanBePrefix is the opposite of exact
     // match where MaxSuffixComponents is 1 (for the implicit digest).
     return maxSuffixComponents_ != 1;
   }
 
   public final KeyLocator
-  getKeyLocator() { return (KeyLocator)keyLocator_.get(); }
+  getKeyLocator() {
+    return (KeyLocator) keyLocator_.get();
+  }
 
   public final Exclude
-  getExclude() { return (Exclude)exclude_.get(); }
+  getExclude() {
+    return (Exclude) exclude_.get();
+  }
 
   public final int
-  getChildSelector() { return childSelector_; }
+  getChildSelector() {
+    return childSelector_;
+  }
 
   /**
    * Get the must be fresh flag. If not specified, the default is false.
    * @return The must be fresh flag.
    */
   public final boolean
-  getMustBeFresh() { return mustBeFresh_; }
+  getMustBeFresh() {
+    return mustBeFresh_;
+  }
 
   public final double
-  getInterestLifetimeMilliseconds() { return interestLifetimeMilliseconds_; }
+  getInterestLifetimeMilliseconds() {
+    return interestLifetimeMilliseconds_;
+  }
 
   /**
    * Return the nonce value from the incoming interest.  If you change any of
@@ -340,8 +342,7 @@ public class Interest implements ChangeCountable {
    * @return The nonce.
    */
   public final Blob
-  getNonce()
-  {
+  getNonce() {
     if (getNonceChangeCount_ != getChangeCount()) {
       // The values have changed, so the existing nonce is invalidated.
       nonce_ = new Blob();
@@ -357,33 +358,43 @@ public class Interest implements ChangeCountable {
    * @return The forwarding hint as a DelegationSet.
    */
   public final DelegationSet
-  getForwardingHint() { return (DelegationSet)forwardingHint_.get(); }
+  getForwardingHint() {
+    return (DelegationSet) forwardingHint_.get();
+  }
 
   /**
    * Check if the application parameters are specified.
    * @return True if the application parameters are specified, false if not.
    */
   public final boolean
-  hasApplicationParameters() { return applicationParameters_.size() > 0; }
+  hasApplicationParameters() {
+    return applicationParameters_.size() > 0;
+  }
 
   /**
    * @deprecated Use hasApplicationParameters.
    */
   public final boolean
-  hasParameters() { return hasApplicationParameters(); }
+  hasParameters() {
+    return hasApplicationParameters();
+  }
 
   /**
    * Get the application parameters.
    * @return The parameters as a Blob, which isNull() if unspecified.
    */
   public final Blob
-  getApplicationParameters() { return applicationParameters_; }
+  getApplicationParameters() {
+    return applicationParameters_;
+  }
 
   /**
    * @deprecated Use getApplicationParameters.
    */
   public final Blob
-  getParameters() { return getApplicationParameters(); }
+  getParameters() {
+    return getApplicationParameters();
+  }
 
   /**
    * Check if this interest has a link object (or a link wire encoding which
@@ -392,23 +403,21 @@ public class Interest implements ChangeCountable {
    * @deprecated Use getForwardingHint.
    */
   public final boolean
-  hasLink()
-  {
+  hasLink() {
     return link_.get() != null || !linkWireEncoding_.isNull();
   }
 
   /**
    * Get the link object. If necessary, decode it from the link wire encoding.
-   * @return  The link object, or null if not specified.
+   * @return The link object, or null if not specified.
    * @throws EncodingException For error decoding the link wire encoding (if
    * necessary).
    * @deprecated Use getForwardingHint.
    */
   public final Link
-  getLink() throws EncodingException
-  {
+  getLink() throws EncodingException {
     if (link_.get() != null)
-      return (Link)link_.get();
+      return (Link) link_.get();
     else if (!linkWireEncoding_.isNull()) {
       // Decode the link object from linkWireEncoding_.
       Link link = new Link();
@@ -420,8 +429,7 @@ public class Interest implements ChangeCountable {
       linkWireEncodingFormat_ = null;
 
       return link;
-    }
-    else
+    } else
       return null;
   }
 
@@ -435,8 +443,7 @@ public class Interest implements ChangeCountable {
    * @deprecated Use getForwardingHint.
    */
   public final Blob
-  getLinkWireEncoding(WireFormat wireFormat) throws EncodingException
-  {
+  getLinkWireEncoding(WireFormat wireFormat) throws EncodingException {
     if (!linkWireEncoding_.isNull() && linkWireEncodingFormat_ == wireFormat)
       return linkWireEncoding_;
 
@@ -456,8 +463,7 @@ public class Interest implements ChangeCountable {
    * @deprecated Use getForwardingHint.
    */
   public final Blob
-  getLinkWireEncoding() throws EncodingException
-  {
+  getLinkWireEncoding() throws EncodingException {
     return getLinkWireEncoding(WireFormat.getDefaultWireFormat());
   }
 
@@ -467,17 +473,78 @@ public class Interest implements ChangeCountable {
    * @deprecated Use getForwardingHint.
    */
   public final int
-  getSelectedDelegationIndex() { return selectedDelegationIndex_; }
+  getSelectedDelegationIndex() {
+    return selectedDelegationIndex_;
+  }
+
+  /**
+   * Count the number of LpHeaderFields of current LpPacket which bind to this Interest
+   * @return the number of LpHeaderFields of current LpPacket which bind to this Interest
+   */
+  public int
+  countHeaderField() {
+    if (lpPacket_ == null)
+      return 0;
+    return lpPacket_.countHeaderFields();
+  }
+
+  /**
+   * Get all LpHeaderFields of current LpPacket which bind to this Interest
+   * @return null if current Interest has not bind any LpPacket
+   *         >=0  presents all LpHeaderFields contains in current LpPacket which bind to this Interest
+   */
+  public ArrayList<LpHeaderFiled>
+  getHeaderFields() {
+    if (lpPacket_ == null)
+      return null;
+    return lpPacket_.getHeaderFields();
+  }
+
+  /**
+   * Add a LpHeaderField to current LpPacket which bind to this Interest.
+   * This LpHeaderField will be encode to LpPacket when send current Interest
+   *
+   * @param lpHeaderFiled The LpHeaderField want to add
+   */
+  public void addHeaderFiled(LpHeaderFiled lpHeaderFiled) {
+    if (lpPacket_ == null) {
+      lpPacket_ = new LpPacket();
+    }
+    lpPacket_.addHeaderField(lpHeaderFiled);
+  }
+
+  /**
+   * Set the CongestionMark, this will append to LpPacket's LpHeaderFields
+   *
+   * @param congestionMark congestion level
+   */
+  public void
+  setCongestionMark(long congestionMark) {
+    CongestionMark congestionMark1 = new CongestionMark();
+    congestionMark1.setCongestionMark(congestionMark);
+    addHeaderFiled(congestionMark1);
+  }
+
+  /**
+   * Get the CongestionMark according to the incoming packet header.
+   *
+   * @return The CongestionMark, If not specified, return 0
+   */
+  public final long
+  getCongestionMark() {
+    CongestionMark field =
+        lpPacket_ == null ? null : CongestionMark.getFirstHeader(lpPacket_);
+    return field == null ? 0 : field.getCongestionMark();
+  }
 
   /**
    * Get the incoming face ID according to the incoming packet header.
    * @return The incoming face ID. If not specified, return -1.
    */
   public final long
-  getIncomingFaceId()
-  {
+  getIncomingFaceId() {
     IncomingFaceId field =
-      lpPacket_ == null ? null : IncomingFaceId.getFirstHeader(lpPacket_);
+        lpPacket_ == null ? null : IncomingFaceId.getFirstHeader(lpPacket_);
     return field == null ? -1 : field.getFaceId();
   }
 
@@ -488,8 +555,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setName(Name name)
-  {
+  setName(Name name) {
     name_.set(name == null ? new Name() : new Name(name));
     ++changeCount_;
     return this;
@@ -502,8 +568,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setMinSuffixComponents(int minSuffixComponents)
-  {
+  setMinSuffixComponents(int minSuffixComponents) {
     minSuffixComponents_ = minSuffixComponents;
     ++changeCount_;
     return this;
@@ -516,8 +581,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setMaxSuffixComponents(int maxSuffixComponents)
-  {
+  setMaxSuffixComponents(int maxSuffixComponents) {
     maxSuffixComponents_ = maxSuffixComponents;
     ++changeCount_;
     return this;
@@ -529,8 +593,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setCanBePrefix(boolean canBePrefix)
-  {
+  setCanBePrefix(boolean canBePrefix) {
     // Use the closest v0.2 semantics. CanBePrefix is the opposite of exact
     // match where MaxSuffixComponents is 1 (for the implicit digest).
     maxSuffixComponents_ = (canBePrefix ? -1 : 1);
@@ -545,8 +608,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setChildSelector(int childSelector)
-  {
+  setChildSelector(int childSelector) {
     childSelector_ = childSelector;
     ++changeCount_;
     return this;
@@ -559,8 +621,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setMustBeFresh(boolean mustBeFresh)
-  {
+  setMustBeFresh(boolean mustBeFresh) {
     mustBeFresh_ = mustBeFresh;
     ++changeCount_;
     return this;
@@ -573,8 +634,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setInterestLifetimeMilliseconds(double interestLifetimeMilliseconds)
-  {
+  setInterestLifetimeMilliseconds(double interestLifetimeMilliseconds) {
     interestLifetimeMilliseconds_ = interestLifetimeMilliseconds;
     ++changeCount_;
     return this;
@@ -585,8 +645,7 @@ public class Interest implements ChangeCountable {
    * internally before sending the interest.
    */
   public final Interest
-  setNonce(Blob nonce)
-  {
+  setNonce(Blob nonce) {
     nonce_ = (nonce == null ? new Blob() : nonce);
     // Set getNonceChangeCount_ so that the next call to getNonce() won't
     //   clear nonce_.
@@ -604,8 +663,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setKeyLocator(KeyLocator keyLocator)
-  {
+  setKeyLocator(KeyLocator keyLocator) {
     keyLocator_.set(keyLocator == null ? new KeyLocator() : new KeyLocator(keyLocator));
     ++changeCount_;
     return this;
@@ -620,8 +678,7 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setExclude(Exclude exclude)
-  {
+  setExclude(Exclude exclude) {
     exclude_.set(exclude == null ? new Exclude() : new Exclude(exclude));
     ++changeCount_;
     return this;
@@ -638,10 +695,9 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setForwardingHint(DelegationSet forwardingHint)
-  {
+  setForwardingHint(DelegationSet forwardingHint) {
     forwardingHint_.set(forwardingHint == null ?
-      new DelegationSet() : new DelegationSet(forwardingHint));
+        new DelegationSet() : new DelegationSet(forwardingHint));
     ++changeCount_;
     return this;
   }
@@ -652,10 +708,9 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  setApplicationParameters(Blob applicationParameters)
-  {
-    applicationParameters_ = 
-      (applicationParameters == null ? new Blob() : applicationParameters);
+  setApplicationParameters(Blob applicationParameters) {
+    applicationParameters_ =
+        (applicationParameters == null ? new Blob() : applicationParameters);
     ++changeCount_;
     return this;
   }
@@ -664,8 +719,7 @@ public class Interest implements ChangeCountable {
    * @deprecated Use setApplicationParameters.
    */
   public final Interest
-  setParameters(Blob applicationParameters)
-  {
+  setParameters(Blob applicationParameters) {
     return setApplicationParameters(applicationParameters);
   }
 
@@ -677,14 +731,13 @@ public class Interest implements ChangeCountable {
    * @return This Interest so that you can chain calls to update values.
    */
   public final Interest
-  appendParametersDigestToName()
-  {
+  appendParametersDigestToName() {
     if (!hasApplicationParameters())
       return this;
 
     try {
       getName().appendParametersSha256Digest
-              (new Blob(Common.digestSha256(applicationParameters_.buf()), false));
+          (new Blob(Common.digestSha256(applicationParameters_.buf()), false));
     } catch (EncodingException ex) {
       // We don't expect this.
       Logger.getLogger(Interest.class.getName()).log(Level.SEVERE, null, ex);
@@ -705,8 +758,7 @@ public class Interest implements ChangeCountable {
    * @deprecated Use setForwardingHint.
    */
   public final Interest
-  setLinkWireEncoding(Blob encoding, WireFormat wireFormat)
-  {
+  setLinkWireEncoding(Blob encoding, WireFormat wireFormat) {
     linkWireEncoding_ = encoding;
     linkWireEncodingFormat_ = wireFormat;
 
@@ -727,8 +779,7 @@ public class Interest implements ChangeCountable {
    * @deprecated Use setForwardingHint.
    */
   public final Interest
-  setLinkWireEncoding(Blob encoding)
-  {
+  setLinkWireEncoding(Blob encoding) {
     return setLinkWireEncoding(encoding, WireFormat.getDefaultWireFormat());
   }
 
@@ -738,8 +789,7 @@ public class Interest implements ChangeCountable {
    * @deprecated Use setForwardingHint.
    */
   public final Interest
-  unsetLink()
-  {
+  unsetLink() {
     return setLinkWireEncoding(new Blob(), null);
   }
 
@@ -751,8 +801,7 @@ public class Interest implements ChangeCountable {
    * @deprecated Use setForwardingHint.
    */
   public final Interest
-  setSelectedDelegationIndex(int selectedDelegationIndex)
-  {
+  setSelectedDelegationIndex(int selectedDelegationIndex) {
     selectedDelegationIndex_ = selectedDelegationIndex;
     ++changeCount_;
     return this;
@@ -766,8 +815,7 @@ public class Interest implements ChangeCountable {
    * @note This is an experimental feature. This API may change in the future.
    */
   final Interest
-  setLpPacket(LpPacket lpPacket)
-  {
+  setLpPacket(LpPacket lpPacket) {
     lpPacket_ = lpPacket;
     // Don't update changeCount_ since this doesn't affect the wire encoding.
     return this;
@@ -779,8 +827,7 @@ public class Interest implements ChangeCountable {
    * not specified, this does nothing.
    */
   public final void
-  refreshNonce()
-  {
+  refreshNonce() {
     Blob currentNonce = getNonce();
     if (currentNonce.size() == 0)
       return;
@@ -806,8 +853,7 @@ public class Interest implements ChangeCountable {
    * @return True if the name and interest selectors match, otherwise false.
    */
   public final boolean
-  matchesName(Name name)
-  {
+  matchesName(Name name) {
     if (!getName().match(name))
       return false;
 
@@ -838,8 +884,7 @@ public class Interest implements ChangeCountable {
    * @return True if the given Data packet can satisfy this Interest.
    */
   public final boolean
-  matchesData(Data data, WireFormat wireFormat)
-  {
+  matchesData(Data data, WireFormat wireFormat) {
     // Imitate ndn-cxx Interest::matchesData.
     int interestNameLength = getName().size();
     Name dataName = data.getName();
@@ -848,7 +893,7 @@ public class Interest implements ChangeCountable {
     // Check MinSuffixComponents.
     boolean hasMinSuffixComponents = getMinSuffixComponents() >= 0;
     int minSuffixComponents =
-      hasMinSuffixComponents ? getMinSuffixComponents() : 0;
+        hasMinSuffixComponents ? getMinSuffixComponents() : 0;
     if (!(interestNameLength + minSuffixComponents <= fullNameLength))
       return false;
 
@@ -863,13 +908,11 @@ public class Interest implements ChangeCountable {
       if (getName().get(-1).isImplicitSha256Digest()) {
         if (!getName().equals(data.getFullName(wireFormat)))
           return false;
-      }
-      else
+      } else
         // The Interest Name is the same length as the Data full Name, but the
         //   last component isn't a digest so there's no possibility of matching.
         return false;
-    }
-    else {
+    } else {
       // The Interest Name should be a strict prefix of the Data full Name,
       if (!getName().isPrefixOf(dataName))
         return false;
@@ -884,8 +927,7 @@ public class Interest implements ChangeCountable {
         if (getExclude().matches
             (data.getFullName(wireFormat).get(interestNameLength)))
           return false;
-      }
-      else {
+      } else {
         // The component to exclude is not the digest.
         if (getExclude().matches(dataName.get(interestNameLength)))
           return false;
@@ -917,8 +959,7 @@ public class Interest implements ChangeCountable {
    * @return True if the given Data packet can satisfy this Interest.
    */
   public final boolean
-  matchesData(Data data)
-  {
+  matchesData(Data data) {
     return matchesData(data, WireFormat.getDefaultWireFormat());
   }
 
@@ -928,8 +969,7 @@ public class Interest implements ChangeCountable {
    * @return The default wire encoding. Its pointer may be null.
    */
   public final SignedBlob
-  getDefaultWireEncoding()
-  {
+  getDefaultWireEncoding() {
     if (getDefaultWireEncodingChangeCount_ != getChangeCount()) {
       // The values have changed, so the default wire encoding is invalidated.
       defaultWireEncoding_ = new SignedBlob();
@@ -946,7 +986,9 @@ public class Interest implements ChangeCountable {
    * getDefaultWireEncoding() does not have a null pointer.
    */
   WireFormat
-  getDefaultWireEncodingFormat() { return defaultWireEncodingFormat_; }
+  getDefaultWireEncodingFormat() {
+    return defaultWireEncodingFormat_;
+  }
 
   /**
    * Get the change count, which is incremented each time this object
@@ -954,8 +996,7 @@ public class Interest implements ChangeCountable {
    * @return The change count.
    */
   public final long
-  getChangeCount()
-  {
+  getChangeCount() {
     // Make sure each of the checkChanged is called.
     boolean changed = name_.checkChanged();
     changed = keyLocator_.checkChanged() || changed;
@@ -975,12 +1016,13 @@ public class Interest implements ChangeCountable {
    * called setDefaultCanBePrefix() before creating the Interest.
    */
   public boolean
-  getDidSetCanBePrefix_() { return didSetCanBePrefix_; }
+  getDidSetCanBePrefix_() {
+    return didSetCanBePrefix_;
+  }
 
   private void
   setDefaultWireEncoding
-    (SignedBlob defaultWireEncoding, WireFormat defaultWireEncodingFormat)
-  {
+      (SignedBlob defaultWireEncoding, WireFormat defaultWireEncodingFormat) {
     defaultWireEncoding_ = defaultWireEncoding;
     defaultWireEncodingFormat_ = defaultWireEncodingFormat;
     // Set getDefaultWireEncodingChangeCount_ so that the next call to
@@ -1004,7 +1046,7 @@ public class Interest implements ChangeCountable {
   private Blob linkWireEncoding_ = new Blob();
   private WireFormat linkWireEncodingFormat_ = null;
   private final ChangeCounter forwardingHint_ =
-    new ChangeCounter(new DelegationSet());
+      new ChangeCounter(new DelegationSet());
   private Blob applicationParameters_ = new Blob();
   private final ChangeCounter link_ = new ChangeCounter(null);
   private int selectedDelegationIndex_ = -1;
