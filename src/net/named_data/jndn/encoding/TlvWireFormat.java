@@ -24,7 +24,7 @@ package net.named_data.jndn.encoding;
  * implement encoding and decoding using the preferred implementation of
  * NDN-TLV.
  */
-public class TlvWireFormat extends Tlv0_2WireFormat {
+public class TlvWireFormat extends Tlv0_3WireFormat {
   /**
    * Get a singleton instance of a TlvWireFormat.  Assuming that the default
    * wire format was set with

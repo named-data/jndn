@@ -1,3 +1,9 @@
+jNDN v0.25 (2021-01-22)
+-----------------------
+
+Changes
+* Changed the default wire format to TLV v0.3.
+
 jNDN v0.24 (2020-04-16)
 -----------------------
 
