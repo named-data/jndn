@@ -20,12 +20,64 @@
 
 package net.named_data.jndn;
 
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.tlv.Tlv;
+import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
+import net.named_data.jndn.lp.LpHeaderFiled;
 import net.named_data.jndn.lp.LpPacket;
 
 /**
  * NetworkNack represents a network Nack packet and includes a Nack reason.
  */
-public class NetworkNack {
+public class NetworkNack extends LpHeaderFiled {
+  @Override
+  public int getFieldType() {
+    return Tlv.LpPacket_Nack;
+  }
+
+  @Override
+  public void wireEncode(TlvEncoder encoder) {
+    int reason;
+    if (getReason() == Reason.NONE ||
+        getReason() == Reason.CONGESTION ||
+        getReason() == Reason.DUPLICATE ||
+        getReason() == Reason.NO_ROUTE)
+      // The Reason enum is set up with the correct integer for each NDN-TLV Reason.
+      reason = getReason().getNumericType();
+    else if (getReason() == Reason.OTHER_CODE)
+      reason = getOtherReasonCode();
+    else
+      // We don't expect this to happen.
+      throw new Error("unrecognized getReason() value");
+
+    int nackSaveLength = encoder.getLength();
+    encoder.writeNonNegativeIntegerTlv(Tlv.LpPacket_NackReason, reason);
+    encoder.writeTypeAndLength
+        (getFieldType(), encoder.getLength() - nackSaveLength);
+  }
+
+  @Override
+  public void wireDecode(TlvDecoder decoder, int fieldType, int fieldLength, int fieldEndOffset) throws EncodingException {
+    int code = (int) decoder.readOptionalNonNegativeIntegerTlv
+        (Tlv.LpPacket_NackReason, fieldEndOffset);
+    // The enum numeric values are the same as this wire format, so use as is.
+    if (code < 0 || code == NetworkNack.Reason.NONE.getNumericType())
+      // This includes an omitted NackReason.
+      setReason(NetworkNack.Reason.NONE);
+    else if (code == NetworkNack.Reason.CONGESTION.getNumericType())
+      setReason(NetworkNack.Reason.CONGESTION);
+    else if (code == NetworkNack.Reason.DUPLICATE.getNumericType())
+      setReason(NetworkNack.Reason.DUPLICATE);
+    else if (code == NetworkNack.Reason.NO_ROUTE.getNumericType())
+      setReason(NetworkNack.Reason.NO_ROUTE);
+    else {
+      // Unrecognized reason.
+      setReason(NetworkNack.Reason.OTHER_CODE);
+      setOtherReasonCode(code);
+    }
+  }
+
   /**
    * A NetworkNack.Reason specifies the reason in a NetworkNack packet. If the
    * reason code in the packet is not a recognized enum value, then we use

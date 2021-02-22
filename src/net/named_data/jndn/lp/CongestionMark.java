@@ -19,12 +19,17 @@
 
 package net.named_data.jndn.lp;
 
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.tlv.Tlv;
+import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
+
 /**
  * CongestionMark represents the congestion mark header field in an NDNLPv2
  * packet.
  * http://redmine.named-data.net/projects/nfd/wiki/NDNLPv2
  */
-public class CongestionMark {
+public class CongestionMark extends LpHeaderFiled{
   /**
    * Get the congestion mark value.
    * @return The congestion mark value.
@@ -61,4 +66,22 @@ public class CongestionMark {
   }
 
   private long congestionMark_ = 0;
+
+  @Override
+  public int
+  getFieldType() {
+    return Tlv.LpPacket_CongestionMark;
+  }
+
+  @Override
+  public void
+  wireEncode(TlvEncoder encoder) {
+    encoder.writeNonNegativeIntegerTlv(getFieldType(), congestionMark_);
+  }
+
+  @Override
+  public void
+  wireDecode(TlvDecoder decoder, int fieldType, int fieldLength, int fieldEndOffset) throws EncodingException {
+    this.setCongestionMark(decoder.readNonNegativeInteger(fieldLength));
+  }
 }

@@ -20,11 +20,16 @@
 
 package net.named_data.jndn.lp;
 
+import net.named_data.jndn.encoding.EncodingException;
+import net.named_data.jndn.encoding.tlv.Tlv;
+import net.named_data.jndn.encoding.tlv.TlvDecoder;
+import net.named_data.jndn.encoding.tlv.TlvEncoder;
+
 /**
  * IncomingFaceId represents the incoming face ID header field in an NDNLPv2 packet.
  * http://redmine.named-data.net/projects/nfd/wiki/NDNLPv2
  */
-public class IncomingFaceId {
+public class IncomingFaceId extends LpHeaderFiled{
   /**
    * Get the incoming face ID value.
    * @return The face ID value.
@@ -61,4 +66,19 @@ public class IncomingFaceId {
   }
 
   private long faceId_ = -1;
+
+  @Override
+  public int getFieldType() {
+    return Tlv.LpPacket_IncomingFaceId;
+  }
+
+  @Override
+  public void wireEncode(TlvEncoder encoder) {
+    encoder.writeNonNegativeIntegerTlv(getFieldType(), faceId_);
+  }
+
+  @Override
+  public void wireDecode(TlvDecoder decoder, int fieldType, int fieldLength, int fieldEndOffset) throws EncodingException {
+    this.setFaceId(decoder.readNonNegativeInteger(fieldLength));
+  }
 }

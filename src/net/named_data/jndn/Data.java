@@ -20,11 +20,14 @@
 package net.named_data.jndn;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+
 import net.named_data.jndn.encoding.EncodingException;
 import net.named_data.jndn.encoding.WireFormat;
 import net.named_data.jndn.encoding.SignatureHolder;
 import net.named_data.jndn.lp.CongestionMark;
 import net.named_data.jndn.lp.IncomingFaceId;
+import net.named_data.jndn.lp.LpHeaderFiled;
 import net.named_data.jndn.lp.LpPacket;
 import net.named_data.jndn.util.Blob;
 import net.named_data.jndn.util.ChangeCounter;
@@ -198,6 +201,42 @@ public class Data implements ChangeCountable, SignatureHolder {
   getContent() { return content_; }
 
   /**
+   * Count the number of LpHeaderFields of current LpPacket which bind to this Data
+   * @return the number of LpHeaderFields of current LpPacket which bind to this Data
+   */
+  public int
+  countHeaderField() {
+    if (lpPacket_ == null)
+      return 0;
+    return lpPacket_.countHeaderFields();
+  }
+
+  /**
+   * Get all LpHeaderFields of current LpPacket which bind to this Data
+   * @return null if current Data has not bind any LpPacket
+   *         >=0  presents all LpHeaderFields contains in current LpPacket which bind to this Data
+   */
+  public ArrayList<LpHeaderFiled>
+  getHeaderFields() {
+    if (lpPacket_ == null)
+      return null;
+    return lpPacket_.getHeaderFields();
+  }
+
+  /**
+   * Add a LpHeaderField to current LpPacket which bind to this Data.
+   * This LpHeaderField will be encode to LpPacket when send current Data
+   *
+   * @param lpHeaderFiled The LpHeaderField want to add
+   */
+  public void addHeaderFiled(LpHeaderFiled lpHeaderFiled) {
+    if (lpPacket_ == null) {
+      lpPacket_ = new LpPacket();
+    }
+    lpPacket_.addHeaderField(lpHeaderFiled);
+  }
+
+  /**
    * Get the incoming face ID according to the incoming packet header.
    * @return The incoming face ID. If not specified, return -1.
    */
@@ -207,6 +246,18 @@ public class Data implements ChangeCountable, SignatureHolder {
     IncomingFaceId field =
       lpPacket_ == null ? null : IncomingFaceId.getFirstHeader(lpPacket_);
     return field == null ? -1 : field.getFaceId();
+  }
+
+  /**
+   * Set the CongestionMark, this will append to LpPacket's LpHeaderFields
+   *
+   * @param congestionMark congestion level
+   */
+  public void
+  setCongestionMark(long congestionMark) {
+    CongestionMark congestionMark1 = new CongestionMark();
+    congestionMark1.setCongestionMark(congestionMark);
+    addHeaderFiled(congestionMark1);
   }
 
   /**
