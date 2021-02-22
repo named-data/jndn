@@ -196,7 +196,7 @@ public class TestTpmPrivateKey {
 
   // debug KeyTestData[] keyTestData = new KeyTestData[2];
   KeyTestData[] keyTestData = new KeyTestData[1];
-  
+
   @Before
   public void
   setUp() throws EncodingException, CertificateV2.Error
@@ -263,12 +263,12 @@ public class TestTpmPrivateKey {
       // Save the key in encrypted PKCS #8 format and resave as unencrypted.
       Blob savedEncryptedPkcs8Key = null;
       try {
-        savedEncryptedPkcs8Key = encryptedKey8.toEncryptedPkcs8(password);
+        savedEncryptedPkcs8Key = encryptedKey8.toEncryptedPkcs8(new Blob("password").buf());
       } catch (Throwable ex) {
         fail("Unexpected exception: " + ex.getMessage());
       }
       key8 =  new TpmPrivateKey();
-      key8.loadEncryptedPkcs8(savedEncryptedPkcs8Key.buf(), password);
+      key8.loadEncryptedPkcs8(savedEncryptedPkcs8Key.buf(), new Blob("password").buf());
       Blob resavedPkcs8Key = key8.toPkcs8();
       assertTrue(resavedPkcs8Key.equals(new Blob(pkcs8)));
     }
@@ -325,7 +325,7 @@ public class TestTpmPrivateKey {
 
   @Test
   public void
-  testGenerateKey() 
+  testGenerateKey()
     throws TpmPrivateKey.Error, UnrecognizedKeyFormatException,
       NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
       SignatureException
