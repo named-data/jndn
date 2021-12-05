@@ -10,17 +10,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
-        java: [8, 11]
-        include:
-          - os: ubuntu-20.04
-            java: 14
-          - os: ubuntu-20.04
-            java: 15
-          - os: ubuntu-20.04
-            java: 16-ea
-          - os: ubuntu-20.04
-            java: 17-ea
+        java: [8, 11, 17]
+        os: [ubuntu-18.04, ubuntu-20.04, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
