@@ -1,5 +1,7 @@
 # jNDN: A Named Data Networking client library for Java
 
+[![CI](https://github.com/named-data/jndn/actions/workflows/ci.yml/badge.svg)](https://github.com/named-data/jndn/actions/workflows/ci.yml)
+
 **jNDN** is a new implementation of a Named Data Networking client library
 written in Java. It is wire format compatible with the NDN-TLV encoding.
 
