@@ -280,7 +280,7 @@ public class TpmBackEndFile extends TpmBackEnd {
     byte[] pkcs = Common.base64Decode(base64.toString());
 
     try {
-      key.loadPkcs1(ByteBuffer.wrap(pkcs), null);
+      key.loadPkcs8(ByteBuffer.wrap(pkcs));
     } catch (TpmPrivateKey.Error ex) {
       throw new TpmBackEnd.Error("Error decoding private key file: " + ex);
     }
@@ -298,7 +298,7 @@ public class TpmBackEndFile extends TpmBackEnd {
     String filePath = toFilePath(keyName).getAbsolutePath();
     String base64;
     try {
-      base64 = Common.base64Encode(key.toPkcs1().getImmutableArray(), true);
+      base64 = Common.base64Encode(key.toPkcs8().getImmutableArray(), true);
     } catch (TpmPrivateKey.Error ex) {
       throw new TpmBackEnd.Error("Error encoding private key file: " + ex);
     }
